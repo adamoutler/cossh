@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "kanban": {
+      "url": "https://kanban.hackedyour.info/mcp/agent/api-key/mcp",
+      "headers": {
+        "Authorization": "Bearer ${KANBAN_API_KEY}",
+        "X-Workspace-slug": "ssh"
+      }
+    }
+  }
+}
