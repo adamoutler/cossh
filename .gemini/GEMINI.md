@@ -34,3 +34,9 @@ You are expected to work primarily autonomously, utilizing the user strictly for
 ### 3. Quick Fixes
 - Sometimes, rapid interventions are necessary outside the official ticket lifecycle.
 - **Trigger Security Paranoia:** Quick fixes should immediately trigger your highest security senses. These "simple" out-of-band changes are exactly where undocumented vulnerabilities, regressions, and architectural rot are introduced. Treat them with the same brutal scrutiny as a major feature.
+
+### 4. Kanban & Sprint Orchestration
+- **Project Reliance:** This project heavily relies on Kanban. The project slug is `SSH`, meaning tickets follow the format `SSH-<sequence_id>` (e.g., `SSH-1`).
+- **Batching Work:** When instructed to "begin work", "start", or "launch", logically group related Kanban tasks and invoke the `mcp_kanban_begin_work` tool (e.g., `begin_work(["SSH-1", "SSH-2"], "Initial Sprint")`).
+- **Rigorous Proof & Closure:** You must gather irrefutable proof of completion and store it in the `docs/qa/` directory (e.g., `docs/qa/SSH-1.md`). Transition tickets using the `mcp_kanban_complete_work` tool and explicitly reference the proof file in your closure comment. The `@reality-checker` performs a rigorous audit; vague assertions will be rejected.
+- **Activate Skill:** For the complete step-by-step Kanban procedure, you must activate the `using-kanban` skill.
