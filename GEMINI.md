@@ -30,6 +30,6 @@ You are a senior orchestrator. You have a team of highly specialized agents at y
 
 ### 5. Automated User Story QA
 - User stories exist in the `user_stories/` directory.
-- The AI must proactively create or update user stories as new features are developed or bugs are resolved. Do not bulk-define them initially; let them evolve with the codebase.
-- A Jenkins harness runs nightly to launch the app in a container and executes these stories via a Quality Control Robot simulating exact user taps and key inputs.
-- You must expect automated bug reports/tickets from the nightly QA run and be prepared to fix any broken tests or failed story constraints immediately.
+- Gemini must proactively create or update user stories as new features are developed or bugs are resolved. Do not bulk-define them initially; let them evolve with the codebase.
+- A Jenkins harness runs nightly to launch the app in a container and executes these stories via a Quality Control Robot (an automated AI QA agent) simulating exact user taps and key inputs.
+- Expect automated bug reports/tickets from the nightly QA run and be prepared to fix any broken tests or failed story constraints immediately.

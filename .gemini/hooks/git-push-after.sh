@@ -28,18 +28,43 @@ if [[ "$tool_name" =~ run_shell_command|Bash|shell ]]; then
         
         FINAL_STATUS_JSON=$(curl -N -s "https://dash.hackedyour.info/api/wait?provider=$PROVIDER&owner=$OWNER&repo=$REPO" | grep '{' | tail -n 1)
         STATUS=$(echo "$FINAL_STATUS_JSON" | jq -r '.status // empty')
+        ACTION_URL=$(echo "$FINAL_STATUS_JSON" | jq -r '.url // empty')
+        
+        LOG_URL="https://dash.hackedyour.info/api/logs?provider=$PROVIDER&owner=$OWNER&repo=$REPO"
         
         if [ "$STATUS" = "failure" ] || [ "$STATUS" = "error" ]; then
             LOG_FILE="/tmp/${PROVIDER}_${REPO}_failed.log"
-            curl -s "https://dash.hackedyour.info/api/logs?provider=$PROVIDER&owner=$OWNER&repo=$REPO" | jq -r '.log' > "$LOG_FILE"
-            LAST_LINES=$(tail -n 30 "$LOG_FILE")
-            jq -n -c --arg result "CI workflow run failed! Log saved to $LOG_FILE. Last 30 lines:\n$LAST_LINES" \
-              '{"decision": "allow", "hookSpecificOutput": {"additionalContext": $result}}'
+            curl -s "$LOG_URL" | jq -r '.log' > "$LOG_FILE"
+            LOG_SIZE=$(wc -c < "$LOG_FILE" 2>/dev/null || echo 0)
+            LAST_LINES=$(tail -n 30 "$LOG_FILE" 2>/dev/null || echo "No logs found.")
+            
+            FULL_MESSAGE="CI PIPELINE STATUS: FAIL ❌
+View Logs: $ACTION_URL
+API Logs Endpoint: $LOG_URL
+WARNING: Log size is $LOG_SIZE bytes. Consuming the full log will heavily impact your AI context window!
+
+Last 30 lines:
+$LAST_LINES"
+
+            jq -n -c --arg result "$FULL_MESSAGE" \
+              '{"decision": "allow", "systemMessage": $result, "hookSpecificOutput": {"additionalContext": $result}}'
+            
         elif [ -n "$STATUS" ] && [ "$STATUS" != "null" ]; then
-            jq -n -c --arg result "CI workflow run finished with status: $STATUS" \
-              '{"decision": "allow", "hookSpecificOutput": {"additionalContext": $result}}'
+            LOG_FILE="/tmp/${PROVIDER}_${REPO}_success.log"
+            curl -s "$LOG_URL" | jq -r '.log' > "$LOG_FILE"
+            LOG_SIZE=$(wc -c < "$LOG_FILE" 2>/dev/null || echo 0)
+            
+            FULL_MESSAGE="CI PIPELINE STATUS: PASS ✅
+View Logs: $ACTION_URL
+API Logs Endpoint: $LOG_URL
+WARNING: Log size is $LOG_SIZE bytes. Consuming the full log will heavily impact your AI context window!"
+
+            jq -n -c --arg result "$FULL_MESSAGE" \
+              '{"decision": "allow", "systemMessage": $result, "hookSpecificOutput": {"additionalContext": $result}}'
         else
-            jq -n -c '{"decision": "allow", "hookSpecificOutput": {"additionalContext": "Could not determine CI status from dashboard."}}'
+            MSG="CI PIPELINE STATUS: UNKNOWN ❓\nCould not determine CI status from dashboard."
+            jq -n -c --arg result "$MSG" \
+              '{"decision": "allow", "systemMessage": $result, "hookSpecificOutput": {"additionalContext": $result}}'
         fi
         exit 0
     fi
