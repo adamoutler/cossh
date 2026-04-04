@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.adamoutler.ssh.crypto.SSHKeyGeneratorTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-04-04T23:50:03" hostname="ccd9e2525594" time="0.299">
+  <properties/>
+  <testcase name="testGenerateRSAKeyPair" classname="com.adamoutler.ssh.crypto.SSHKeyGeneratorTest" time="0.296"/>
+  <testcase name="testGenerateEd25519KeyPair" classname="com.adamoutler.ssh.crypto.SSHKeyGeneratorTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
