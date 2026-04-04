@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.crypto.SSHKeyGenerator
 
 data class SshKeyDisplay(val id: String, val algorithm: String, val publicKeyBase64: String)
