@@ -23,7 +23,7 @@
         ]
       },
       {
-        "matcher": ".*(mcp_kanban_transition_ticket|mcp_kanban_complete_work|mcp_kanban_update_ticket).*",
+        "matcher": ".*(transition_ticket|complete_work).*",
         "hooks": [
           {
             "name": "qa-gate",
@@ -49,7 +49,7 @@
         ]
       },
       {
-        "matcher": ".*(mcp_kanban_update_ticket|mcp_kanban_transition_ticket).*",
+        "matcher": ".*(update_ticket|transition_ticket).*",
         "hooks": [
           {
             "name": "remind-comment",

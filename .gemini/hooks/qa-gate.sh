@@ -21,9 +21,9 @@ ticket_id = tool_input.get("ticket_id")
 state_name = tool_input.get("state_name")
 
 is_completing = False
-if tool_name == "mcp_kanban_complete_work" and ticket_id:
+if tool_name in ["mcp_kanban_complete_work", "complete_work"] and ticket_id:
     is_completing = True
-elif tool_name == "mcp_kanban_transition_ticket" and ticket_id and state_name in ["Done", "Completed"]:
+elif tool_name in ["mcp_kanban_transition_ticket", "transition_ticket"] and ticket_id and state_name in ["Done", "Completed"]:
     is_completing = True
 
 if not is_completing:
