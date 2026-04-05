@@ -1,20 +1,24 @@
 package com.adamoutler.ssh.ui.screens
 
+import android.net.Uri
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.data.ConnectionProfile
@@ -27,9 +31,80 @@ fun ConnectionListScreen(
 ) {
     val profiles by viewModel.profiles.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.loadProfiles()
+    }
+
+    var pendingExportUri by remember { mutableStateOf<Uri?>(null) }
+    var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
+    var showPasswordDialog by remember { mutableStateOf(false) }
+    var passwordInput by remember { mutableStateOf("") }
+    var isExporting by remember { mutableStateOf(false) }
+
+    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+        if (uri != null) {
+            pendingExportUri = uri
+            isExporting = true
+            passwordInput = ""
+            showPasswordDialog = true
+        }
+    }
+
+    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            pendingImportUri = uri
+            isExporting = false
+            passwordInput = ""
+            showPasswordDialog = true
+        }
+    }
+
+    if (showPasswordDialog) {
+        AlertDialog(
+            onDismissRequest = { showPasswordDialog = false; pendingExportUri = null; pendingImportUri = null },
+            title = { Text(if (isExporting) "Export Backup" else "Import Backup") },
+            text = {
+                Column {
+                    Text(if (isExporting) "Enter a password to encrypt your backup:" else "Enter the backup password to decrypt:")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = passwordInput,
+                        onValueChange = { passwordInput = it },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val uri = if (isExporting) pendingExportUri else pendingImportUri
+                    val pwd = passwordInput.toCharArray()
+                    showPasswordDialog = false
+                    if (uri != null) {
+                        if (isExporting) {
+                            viewModel.exportBackup(uri, pwd) { success ->
+                                Toast.makeText(context, if (success) "Export successful" else "Export failed", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            viewModel.importBackup(uri, pwd) { success ->
+                                Toast.makeText(context, if (success) "Import successful" else "Import failed (invalid password or corrupted file)", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                    pendingExportUri = null
+                    pendingImportUri = null
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPasswordDialog = false; pendingExportUri = null; pendingImportUri = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     ConnectionListScreenContent(
@@ -37,7 +112,9 @@ fun ConnectionListScreen(
         searchQuery = searchQuery,
         onSearchQueryChange = { viewModel.updateSearchQuery(it) },
         onAddConnection = onAddConnection,
-        onEditConnection = onEditConnection
+        onEditConnection = onEditConnection,
+        onExportRequested = { exportLauncher.launch("cossh_backup.zip") },
+        onImportRequested = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) }
     )
 }
 
@@ -48,12 +125,41 @@ fun ConnectionListScreenContent(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onAddConnection: () -> Unit,
-    onEditConnection: (String) -> Unit
+    onEditConnection: (String) -> Unit,
+    onExportRequested: () -> Unit = {},
+    onImportRequested: () -> Unit = {},
+    initialMenuExpanded: Boolean = false
 ) {
+    var menuExpanded by remember { mutableStateOf(initialMenuExpanded) }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("CoSSH Connections") },
+                actions = {
+                    IconButton(onClick = { menuExpanded = true }) {
+                        Icon(Icons.Filled.MoreVert, contentDescription = "Menu")
+                    }
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Export Backup") },
+                            onClick = {
+                                menuExpanded = false
+                                onExportRequested()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Import Backup") },
+                            onClick = {
+                                menuExpanded = false
+                                onImportRequested()
+                            }
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer

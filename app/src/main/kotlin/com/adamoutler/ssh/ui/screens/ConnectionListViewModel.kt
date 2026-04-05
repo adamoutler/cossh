@@ -1,18 +1,24 @@
 package com.adamoutler.ssh.ui.screens
 
 import android.app.Application
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.adamoutler.ssh.backup.BackupManager
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.ConnectionProfile
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ConnectionListViewModel(
     application: Application,
-    private val storageManager: SecurityStorageManager = SecurityStorageManager(application)
+    private val storageManager: SecurityStorageManager = SecurityStorageManager(application),
+    private val backupManager: BackupManager = BackupManager(application, storageManager)
 ) : AndroidViewModel(application) {
 
     private val _profiles = MutableStateFlow<List<ConnectionProfile>>(emptyList())
@@ -43,5 +49,34 @@ class ConnectionListViewModel(
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
         loadProfiles()
+    }
+
+    fun exportBackup(uri: Uri, password: CharArray, onComplete: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    backupManager.exportBackup(uri, password)
+                }
+                onComplete(true)
+            } catch (e: Exception) {
+                Log.e("ConnectionListViewModel", "Export failed", e)
+                onComplete(false)
+            }
+        }
+    }
+
+    fun importBackup(uri: Uri, password: CharArray, onComplete: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    backupManager.importBackup(uri, password)
+                }
+                loadProfiles()
+                onComplete(true)
+            } catch (e: Exception) {
+                Log.e("ConnectionListViewModel", "Import failed", e)
+                onComplete(false)
+            }
+        }
     }
 }

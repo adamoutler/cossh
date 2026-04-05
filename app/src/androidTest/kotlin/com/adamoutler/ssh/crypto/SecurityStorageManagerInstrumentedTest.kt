@@ -44,4 +44,48 @@ class SecurityStorageManagerInstrumentedTest {
         storageManager.deleteProfile("native-id-1")
         assertNull(storageManager.getProfile("native-id-1"))
     }
+
+    @Test
+    fun testBackupManagerExportImport() {
+        val backupManager = com.adamoutler.ssh.backup.BackupManager(
+            androidx.test.core.app.ApplicationProvider.getApplicationContext(),
+            storageManager
+        )
+        val profile = ConnectionProfile(
+            id = "backup-id-1",
+            nickname = "Backup Server",
+            host = "10.10.10.10",
+            port = 22,
+            username = "root",
+            authType = AuthType.PASSWORD,
+            password = "backup-password".toByteArray()
+        )
+        storageManager.saveProfile(profile)
+
+        val backupFile = java.io.File(
+            androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>().cacheDir,
+            "espressotest_backup.zip"
+        )
+        val uri = android.net.Uri.fromFile(backupFile)
+        val password = "espresso-password".toCharArray()
+
+        // Test Export
+        backupManager.exportBackup(uri, password)
+        org.junit.Assert.assertTrue(backupFile.exists())
+        org.junit.Assert.assertTrue(backupFile.length() > 0)
+        android.util.Log.d("BackupManagerTest", "Successfully created backup file via native APIs at ${backupFile.absolutePath}")
+
+        // Clean up
+        storageManager.deleteProfile("backup-id-1")
+
+        // Test Import
+        backupManager.importBackup(uri, password)
+        val retrieved = storageManager.getProfile("backup-id-1")
+        assertNotNull(retrieved)
+        assertEquals("Backup Server", retrieved?.nickname)
+
+        // Clean up
+        storageManager.deleteProfile("backup-id-1")
+        backupFile.delete()
+    }
 }
