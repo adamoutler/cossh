@@ -17,6 +17,7 @@ robolectric = "4.12.1"
 sshj = "0.38.0"
 slf4j = "2.0.12"
 sshd = "2.12.1"
+termuxTerminalView = "v0.118.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,6 +43,8 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 sshj = { group = "com.hierynomus", name = "sshj", version.ref = "sshj" }
 slf4j-nop = { group = "org.slf4j", name = "slf4j-nop", version.ref = "slf4j" }
 sshd-core = { group = "org.apache.sshd", name = "sshd-core", version.ref = "sshd" }
+termux-terminal-view = { group = "com.github.termux.termux-app", name = "terminal-view", version.ref = "termuxTerminalView" }
+termux-shared = { group = "com.github.termux.termux-app", name = "termux-shared", version.ref = "termuxTerminalView" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

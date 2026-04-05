@@ -71,6 +71,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.sshj)
     implementation(libs.slf4j.nop)
+    implementation(libs.termux.terminal.view)
+    implementation(libs.termux.shared)
     
     testImplementation(libs.junit)
     testImplementation(libs.sshd.core)
