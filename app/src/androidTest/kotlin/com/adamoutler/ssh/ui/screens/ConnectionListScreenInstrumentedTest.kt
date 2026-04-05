@@ -57,6 +57,8 @@ class ConnectionListScreenInstrumentedTest {
     @Test
     fun tapTriggersConnect() {
         var onConnectCalled = false
+        var capturedIntent: android.content.Intent? = null
+        
         val mockProfile = ConnectionProfile(
             id = "1",
             nickname = "Production Server",
@@ -68,16 +70,34 @@ class ConnectionListScreenInstrumentedTest {
         )
 
         composeTestRule.setContent {
-            ConnectionListScreenContent(
-                profiles = listOf(mockProfile),
-                searchQuery = "",
-                onSearchQueryChange = {},
-                onAddConnection = {},
-                onEditConnection = {},
-                onConnect = {
-                    onConnectCalled = true
+            val baseContext = androidx.compose.ui.platform.LocalContext.current
+            val contextWrapper = object : android.content.ContextWrapper(baseContext) {
+                override fun startService(service: android.content.Intent?): android.content.ComponentName? {
+                    capturedIntent = service
+                    android.util.Log.i("TEST_INTENT", "Captured startService intent: ${service?.action}")
+                    return null
                 }
-            )
+                override fun startForegroundService(service: android.content.Intent?): android.content.ComponentName? {
+                    capturedIntent = service
+                    android.util.Log.i("TEST_INTENT", "Captured startForegroundService intent: ${service?.action}")
+                    return null
+                }
+            }
+
+            androidx.compose.runtime.CompositionLocalProvider(
+                androidx.compose.ui.platform.LocalContext provides contextWrapper
+            ) {
+                ConnectionListScreenContent(
+                    profiles = listOf(mockProfile),
+                    searchQuery = "",
+                    onSearchQueryChange = {},
+                    onAddConnection = {},
+                    onEditConnection = {},
+                    onConnect = {
+                        onConnectCalled = true
+                    }
+                )
+            }
         }
 
         // Perform short click on the item
@@ -87,5 +107,9 @@ class ConnectionListScreenInstrumentedTest {
 
         // Assert that onConnect was called
         assertTrue(onConnectCalled)
+        
+        // Assert Intent was dispatched
+        assertTrue(capturedIntent?.action == com.adamoutler.ssh.network.SshService.ACTION_START)
+        assertTrue(capturedIntent?.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID) == "1")
     }
 }
