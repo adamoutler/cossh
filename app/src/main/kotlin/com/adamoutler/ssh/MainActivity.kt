@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Box
 import com.adamoutler.ssh.ui.theme.CoSSHTheme
-import com.adamoutler.ssh.ui.keys.KeyManagementScreen
+import com.adamoutler.ssh.ui.navigation.AppNavigation
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    KeyManagementScreen()
+                    AppNavigation()
                 }
             }
         }
