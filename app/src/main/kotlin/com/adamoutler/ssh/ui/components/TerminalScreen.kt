@@ -10,6 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -43,9 +46,13 @@ fun TerminalScreen(
         return
     }
 
+    var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
+
     val session = remember {
         val client = object : TerminalSessionClient {
-            override fun onTextChanged(session: TerminalSession) {}
+            override fun onTextChanged(session: TerminalSession) {
+                terminalViewRef?.onScreenUpdated()
+            }
             override fun onTitleChanged(session: TerminalSession) {}
             override fun onSessionFinished(session: TerminalSession) {}
             override fun onCopyTextToClipboard(session: TerminalSession, text: String) {}
@@ -64,7 +71,7 @@ fun TerminalScreen(
         }
         
         val dummySession = try {
-            val s = TerminalSession("sh", "", arrayOf(), arrayOf(), 100, client)
+            val s = TerminalSession("/system/bin/cat", "", arrayOf(), arrayOf(), 100, client)
             s
         } catch (e: Throwable) {
             null
@@ -88,6 +95,7 @@ fun TerminalScreen(
     DisposableEffect(Unit) {
         SshSessionProvider.onOutputReceived = { bytes, length ->
             session.emulator?.append(bytes, length)
+            terminalViewRef?.onScreenUpdated()
             Log.d("TerminalScreen", "Appended ${length} bytes from SSH PTY stdout")
         }
         onDispose {
@@ -113,19 +121,38 @@ fun TerminalScreen(
                 override fun isTerminalViewSelected(): Boolean = true
                 override fun copyModeChanged(b: Boolean) {}
                 override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, session: TerminalSession?): Boolean {
-                    if (keyCode == android.view.KeyEvent.KEYCODE_ENTER && e?.action == android.view.KeyEvent.ACTION_DOWN) {
+                    if (e?.action != android.view.KeyEvent.ACTION_DOWN) return false
+                    
+                    val bytesToSend = when (keyCode) {
+                        android.view.KeyEvent.KEYCODE_ENTER -> "\r".toByteArray()
+                        android.view.KeyEvent.KEYCODE_DEL -> byteArrayOf(0x7F)
+                        android.view.KeyEvent.KEYCODE_TAB -> "\t".toByteArray()
+                        android.view.KeyEvent.KEYCODE_DPAD_UP -> byteArrayOf(0x1B, '['.code.toByte(), 'A'.code.toByte())
+                        android.view.KeyEvent.KEYCODE_DPAD_DOWN -> byteArrayOf(0x1B, '['.code.toByte(), 'B'.code.toByte())
+                        android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> byteArrayOf(0x1B, '['.code.toByte(), 'C'.code.toByte())
+                        android.view.KeyEvent.KEYCODE_DPAD_LEFT -> byteArrayOf(0x1B, '['.code.toByte(), 'D'.code.toByte())
+                        else -> {
+                            val unicodeChar = e.unicodeChar
+                            if (unicodeChar != 0) {
+                                String(Character.toChars(unicodeChar)).toByteArray(Charsets.UTF_8)
+                            } else {
+                                null
+                            }
+                        }
+                    }
+
+                    if (bytesToSend != null) {
                         try {
-                            SshSessionProvider.ptyOutputStream?.write("\r".toByteArray())
+                            SshSessionProvider.ptyOutputStream?.write(bytesToSend)
                             SshSessionProvider.ptyOutputStream?.flush()
-                            Log.d("TerminalScreen", "Wrote Enter key to SSH PTY stdin")
-                            return true
+                            Log.d("TerminalScreen", "Wrote ${bytesToSend.size} bytes (key: $keyCode) to SSH PTY stdin")
                         } catch (ex: Exception) {
                             Log.e("TerminalScreen", "Failed to write to SSH PTY", ex)
                         }
                     }
-                    return false
+                    return true // Return true to prevent falling through to dummy local shell
                 }
-                override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean = false
+                override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean = true
                 override fun readControlKey(): Boolean = false
                 override fun readAltKey(): Boolean = false
                 override fun readShiftKey(): Boolean = false
@@ -137,11 +164,10 @@ fun TerminalScreen(
                         SshSessionProvider.ptyOutputStream?.write(bytes)
                         SshSessionProvider.ptyOutputStream?.flush()
                         Log.d("TerminalScreen", "Wrote ${bytes.size} bytes (codePoint) to SSH PTY stdin")
-                        return true
                     } catch (ex: Exception) {
                         Log.e("TerminalScreen", "Failed to write codePoint to SSH PTY", ex)
                     }
-                    return false
+                    return true
                 }
                 override fun onLongPress(e: android.view.MotionEvent?): Boolean = false
                 override fun onEmulatorSet() {}
@@ -155,6 +181,7 @@ fun TerminalScreen(
             })
 
             terminalView.attachSession(session)
+            terminalViewRef = terminalView
             terminalView
         }
     )
