@@ -99,6 +99,30 @@ class SshConnectionManagerIntegrationTest {
     }
 
     @Test
+    fun testHeadlessPasswordConnectionFailsAndClearsMemory() = runBlocking {
+        val passwordBytes = "wrongpassword".toByteArray()
+        val profile = ConnectionProfile(
+            id = "test-fail",
+            nickname = "Test Server",
+            host = "127.0.0.1",
+            port = testPort,
+            username = testUser,
+            authType = AuthType.PASSWORD,
+            password = passwordBytes
+        )
+
+        val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
+        try {
+            manager.connectAndExecute(profile, "echo \"CoSSH_Test\"")
+            org.junit.Assert.fail("Expected UserAuthException")
+        } catch (e: Exception) {
+            // Memory should be zeroed
+            val allZero = passwordBytes.all { it == 0.toByte() }
+            org.junit.Assert.assertTrue("Password memory was not cleared on exception!", allZero)
+        }
+    }
+
+    @Test
     fun testHeadlessKeyConnectionAndCommandExecution() = runBlocking {
         val keyPair = SSHKeyGenerator.generateRSAKeyPair()
         

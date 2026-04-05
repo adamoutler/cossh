@@ -16,6 +16,10 @@ class SshConnectionManager(
 ) {
     suspend fun connectAndExecute(profile: ConnectionProfile, command: String, keyPair: KeyPair? = null): String = withContext(Dispatchers.IO) {
         val client = SSHClient()
+        // Aggressive timeouts per security invariant
+        client.connectTimeout = 10000
+        client.timeout = 10000
+        
         try {
             if (hostKeyVerifier != null) {
                 client.addHostKeyVerifier(hostKeyVerifier)
@@ -29,21 +33,23 @@ class SshConnectionManager(
                 AuthType.PASSWORD -> {
                     val passwordBytes = profile.password ?: throw IllegalArgumentException("Password required for password auth")
                     val passwordChars = CharArray(passwordBytes.size)
-                    for (i in passwordBytes.indices) {
-                        passwordChars[i] = passwordBytes[i].toInt().toChar()
-                    }
-                    
-                    val passwordFinder = object : PasswordFinder {
-                        override fun reqPassword(resource: Resource<*>?): CharArray {
-                            return passwordChars
+                    try {
+                        for (i in passwordBytes.indices) {
+                            passwordChars[i] = passwordBytes[i].toInt().toChar()
                         }
-                        override fun shouldRetry(resource: Resource<*>?): Boolean = false
+                        
+                        val passwordFinder = object : PasswordFinder {
+                            override fun reqPassword(resource: Resource<*>?): CharArray {
+                                return passwordChars
+                            }
+                            override fun shouldRetry(resource: Resource<*>?): Boolean = false
+                        }
+                        
+                        client.authPassword(profile.username, passwordFinder)
+                    } finally {
+                        passwordChars.fill('\u0000')
+                        passwordBytes.fill(0)
                     }
-                    
-                    client.authPassword(profile.username, passwordFinder)
-                    
-                    passwordChars.fill('\u0000')
-                    passwordBytes.fill(0)
                 }
                 AuthType.KEY -> {
                     if (keyPair == null) {
