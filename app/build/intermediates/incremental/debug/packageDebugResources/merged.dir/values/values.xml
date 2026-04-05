@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="ic_launcher_background">#0047AB</color>
-    <string name="app_name">CoSSH</string>
-    <style name="Theme.CoSSH" parent="android:Theme.Material.Light.NoActionBar"/>
-</resources>
