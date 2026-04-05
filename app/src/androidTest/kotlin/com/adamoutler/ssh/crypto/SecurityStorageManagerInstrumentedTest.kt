@@ -31,7 +31,7 @@ class SecurityStorageManagerInstrumentedTest {
             port = 22,
             username = "root",
             authType = AuthType.PASSWORD,
-            password = "nativepassword"
+            password = "nativepassword".toByteArray()
         )
 
         storageManager.saveProfile(profile)
