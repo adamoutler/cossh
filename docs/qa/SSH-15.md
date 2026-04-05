@@ -15,13 +15,16 @@ Build an Android Foreground Service to encapsulate the SSH connection wrapper. E
 ```xml
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     ...
         <service
             android:name=".network.SshService"
-            android:foregroundServiceType="connectedDevice"
-            android:exported="false" />
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                      android:value="Persistent SSH Background Session" />
+        </service>
 ```
 
 ### Logcat Trace
