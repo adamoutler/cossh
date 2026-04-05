@@ -150,13 +150,19 @@ if result.returncode != 0:
 
 # Post comment
 try:
-    post_data = json.dumps({"comment_html": result.stdout}).encode("utf-8")
-    req_post = urllib.request.Request(f"https://kanban.hackedyour.info/api/v1/workspaces/ssh/projects/{project_id}/issues/{issue_id}/comments/", data=post_data, headers=headers, method="POST")
+    payload = {
+        "comment_html": f"<p>{result.stdout.replace(chr(10), '<br>')}</p>",
+        "external_id": current_commit,
+        "external_source": "github"
+    }
+    post_data = json.dumps(payload).encode("utf-8")
+    req_post = urllib.request.Request(f"https://kanban.hackedyour.info/api/v1/workspaces/ssh/projects/{project_id}/work-items/{issue_id}/comments/", data=post_data, headers=headers, method="POST")
     with urllib.request.urlopen(req_post) as response:
         pass
 except Exception as e:
-    # Non-fatal if we can't post the comment, but reality checker might have failed
-    pass
+    print(f"WARNING: Failed to post reality-checker comment to ticket: {e}", file=sys.stderr)
+    if hasattr(e, "read"):
+        print(f"Response: {e.read().decode()}", file=sys.stderr)
 
 if "**Status**: READY" in result.stdout or "READY" in result.stdout.splitlines()[-1]:
     allow()
