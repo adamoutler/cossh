@@ -22,4 +22,20 @@ class KeyManagementScreenScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun screenWithGeneratedKey() {
+        val generatedKeys = listOf(
+            SshKeyDisplay(
+                id = "key-1",
+                algorithm = "Ed25519",
+                publicKeyBase64 = "AAAAC3NzaC1lZDI1NTE5AAAAIJGzP736vWqH6WbO0D9Z3Y5P5xZ1mP6B6+N4r5v8fR"
+            )
+        )
+        paparazzi.snapshot {
+            CoSSHTheme {
+                KeyManagementScreen(initialKeys = generatedKeys)
+            }
+        }
+    }
 }

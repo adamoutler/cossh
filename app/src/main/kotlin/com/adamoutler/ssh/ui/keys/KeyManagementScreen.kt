@@ -19,7 +19,7 @@ data class SshKeyDisplay(val id: String, val algorithm: String, val publicKeyBas
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun KeyManagementScreen() {
+fun KeyManagementScreen(initialKeys: List<SshKeyDisplay> = emptyList()) {
     // Security Mandate: Keys cannot be leaked via screenshots or Recent Apps.
     val context = LocalContext.current
     DisposableEffect(Unit) {
@@ -35,7 +35,7 @@ fun KeyManagementScreen() {
 
     // In a real app, this state would come from a ViewModel and Repository.
     // For SSH-11 proof of concept, we hold a temporary state list.
-    var keys by remember { mutableStateOf(listOf<SshKeyDisplay>()) }
+    var keys by remember { mutableStateOf(initialKeys) }
     var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(

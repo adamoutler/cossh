@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.adamoutler.ssh.crypto.SecurityStorageManagerTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-05T01:08:05" hostname="907f55c30409" time="4.707">
+<testsuite name="com.adamoutler.ssh.crypto.SecurityStorageManagerTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-05T01:15:47" hostname="d4d49b412c44" time="4.848">
   <properties/>
-  <testcase name="testStrongBoxFallbackLogic" classname="com.adamoutler.ssh.crypto.SecurityStorageManagerTest" time="4.468"/>
-  <testcase name="testSaveAndRetrieveProfile" classname="com.adamoutler.ssh.crypto.SecurityStorageManagerTest" time="0.119"/>
-  <testcase name="testDeleteProfile" classname="com.adamoutler.ssh.crypto.SecurityStorageManagerTest" time="0.058"/>
-  <testcase name="testGetAllProfiles" classname="com.adamoutler.ssh.crypto.SecurityStorageManagerTest" time="0.062"/>
+  <testcase name="testStrongBoxFallbackLogic" classname="com.adamoutler.ssh.crypto.SecurityStorageManagerTest" time="4.608"/>
+  <testcase name="testSaveAndRetrieveProfile" classname="com.adamoutler.ssh.crypto.SecurityStorageManagerTest" time="0.127"/>
+  <testcase name="testDeleteProfile" classname="com.adamoutler.ssh.crypto.SecurityStorageManagerTest" time="0.054"/>
+  <testcase name="testGetAllProfiles" classname="com.adamoutler.ssh.crypto.SecurityStorageManagerTest" time="0.058"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
