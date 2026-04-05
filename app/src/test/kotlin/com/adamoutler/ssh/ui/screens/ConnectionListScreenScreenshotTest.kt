@@ -11,6 +11,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.padding
 
 class ConnectionListScreenScreenshotTest {
 
@@ -88,6 +90,36 @@ class ConnectionListScreenScreenshotTest {
                         onConnect = {},
                         initialMenuExpanded = true
                     )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun draggedConnectionItemScreen() {
+        val mockProfile = ConnectionProfile(
+            id = "3",
+            nickname = "Dragged Server",
+            host = "drag.example.com",
+            port = 22,
+            username = "root",
+            authType = AuthType.PASSWORD,
+            password = "password".toByteArray()
+        )
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    androidx.compose.foundation.layout.Box(modifier = Modifier.padding(16.dp)) {
+                        ConnectionItem(
+                            profile = mockProfile,
+                            elevation = 8.dp,
+                            onClick = {},
+                            onEdit = {}
+                        )
+                    }
                 }
             }
         }
