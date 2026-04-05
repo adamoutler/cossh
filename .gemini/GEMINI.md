@@ -27,7 +27,7 @@ You are expected to work primarily autonomously, utilizing the user strictly for
 ### 1. Create Kanban Tickets
 - You are responsible for defining the work.
 - Every ticket must represent a clear feature, fix, or request.
-- **Crucial:** Every ticket must contain a tangible, indisputable *Definition of Done* that can be rigorously audited and verified by the `@reality-checker` agent. Vague goals are unacceptable.
+- **Crucial:** Every ticket must contain a tangible, indisputable *Definition of Done* that can be rigorously audited and verified by the `@reality-checker` agent. Vague goals are unacceptable. You MUST use the standardized **User Story** and **Verification Proof** format defined in the `using-kanban` skill. The verification proof must mandate concrete evidence such as screenshot artifacts, logcat traces, unit test results, or successful CI build outputs.
 
 ### 2. Execute Tickets (Agent-Driven Execution)
 - **Overcome Default Behaviors:** You naturally tend to rely too heavily on basic `grep` or file reading, which bloats your context. You must actively fight this agent-adverse tendency.

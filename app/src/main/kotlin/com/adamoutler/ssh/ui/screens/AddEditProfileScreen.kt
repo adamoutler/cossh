@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -111,6 +112,11 @@ fun AddEditProfileScreenContent(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
+                actions = {
+                    IconButton(onClick = onSave) {
+                        Icon(Icons.Filled.Check, contentDescription = "Save Profile")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -194,30 +200,17 @@ fun AddEditProfileScreenContent(
                         onDismissRequest = { isDropdownExpanded = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("mock-key-1") },
+                            text = { Text("No keys available") },
                             onClick = {
-                                onKeyReferenceChange("mock-key-1")
                                 isDropdownExpanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("mock-key-2") },
-                            onClick = {
-                                onKeyReferenceChange("mock-key-2")
-                                isDropdownExpanded = false
-                            }
+                            },
+                            enabled = false
                         )
                     }
                 }
             }
 
             Spacer(modifier = Modifier.weight(1f))
-            Button(
-                onClick = onSave,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Save Profile")
-            }
         }
     }
 }
