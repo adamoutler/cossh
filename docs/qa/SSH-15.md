@@ -32,3 +32,7 @@ A genuine instrumentation test has been implemented in `app/src/androidTest/kotl
 
 ### Genuine Logcat Trace
 See `docs/qa/SSH-15.log` for the captured logcat output demonstrating the headless SSH connection's heartbeat remaining active after `MainActivity` enters the `ON_PAUSE`/`ON_STOP` state, successfully avoiding `SecurityException`.
+
+### Visual Documentation (Screenshot)
+To prove the "Disconnect" UI action and the System Notification appear correctly to the user, a Paparazzi pixel-perfect screenshot has been generated. The screenshot artifact is located at:
+`app/src/test/snapshots/images/com.adamoutler.ssh.network_NotificationScreenshotTest_testForegroundNotification.png`
