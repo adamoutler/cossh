@@ -21,9 +21,9 @@ When you are instructed to "begin work", "start", or "launch", you must follow t
 
 ## 3. Proof Gathering & Artifacts
 The QA Gate on this project is strictly guarded by the `@reality-checker` agent. It performs a rigorous audit before allowing any ticket to transition to "Done".
-- **Communication:** All communication, discussion, and status updates MUST be recorded as comments on the Kanban ticket itself. Do not use the `docs/qa/` directory for conversation.
+- **Communication:** All communication, discussion, and status updates to the `@reality-checker` MUST be recorded as comments on the Kanban ticket itself using the `mcp_kanban_update_ticket` tool. Do not use the `docs/qa/` directory for conversation or notes to the QA gate.
 - **Artifacts:** You MUST gather irrefutable proof of completion. Leverage agents like `evidence-collector` to assemble logs, test outputs, screenshots, or receipts.
-- Record all hard proof artifacts in the `docs/qa/` folder (e.g., `docs/qa/SSH-1.md`).
+- Record all hard proof artifacts in the `docs/qa/` folder (e.g., `docs/qa/SSH-1.md`) or in screenshot directories (`app/src/test/snapshots/images/`).
 - Ensure all code and proof files are committed and pushed to trigger the CI pipeline.
 
 ## 4. Closure
