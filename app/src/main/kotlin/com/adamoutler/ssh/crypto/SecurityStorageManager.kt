@@ -16,7 +16,13 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                 .setRequestStrongBoxBacked(true)
                 .build()
-        } catch (e: Exception) {
+        } catch (e: java.security.ProviderException) {
+            android.util.Log.w("SecurityStorageManager", "StrongBox unavailable, falling back to standard Keystore", e)
+            MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+        } catch (e: java.security.KeyStoreException) {
+            android.util.Log.w("SecurityStorageManager", "KeyStore initialization failed, trying fallback", e)
             MasterKey.Builder(context)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                 .build()
@@ -40,7 +46,11 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
         val jsonString = encryptedPrefs.getString(id, null) ?: return null
         return try {
             Json.decodeFromString<ConnectionProfile>(jsonString)
-        } catch (e: Exception) {
+        } catch (e: kotlinx.serialization.SerializationException) {
+            android.util.Log.e("SecurityStorageManager", "Failed to deserialize profile", e)
+            null
+        } catch (e: IllegalArgumentException) {
+            android.util.Log.e("SecurityStorageManager", "Invalid profile format", e)
             null
         }
     }
@@ -51,8 +61,10 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
             if (value is String) {
                 try {
                     profiles.add(Json.decodeFromString<ConnectionProfile>(value))
-                } catch (e: Exception) {
-                    // Log failure or skip corrupted entry
+                } catch (e: kotlinx.serialization.SerializationException) {
+                    android.util.Log.e("SecurityStorageManager", "Failed to deserialize profile during list generation", e)
+                } catch (e: IllegalArgumentException) {
+                    android.util.Log.e("SecurityStorageManager", "Invalid profile format during list generation", e)
                 }
             }
         }
