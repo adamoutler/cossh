@@ -154,7 +154,7 @@ elif result.returncode != 0:
 # Post comment
 try:
     payload = {
-        "comment_html": f"<p>{result.stdout.replace(chr(10), '<br>')}</p>",
+        "comment_html": f"### ═══ REALITY CHECKER ═══\n\n{result.stdout}",
         "external_id": current_commit,
         "external_source": "github"
     }
