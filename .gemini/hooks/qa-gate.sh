@@ -143,10 +143,13 @@ with open(ticket_file, "w") as f:
     f.write(f"---\nname: CI Dashboard Build Receipt\ndescription: The build results from the CI Dashboard for commit {current_commit}\n---\n{ci_receipt}\n")
 
 # Run Gemini
-result = subprocess.run(["gemini", "-p", f" @reality-checker Please verify if work item {ticket_id} is completed. The developer has provided the required documentation and proof directly in the ticket comments. Read the comments thoroughly. If the evidence is satisfactory, respond with READY. Otherwise, respond with NEEDS WORK."], stdin=open(ticket_file, "r"), capture_output=True, text=True)
+result = subprocess.run(["gemini", "-p", f" @reality-checker Please verify if the work item {ticket_id} is completed. Read the comments thoroughly. If the evidence is satisfactory, respond with READY. Otherwise, respond with a report, including keyword NEEDS WORK and what is expected to complete the ticket."], stdin=open(ticket_file, "r"), capture_output=True, text=True)
 
-if result.returncode != 0:
-    deny(f"No quality control available. Gemini command exited with {result.returncode}. Output: {result.stderr or result.stdout}")
+output_text = (result.stdout or "") + "\n" + (result.stderr or "")
+if "429" in output_text and "too many requests" in output_text.lower():
+    deny(f"Detected problem with gemini cli: 429 Too Many Requests. Please implement an exponential backoff using sleep and try again. Output: {output_text}")
+elif result.returncode != 0:
+    deny(f"No quality control available. Gemini command exited with {result.returncode}. This appears to be a mundane error, please try again. Output: {output_text}")
 
 # Post comment
 try:
@@ -164,7 +167,7 @@ except Exception as e:
     if hasattr(e, "read"):
         print(f"Response: {e.read().decode()}", file=sys.stderr)
 
-if "**Status**: READY" in result.stdout or "READY" in result.stdout.splitlines()[-1]:
-    allow()
-else:
+if "NEEDS WORK" in result.stdout:
     deny("Reality checker blocked the transition to Done. Please review the ticket comments for details.")
+
+allow()
