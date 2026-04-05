@@ -15,11 +15,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ConnectionListViewModel @JvmOverloads constructor(
+class ConnectionListViewModel(
     application: Application,
-    private val storageManager: SecurityStorageManager = SecurityStorageManager(application),
-    private val backupManager: BackupManager = BackupManager(application, storageManager)
+    private val storageManager: SecurityStorageManager,
+    private val backupManager: BackupManager
 ) : AndroidViewModel(application) {
+
+    constructor(application: Application) : this(
+        application,
+        SecurityStorageManager(application),
+        BackupManager(application, SecurityStorageManager(application))
+    )
 
     private val _profiles = MutableStateFlow<List<ConnectionProfile>>(emptyList())
     val profiles: StateFlow<List<ConnectionProfile>> = _profiles.asStateFlow()

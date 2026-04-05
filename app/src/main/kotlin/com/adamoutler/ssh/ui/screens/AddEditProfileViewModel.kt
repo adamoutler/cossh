@@ -7,10 +7,15 @@ import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
 import java.util.UUID
 
-class AddEditProfileViewModel @JvmOverloads constructor(
+class AddEditProfileViewModel(
     application: Application,
-    private val storageManager: SecurityStorageManager = SecurityStorageManager(application)
+    private val storageManager: SecurityStorageManager
 ) : AndroidViewModel(application) {
+
+    constructor(application: Application) : this(
+        application,
+        SecurityStorageManager(application)
+    )
 
     fun saveProfile(
         id: String?,
