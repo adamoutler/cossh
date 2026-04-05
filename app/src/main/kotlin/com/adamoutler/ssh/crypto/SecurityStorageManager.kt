@@ -38,14 +38,24 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
     }
 
     fun saveProfile(profile: ConnectionProfile) {
-        val jsonString = Json.encodeToString(profile)
+        val safeProfile = if (profile.password != null) {
+            profile.copy(password = PasswordCipher.encrypt(profile.password))
+        } else {
+            profile
+        }
+        val jsonString = Json.encodeToString(safeProfile)
         encryptedPrefs.edit().putString(profile.id, jsonString).apply()
     }
 
     fun getProfile(id: String): ConnectionProfile? {
         val jsonString = encryptedPrefs.getString(id, null) ?: return null
         return try {
-            Json.decodeFromString<ConnectionProfile>(jsonString)
+            val profile = Json.decodeFromString<ConnectionProfile>(jsonString)
+            if (profile.password != null) {
+                profile.copy(password = PasswordCipher.decrypt(profile.password))
+            } else {
+                profile
+            }
         } catch (e: kotlinx.serialization.SerializationException) {
             android.util.Log.e("SecurityStorageManager", "Failed to deserialize profile", e)
             null
@@ -60,7 +70,12 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
         for ((_, value) in encryptedPrefs.all) {
             if (value is String) {
                 try {
-                    profiles.add(Json.decodeFromString<ConnectionProfile>(value))
+                    val profile = Json.decodeFromString<ConnectionProfile>(value)
+                    if (profile.password != null) {
+                        profiles.add(profile.copy(password = PasswordCipher.decrypt(profile.password)))
+                    } else {
+                        profiles.add(profile)
+                    }
                 } catch (e: kotlinx.serialization.SerializationException) {
                     android.util.Log.e("SecurityStorageManager", "Failed to deserialize profile during list generation", e)
                 } catch (e: IllegalArgumentException) {

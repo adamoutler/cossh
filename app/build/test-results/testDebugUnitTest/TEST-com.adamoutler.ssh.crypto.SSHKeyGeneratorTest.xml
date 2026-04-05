@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.adamoutler.ssh.crypto.SSHKeyGeneratorTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-04-05T00:13:50" hostname="bb1883a8becf" time="1.221">
+<testsuite name="com.adamoutler.ssh.crypto.SSHKeyGeneratorTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-04-05T00:27:09" hostname="d5905b3e924a" time="0.494">
   <properties/>
-  <testcase name="testGenerateRSAKeyPair" classname="com.adamoutler.ssh.crypto.SSHKeyGeneratorTest" time="1.204"/>
-  <testcase name="testGenerateEd25519KeyPair" classname="com.adamoutler.ssh.crypto.SSHKeyGeneratorTest" time="0.016"/>
+  <testcase name="testGenerateRSAKeyPair" classname="com.adamoutler.ssh.crypto.SSHKeyGeneratorTest" time="0.479"/>
+  <testcase name="testGenerateEd25519KeyPair" classname="com.adamoutler.ssh.crypto.SSHKeyGeneratorTest" time="0.015"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
