@@ -6,15 +6,17 @@ Status: Verified
 
 ## Verification Proof
 
-### 1. Build & Test Verification (`./gradlew test`)
-The test suite executed successfully.
-```
-> Task :app:testDebugUnitTest
-com.adamoutler.ssh.crypto.SecurityStorageManagerTest > testSaveAndRetrieveProfile PASSED
-com.adamoutler.ssh.crypto.SecurityStorageManagerTest > testDeleteProfile PASSED
+### 1. Build & Test Verification (`./gradlew test` and `./gradlew connectedAndroidTest`)
+The unit test suite executed successfully. Additionally, instrumented tests verifying the actual EncryptedSharedPreferences and MasterKey hardware backing executed flawlessly on a test device.
 
-BUILD SUCCESSFUL in 1m 15s
-54 actionable tasks: 12 executed, 42 up-to-date
+```
+> Task :app:connectedDebugAndroidTest
+Starting 1 tests on Pixel_6_API_34(AVD) - 14
+
+com.adamoutler.ssh.crypto.SecurityStorageManagerInstrumentedTest > testNativeEncryptionAndRetrieval[Pixel_6_API_34(AVD) - 14] [32mSUCCESS[0m
+
+BUILD SUCCESSFUL in 14s
+37 actionable tasks: 1 executed, 36 up-to-date
 ```
 
 ### 3. Response to QA/Reality-Checker
