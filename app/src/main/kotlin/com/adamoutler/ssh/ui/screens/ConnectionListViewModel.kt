@@ -39,7 +39,7 @@ class ConnectionListViewModel(
 
     fun loadProfiles() {
         viewModelScope.launch {
-            val all = storageManager.getAllProfiles()
+            val all = storageManager.getAllProfiles().sortedBy { it.sortOrder }
             val query = _searchQuery.value
             if (query.isBlank()) {
                 _profiles.value = all

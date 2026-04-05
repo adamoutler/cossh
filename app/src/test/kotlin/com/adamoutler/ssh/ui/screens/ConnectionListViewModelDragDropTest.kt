@@ -2,6 +2,7 @@ package com.adamoutler.ssh.ui.screens
 
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
+import com.adamoutler.ssh.backup.BackupManager
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
@@ -11,12 +12,14 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
 
 @RunWith(RobolectricTestRunner::class)
 @Config(instrumentedPackages = ["androidx.loader.content"])
 class ConnectionListViewModelDragDropTest {
 
     private lateinit var storageManager: SecurityStorageManager
+    private lateinit var viewModel: ConnectionListViewModel
 
     @Before
     fun setup() {
@@ -30,36 +33,41 @@ class ConnectionListViewModelDragDropTest {
         storageManager.saveProfile(p1)
         storageManager.saveProfile(p2)
         storageManager.saveProfile(p3)
+        
+        viewModel = ConnectionListViewModel(app, storageManager, BackupManager(app, storageManager))
     }
 
     @Test
     fun testDragAndDropReordersItems() {
+        // Wait for items to load initially
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        Thread.sleep(100)
+
         // Verify initial order
-        val allProfilesInitial = storageManager.getAllProfiles().sortedBy { it.sortOrder }
-        assertEquals("id1", allProfilesInitial[0].id)
-        assertEquals("id2", allProfilesInitial[1].id)
-        assertEquals("id3", allProfilesInitial[2].id)
+        assertEquals(3, viewModel.profiles.value.size)
+        assertEquals("id1", viewModel.profiles.value[0].id)
+        assertEquals("id2", viewModel.profiles.value[1].id)
+        assertEquals("id3", viewModel.profiles.value[2].id)
 
-        // Simulate drag profile index 0 to index 1
-        val currentList = allProfilesInitial.toMutableList()
-        val item = currentList.removeAt(0)
-        currentList.add(1, item)
+        // Drag profile index 0 to index 1
+        viewModel.moveProfile(0, 1)
+        
+        // Give coroutines time to launch and save
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        Thread.sleep(100)
+        
+        // Let's reload a brand new view model to prove storage persistency
+        val app = ApplicationProvider.getApplicationContext<Application>()
+        val newViewModel = ConnectionListViewModel(app, storageManager, BackupManager(app, storageManager))
+        
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        Thread.sleep(100)
 
-        // Persist the new order as the ViewModel does
-        currentList.forEachIndexed { index, profile ->
-            if (profile.sortOrder != index) {
-                profile.sortOrder = index
-                storageManager.saveProfile(profile)
-            }
-        }
+        // Verify new order is successfully loaded into the UI layer from local storage
+        assertEquals("id2", newViewModel.profiles.value[0].id)
+        assertEquals("id1", newViewModel.profiles.value[1].id)
+        assertEquals("id3", newViewModel.profiles.value[2].id)
         
-        // Verify new order in Storage is successfully persisted
-        val allProfilesUpdated = storageManager.getAllProfiles().sortedBy { it.sortOrder }
-        println("Updated profiles order: ${allProfilesUpdated.map { it.id }}")
-        assertEquals("id2", allProfilesUpdated[0].id)
-        assertEquals("id1", allProfilesUpdated[1].id)
-        assertEquals("id3", allProfilesUpdated[2].id)
-        
-        println("SUCCESS: Reorder persisted to local storage")
+        println("SUCCESS: Reorder correctly preserved across reloads")
     }
 }
