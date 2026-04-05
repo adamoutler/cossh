@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ConnectionListViewModel(
+class ConnectionListViewModel @JvmOverloads constructor(
     application: Application,
     private val storageManager: SecurityStorageManager = SecurityStorageManager(application),
     private val backupManager: BackupManager = BackupManager(application, storageManager)

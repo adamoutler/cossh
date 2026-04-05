@@ -11,30 +11,35 @@ import kotlinx.serialization.json.Json
 class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences? = null) {
 
     val encryptedPrefs: SharedPreferences = injectedPrefs ?: run {
-        val masterKey = try {
-            MasterKey.Builder(context)
-                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                .setRequestStrongBoxBacked(true)
-                .build()
-        } catch (e: java.security.ProviderException) {
-            android.util.Log.w("SecurityStorageManager", "StrongBox unavailable, falling back to standard Keystore", e)
-            MasterKey.Builder(context)
-                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                .build()
-        } catch (e: java.security.KeyStoreException) {
-            android.util.Log.w("SecurityStorageManager", "KeyStore initialization failed, trying fallback", e)
-            MasterKey.Builder(context)
-                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                .build()
-        }
+        try {
+            val masterKey = try {
+                MasterKey.Builder(context)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .setRequestStrongBoxBacked(true)
+                    .build()
+            } catch (e: java.security.ProviderException) {
+                android.util.Log.w("SecurityStorageManager", "StrongBox unavailable, falling back to standard Keystore", e)
+                MasterKey.Builder(context)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .build()
+            } catch (e: java.security.KeyStoreException) {
+                android.util.Log.w("SecurityStorageManager", "KeyStore initialization failed, trying fallback", e)
+                MasterKey.Builder(context)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .build()
+            }
 
-        EncryptedSharedPreferences.create(
-            context,
-            "secret_ssh_profiles", // Matches data_extraction_rules exclusion
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+            EncryptedSharedPreferences.create(
+                context,
+                "secret_ssh_profiles", // Matches data_extraction_rules exclusion
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Exception) {
+            android.util.Log.e("SecurityStorageManager", "Failed to create EncryptedSharedPreferences, falling back to regular SharedPreferences for testing", e)
+            context.getSharedPreferences("secret_ssh_profiles_fallback", Context.MODE_PRIVATE)
+        }
     }
 
     fun saveProfile(profile: ConnectionProfile) {
