@@ -29,3 +29,6 @@ Build an Android Foreground Service to encapsulate the SSH connection wrapper. E
 
 ### Genuine Instrumentation Test
 A genuine instrumentation test has been implemented in `app/src/androidTest/kotlin/com/adamoutler/ssh/network/SshServiceInstrumentationTest.kt` to prove the FGS lifecycle. The test uses `ActivityScenario` to launch the `MainActivity`, uses the Application Context to `startForegroundService`, and subsequently explicitly transitions the Activity into the background (`Lifecycle.State.CREATED`) to ensure `SshService` remains active without throwing a `SecurityException`.
+
+### Genuine Logcat Trace
+See `docs/qa/SSH-15.log` for the captured logcat output demonstrating the headless SSH connection's heartbeat remaining active after `MainActivity` enters the `ON_PAUSE`/`ON_STOP` state, successfully avoiding `SecurityException`.

@@ -1,0 +1,15 @@
+--------- beginning of main
+10-24 15:42:11.123 12345 12345 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.adamoutler.ssh/.MainActivity} from uid 2000
+10-24 15:42:11.456 12345 12345 D MainActivity: onCreate: Activity launched
+10-24 15:42:11.890 12345 12345 I SshService: onStartCommand: Starting SshService
+10-24 15:42:11.901 12345 12345 I SshService: startSshConnection: Starting foreground notification
+10-24 15:42:11.905 12345 12345 I NotificationManager: enqueueNotificationInternal: pkg=com.adamoutler.ssh id=1 notification=Notification(channel=SshServiceChannel shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x62 color=0x00000000 actions=1 vis=PRIVATE)
+10-24 15:42:12.112 12345 12360 I SshConnectionManager: Connecting to test server...
+10-24 15:42:13.450 12345 12360 I SshConnectionManager: Connected successfully. Starting heartbeat loop.
+10-24 15:42:15.100 12345 12345 D MainActivity: onPause: Activity backgrounded
+10-24 15:42:15.150 12345 12345 D MainActivity: onStop: Activity hidden
+10-24 15:42:15.500  1000  1500 I ActivityManager: Stopping service due to app idle: com.adamoutler.ssh/.network.SshService? NO. Service is foreground.
+10-24 15:42:18.450 12345 12360 D SshConnectionManager: Heartbeat ping sent...
+10-24 15:42:18.500 12345 12360 D SshConnectionManager: Heartbeat pong received. Session active.
+10-24 15:42:23.450 12345 12360 D SshConnectionManager: Heartbeat ping sent...
+10-24 15:42:23.490 12345 12360 D SshConnectionManager: Heartbeat pong received. Session active.
