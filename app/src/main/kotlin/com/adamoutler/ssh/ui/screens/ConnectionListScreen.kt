@@ -7,9 +7,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
@@ -18,9 +20,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.data.ConnectionProfile
 
@@ -116,6 +121,7 @@ fun ConnectionListScreen(
         onAddConnection = onAddConnection,
         onEditConnection = onEditConnection,
         onConnect = onConnect,
+        onMoveProfile = { from, to -> viewModel.moveProfile(from, to) },
         onExportRequested = { exportLauncher.launch("cossh_backup.zip") },
         onImportRequested = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) }
     )
@@ -130,6 +136,7 @@ fun ConnectionListScreenContent(
     onAddConnection: () -> Unit,
     onEditConnection: (String) -> Unit,
     onConnect: (String) -> Unit,
+    onMoveProfile: (Int, Int) -> Unit = { _, _ -> },
     onExportRequested: () -> Unit = {},
     onImportRequested: () -> Unit = {},
     initialMenuExpanded: Boolean = false
@@ -193,25 +200,84 @@ fun ConnectionListScreenContent(
             )
 
             val context = LocalContext.current
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(profiles) { profile ->
-                    ConnectionItem(
-                        profile = profile,
-                        onClick = {
-                            Log.d("ConnectionListScreen", "Connecting to ${profile.nickname} (${profile.host})")
-                            val intent = android.content.Intent(context, com.adamoutler.ssh.network.SshService::class.java).apply {
-                                action = com.adamoutler.ssh.network.SshService.ACTION_START
-                                putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profile.id)
+            val listState = rememberLazyListState()
+            var draggedItemIndex by remember { mutableStateOf<Int?>(null) }
+            var dragOffset by remember { mutableStateOf(0f) }
+
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectDragGesturesAfterLongPress(
+                            onDragStart = { offset ->
+                                val itemInfo = listState.layoutInfo.visibleItemsInfo.firstOrNull {
+                                    offset.y.toInt() in it.offset..(it.offset + it.size)
+                                }
+                                if (itemInfo != null) {
+                                    draggedItemIndex = itemInfo.index
+                                    dragOffset = 0f
+                                }
+                            },
+                            onDrag = { change, dragAmount ->
+                                change.consume()
+                                dragOffset += dragAmount.y
+                                
+                                val draggedIndex = draggedItemIndex ?: return@detectDragGesturesAfterLongPress
+                                val draggedItem = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == draggedIndex }
+                                
+                                if (draggedItem != null) {
+                                    val currentCenter = draggedItem.offset + dragOffset + (draggedItem.size / 2)
+                                    val targetItem = listState.layoutInfo.visibleItemsInfo.firstOrNull {
+                                        it.index != draggedIndex && currentCenter.toInt() in it.offset..(it.offset + it.size)
+                                    }
+                                    
+                                    if (targetItem != null) {
+                                        onMoveProfile(draggedIndex, targetItem.index)
+                                        draggedItemIndex = targetItem.index
+                                        dragOffset = 0f
+                                    }
+                                }
+                            },
+                            onDragEnd = {
+                                draggedItemIndex = null
+                                dragOffset = 0f
+                            },
+                            onDragCancel = {
+                                draggedItemIndex = null
+                                dragOffset = 0f
                             }
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                context.startForegroundService(intent)
-                            } else {
-                                context.startService(intent)
-                            }
-                            onConnect(profile.id)
-                        },
-                        onEdit = { onEditConnection(profile.id) }
-                    )
+                        )
+                    }
+            ) {
+                itemsIndexed(profiles, key = { _, profile -> profile.id }) { index, profile ->
+                    val isDragging = index == draggedItemIndex
+                    val translationY = if (isDragging) dragOffset else 0f
+                    
+                    Box(
+                        modifier = Modifier
+                            .zIndex(if (isDragging) 1f else 0f)
+                            .graphicsLayer { this.translationY = translationY }
+                    ) {
+                        ConnectionItem(
+                            profile = profile,
+                            elevation = if (isDragging) 8.dp else 2.dp,
+                            onClick = {
+                                Log.d("ConnectionListScreen", "Connecting to ${profile.nickname} (${profile.host})")
+                                val intent = android.content.Intent(context, com.adamoutler.ssh.network.SshService::class.java).apply {
+                                    action = com.adamoutler.ssh.network.SshService.ACTION_START
+                                    putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profile.id)
+                                }
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                    context.startForegroundService(intent)
+                                } else {
+                                    context.startService(intent)
+                                }
+                                onConnect(profile.id)
+                            },
+                            onEdit = { onEditConnection(profile.id) }
+                        )
+                    }
                 }
             }
         }
@@ -220,7 +286,7 @@ fun ConnectionListScreenContent(
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-fun ConnectionItem(profile: ConnectionProfile, onClick: () -> Unit, onEdit: () -> Unit) {
+fun ConnectionItem(profile: ConnectionProfile, onClick: () -> Unit, onEdit: () -> Unit, elevation: androidx.compose.ui.unit.Dp = 2.dp) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -229,7 +295,7 @@ fun ConnectionItem(profile: ConnectionProfile, onClick: () -> Unit, onEdit: () -
                 onClick = onClick,
                 onLongClick = onEdit
             ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation)
     ) {
         Row(
             modifier = Modifier

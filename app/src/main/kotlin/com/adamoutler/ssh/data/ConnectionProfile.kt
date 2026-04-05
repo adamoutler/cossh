@@ -29,6 +29,7 @@ data class ConnectionProfile(
     val port: Int = 22,
     val username: String,
     val authType: AuthType,
+    var sortOrder: Int = 0,
     @kotlinx.serialization.Transient
     var password: ByteArray? = null,
     val sshKeyPasswordReferenceId: String? = null
@@ -61,6 +62,7 @@ data class ConnectionProfile(
         result = 31 * result + port
         result = 31 * result + username.hashCode()
         result = 31 * result + authType.hashCode()
+        result = 31 * result + sortOrder
         result = 31 * result + (password?.contentHashCode() ?: 0)
         result = 31 * result + (sshKeyPasswordReferenceId?.hashCode() ?: 0)
         return result

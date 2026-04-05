@@ -12,8 +12,8 @@ class BackupCryptoManagerTest {
     @Test
     fun testExportAndImportBackup() {
         val passwordBytes = "my_secret_password".toByteArray()
-        val profile1 = ConnectionProfile("id1", "Host 1", "host1.com", 22, "user1", AuthType.PASSWORD, passwordBytes)
-        val profile2 = ConnectionProfile("id2", "Host 2", "host2.com", 22, "user2", AuthType.KEY)
+        val profile1 = ConnectionProfile("id1", "Host 1", "host1.com", 22, "user1", AuthType.PASSWORD, 0, passwordBytes)
+        val profile2 = ConnectionProfile("id2", "Host 2", "host2.com", 22, "user2", AuthType.KEY, 0)
 
         val profiles = listOf(profile1, profile2)
         val backupPassword = "strong_backup_password".toCharArray()

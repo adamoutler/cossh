@@ -57,6 +57,24 @@ class ConnectionListViewModel(
         loadProfiles()
     }
 
+    fun moveProfile(fromIndex: Int, toIndex: Int) {
+        val currentList = _profiles.value.toMutableList()
+        if (fromIndex !in currentList.indices || toIndex !in currentList.indices) return
+
+        val item = currentList.removeAt(fromIndex)
+        currentList.add(toIndex, item)
+        _profiles.value = currentList
+
+        viewModelScope.launch(Dispatchers.IO) {
+            currentList.forEachIndexed { index, profile ->
+                if (profile.sortOrder != index) {
+                    profile.sortOrder = index
+                    storageManager.saveProfile(profile)
+                }
+            }
+        }
+    }
+
     fun exportBackup(uri: Uri, password: CharArray, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
