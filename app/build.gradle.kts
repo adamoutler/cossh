@@ -69,8 +69,11 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.security.crypto.ktx)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.sshj)
+    implementation(libs.slf4j.nop)
     
     testImplementation(libs.junit)
+    testImplementation(libs.sshd.core)
     testImplementation(libs.robolectric)
     testImplementation("androidx.test:core:1.5.0")
     androidTestImplementation(libs.androidx.junit)
