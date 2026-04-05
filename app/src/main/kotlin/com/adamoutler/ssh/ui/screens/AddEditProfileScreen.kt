@@ -27,6 +27,7 @@ fun AddEditProfileScreen(
     var password by remember { mutableStateOf("") }
     var authType by remember { mutableStateOf(AuthType.PASSWORD) }
     var keyReference by remember { mutableStateOf("") }
+    val availableKeys = viewModel.getAvailableKeys()
 
     LaunchedEffect(profileId) {
         if (profileId != null) {
@@ -56,6 +57,7 @@ fun AddEditProfileScreen(
         onPasswordChange = { password = it },
         authType = authType,
         onAuthTypeChange = { authType = it },
+        availableKeys = availableKeys,
         keyReference = keyReference,
         onKeyReferenceChange = { keyReference = it },
         onSave = {
@@ -96,8 +98,9 @@ fun AddEditProfileScreenContent(
     onPasswordChange: (String) -> Unit,
     authType: AuthType,
     onAuthTypeChange: (AuthType) -> Unit,
+    availableKeys: List<String>,
     keyReference: String,
-    onKeyReferenceChange: (String) -> Unit,
+    @Suppress("UNUSED_PARAMETER") onKeyReferenceChange: (String) -> Unit,
     onSave: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
@@ -199,13 +202,25 @@ fun AddEditProfileScreenContent(
                         expanded = isDropdownExpanded,
                         onDismissRequest = { isDropdownExpanded = false }
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("No keys available") },
-                            onClick = {
-                                isDropdownExpanded = false
-                            },
-                            enabled = false
-                        )
+                        if (availableKeys.isEmpty()) {
+                            DropdownMenuItem(
+                                text = { Text("No keys available") },
+                                onClick = {
+                                    isDropdownExpanded = false
+                                },
+                                enabled = false
+                            )
+                        } else {
+                            availableKeys.forEach { key ->
+                                DropdownMenuItem(
+                                    text = { Text(key) },
+                                    onClick = {
+                                        onKeyReferenceChange(key)
+                                        isDropdownExpanded = false
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }

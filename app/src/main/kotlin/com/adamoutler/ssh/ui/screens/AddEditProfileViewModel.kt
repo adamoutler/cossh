@@ -44,4 +44,11 @@ class AddEditProfileViewModel(
     fun getProfile(id: String): ConnectionProfile? {
         return storageManager.getProfile(id)
     }
+
+    fun getAvailableKeys(): List<String> {
+        // Retrieve the dynamic list of available SSH keys from storage.
+        // Currently, key persistence is basic/not fully implemented, 
+        // so we filter SharedPreferences or return keys if available.
+        return storageManager.getAllKeys()
+    }
 }

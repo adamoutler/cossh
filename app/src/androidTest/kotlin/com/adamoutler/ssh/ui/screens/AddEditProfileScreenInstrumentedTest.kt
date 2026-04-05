@@ -37,6 +37,7 @@ class AddEditProfileScreenInstrumentedTest {
                 onPasswordChange = {},
                 authType = AuthType.PASSWORD,
                 onAuthTypeChange = {},
+                availableKeys = emptyList(),
                 keyReference = "",
                 onKeyReferenceChange = {},
                 onSave = {

@@ -95,6 +95,19 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
         return profiles
     }
 
+    fun getAllKeys(): List<String> {
+        val keys = mutableListOf<String>()
+        // Keys will be stored with a specific prefix when implemented,
+        // or for now we can just search for anything containing "key" that isn't a profile.
+        // Assuming keys will be saved as "key_{id}"
+        for ((key, _) in encryptedPrefs.all) {
+            if (key.startsWith("key_")) {
+                keys.add(key)
+            }
+        }
+        return keys
+    }
+
     fun deleteProfile(id: String) {
         encryptedPrefs.edit()
             .remove(id)
