@@ -34,18 +34,6 @@ fun TerminalScreen(
     modifier: Modifier = Modifier,
     initialText: String = "Welcome to CoSSH Terminal\r\n\u001B[32mANSI Color Support Active!\u001B[0m\r\n"
 ) {
-    if (LocalInspectionMode.current || android.os.Build.FINGERPRINT.startsWith("robolectric")) {
-        // Fallback for Paparazzi, Compose Previews, or if JNI fails to load
-        Box(modifier = modifier.fillMaxSize().background(Color.Black).padding(4.dp)) {
-            Text(
-                text = initialText,
-                color = Color.White,
-                fontFamily = FontFamily.Monospace
-            )
-        }
-        return
-    }
-
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
 
     val session = remember {
