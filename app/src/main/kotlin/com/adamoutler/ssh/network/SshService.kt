@@ -69,9 +69,15 @@ class SshService : Service() {
                     updateNotification("Connected to ${profile.nickname}")
                     sshManager = SshConnectionManager()
                     
-                    // For now, headless connection to maintain heartbeat/alive state
-                    // In real world, we'd establish PTY and loop here until disconnected
-                    sshManager?.connectAndExecute(profile, "while true; do sleep 60; done")
+                    sshManager?.connectPty(
+                        profile = profile,
+                        onConnect = { outStream ->
+                            SshSessionProvider.ptyOutputStream = outStream
+                        },
+                        onOutput = { bytes, length ->
+                            SshSessionProvider.onOutputReceived?.invoke(bytes, length)
+                        }
+                    )
                 } else {
                     Log.e("SshService", "Profile not found")
                     stopSelf()

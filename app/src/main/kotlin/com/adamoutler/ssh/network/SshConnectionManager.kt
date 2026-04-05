@@ -70,4 +70,64 @@ class SshConnectionManager(
             client.disconnect()
         }
     }
+
+    suspend fun connectPty(
+        profile: ConnectionProfile,
+        keyPair: KeyPair? = null,
+        onOutput: (ByteArray, Int) -> Unit,
+        onConnect: (java.io.OutputStream) -> Unit
+    ) = withContext(Dispatchers.IO) {
+        val client = SSHClient()
+        client.connectTimeout = 10000
+        client.timeout = 10000
+        try {
+            if (hostKeyVerifier != null) {
+                client.addHostKeyVerifier(hostKeyVerifier)
+            } else {
+                client.loadKnownHosts()
+            }
+            client.connect(profile.host, profile.port)
+
+            when (profile.authType) {
+                AuthType.PASSWORD -> {
+                    val passwordBytes = profile.password ?: throw IllegalArgumentException("Password required for password auth")
+                    val passwordChars = CharArray(passwordBytes.size)
+                    try {
+                        for (i in passwordBytes.indices) {
+                            passwordChars[i] = passwordBytes[i].toInt().toChar()
+                        }
+                        val passwordFinder = object : PasswordFinder {
+                            override fun reqPassword(resource: Resource<*>?): CharArray = passwordChars
+                            override fun shouldRetry(resource: Resource<*>?): Boolean = false
+                        }
+                        client.authPassword(profile.username, passwordFinder)
+                    } finally {
+                        passwordChars.fill('\u0000')
+                        passwordBytes.fill(0)
+                    }
+                }
+                AuthType.KEY -> {
+                    if (keyPair == null) throw IllegalArgumentException("KeyPair required for key-based authentication")
+                    client.authPublickey(profile.username, KeyPairWrapper(keyPair))
+                }
+            }
+
+            client.startSession().use { session ->
+                session.allocateDefaultPTY()
+                val shell = session.startShell()
+                
+                onConnect(shell.outputStream)
+
+                val buffer = ByteArray(4096)
+                var read: Int
+                while (shell.inputStream.read(buffer).also { read = it } != -1) {
+                    if (read > 0) {
+                        onOutput(buffer, read)
+                    }
+                }
+            }
+        } finally {
+            client.disconnect()
+        }
+    }
 }

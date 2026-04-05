@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,25 +19,23 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.adamoutler.ssh.network.SshSessionProvider
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalView
+import java.lang.Exception
+import android.util.Log
 
 @Composable
 fun TerminalScreen(
     modifier: Modifier = Modifier,
     initialText: String = "Welcome to CoSSH Terminal\r\n\u001B[32mANSI Color Support Active!\u001B[0m\r\n"
 ) {
-    if (LocalInspectionMode.current) {
-        // Fallback for Paparazzi and Compose Previews (JNI is unavailable)
+    if (LocalInspectionMode.current || android.os.Build.FINGERPRINT.startsWith("robolectric")) {
+        // Fallback for Paparazzi, Compose Previews, or if JNI fails to load
         Box(modifier = modifier.fillMaxSize().background(Color.Black).padding(4.dp)) {
             Text(
-                text = buildAnnotatedString {
-                    append("Welcome to CoSSH Terminal\n")
-                    withStyle(style = SpanStyle(color = Color.Green)) {
-                        append("ANSI Color Support Active!\n")
-                    }
-                },
+                text = initialText,
                 color = Color.White,
                 fontFamily = FontFamily.Monospace
             )
@@ -65,7 +64,8 @@ fun TerminalScreen(
         }
         
         val dummySession = try {
-            TerminalSession("sh", "", arrayOf(), arrayOf(), 100, client)
+            val s = TerminalSession("sh", "", arrayOf(), arrayOf(), 100, client)
+            s
         } catch (e: Throwable) {
             null
         }
@@ -74,21 +74,25 @@ fun TerminalScreen(
         dummySession
     }
 
-    if (session == null || LocalInspectionMode.current || android.os.Build.FINGERPRINT.startsWith("robolectric")) {
-        // Fallback for Paparazzi, Compose Previews, or if JNI fails to load
+    if (session == null) {
         Box(modifier = modifier.fillMaxSize().background(Color.Black).padding(4.dp)) {
             Text(
-                text = buildAnnotatedString {
-                    append("Welcome to CoSSH Terminal\n")
-                    withStyle(style = SpanStyle(color = Color.Green)) {
-                        append("ANSI Color Support Active!\n")
-                    }
-                },
-                color = Color.White,
+                text = "Failed to initialize native terminal emulation.",
+                color = Color.Red,
                 fontFamily = FontFamily.Monospace
             )
         }
         return
+    }
+
+    DisposableEffect(Unit) {
+        SshSessionProvider.onOutputReceived = { bytes, length ->
+            session.emulator?.append(bytes, length)
+            Log.d("TerminalScreen", "Appended ${length} bytes from SSH PTY stdout")
+        }
+        onDispose {
+            SshSessionProvider.onOutputReceived = null
+        }
     }
 
     AndroidView(
@@ -99,9 +103,58 @@ fun TerminalScreen(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            if (session != null) {
-                terminalView.attachSession(session)
-            }
+
+            terminalView.setTerminalViewClient(object : com.termux.view.TerminalViewClient {
+                override fun onScale(scale: Float): Float = scale
+                override fun onSingleTapUp(e: android.view.MotionEvent?) {}
+                override fun shouldBackButtonBeMappedToEscape(): Boolean = false
+                override fun shouldEnforceCharBasedInput(): Boolean = false
+                override fun shouldUseCtrlSpaceWorkaround(): Boolean = false
+                override fun isTerminalViewSelected(): Boolean = true
+                override fun copyModeChanged(b: Boolean) {}
+                override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, session: TerminalSession?): Boolean {
+                    if (keyCode == android.view.KeyEvent.KEYCODE_ENTER && e?.action == android.view.KeyEvent.ACTION_DOWN) {
+                        try {
+                            SshSessionProvider.ptyOutputStream?.write("\r".toByteArray())
+                            SshSessionProvider.ptyOutputStream?.flush()
+                            Log.d("TerminalScreen", "Wrote Enter key to SSH PTY stdin")
+                            return true
+                        } catch (ex: Exception) {
+                            Log.e("TerminalScreen", "Failed to write to SSH PTY", ex)
+                        }
+                    }
+                    return false
+                }
+                override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean = false
+                override fun readControlKey(): Boolean = false
+                override fun readAltKey(): Boolean = false
+                override fun readShiftKey(): Boolean = false
+                override fun readFnKey(): Boolean = false
+                override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, session: TerminalSession?): Boolean {
+                    try {
+                        val chars = Character.toChars(codePoint)
+                        val bytes = String(chars).toByteArray(Charsets.UTF_8)
+                        SshSessionProvider.ptyOutputStream?.write(bytes)
+                        SshSessionProvider.ptyOutputStream?.flush()
+                        Log.d("TerminalScreen", "Wrote ${bytes.size} bytes (codePoint) to SSH PTY stdin")
+                        return true
+                    } catch (ex: Exception) {
+                        Log.e("TerminalScreen", "Failed to write codePoint to SSH PTY", ex)
+                    }
+                    return false
+                }
+                override fun onLongPress(e: android.view.MotionEvent?): Boolean = false
+                override fun onEmulatorSet() {}
+                override fun logError(tag: String?, msg: String?) {}
+                override fun logWarn(tag: String?, msg: String?) {}
+                override fun logInfo(tag: String?, msg: String?) {}
+                override fun logDebug(tag: String?, msg: String?) {}
+                override fun logVerbose(tag: String?, msg: String?) {}
+                override fun logStackTraceWithMessage(tag: String?, msg: String?, e: Exception?) {}
+                override fun logStackTrace(tag: String?, e: Exception?) {}
+            })
+
+            terminalView.attachSession(session)
             terminalView
         }
     )

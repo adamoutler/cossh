@@ -1,0 +1,6 @@
+com.adamoutler.ssh.network.SshPtyIntegrationTest > testPtyBiDirectionalIO STANDARD_OUT
+    Logcat trace: TerminalScreen: Appended 24 bytes from SSH PTY stdout
+    Logcat trace: TerminalScreen: Wrote 3 bytes to SSH PTY stdin
+    Logcat trace: TerminalScreen: Appended 9 bytes from SSH PTY stdout
+
+BUILD SUCCESSFUL in 2s
