@@ -53,9 +53,9 @@ class ConnectionListScreenScreenshotTest {
                         searchQuery = "",
                         onSearchQueryChange = {},
                         onAddConnection = {},
-                        onEditConnection = {}
-                    )
-                }
+                        onEditConnection = {},
+                        onConnect = {}
+                        )                }
             }
         }
     }
@@ -85,6 +85,7 @@ class ConnectionListScreenScreenshotTest {
                         onSearchQueryChange = {},
                         onAddConnection = {},
                         onEditConnection = {},
+                        onConnect = {},
                         initialMenuExpanded = true
                     )
                 }

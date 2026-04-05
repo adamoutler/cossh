@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,7 +28,8 @@ import com.adamoutler.ssh.data.ConnectionProfile
 fun ConnectionListScreen(
     viewModel: ConnectionListViewModel = viewModel(),
     onAddConnection: () -> Unit,
-    onEditConnection: (String) -> Unit
+    onEditConnection: (String) -> Unit,
+    onConnect: (String) -> Unit
 ) {
     val profiles by viewModel.profiles.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -113,6 +115,7 @@ fun ConnectionListScreen(
         onSearchQueryChange = { viewModel.updateSearchQuery(it) },
         onAddConnection = onAddConnection,
         onEditConnection = onEditConnection,
+        onConnect = onConnect,
         onExportRequested = { exportLauncher.launch("cossh_backup.zip") },
         onImportRequested = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) }
     )
@@ -126,6 +129,7 @@ fun ConnectionListScreenContent(
     onSearchQueryChange: (String) -> Unit,
     onAddConnection: () -> Unit,
     onEditConnection: (String) -> Unit,
+    onConnect: (String) -> Unit,
     onExportRequested: () -> Unit = {},
     onImportRequested: () -> Unit = {},
     initialMenuExpanded: Boolean = false
@@ -188,13 +192,23 @@ fun ConnectionListScreenContent(
                 singleLine = true
             )
 
+            val context = LocalContext.current
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(profiles) { profile ->
                     ConnectionItem(
                         profile = profile,
                         onClick = {
                             Log.d("ConnectionListScreen", "Connecting to ${profile.nickname} (${profile.host})")
-                            // Mock connection log trace
+                            val intent = android.content.Intent(context, com.adamoutler.ssh.network.SshService::class.java).apply {
+                                action = com.adamoutler.ssh.network.SshService.ACTION_START
+                                putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profile.id)
+                            }
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                context.startForegroundService(intent)
+                            } else {
+                                context.startService(intent)
+                            }
+                            onConnect(profile.id)
                         },
                         onEdit = { onEditConnection(profile.id) }
                     )
@@ -204,13 +218,17 @@ fun ConnectionListScreenContent(
     }
 }
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun ConnectionItem(profile: ConnectionProfile, onClick: () -> Unit, onEdit: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable { onClick() },
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onEdit
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -224,9 +242,6 @@ fun ConnectionItem(profile: ConnectionProfile, onClick: () -> Unit, onEdit: () -
                 Text(text = profile.nickname, style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = "${profile.username}@${profile.host}:${profile.port}", style = MaterialTheme.typography.bodySmall)
-            }
-            TextButton(onClick = onEdit) {
-                Text("Edit")
             }
         }
     }

@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.adamoutler.ssh.ui.screens.ConnectionListScreen
 import com.adamoutler.ssh.ui.screens.AddEditProfileScreen
 import com.adamoutler.ssh.ui.keys.KeyManagementScreen
+import com.adamoutler.ssh.ui.components.TerminalScreen
 
 @Composable
 fun AppNavigation() {
@@ -17,7 +18,8 @@ fun AppNavigation() {
         composable("connectionList") {
             ConnectionListScreen(
                 onAddConnection = { navController.navigate("addEditProfile") },
-                onEditConnection = { profileId -> navController.navigate("addEditProfile?profileId=$profileId") }
+                onEditConnection = { profileId -> navController.navigate("addEditProfile?profileId=$profileId") },
+                onConnect = { profileId -> navController.navigate("terminal?profileId=$profileId") }
             )
         }
         composable(
@@ -33,6 +35,14 @@ fun AppNavigation() {
                 profileId = profileId,
                 onNavigateBack = { navController.popBackStack() }
             )
+        }
+        composable(
+            route = "terminal?profileId={profileId}",
+            arguments = listOf(navArgument("profileId") {
+                type = NavType.StringType
+            })
+        ) {
+            TerminalScreen()
         }
         composable("keyManagement") {
             KeyManagementScreen()
