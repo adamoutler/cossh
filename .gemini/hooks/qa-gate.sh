@@ -76,7 +76,7 @@ repo_status = next((s for s in statuses if s["owner"] == owner and s["repo"] == 
 if not repo_status:
     deny(f"No CI run found on dashboard for {owner}/{repo}. Please push your changes and wait for checks.")
 
-if repo_status.get("status") != "success":
+if repo_status and repo_status.get("status") != "success":
     deny(f"CI run did not succeed (status: {repo_status.get('status')}). Please fix the build before transitioning to Done.")
 
 # Fetch logs
