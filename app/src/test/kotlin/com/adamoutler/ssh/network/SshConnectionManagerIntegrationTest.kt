@@ -36,7 +36,7 @@ class SshConnectionManagerIntegrationTest {
             username == testUser && password == testPassword
         }
         
-        sshd.publickeyAuthenticator = PublickeyAuthenticator { username, key, _ ->
+        sshd.publickeyAuthenticator = PublickeyAuthenticator { username, _, _ ->
             username == testUser // Simplified for testing
         }
 
