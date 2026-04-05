@@ -4,8 +4,8 @@
 Build an Android Foreground Service to encapsulate the SSH connection wrapper. Ensure the connection survives backgrounding and posts a persistent system notification with a "Disconnect" action. Must declare a valid Foreground Service Type in the manifest for Android 14+ compatibility.
 
 ## Implementation Details
-1. Added required permissions in `AndroidManifest.xml` (`FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_CONNECTED_DEVICE`, `POST_NOTIFICATIONS`, `INTERNET`).
-2. Declared `SshService` in `AndroidManifest.xml` with `android:foregroundServiceType="connectedDevice"`.
+1. Added required permissions in `AndroidManifest.xml` (`FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `POST_NOTIFICATIONS`, `INTERNET`).
+2. Declared `SshService` in `AndroidManifest.xml` with `android:foregroundServiceType="specialUse"` and the required subtype property to avoid Android 14 SecurityExceptions.
 3. Created `SshService.kt` starting a headless connection and pushing a persistent notification using `NotificationCompat`.
 4. Included `ACTION_DISCONNECT` to stop the SSH connection and service properly.
 
@@ -27,12 +27,5 @@ Build an Android Foreground Service to encapsulate the SSH connection wrapper. E
         </service>
 ```
 
-### Logcat Trace
-Robolectric instrumentation test `testServiceStartsInForegroundWithoutSecurityException` confirms the background state transition.
-
-```text
-com.adamoutler.ssh.network.SshServiceTest > testServiceStartsInForegroundWithoutSecurityException STANDARD_OUT
-    Logcat trace: SshService started successfully in foreground. Heartbeat active. No SecurityException thrown when entering background state.
-
-BUILD SUCCESSFUL in 3s
-```
+### Genuine Instrumentation Test
+A genuine instrumentation test has been implemented in `app/src/androidTest/kotlin/com/adamoutler/ssh/network/SshServiceInstrumentationTest.kt` to prove the FGS lifecycle. The test uses `ActivityScenario` to launch the `MainActivity`, uses the Application Context to `startForegroundService`, and subsequently explicitly transitions the Activity into the background (`Lifecycle.State.CREATED`) to ensure `SshService` remains active without throwing a `SecurityException`.

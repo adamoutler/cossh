@@ -26,6 +26,5 @@ class SshServiceTest {
         val shadowService = shadowOf(service)
         org.junit.Assert.assertTrue(shadowService.isStoppedBySelf.not())
         org.junit.Assert.assertNotNull(shadowService.lastForegroundNotification)
-        println("Logcat trace: SshService started successfully in foreground. Heartbeat active. No SecurityException thrown when entering background state.")
     }
 }
