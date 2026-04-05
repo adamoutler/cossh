@@ -29,8 +29,8 @@ data class ConnectionProfile(
     val port: Int = 22,
     val username: String,
     val authType: AuthType,
-    @Serializable(with = ByteArrayAsBase64Serializer::class)
-    val password: ByteArray? = null,
+    @kotlinx.serialization.Transient
+    var password: ByteArray? = null,
     val sshKeyPasswordReferenceId: String? = null
 ) {
     override fun equals(other: Any?): Boolean {

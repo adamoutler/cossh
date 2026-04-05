@@ -38,24 +38,27 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
     }
 
     fun saveProfile(profile: ConnectionProfile) {
-        val safeProfile = if (profile.password != null) {
-            profile.copy(password = PasswordCipher.encrypt(profile.password))
-        } else {
-            profile
-        }
-        val jsonString = Json.encodeToString(safeProfile)
+        val jsonString = Json.encodeToString(profile)
         encryptedPrefs.edit().putString(profile.id, jsonString).apply()
+        
+        if (profile.password != null) {
+            val encryptedPassword = PasswordCipher.encrypt(profile.password!!)
+            encryptedPrefs.edit().putString("${profile.id}_pwd", java.util.Base64.getEncoder().encodeToString(encryptedPassword)).apply()
+        } else {
+            encryptedPrefs.edit().remove("${profile.id}_pwd").apply()
+        }
     }
 
     fun getProfile(id: String): ConnectionProfile? {
         val jsonString = encryptedPrefs.getString(id, null) ?: return null
         return try {
             val profile = Json.decodeFromString<ConnectionProfile>(jsonString)
-            if (profile.password != null) {
-                profile.copy(password = PasswordCipher.decrypt(profile.password))
-            } else {
-                profile
+            val pwdString = encryptedPrefs.getString("${id}_pwd", null)
+            if (pwdString != null) {
+                val encryptedPassword = java.util.Base64.getDecoder().decode(pwdString)
+                profile.password = PasswordCipher.decrypt(encryptedPassword)
             }
+            profile
         } catch (e: kotlinx.serialization.SerializationException) {
             android.util.Log.e("SecurityStorageManager", "Failed to deserialize profile", e)
             null
@@ -67,15 +70,16 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
 
     fun getAllProfiles(): List<ConnectionProfile> {
         val profiles = mutableListOf<ConnectionProfile>()
-        for ((_, value) in encryptedPrefs.all) {
-            if (value is String) {
+        for ((key, value) in encryptedPrefs.all) {
+            if (value is String && !key.endsWith("_pwd")) {
                 try {
                     val profile = Json.decodeFromString<ConnectionProfile>(value)
-                    if (profile.password != null) {
-                        profiles.add(profile.copy(password = PasswordCipher.decrypt(profile.password)))
-                    } else {
-                        profiles.add(profile)
+                    val pwdString = encryptedPrefs.getString("${profile.id}_pwd", null)
+                    if (pwdString != null) {
+                        val encryptedPassword = java.util.Base64.getDecoder().decode(pwdString)
+                        profile.password = PasswordCipher.decrypt(encryptedPassword)
                     }
+                    profiles.add(profile)
                 } catch (e: kotlinx.serialization.SerializationException) {
                     android.util.Log.e("SecurityStorageManager", "Failed to deserialize profile during list generation", e)
                 } catch (e: IllegalArgumentException) {
@@ -87,6 +91,9 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
     }
 
     fun deleteProfile(id: String) {
-        encryptedPrefs.edit().remove(id).apply()
+        encryptedPrefs.edit()
+            .remove(id)
+            .remove("${id}_pwd")
+            .apply()
     }
 }

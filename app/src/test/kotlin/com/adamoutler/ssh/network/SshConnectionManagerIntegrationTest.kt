@@ -92,7 +92,7 @@ class SshConnectionManagerIntegrationTest {
             password = testPassword.toByteArray()
         )
 
-        val manager = SshConnectionManager()
+        val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
         val output = manager.connectAndExecute(profile, "echo \"CoSSH_Test\"")
 
         assertEquals("CoSSH_Test\n", output)
@@ -111,7 +111,7 @@ class SshConnectionManagerIntegrationTest {
             authType = AuthType.KEY
         )
 
-        val manager = SshConnectionManager()
+        val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
         val output = manager.connectAndExecute(profile, "echo \"CoSSH_Test\"", keyPair)
 
         assertEquals("CoSSH_Test\n", output)
