@@ -94,8 +94,9 @@ fun TerminalScreen(
     AndroidView(
         modifier = modifier.fillMaxSize(),
         factory = { context ->
+            var currentFontSize = 14
             val terminalView = TerminalView(context, null)
-            terminalView.setTextSize(14)
+            terminalView.setTextSize(currentFontSize)
             terminalView.layoutParams = FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -103,15 +104,35 @@ fun TerminalScreen(
 
             terminalView.setTerminalViewClient(object : com.termux.view.TerminalViewClient {
                 override fun onScale(scale: Float): Float = scale
-                override fun onSingleTapUp(e: android.view.MotionEvent?) {}
+                
+                override fun onSingleTapUp(e: android.view.MotionEvent?) {
+                    terminalView.requestFocus()
+                    val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                    imm.showSoftInput(terminalView, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+                }
+                
                 override fun shouldBackButtonBeMappedToEscape(): Boolean = false
                 override fun shouldEnforceCharBasedInput(): Boolean = false
                 override fun shouldUseCtrlSpaceWorkaround(): Boolean = false
                 override fun isTerminalViewSelected(): Boolean = true
                 override fun copyModeChanged(b: Boolean) {}
+                
                 override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, session: TerminalSession?): Boolean {
                     if (e?.action != android.view.KeyEvent.ACTION_DOWN) return false
                     
+                    if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP) {
+                        currentFontSize++
+                        terminalView.setTextSize(currentFontSize)
+                        return true
+                    }
+                    if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_DOWN) {
+                        if (currentFontSize > 6) {
+                            currentFontSize--
+                            terminalView.setTextSize(currentFontSize)
+                        }
+                        return true
+                    }
+
                     val bytesToSend = when (keyCode) {
                         android.view.KeyEvent.KEYCODE_ENTER -> "\r".toByteArray()
                         android.view.KeyEvent.KEYCODE_DEL -> byteArrayOf(0x7F)
