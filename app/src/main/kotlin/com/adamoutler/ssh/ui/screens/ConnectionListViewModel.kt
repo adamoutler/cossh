@@ -39,6 +39,20 @@ class ConnectionListViewModel(
 
     fun loadProfiles() {
         viewModelScope.launch {
+            if (com.adamoutler.ssh.BuildConfig.DEBUG && storageManager.getAllProfiles().isEmpty()) {
+                val testProfile = ConnectionProfile(
+                    id = "default_test_profile",
+                    nickname = "Test Connection (test.rebex.net)",
+                    host = "test.rebex.net",
+                    username = "demo",
+                    authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
+                    port = 22
+                ).apply {
+                    password = "password".toByteArray()
+                }
+                storageManager.saveProfile(testProfile)
+            }
+            
             val all = storageManager.getAllProfiles().sortedBy { it.sortOrder }
             val query = _searchQuery.value
             if (query.isBlank()) {
