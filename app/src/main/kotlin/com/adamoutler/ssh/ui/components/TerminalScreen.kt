@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +30,11 @@ import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalView
 import java.lang.Exception
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import android.util.Log
 
 @Composable
@@ -93,17 +99,25 @@ fun TerminalScreen(
         }
     }
 
-    var showKeyboardAndButtons by remember { mutableStateOf(false) }
+    // 0 = none, 1 = keyboard only, 2 = keyboard + buttons
+    var terminalInputState by remember { mutableStateOf(0) }
     val ctrlSticky = remember { mutableStateOf(false) }
     val altSticky = remember { mutableStateOf(false) }
     val superSticky = remember { mutableStateOf(false) }
     val menuSticky = remember { mutableStateOf(false) }
 
-    androidx.activity.compose.BackHandler(enabled = showKeyboardAndButtons) {
-        showKeyboardAndButtons = false
+    androidx.activity.compose.BackHandler(enabled = terminalInputState != 0) {
+        terminalInputState = 0
         terminalViewRef?.let {
-            val imm = it.context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
-            imm.hideSoftInputFromWindow(it.windowToken, 0)
+            val window = (it.context as? android.app.Activity)?.window
+            if (window != null) {
+                val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, it)
+                insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.ime())
+                it.clearFocus()
+            } else {
+                val imm = it.context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                imm.hideSoftInputFromWindow(it.windowToken, 0)
+            }
         }
     }
 
@@ -121,29 +135,64 @@ fun TerminalScreen(
         }
     }
 
-    androidx.compose.foundation.layout.Column(modifier = modifier.fillMaxSize()) {
+    var currentFontSize by remember { mutableStateOf(14) }
+
+    androidx.compose.foundation.layout.Column(modifier = modifier.fillMaxSize().imePadding()) {
         AndroidView(
-            modifier = Modifier.weight(1f).fillMaxWidth(),
+            modifier = Modifier.weight(1f).fillMaxWidth().onKeyEvent { keyEvent ->
+                if (keyEvent.type == KeyEventType.KeyDown) {
+                    when (keyEvent.key) {
+                        Key.VolumeUp -> {
+                            currentFontSize++
+                            terminalViewRef?.setTextSize(currentFontSize)
+                            true
+                        }
+                        Key.VolumeDown -> {
+                            if (currentFontSize > 6) {
+                                currentFontSize--
+                                terminalViewRef?.setTextSize(currentFontSize)
+                            }
+                            true
+                        }
+                        else -> false
+                    }
+                } else {
+                    false
+                }
+            },
             factory = { context ->
-                var currentFontSize = 14
                 val terminalView = TerminalView(context, null)
                 terminalView.setTextSize(currentFontSize)
                 terminalView.layoutParams = FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
+                terminalView.isFocusable = true
+                terminalView.isFocusableInTouchMode = true
 
                 terminalView.setTerminalViewClient(object : com.termux.view.TerminalViewClient {
                     override fun onScale(scale: Float): Float = scale
                     
                     override fun onSingleTapUp(e: android.view.MotionEvent?) {
-                        showKeyboardAndButtons = !showKeyboardAndButtons
+                        terminalInputState = (terminalInputState + 1) % 3
                         terminalView.requestFocus()
-                        val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
-                        if (showKeyboardAndButtons) {
-                            imm.showSoftInput(terminalView, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+                        val window = (context as? android.app.Activity)?.window
+                        if (window != null) {
+                            val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, terminalView)
+                            if (terminalInputState == 0) {
+                                insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.ime())
+                                terminalView.clearFocus()
+                            } else {
+                                insetsController.show(androidx.core.view.WindowInsetsCompat.Type.ime())
+                            }
                         } else {
-                            imm.hideSoftInputFromWindow(terminalView.windowToken, 0)
+                            // Fallback to InputMethodManager
+                            val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                            if (terminalInputState == 0) {
+                                imm.hideSoftInputFromWindow(terminalView.windowToken, 0)
+                            } else {
+                                imm.showSoftInput(terminalView, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+                            }
                         }
                     }
                     
@@ -250,7 +299,7 @@ fun TerminalScreen(
                 terminalView
             }
         )
-        if (showKeyboardAndButtons) {
+        if (terminalInputState == 2) {
             TerminalExtraKeys(
                 ctrlActive = ctrlSticky.value,
                 altActive = altSticky.value,

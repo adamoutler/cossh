@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,8 +36,15 @@ fun TerminalExtraKeys(
     val page2Row1 = listOf("PgUp", "Ins", "PrtSc")
     val page2Row2 = listOf("PgDn", "Del", "Pause")
 
-    HorizontalPager(state = pagerState, modifier = modifier.fillMaxWidth().background(Color(0xFF222222))) { page ->
-        Column(modifier = Modifier.fillMaxWidth().padding(4.dp)) {
+    HorizontalPager(
+        state = pagerState, 
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .background(Color(0xFF222222))
+            .focusProperties { canFocus = false }
+    ) { page ->
+        Column(modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(4.dp)) {
             if (page == 0) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                     page1Row1.forEach { key ->
@@ -94,6 +102,7 @@ fun ExtraKeyButton(text: String, isActive: Boolean, onClick: () -> Unit) {
         modifier = Modifier
             .padding(horizontal = 2.dp)
             .background(if (isActive) MaterialTheme.colorScheme.primary else Color(0xFF444444), shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp))
+            .focusProperties { canFocus = false }
             .clickable { onClick() }
             .padding(horizontal = 8.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center
