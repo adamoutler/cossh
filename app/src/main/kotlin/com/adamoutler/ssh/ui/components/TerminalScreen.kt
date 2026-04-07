@@ -99,7 +99,17 @@ fun TerminalScreen(
         }
     }
 
-    // 0 = none, 1 = keyboard only, 2 = keyboard + buttons
+    // Terminal Input State Machine:
+    // State 0: No keyboard, no extra buttons.
+    // State 1: Soft keyboard visible, no extra buttons.
+    // State 2: Soft keyboard visible AND extra buttons (TerminalExtraKeys) visible.
+    // 
+    // Tap Behavior Expected:
+    // - Tap when State 0 -> Transitions to State 1 (shows keyboard)
+    // - Tap when State 1 -> Transitions to State 2 (shows buttons)
+    // - Tap when State 2 -> Transitions to State 1 (hides buttons)
+    // - Note: Tapping does NOT hide the keyboard (never goes back to State 0).
+    //         Only the Android Back button transitions to State 0 and hides the keyboard.
     var terminalInputState by remember { mutableStateOf(0) }
     val ctrlSticky = remember { mutableStateOf(false) }
     val altSticky = remember { mutableStateOf(false) }
@@ -174,25 +184,23 @@ fun TerminalScreen(
                     override fun onScale(scale: Float): Float = scale
                     
                     override fun onSingleTapUp(e: android.view.MotionEvent?) {
-                        terminalInputState = (terminalInputState + 1) % 3
+                        if (terminalInputState == 0) {
+                            terminalInputState = 1
+                        } else if (terminalInputState == 1) {
+                            terminalInputState = 2
+                        } else {
+                            terminalInputState = 1
+                        }
+                        
                         terminalView.requestFocus()
                         val window = (context as? android.app.Activity)?.window
                         if (window != null) {
                             val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, terminalView)
-                            if (terminalInputState == 0) {
-                                insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.ime())
-                                terminalView.clearFocus()
-                            } else {
-                                insetsController.show(androidx.core.view.WindowInsetsCompat.Type.ime())
-                            }
+                            insetsController.show(androidx.core.view.WindowInsetsCompat.Type.ime())
                         } else {
                             // Fallback to InputMethodManager
                             val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
-                            if (terminalInputState == 0) {
-                                imm.hideSoftInputFromWindow(terminalView.windowToken, 0)
-                            } else {
-                                imm.showSoftInput(terminalView, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
-                            }
+                            imm.showSoftInput(terminalView, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
                         }
                     }
                     
