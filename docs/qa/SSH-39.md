@@ -9,3 +9,6 @@ Modifiers (`Ctrl`, `Alt`, `Super`, `Menu`) are sticky. When activated, they pers
 - `connectedAndroidTest` does not exist for this feature yet but manual logic integration succeeds.
 - Successful UI manual deployment.
 - The `user_stories/terminal-buttons.md` covers the manual QA interactions for the automated test harness.
+- **Automated Paparazzi Screenshots**:
+  - `app/src/test/snapshots/images/com.adamoutler.ssh.ui.components_TerminalExtraKeysScreenshotTest_page1_noModifiers.png` (Standard keys)
+  - `app/src/test/snapshots/images/com.adamoutler.ssh.ui.components_TerminalExtraKeysScreenshotTest_page1_withModifiers.png` (Highlighted sticky keys)
