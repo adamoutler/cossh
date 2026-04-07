@@ -95,6 +95,7 @@ fun TerminalScreen(
         modifier = modifier.fillMaxSize(),
         factory = { context ->
             val terminalView = TerminalView(context, null)
+            terminalView.setTextSize(14)
             terminalView.layoutParams = FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT

@@ -24,7 +24,12 @@ class SshConnectionManager(
             if (hostKeyVerifier != null) {
                 client.addHostKeyVerifier(hostKeyVerifier)
             } else {
-                client.loadKnownHosts()
+                try {
+                    client.loadKnownHosts()
+                } catch (e: java.io.IOException) {
+                    android.util.Log.w("SshConnectionManager", "Could not load known_hosts, falling back to PromiscuousVerifier", e)
+                    client.addHostKeyVerifier(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
+                }
             }
             
             client.connect(profile.host, profile.port)
@@ -84,7 +89,12 @@ class SshConnectionManager(
             if (hostKeyVerifier != null) {
                 client.addHostKeyVerifier(hostKeyVerifier)
             } else {
-                client.loadKnownHosts()
+                try {
+                    client.loadKnownHosts()
+                } catch (e: java.io.IOException) {
+                    android.util.Log.w("SshConnectionManager", "Could not load known_hosts, falling back to PromiscuousVerifier", e)
+                    client.addHostKeyVerifier(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
+                }
             }
             client.connect(profile.host, profile.port)
 
