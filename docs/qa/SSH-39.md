@@ -1,7 +1,10 @@
 # SSH-39: Terminal Extra Keys and Interaction
 
 ## Overview
-Added a single button panel with 2 rows of extra terminal keys (Esc, Super, Menu, Up, Tab, Home, Ctrl, Alt, Left, Down, Right, End) that users can access by swiping left for page 2 (PgUp, Ins, PrtSc, PgDn, Del, Pause). The panel becomes visible (along with the soft keyboard) when the user taps on the `TerminalView`. Tapping again dismisses both the keyboard and the extra buttons.
+Added a single button panel with 2 horizontally scrollable rows of extra terminal keys (Esc, Super, Menu, Up, Tab, Home, Ctrl, Alt, Left, Down, Right, End, PgUp, Ins, PrtSc, PgDn, Del, Pause). Per the user's steering update, there is no progressive display (swiping pages).
+
+The panel states cycle when the user taps on the `TerminalView`:
+1. No keyboard -> 2. Keyboard -> 3. Keyboard & Buttons -> 1. No keyboard (and so on).
 
 Modifiers (`Ctrl`, `Alt`, `Super`, `Menu`) are sticky. When activated, they persist until the next regular key or code point is pressed, successfully sending the correct byte modifications to the PTY stdin (e.g., `Ctrl+C` sends `0x03`).
 
@@ -12,3 +15,5 @@ Modifiers (`Ctrl`, `Alt`, `Super`, `Menu`) are sticky. When activated, they pers
 - **Automated Paparazzi Screenshots**:
   - `app/src/test/snapshots/images/com.adamoutler.ssh.ui.components_TerminalExtraKeysScreenshotTest_page1_noModifiers.png` (Standard keys)
   - `app/src/test/snapshots/images/com.adamoutler.ssh.ui.components_TerminalExtraKeysScreenshotTest_page1_withModifiers.png` (Highlighted sticky keys)
+- **Unit Test for Byte Modification Logic**:
+  - Added `TerminalModifierLogicTest.kt` to formally verify that sticky modifiers transform inputs into correct bytes (e.g. `Ctrl+C` -> `0x03`).

@@ -37,6 +37,10 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import android.util.Log
 
+enum class TerminalInputState {
+    NONE, KEYBOARD, KEYBOARD_AND_BUTTONS
+}
+
 @Composable
 fun TerminalScreen(
     modifier: Modifier = Modifier,
@@ -189,18 +193,27 @@ fun TerminalScreen(
                         } else if (terminalInputState == 1) {
                             terminalInputState = 2
                         } else {
-                            terminalInputState = 1
+                            terminalInputState = 0
                         }
                         
                         terminalView.requestFocus()
                         val window = (context as? android.app.Activity)?.window
-                        if (window != null) {
-                            val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, terminalView)
-                            insetsController.show(androidx.core.view.WindowInsetsCompat.Type.ime())
+                        if (terminalInputState != 0) {
+                            if (window != null) {
+                                val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, terminalView)
+                                insetsController.show(androidx.core.view.WindowInsetsCompat.Type.ime())
+                            } else {
+                                val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                                imm.showSoftInput(terminalView, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+                            }
                         } else {
-                            // Fallback to InputMethodManager
-                            val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
-                            imm.showSoftInput(terminalView, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+                            if (window != null) {
+                                val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, terminalView)
+                                insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.ime())
+                            } else {
+                                val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                                imm.hideSoftInputFromWindow(terminalView.windowToken, 0)
+                            }
                         }
                     }
                     

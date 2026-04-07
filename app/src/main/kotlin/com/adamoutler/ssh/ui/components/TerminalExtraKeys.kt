@@ -1,11 +1,10 @@
 package com.adamoutler.ssh.ui.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,7 +16,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TerminalExtraKeys(
     ctrlActive: Boolean,
@@ -28,50 +26,35 @@ fun TerminalExtraKeys(
     onKeyPress: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val pagerState = rememberPagerState(pageCount = { 2 })
+    val row1 = listOf("Esc", "Super", "Menu", "Up", "Tab", "Home", "PgUp", "Ins", "PrtSc")
+    val row2 = listOf("Ctrl", "Alt", "Left", "Down", "Right", "End", "PgDn", "Del", "Pause")
 
-    val page1Row1 = listOf("Esc", "Super", "Menu", "Up", "Tab", "Home")
-    val page1Row2 = listOf("Ctrl", "Alt", "Left", "Down", "Right", "End")
-    
-    val page2Row1 = listOf("PgUp", "Ins", "PrtSc")
-    val page2Row2 = listOf("PgDn", "Del", "Pause")
-
-    HorizontalPager(
-        state = pagerState, 
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .background(Color(0xFF222222))
             .focusProperties { canFocus = false }
-    ) { page ->
-        Column(modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(4.dp)) {
-            if (page == 0) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                    page1Row1.forEach { key ->
-                        ExtraKeyButton(key, isActive(key, ctrlActive, altActive, superActive, menuActive)) {
-                            handleKey(key, onKeyToggle, onKeyPress)
-                        }
-                    }
+            .padding(4.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), 
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            row1.forEach { key ->
+                ExtraKeyButton(key, isActive(key, ctrlActive, altActive, superActive, menuActive)) {
+                    handleKey(key, onKeyToggle, onKeyPress)
                 }
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                    page1Row2.forEach { key ->
-                        ExtraKeyButton(key, isActive(key, ctrlActive, altActive, superActive, menuActive)) {
-                            handleKey(key, onKeyToggle, onKeyPress)
-                        }
-                    }
-                }
-            } else {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                    page2Row1.forEach { key ->
-                        ExtraKeyButton(key, false) { handleKey(key, onKeyToggle, onKeyPress) }
-                    }
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                    page2Row2.forEach { key ->
-                        ExtraKeyButton(key, false) { handleKey(key, onKeyToggle, onKeyPress) }
-                    }
+            }
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), 
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            row2.forEach { key ->
+                ExtraKeyButton(key, isActive(key, ctrlActive, altActive, superActive, menuActive)) {
+                    handleKey(key, onKeyToggle, onKeyPress)
                 }
             }
         }
@@ -100,11 +83,10 @@ private fun handleKey(key: String, onKeyToggle: (String) -> Unit, onKeyPress: (S
 fun ExtraKeyButton(text: String, isActive: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .padding(horizontal = 2.dp)
             .background(if (isActive) MaterialTheme.colorScheme.primary else Color(0xFF444444), shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp))
             .focusProperties { canFocus = false }
             .clickable { onClick() }
-            .padding(horizontal = 8.dp, vertical = 8.dp),
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
