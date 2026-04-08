@@ -15,7 +15,7 @@ class SshConnectionManager(
     private val hostKeyVerifier: HostKeyVerifier? = null
 ) {
     suspend fun connectAndExecute(profile: ConnectionProfile, command: String, keyPair: KeyPair? = null): String = withContext(Dispatchers.IO) {
-        val client = SSHClient()
+        val client = SSHClient(net.schmizz.sshj.AndroidConfig())
         // Aggressive timeouts per security invariant
         client.connectTimeout = 10000
         client.timeout = 10000
@@ -82,7 +82,7 @@ class SshConnectionManager(
         onOutput: (ByteArray, Int) -> Unit,
         onConnect: (java.io.OutputStream) -> Unit
     ) = withContext(Dispatchers.IO) {
-        val client = SSHClient()
+        val client = SSHClient(net.schmizz.sshj.AndroidConfig())
         client.connectTimeout = 10000
         client.timeout = 10000
         try {
