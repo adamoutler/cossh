@@ -36,6 +36,9 @@ class TerminalScreenInstrumentedTest {
         
         composeTestRule.waitForIdle()
 
+        // Wait a few seconds to allow external screenshot capture
+        Thread.sleep(3000)
+
         // By default, terminalInputState is 0 (keyboard hidden).
         // Pressing back should trigger the onNavigateBack callback.
         
