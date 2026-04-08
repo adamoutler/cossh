@@ -42,7 +42,9 @@ fun AppNavigation() {
                 type = NavType.StringType
             })
         ) {
-            TerminalScreen()
+            TerminalScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
         composable("keyManagement") {
             KeyManagementScreen()

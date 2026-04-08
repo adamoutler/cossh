@@ -44,7 +44,8 @@ enum class TerminalInputState {
 @Composable
 fun TerminalScreen(
     modifier: Modifier = Modifier,
-    initialText: String = "Welcome to CoSSH Terminal\r\n\u001B[32mANSI Color Support Active!\u001B[0m\r\n"
+    initialText: String = "Welcome to CoSSH Terminal\r\n\u001B[32mANSI Color Support Active!\u001B[0m\r\n",
+    onNavigateBack: () -> Unit = {}
 ) {
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
 
@@ -120,18 +121,22 @@ fun TerminalScreen(
     val superSticky = remember { mutableStateOf(false) }
     val menuSticky = remember { mutableStateOf(false) }
 
-    androidx.activity.compose.BackHandler(enabled = terminalInputState != 0) {
-        terminalInputState = 0
-        terminalViewRef?.let {
-            val window = (it.context as? android.app.Activity)?.window
-            if (window != null) {
-                val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, it)
-                insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.ime())
-                it.clearFocus()
-            } else {
-                val imm = it.context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
-                imm.hideSoftInputFromWindow(it.windowToken, 0)
+    androidx.activity.compose.BackHandler(enabled = true) {
+        if (terminalInputState != 0) {
+            terminalInputState = 0
+            terminalViewRef?.let {
+                val window = (it.context as? android.app.Activity)?.window
+                if (window != null) {
+                    val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, it)
+                    insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.ime())
+                    it.clearFocus()
+                } else {
+                    val imm = it.context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                    imm.hideSoftInputFromWindow(it.windowToken, 0)
+                }
             }
+        } else {
+            onNavigateBack()
         }
     }
 
