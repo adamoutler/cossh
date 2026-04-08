@@ -41,6 +41,37 @@ enum class TerminalInputState {
     NONE, KEYBOARD, KEYBOARD_AND_BUTTONS
 }
 
+fun createTerminalSessionClient(
+    onScreenUpdated: () -> Unit,
+    getContext: () -> android.content.Context?
+): TerminalSessionClient {
+    return object : TerminalSessionClient {
+        override fun onTextChanged(session: TerminalSession) {
+            onScreenUpdated()
+        }
+        override fun onTitleChanged(session: TerminalSession) {}
+        override fun onSessionFinished(session: TerminalSession) {}
+        override fun onCopyTextToClipboard(session: TerminalSession, text: String) {
+            val context = getContext() ?: return
+            val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+            val clip = android.content.ClipData.newPlainText("Terminal text", text.trimEnd())
+            clipboard.setPrimaryClip(clip)
+        }
+        override fun onPasteTextFromClipboard(session: TerminalSession) {}
+        override fun onBell(session: TerminalSession) {}
+        override fun onColorsChanged(session: TerminalSession) {}
+        override fun onTerminalCursorStateChange(state: Boolean) {}
+        override fun getTerminalCursorStyle(): Int = 0
+        override fun logError(tag: String?, msg: String?) {}
+        override fun logWarn(tag: String?, msg: String?) {}
+        override fun logInfo(tag: String?, msg: String?) {}
+        override fun logDebug(tag: String?, msg: String?) {}
+        override fun logVerbose(tag: String?, msg: String?) {}
+        override fun logStackTraceWithMessage(tag: String?, msg: String?, e: Exception?) {}
+        override fun logStackTrace(tag: String?, e: Exception?) {}
+    }
+}
+
 @Composable
 fun TerminalScreen(
     modifier: Modifier = Modifier,
@@ -50,26 +81,10 @@ fun TerminalScreen(
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
 
     val session = remember {
-        val client = object : TerminalSessionClient {
-            override fun onTextChanged(session: TerminalSession) {
-                terminalViewRef?.onScreenUpdated()
-            }
-            override fun onTitleChanged(session: TerminalSession) {}
-            override fun onSessionFinished(session: TerminalSession) {}
-            override fun onCopyTextToClipboard(session: TerminalSession, text: String) {}
-            override fun onPasteTextFromClipboard(session: TerminalSession) {}
-            override fun onBell(session: TerminalSession) {}
-            override fun onColorsChanged(session: TerminalSession) {}
-            override fun onTerminalCursorStateChange(state: Boolean) {}
-            override fun getTerminalCursorStyle(): Int = 0
-            override fun logError(tag: String?, msg: String?) {}
-            override fun logWarn(tag: String?, msg: String?) {}
-            override fun logInfo(tag: String?, msg: String?) {}
-            override fun logDebug(tag: String?, msg: String?) {}
-            override fun logVerbose(tag: String?, msg: String?) {}
-            override fun logStackTraceWithMessage(tag: String?, msg: String?, e: Exception?) {}
-            override fun logStackTrace(tag: String?, e: Exception?) {}
-        }
+        val client = createTerminalSessionClient(
+            onScreenUpdated = { terminalViewRef?.onScreenUpdated() },
+            getContext = { terminalViewRef?.context }
+        )
         
         val dummySession = try {
             val s = TerminalSession("/system/bin/cat", "", arrayOf(), arrayOf(), 100, client)
