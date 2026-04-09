@@ -29,10 +29,22 @@ class SshServiceInstrumentationTest {
     )
 
     @Test
-    fun testForegroundServiceSurvivesActivityBackgrounding() {
+    fun testForegroundServiceSurvivesActivityBackgrounding() = kotlinx.coroutines.runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val storageManager = com.adamoutler.ssh.crypto.SecurityStorageManager(context)
+        val mockProfile = com.adamoutler.ssh.data.ConnectionProfile(
+            id = "mock-profile",
+            nickname = "Test",
+            host = "10.0.2.2",
+            port = 2222,
+            username = "test",
+            authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
+            password = "test".toByteArray()
+        )
+        storageManager.saveProfile(mockProfile)
+
         val scenario = ActivityScenario.launch(MainActivity::class.java)
 
-        val context = ApplicationProvider.getApplicationContext<Context>()
         val serviceIntent = Intent(context, SshService::class.java).apply {
             action = SshService.ACTION_START
             putExtra(SshService.EXTRA_PROFILE_ID, "mock-profile")

@@ -22,6 +22,11 @@ class TerminalScreenInstrumentedTest {
 
     @Test
     fun testBackPressWhenKeyboardHiddenNavigatesBack() {
+        // Clear any previous state
+        com.adamoutler.ssh.network.SshSessionProvider.activeConnections.value.forEach {
+            com.adamoutler.ssh.network.SshSessionProvider.removeConnection(it)
+        }
+        
         val latch = CountDownLatch(1)
         var backNavigationCalled = false
 
