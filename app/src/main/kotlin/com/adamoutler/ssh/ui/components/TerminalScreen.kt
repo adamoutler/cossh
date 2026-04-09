@@ -92,7 +92,7 @@ fun TerminalScreen(
         )
         
         val dummySession = try {
-            val s = TerminalSession("/system/bin/cat", "", arrayOf(), arrayOf(), 100, client)
+            val s = TerminalSession("/system/bin/sh", "/", arrayOf("-c", "cat"), arrayOf(), 100, client)
             s
         } catch (e: Throwable) {
             null

@@ -25,7 +25,7 @@ class TerminalScreenCopyTest {
         )
         
         val dummySession = try {
-            TerminalSession("/system/bin/cat", "", arrayOf(), arrayOf(), 100, client)
+            TerminalSession("/system/bin/sh", "/", arrayOf("-c", "cat"), arrayOf(), 100, client)
         } catch (e: Throwable) {
             null
         }
