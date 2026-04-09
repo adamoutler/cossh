@@ -4,7 +4,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.longClick
-import androidx.compose.ui.test.click
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
@@ -13,7 +13,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.Assert.assertTrue
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(androidx.test.ext.junit.runners.AndroidJUnit4::class)
 class ConnectionListScreenInstrumentedTest {
 
     @get:Rule
