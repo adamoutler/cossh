@@ -383,41 +383,19 @@ fun TerminalScreen(
             )
             
             if (terminalInputState != 0) {
-                androidx.compose.foundation.layout.Row(
-                    modifier = Modifier.fillMaxWidth().padding(8.dp),
-                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
-                ) {
-                    androidx.compose.material3.IconButton(
-                        onClick = { onNavigateBack() },
-                        modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), shape = androidx.compose.foundation.shape.CircleShape)
-                    ) {
-                        androidx.compose.material3.Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Background Session",
-                            tint = Color.White
-                        )
-                    }
-
-                    androidx.compose.material3.IconButton(
-                        onClick = { 
-                            val context = terminalViewRef?.context
-                            if (context != null) {
-                                val intent = android.content.Intent(context, com.adamoutler.ssh.network.SshService::class.java).apply { 
-                                    action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT 
-                                }
-                                context.startService(intent)
+                TerminalOverlayButtons(
+                    onBackground = { onNavigateBack() },
+                    onTerminate = {
+                        val context = terminalViewRef?.context
+                        if (context != null) {
+                            val intent = android.content.Intent(context, com.adamoutler.ssh.network.SshService::class.java).apply { 
+                                action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT 
                             }
-                            onNavigateBack()
-                        },
-                        modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), shape = androidx.compose.foundation.shape.CircleShape)
-                    ) {
-                        androidx.compose.material3.Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Terminate Session",
-                            tint = Color.White
-                        )
+                            context.startService(intent)
+                        }
+                        onNavigateBack()
                     }
-                }
+                )
             }
         }
         if (terminalInputState == 2) {
