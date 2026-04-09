@@ -1,0 +1,5 @@
+com.adamoutler.ssh.ui.components.TerminalScreenDialogScreenshotTest > keepAliveDialogScreen STANDARD_ERROR
+com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest > draggedConnectionItemScreen STANDARD_ERROR
+com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest > activeConnectionBadgeScreen STANDARD_ERROR
+com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest > menuExpandedScreen STANDARD_ERROR
+com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest > defaultScreen STANDARD_ERROR

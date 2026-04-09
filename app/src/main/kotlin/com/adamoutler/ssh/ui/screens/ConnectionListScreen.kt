@@ -38,6 +38,7 @@ fun ConnectionListScreen(
 ) {
     val profiles by viewModel.profiles.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val activeConnections by com.adamoutler.ssh.network.SshSessionProvider.activeConnections.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -117,6 +118,7 @@ fun ConnectionListScreen(
     ConnectionListScreenContent(
         profiles = profiles,
         searchQuery = searchQuery,
+        activeConnections = activeConnections,
         onSearchQueryChange = { viewModel.updateSearchQuery(it) },
         onAddConnection = onAddConnection,
         onEditConnection = onEditConnection,
@@ -132,6 +134,7 @@ fun ConnectionListScreen(
 fun ConnectionListScreenContent(
     profiles: List<ConnectionProfile>,
     searchQuery: String,
+    activeConnections: Set<String> = emptySet(),
     onSearchQueryChange: (String) -> Unit,
     onAddConnection: () -> Unit,
     onEditConnection: (String) -> Unit,
@@ -261,6 +264,7 @@ fun ConnectionListScreenContent(
                     ) {
                         ConnectionItem(
                             profile = profile,
+                            isActive = activeConnections.contains(profile.id),
                             elevation = if (isDragging) 8.dp else 2.dp,
                             onClick = {
                                 Log.d("ConnectionListScreen", "Connecting to ${profile.nickname} (${profile.host})")
@@ -284,9 +288,9 @@ fun ConnectionListScreenContent(
     }
 }
 
-@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
-fun ConnectionItem(profile: ConnectionProfile, onClick: () -> Unit, onEdit: () -> Unit, elevation: androidx.compose.ui.unit.Dp = 2.dp) {
+fun ConnectionItem(profile: ConnectionProfile, isActive: Boolean = false, onClick: () -> Unit, onEdit: () -> Unit, elevation: androidx.compose.ui.unit.Dp = 2.dp) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -305,7 +309,13 @@ fun ConnectionItem(profile: ConnectionProfile, onClick: () -> Unit, onEdit: () -
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text(text = profile.nickname, style = MaterialTheme.typography.titleMedium)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = profile.nickname, style = MaterialTheme.typography.titleMedium)
+                    if (isActive) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Badge { Text("1") }
+                    }
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = "${profile.username}@${profile.host}:${profile.port}", style = MaterialTheme.typography.bodySmall)
             }

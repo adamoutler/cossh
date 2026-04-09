@@ -124,4 +124,37 @@ class ConnectionListScreenScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun activeConnectionBadgeScreen() {
+        val mockProfiles = listOf(
+            ConnectionProfile(
+                id = "1",
+                nickname = "Production Server",
+                host = "192.168.1.10",
+                port = 22,
+                username = "admin",
+                authType = AuthType.KEY,
+                sshKeyPasswordReferenceId = "mock-key-1"
+            )
+        )
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    ConnectionListScreenContent(
+                        profiles = mockProfiles,
+                        searchQuery = "",
+                        activeConnections = setOf("1"),
+                        onSearchQueryChange = {},
+                        onAddConnection = {},
+                        onEditConnection = {},
+                        onConnect = {}
+                    )
+                }
+            }
+        }
+    }
 }

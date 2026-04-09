@@ -74,6 +74,7 @@ class SshService : Service() {
                 val storageManager = SecurityStorageManager(applicationContext)
                 val profile = storageManager.getProfile(profileId)
                 if (profile != null) {
+                    SshSessionProvider.addConnection(profileId)
                     updateNotification("Connected to ${profile.nickname}")
                     sshManager = SshConnectionManager()
                     

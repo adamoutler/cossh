@@ -32,7 +32,9 @@ class SshPtyIntegrationTest {
     fun setUp() {
         sshd = SshServer.setUpDefaultServer()
         sshd.port = testPort
-        sshd.keyPairProvider = SimpleGeneratorHostKeyProvider(Files.createTempFile("host", "key"))
+        val provider = SimpleGeneratorHostKeyProvider(Files.createTempFile("host", "key"))
+        provider.algorithm = "RSA"
+        sshd.keyPairProvider = provider
         
         sshd.passwordAuthenticator = PasswordAuthenticator { username, password, _ ->
             username == testUser && password == testPassword

@@ -112,4 +112,29 @@ class ConnectionListScreenInstrumentedTest {
         assertTrue(capturedIntent?.action == com.adamoutler.ssh.network.SshService.ACTION_START)
         assertTrue(capturedIntent?.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID) == "1")
     }
+
+    @Test
+    fun activeConnectionShowsBadge() {
+        val mockProfile = ConnectionProfile(
+            id = "1",
+            nickname = "Production Server",
+            host = "192.168.1.10",
+            port = 22,
+            username = "admin",
+            authType = AuthType.PASSWORD,
+            password = "password".toByteArray()
+        )
+        composeTestRule.setContent {
+            ConnectionListScreenContent(
+                profiles = listOf(mockProfile),
+                searchQuery = "",
+                activeConnections = setOf("1"),
+                onSearchQueryChange = {},
+                onAddConnection = {},
+                onEditConnection = {},
+                onConnect = {}
+            )
+        }
+        composeTestRule.onNodeWithText("1").assertExists()
+    }
 }

@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -136,6 +137,10 @@ fun TerminalScreen(
     val superSticky = remember { mutableStateOf(false) }
     val menuSticky = remember { mutableStateOf(false) }
 
+    var showKeepAliveDialog by remember { mutableStateOf(false) }
+    val activeConnections by SshSessionProvider.activeConnections.collectAsState()
+    val isConnectionActive = activeConnections.isNotEmpty()
+
     androidx.activity.compose.BackHandler(enabled = true) {
         if (terminalInputState != 0) {
             terminalInputState = 0
@@ -151,8 +156,39 @@ fun TerminalScreen(
                 }
             }
         } else {
-            onNavigateBack()
+            if (isConnectionActive) {
+                showKeepAliveDialog = true
+            } else {
+                onNavigateBack()
+            }
         }
+    }
+
+    if (showKeepAliveDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showKeepAliveDialog = false },
+            title = { Text("Keep Session Alive?") },
+            text = { Text("Do you want to keep this SSH session running in the background or terminate it?") },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    showKeepAliveDialog = false
+                    onNavigateBack()
+                }) { Text("Keep Alive") }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    showKeepAliveDialog = false
+                    val context = terminalViewRef?.context
+                    if (context != null) {
+                        val intent = android.content.Intent(context, com.adamoutler.ssh.network.SshService::class.java).apply { 
+                            action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT 
+                        }
+                        context.startService(intent)
+                    }
+                    onNavigateBack()
+                }) { Text("Terminate") }
+            }
+        )
     }
 
     val sendToTerminal: (ByteArray) -> Unit = { bytes ->
