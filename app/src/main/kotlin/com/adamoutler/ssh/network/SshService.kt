@@ -89,11 +89,12 @@ class SshService : Service() {
                     )
                 } else {
                     Log.e("SshService", "Profile not found")
-                    stopSelf()
                 }
             } catch (e: Exception) {
                 Log.e("SshService", "SSH Connection failed", e)
                 updateNotification("Connection failed")
+            } finally {
+                SshSessionProvider.removeConnection(profileId)
                 stopSelf()
             }
         }

@@ -105,6 +105,37 @@ class TerminalScreenInstrumentedTest {
     }
 
     @Test
+    fun testBackPressNavigatesBackWhenConnectionDrops() {
+        var backNavigationCalled = false
+
+        // Simulate active connection
+        com.adamoutler.ssh.network.SshSessionProvider.addConnection("drop-test-id")
+
+        composeTestRule.setContent {
+            TerminalScreen(
+                onNavigateBack = {
+                    backNavigationCalled = true
+                }
+            )
+        }
+        
+        composeTestRule.waitForIdle()
+
+        // Connection drops
+        com.adamoutler.ssh.network.SshSessionProvider.removeConnection("drop-test-id")
+        composeTestRule.waitForIdle()
+        Thread.sleep(500)
+
+        // Back button should immediately navigate back without KeepAlive dialog
+        pressBackUnconditionally()
+        composeTestRule.waitForIdle()
+        Thread.sleep(500)
+
+        composeTestRule.onNodeWithText("Keep Session Alive?").assertDoesNotExist()
+        assertTrue("Navigate back should be called since connection dropped", backNavigationCalled)
+    }
+
+    @Test
     fun testFloatingOverlayButtons() {
         var backNavigationCalled = false
 
