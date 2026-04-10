@@ -60,7 +60,7 @@ object SshSessionProvider {
     fun getOrCreateSession(): TerminalSession? {
         if (terminalSession == null) {
             terminalSession = try {
-                val session = TerminalSession("/system/bin/sh", "/", arrayOf("-c", "cat"), arrayOf(), 100, terminalSessionClient)
+                val session = TerminalSession("/system/bin/sh", "/", arrayOf(), arrayOf("TERM=xterm-256color"), 100, terminalSessionClient)
                 val initialText = "Welcome to CoSSH Terminal\r\n\u001B[32mANSI Color Support Active!\u001B[0m\r\n"
                 session.emulator?.append(initialText.toByteArray(), initialText.length)
                 session

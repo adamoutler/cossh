@@ -26,7 +26,7 @@ class ExceptionTest {
                 override fun logStackTraceWithMessage(tag: String?, msg: String?, e: java.lang.Exception?) {}
                 override fun logStackTrace(tag: String?, e: java.lang.Exception?) {}
             }
-            TerminalSession("/system/bin/sh", "/", arrayOf("-c", "cat"), arrayOf(), 100, client)
+            TerminalSession("/system/bin/sh", "/", arrayOf(), arrayOf("TERM=xterm-256color"), 100, client)
         } catch (e: Throwable) {
             e.printStackTrace()
         }
