@@ -3,23 +3,21 @@ package com.adamoutler.ssh.ui.screens
 import android.app.Application
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
 import com.adamoutler.ssh.backup.BackupManager
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.ui.base.BaseAndroidViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ConnectionListViewModel(
     application: Application,
     private val storageManager: SecurityStorageManager,
     private val backupManager: BackupManager
-) : AndroidViewModel(application) {
+) : BaseAndroidViewModel(application) {
 
     constructor(application: Application) : this(
         application,
@@ -38,7 +36,7 @@ class ConnectionListViewModel(
     }
 
     fun loadProfiles() {
-        viewModelScope.launch {
+        launchWithHandler {
             if (com.adamoutler.ssh.BuildConfig.DEBUG && storageManager.getAllProfiles().isEmpty()) {
                 val testProfile = ConnectionProfile(
                     id = "default_test_profile",
@@ -79,7 +77,7 @@ class ConnectionListViewModel(
         currentList.add(toIndex, item)
         _profiles.value = currentList
 
-        viewModelScope.launch(Dispatchers.IO) {
+        launchWithHandler(Dispatchers.IO) {
             currentList.forEachIndexed { index, profile ->
                 if (profile.sortOrder != index) {
                     profile.sortOrder = index
@@ -90,7 +88,7 @@ class ConnectionListViewModel(
     }
 
     fun exportBackup(uri: Uri, password: CharArray, onComplete: (Boolean) -> Unit) {
-        viewModelScope.launch {
+        launchWithHandler {
             try {
                 withContext(Dispatchers.IO) {
                     backupManager.exportBackup(uri, password)
@@ -104,7 +102,7 @@ class ConnectionListViewModel(
     }
 
     fun importBackup(uri: Uri, password: CharArray, onComplete: (Boolean) -> Unit) {
-        viewModelScope.launch {
+        launchWithHandler {
             try {
                 withContext(Dispatchers.IO) {
                     backupManager.importBackup(uri, password)

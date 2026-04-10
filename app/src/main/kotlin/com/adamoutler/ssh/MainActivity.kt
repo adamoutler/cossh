@@ -1,19 +1,29 @@
 package com.adamoutler.ssh
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import com.adamoutler.ssh.ui.events.UiEvent
+import com.adamoutler.ssh.ui.events.UiEventBus
 import com.adamoutler.ssh.ui.theme.CoSSHTheme
 import com.adamoutler.ssh.ui.navigation.AppNavigation
+import kotlinx.coroutines.flow.collectLatest
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,11 +31,37 @@ class MainActivity : ComponentActivity() {
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             CoSSHTheme {
-                Surface(
+                val snackbarHostState = remember { SnackbarHostState() }
+
+                LaunchedEffect(Unit) {
+                    UiEventBus.events.collectLatest { event ->
+                        when (event) {
+                            is UiEvent.ShowSnackbar -> {
+                                snackbarHostState.showSnackbar(
+                                    message = event.message,
+                                    actionLabel = event.actionLabel
+                                )
+                            }
+                            is UiEvent.ShowToast -> {
+                                Toast.makeText(this@MainActivity, event.message, Toast.LENGTH_LONG).show()
+                            }
+                            else -> { /* Navigate events should ideally be handled where navController is available */ }
+                        }
+                    }
+                }
+
+                Scaffold(
                     modifier = Modifier.fillMaxSize().systemBarsPadding(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    AppNavigation()
+                    snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+                ) { innerPadding ->
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        AppNavigation()
+                    }
                 }
             }
         }

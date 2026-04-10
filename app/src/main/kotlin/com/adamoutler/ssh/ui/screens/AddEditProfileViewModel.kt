@@ -1,16 +1,16 @@
 package com.adamoutler.ssh.ui.screens
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.ui.base.BaseAndroidViewModel
 import java.util.UUID
 
 class AddEditProfileViewModel(
     application: Application,
     private val storageManager: SecurityStorageManager
-) : AndroidViewModel(application) {
+) : BaseAndroidViewModel(application) {
 
     constructor(application: Application) : this(
         application,
