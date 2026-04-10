@@ -13,6 +13,11 @@ class SecureCrashHandler(
     private val defaultHandler: Thread.UncaughtExceptionHandler?
 ) : Thread.UncaughtExceptionHandler {
 
+    var processKiller: () -> Unit = {
+        android.os.Process.killProcess(android.os.Process.myPid())
+        System.exit(10)
+    }
+
     companion object {
         const val CRASH_DIR_NAME = "secure_crashes"
         
@@ -31,8 +36,8 @@ class SecureCrashHandler(
             // We fail closed to prevent accidental leakage during error handling.
             Log.e("SecureCrashHandler", "Fatal error in crash handler. Failing closed.")
         } finally {
-            // Pass control back to the OS to kill the process
-            defaultHandler?.uncaughtException(thread, throwable)
+            // Gracefully self-terminate to prevent the default OS crash dialog from appearing
+            processKiller()
         }
     }
 
