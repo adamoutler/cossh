@@ -1,41 +1,1145 @@
-> Task :app:checkKotlinGradlePluginConfigurationErrors
-> Task :app:preBuild UP-TO-DATE
-> Task :app:preDebugBuild UP-TO-DATE
-> Task :app:generateDebugBuildConfig UP-TO-DATE
-> Task :app:checkDebugAarMetadata UP-TO-DATE
-> Task :app:generateDebugResValues UP-TO-DATE
-> Task :app:mapDebugSourceSetPaths UP-TO-DATE
-> Task :app:generateDebugResources UP-TO-DATE
-> Task :app:mergeDebugResources UP-TO-DATE
-> Task :app:packageDebugResources UP-TO-DATE
-> Task :app:parseDebugLocalResources UP-TO-DATE
-> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
-> Task :app:extractDeepLinksDebug UP-TO-DATE
-> Task :app:processDebugMainManifest UP-TO-DATE
-> Task :app:processDebugManifest UP-TO-DATE
-> Task :app:processDebugManifestForPackage UP-TO-DATE
-> Task :app:processDebugResources UP-TO-DATE
-> Task :app:compileDebugKotlin UP-TO-DATE
-> Task :app:javaPreCompileDebug UP-TO-DATE
-> Task :app:compileDebugJavaWithJavac UP-TO-DATE
-> Task :app:bundleDebugClassesToRuntimeJar UP-TO-DATE
-> Task :app:bundleDebugClassesToCompileJar UP-TO-DATE
-> Task :app:preparePaparazziDebugResources UP-TO-DATE
-> Task :app:compileDebugUnitTestKotlin UP-TO-DATE
-> Task :app:preDebugUnitTestBuild UP-TO-DATE
-> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
-> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
-> Task :app:mergeDebugShaders UP-TO-DATE
-> Task :app:compileDebugShaders NO-SOURCE
-> Task :app:generateDebugAssets UP-TO-DATE
-> Task :app:mergeDebugAssets UP-TO-DATE
-> Task :app:packageDebugUnitTestForUnitTest UP-TO-DATE
-> Task :app:generateDebugUnitTestConfig UP-TO-DATE
-> Task :app:processDebugJavaRes UP-TO-DATE
-> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
-
-> Task :app:testDebugUnitTest
-See the Paparazzi report at: file:///home/adamoutler/git/ssh/app/build/reports/paparazzi/debug/index.html
-
-BUILD SUCCESSFUL in 1s
-30 actionable tasks: 2 executed, 28 up-to-date
+--------- beginning of main
+04-10 09:04:25.844   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:25.917  2721  2733 D RingtonePlayer: playAsync(uri=content://settings/system/notification_sound, user=UserHandle{-1})
+04-10 09:04:25.918  2721  2733 D RingtonePlayer: play uri=content://settings/system/notification_sound
+--------- beginning of system
+04-10 09:04:25.920  1588  1588 V NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+04-10 09:04:25.920  1588  2673 D BackgroundInstallControlService: Package event received: 0
+04-10 09:04:25.924  2721 13077 D RingtonePlayer: RemoveFirst
+04-10 09:04:25.924  2721 13077 D RingtonePlayer: PLAY
+04-10 09:04:25.924  2721 13077 D RingtonePlayer: startSound()
+04-10 09:04:25.925  2721 13078 D RingtonePlayer: in run: new looper Looper (Thread-77, tid 775) {5174723}
+04-10 09:04:25.943  4808  5585 I AiAiEcho: SmartspaceNotificationPredictor no parser can handle this notification or notification is invalid
+04-10 09:04:25.945  1194  2635 D NuPlayerDriver: NuPlayerDriver(0xb4000070094f80d0) created, clientPid(2721)
+04-10 09:04:25.946  1194  2635 I HidlServiceManagement: Trying to get transport of android.hardware.media.omx@1.0::IOmx/default without hwservicemanager
+04-10 09:04:25.946  1194  2635 D MediaPlayerService: OMX service is not available
+04-10 09:04:25.949  3324 13068 W NearbyFastPair: Process 1027 android.uid.nfc:1027 has 2 packageNames [CONTEXT service_id=265 ]
+04-10 09:04:25.949  3324 13068 W NearbyFastPair: Process 1000 android.uid.system:1000 has 17 packageNames [CONTEXT service_id=265 ]
+04-10 09:04:25.950  1194  2635 W mediaserver: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+04-10 09:04:25.950  1194  2635 W mediaserver: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+04-10 09:04:25.950  1194  2635 W mediaserver: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+04-10 09:04:25.955  1194 13082 D GenericSource: FileSource remote
+04-10 09:04:25.967  2721 13078 D RingtonePlayer: requesting AudioFocus
+04-10 09:04:25.969  1588  3863 I MediaFocusControl: requestAudioFocus() from uid/pid 10248/2721 AA=USAGE_NOTIFICATION/CONTENT_TYPE_SONIFICATION clientId=android.media.AudioManager@9f13281 callingPack=com.android.systemui req=3 flags=0x0 sdk=36
+04-10 09:04:25.970  1588  3863 V AS.PlaybackActivityMon: not ducking player 3271 uid:10209 pid:6953 due to type:AAudio
+04-10 09:04:25.970  1588  3863 I AS.FadeOutManager: unfadeOutUid() uid:10248
+04-10 09:04:25.970  6953  6953 I AudioManager: dispatching onAudioFocusChange(-3) to android.media.AudioManager@59382fdorg.chromium.content.browser.AudioFocusDelegate@bf78525
+04-10 09:04:25.970  2721 13078 D RingtonePlayer: notification will be delayed by 500ms
+04-10 09:04:26.001  2721  2721 D LocalImageResolver: Couldn't use ImageDecoder for drawable, falling back to non-resized load.
+04-10 09:04:26.030  2721  2721 D LocalImageResolver: Couldn't use ImageDecoder for drawable, falling back to non-resized load.
+04-10 09:04:26.034  2721  2721 W TouchableRegionManager: onHeadsUpPinnedModeChanged
+04-10 09:04:26.036  2721  2721 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): com.android.systemui.back.domain.interactor.BackActionInteractor$callback$2@3dc5744
+04-10 09:04:26.037  1588  5026 D CoreBackPreview: Window{492d6de u0 NotificationShade}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@2865636, mPriority=0, mIsAnimationCallback=false, mOverrideBehavior=0}
+04-10 09:04:26.040  2721  2820 D ShadeStatusBarComponentsInteractor#disableFlagsInteractor: newValue: DisableFlagsModel(disable1=0, disable2=0, animate=true)
+04-10 09:04:26.043  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.043  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.043  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.043  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.043  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.043  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.044  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.044  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.044  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.044  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.044  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.045  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.045  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.045  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.049  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.049  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.049  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.049  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.049  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.049  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.049  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.050  2721  2721 D LockscreenSmartspaceController: notifySmartspaceEvent: SmartspaceTargetEvent{mSmartspaceTarget=null, mSmartspaceActionId='null', mEventType=6}
+04-10 09:04:26.054  4808  5160 I AiAiEcho: (REDACTED) %s No tracked ambient data found for ID: %s; for event type: %d, skipping event processing.
+04-10 09:04:26.057  1588  1777 I ImeTracker: system_server:637e4d0f: onRequestShow at ORIGIN_SERVER reason CONTROLS_CHANGED fromUser false displayId 0
+04-10 09:04:26.058  6953  6953 I ImeTracker: system_server:637e4d0f: onCancelled at PHASE_CLIENT_ON_CONTROLS_CHANGED
+04-10 09:04:26.066  2721  2721 D DeviceEntryIconViewBinder: Initializing device entry fgIconView
+04-10 09:04:26.073  1588  5026 D BiometricService: canAuthenticate: User=0, Caller=0, Authenticators=255
+04-10 09:04:26.074  1588  5026 D BiometricService/PreAuthInfo: Package: com.android.systemui Sensor ID: 42 Modality: 8 User id: 0 Status: 7
+04-10 09:04:26.074  1588  5026 D BiometricService/PreAuthInfo: Package: com.android.systemui Sensor ID: 0 Modality: 2 User id: 0 Status: 1
+04-10 09:04:26.076  1588  5026 D BiometricService/PreAuthInfo: getCanAuthenticateInternal Modality: 2 AuthenticatorStatus: 1
+04-10 09:04:26.076  1588  5026 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 255, result: 0
+04-10 09:04:26.084   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:26.091  1588  3863 D SystemServerTiming: getUserSwitchability-0
+04-10 09:04:26.092  1588  3863 D SystemServerTiming: TM.isInCall
+04-10 09:04:26.092  1588  5004 D SystemServerTiming: getUserSwitchability-0
+04-10 09:04:26.092  1588  5004 D SystemServerTiming: TM.isInCall
+04-10 09:04:26.094  1588  3863 D SystemServerTiming: hasUserRestriction-DISALLOW_USER_SWITCH
+04-10 09:04:26.094  1588  5004 D SystemServerTiming: hasUserRestriction-DISALLOW_USER_SWITCH
+04-10 09:04:26.094  1588  3863 D SystemServerTiming: getInt-ALLOW_USER_SWITCHING_WHEN_SYSTEM_USER_LOCKED
+04-10 09:04:26.094  1588  5004 D SystemServerTiming: getInt-ALLOW_USER_SWITCHING_WHEN_SYSTEM_USER_LOCKED
+04-10 09:04:26.094  1588  3863 D SystemServerTiming: isUserUnlocked-USER_SYSTEM
+04-10 09:04:26.094  1588  5004 D SystemServerTiming: isUserUnlocked-USER_SYSTEM
+04-10 09:04:26.101  1588  5004 W ActivityTaskManager: callingPackage for (uid=2000, pid=13085) has no WPC
+04-10 09:04:26.101  2721  2721 D DLObserver: add listener: com.android.systemui.dock.DockManagerExtensionsKt$retrieveIsDocked$1$callback$1@6108591
+04-10 09:04:26.102  2721  2721 D DLObserver: add listener: com.android.systemui.dock.DockManagerExtensionsKt$retrieveIsDocked$1$callback$1@ce13cf6
+04-10 09:04:26.102  2721  2721 D DLObserver: onDockEvent mDockState = 0
+04-10 09:04:26.102  2721  2721 D DLObserver: onDockEvent mDockState = 0
+04-10 09:04:26.102  2721  2721 D DLObserver: add listener: com.android.systemui.dock.DockManagerExtensionsKt$retrieveIsDocked$1$callback$1@8be18f7
+04-10 09:04:26.103  2721  2721 D DLObserver: add listener: com.android.systemui.dock.DockManagerExtensionsKt$retrieveIsDocked$1$callback$1@a961364
+04-10 09:04:26.103  2721  2721 D DeviceEntryIconViewBinder: Updating device entry icon image state ForegroundIconViewModel(type=LOCK, useAodVariant=false, tint=-2170126, padding=48)
+04-10 09:04:26.103  2721  2721 D DLObserver: add listener: com.android.systemui.dock.DockManagerExtensionsKt$retrieveIsDocked$1$callback$1@f26e9cd
+04-10 09:04:26.103  2721  2721 D DLObserver: onDockEvent mDockState = 0
+04-10 09:04:26.103  2721  2721 D DLObserver: add listener: com.android.systemui.dock.DockManagerExtensionsKt$retrieveIsDocked$1$callback$1@5c3282
+04-10 09:04:26.103  2721  2721 D DLObserver: onDockEvent mDockState = 0
+04-10 09:04:26.103  2721  2816 D ControlsListingControllerImpl: Subscribing callback, service count: 2
+04-10 09:04:26.105  2721  2816 D ControlsListingControllerImpl: Subscribing callback, service count: 2
+04-10 09:04:26.108  1588  5004 V GrammaticalInflectionUtils: AttributionSource: android.content.AttributionSource@4db6b992 does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+04-10 09:04:26.111 22953 22953 D RecentsView: onTaskDisplayChanged: 769, new displayId = 0
+04-10 09:04:26.112  2721  2721 D DLObserver: onDockEvent mDockState = 0
+04-10 09:04:26.112  2721  2721 D DLObserver: onDockEvent mDockState = 0
+04-10 09:04:26.113  2721  2816 D ControlsListingControllerImpl: Subscribing callback, service count: 2
+04-10 09:04:26.115  2721  2751 D Bubbles : BubbleTaskStackListener.onTaskMovedToFront(): taskId=769
+04-10 09:04:26.115  1588  5004 V ActivityTaskManager: TaskLaunchParamsModifier: phase=3 task=Task{8b8284b #769 type=standard A=10385:com.adamoutler.ssh} activity=ActivityRecord{38757658 u0 com.adamoutler.ssh/.MainActivity t-1} display-from-task=0 display-id=0 task-display-area-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@72049168 inherit-from-task=fullscreen non-freeform-task-display-area display-area=DefaultTaskDisplayArea@72049168 skip-bounds-fullscreen
+04-10 09:04:26.115  1588  5004 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x5 cmp=com.adamoutler.ssh/.MainActivity} with LAUNCH_MULTIPLE from uid 2000 (com.android.shell) (BAL_ALLOW_PERMISSION) result code=0
+04-10 09:04:26.116  2721  2751 V WindowManagerShell: Transition requested (#985): android.os.BinderProxy@8d24339 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=769 effectiveUid=10385 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.adamoutler.ssh/.MainActivity } baseActivity=ComponentInfo{com.adamoutler.ssh/com.adamoutler.ssh.MainActivity} topActivity=ComponentInfo{com.adamoutler.ssh/com.adamoutler.ssh.MainActivity} origActivity=null realActivity=ComponentInfo{com.adamoutler.ssh/com.adamoutler.ssh.MainActivity} realActivityIsAppLockEnabled=false numActivities=1 lastActiveTime=123366706 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.os.BinderProxy@9182d7e} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 159 - 0, 0) topActivityInfo=ActivityInfo{a9bf2df com.adamoutler.ssh.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=null leafTaskBoundsFromOptions= false capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=503 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false isLeafTask= true eligibleForLetterboxEducation= false isLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 159 - 1080, 2247) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null topNonResizableActivityAspectRatio=-1.0} topActivityMainWindowFrame=null isAppBubble=false}, pipChange = null, remoteTransitionInfo = null, displayChange = null, requestedLocation = null, userChange = null, windowingLayerChange = null, fullscreenRequestChange = null, flags = 0, debugId = 985 }
+04-10 09:04:26.116  2721  2751 W DisplayDisconnectTransitionHandler: No disconnect change found in the transition, not handling request.
+04-10 09:04:26.116  2721  2751 D ShellSplitScreen: logExit: no-op, mLoggerSessionId is null
+04-10 09:04:26.116  2721  2751 V ShellDesktopMode: DesktopTasksController: skipping handleRequest reason=triggerTask's display doesn't support desktop mode
+04-10 09:04:26.116  6953  6953 I ImeTracker: com.android.chrome:5f55bf7c: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false userId 0 displayId 0
+04-10 09:04:26.116  6953  6953 D InsetsController: hide(ime())
+04-10 09:04:26.117  6953  6953 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): ivg@5d4ade7
+04-10 09:04:26.117  6953  6953 D InsetsController: Setting requestedVisibleTypes to 503 (was 511)
+04-10 09:04:26.118  1588  5016 D CoreBackPreview: Window{5735362 u0 com.android.chrome/org.chromium.chrome.browser.webapps.SameTaskWebApkActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@d0c48d4, mPriority=0, mIsAnimationCallback=true, mOverrideBehavior=0}
+04-10 09:04:26.118  1588  1776 V GrammaticalInflectionUtils: AttributionSource: android.content.AttributionSource@4db6b992 does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+04-10 09:04:26.119  2721  2751 D ShellDesktopMode: DesktopRepository: Removes freeform task: taskId=763
+04-10 09:04:26.119  2721  2751 W ShellDesktopMode: DesktopRepository: No display id found for task: taskId=763
+04-10 09:04:26.119  6953  6953 I cr_VideoPersist: Attempted picture-in-picture with result: failure
+04-10 09:04:26.119  1588  5016 I ImeTracker: system_server:5926c974: onRequestShow at ORIGIN_SERVER reason IME_REQUESTED_CHANGED_LISTENER fromUser false displayId 0
+04-10 09:04:26.119 22953 22953 D b/417220811: invalidateLoadedTasks - previous requestLoadId: -1
+04-10 09:04:26.119 22953 22953 D b/417220811: invalidateLoadedTasks - previous requestLoadId: -1
+04-10 09:04:26.120  2721  2751 D Bubbles : BubbleController.BubblesImeListener.onImeVisibilityChanged visible=false runnable=null stackView=null
+04-10 09:04:26.121  3664  4143 I twoshay.TouchContextService: Got new packet! ContextPacket{orientation: PORTRAIT, audioMode: NORMAL, adaptiveTouchSensitivity: ON, screenProtectorMode: OFF, imeState: ImeState{displayId: 0, visible: false, top: 0, left: 0, bottom: 0, right: 0}, audioDeviceInfo: TYPE_UNKNOWN}
+04-10 09:04:26.125  2721  2792 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): android.view.ViewRootImpl$$ExternalSyntheticLambda25@5872a65
+04-10 09:04:26.126  1588  1776 I ImeTracker: system_server:5926c974: onCancelled at PHASE_SERVER_ALREADY_VISIBLE
+04-10 09:04:26.126  1588  5016 D CoreBackPreview: Window{201febe u0 Splash Screen com.adamoutler.ssh}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@a27de6c, mPriority=0, mIsAnimationCallback=false, mOverrideBehavior=0}
+04-10 09:04:26.127  3622  3622 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1444 onStartInput(EditorInfo{EditorInfo{packageName=com.android.chrome, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=12000000, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, true)
+04-10 09:04:26.127  3622  3622 W SessionManager: SessionManager.beginSession():53 Try to begin an already begun session [INPUT_SESSION], end it first
+04-10 09:04:26.127  3622  3622 W SessionManager: SessionManager.endSession():96 Child session [INPUT_VIEW_SESSION] is not ended while ending session [{INPUT_SESSION=1775826238799, INPUT_VIEW_SESSION=1775826238802, IME_SESSION=1775826238802, TRAINING_CACHE_SESSION=1775826238802}], ending it now.
+04-10 09:04:26.127  3622  3622 W SessionManager: SessionManager.endSession():96 Child session [IME_SESSION] is not ended while ending session [{INPUT_SESSION=1775826238799, INPUT_VIEW_SESSION=1775826238802, IME_SESSION=1775826238802, TRAINING_CACHE_SESSION=1775826238802}], ending it now.
+04-10 09:04:26.127  3622  3622 I AndroidIME: LatinIMEBase.updateInputViewCoverNavigation():321 Update input view padding, isNavbarOverInputWindow=true, bottom inset=117
+04-10 09:04:26.127  3622  3622 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():103 repeatCheckTimes = 1, locked = false
+04-10 09:04:26.127  5066  5066 I DcNotificationSync: Notification removed sbn StatusBarNotification(pkg=com.android.chrome user=UserHandle{0} id=5 tag=null key=0|com.android.chrome|5|null|10209: Notification(channel=webapp_actions shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=ONGOING_EVENT color=0x00000000 actions=2 vis=PRIVATE)), reason: 8, sbnCancelByRemote size: 0
+04-10 09:04:26.127  3622  3622 I GoogleInputMethodService: GoogleInputMethodService.onStartInputView():1530 onStartInputView(EditorInfo{EditorInfo{packageName=com.android.chrome, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=12000000, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, true)
+04-10 09:04:26.128  3622  3622 I InputBundle: InputBundle.consumeEvent():1041 Skip consuming an event as keyboard status is INACTIVE
+04-10 09:04:26.128  5066  5066 I DcNotificationSync: Skipping launch timer because timer is running
+04-10 09:04:26.128  1588  4978 W PackageConfigPersister: App-specific configuration not found for packageName: com.android.chrome and userId: 0
+04-10 09:04:26.128  1588  1777 I ImeTracker: system_server:9397183d: onRequestShow at ORIGIN_SERVER reason CONTROLS_CHANGED fromUser false displayId 0
+04-10 09:04:26.128  3622  3622 I AndroidIME: AbstractIme.onDeactivate():213 LatinIme.onDeactivate()
+04-10 09:04:26.128  3622  3622 W SessionManager: SessionManager.endSession():88 Try to end a not begun session [IME_SESSION].
+04-10 09:04:26.128  3622  3622 I KeyboardHeightUtil: KeyboardHeightUtil.getOemKeyboardHeightRatio():81 systemKeyboardHeightRatio:1.000000.
+04-10 09:04:26.129  3622  3840 I NebulaeTrainingCacheMetricsProcessor: NebulaeTrainingCacheMetricsProcessor.processEndSession():659 End training cache session: com.android.chrome_2130775499/
+04-10 09:04:26.131  3622  3840 E UserFeatureCache: UserFeatureCache.getStore():760 Wrong feature id provided -1 for protobuf afca.
+04-10 09:04:26.131  3622  3840 E UserFeatureCache: UserFeatureCache.getProto():684 Feature not enabled should not called: 19
+04-10 09:04:26.133   891   891 D Zygote  : Forked child process 13091
+04-10 09:04:26.134  6953  6953 D VRI[SameTaskWebApkActivity]: WindowInsets changed: ime:null 
+04-10 09:04:26.136  6953  6953 I ImeTracker: system_server:9397183d: onCancelled at PHASE_CLIENT_ON_CONTROLS_CHANGED
+04-10 09:04:26.137  3622  3622 I InputContextChangeTracker: InputContextChangeTracker.fixLyingSelectionRangeFromSurroundingText():1678 fixLyingSelectionRangeFromSurroundingText(): [-1, -1]([-1, -1]) -> [0, 0]([0, 0])
+04-10 09:04:26.137  3622  3622 I AndroidIME: InputBundleManager.loadActiveInputBundleId():531 loadActiveInputBundleId: und-Latn-x-password, password
+04-10 09:04:26.137  3622  3622 I AndroidIME: AbstractIme.onActivate():95 PasswordIme.onActivate() : EditorInfo = EditorInfo{packageName=com.android.chrome, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=12000000, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}, IncognitoMode = false, DeviceLocked = false
+04-10 09:04:26.137  3622  3622 I KeyboardWrapper: KeyboardWrapper.activateKeyboard():582 activateKeyboard(): type=prime, status=INACTIVE, imeDef=abyj{stringId=password, language=und-Latn-x-password, languageTag=und-Latn-x-password, processedConditions={writing_helper_enable_by_word_revert=true, variant=qwerty, true=true, language=en-US, enable_number_row=true, device=phone, enable_number_row_in_password=true, enable_pk_simulator=false}, className=com.google.android.libraries.inputmethod.ime.password.PasswordIme, label=2132019346, keyEventInterpreter=null, inlineComposing=true, autoCapital=true, announceAutoSelectedCandidate=true, statusIcon=0, indicatorIcon=0, indicatorLabel=null, displayAppCompletions=false, extraValues=abxz{}, processors=acay@fe5ba2a, unacceptableMetaKeys=4098, languageSpecificSettings=0, asciiCapable=false, alwaysShowSuggestions=false, useAsciiPasswordKeyboard=false, keyboardGroupDef=acad@744eeb3, phenotypeFlagId=0, localizationLanguageTag=null, supportsInlineSuggestion=false}
+04-10 09:04:26.137  3622  3622 I KeyboardManager: KeyboardManager.requestKeyboard():249 Creating keyboard prime, imeId=password, cacheKey=theme,!gsf,!pgsf,!use_system_font,BORDER,FLAVOR_DPI=XXHDPI,KEYBOARD_WIDTH_CATEGORY=NORMAL,KEY_BORDER_SHAPE=1,LIGHT_THEME=false,PHYSICAL_DIAGONAL=6.295603,POPUP,SCREEN_SHORTEST_WIDTH=443,SCREEN_SHORTEST_WIDTH_NO_SCALE=443,SW400DP,XXHDPI,bottom4dp,enable_popup_on_keypress=true,keyboard_height_48_mm,non_linear_scale,noshadow,overlay_builtin_dynamic_color_dark_base.binarypb:gm3-dark-ff0e0e0f-ffc2c6d6-50e5e33af8dea09b23627b75f5894c20,pgsans,silkpopup
+04-10 09:04:26.137  3622  3622 I KeyboardWrapper: KeyboardWrapper.onKeyboardReady():224 onKeyboardReady(): type=prime(prime), kb=com.google.android.apps.inputmethod.latin.keyboard.LatinPasswordKeyboard@24983b2
+04-10 09:04:26.137  3622  3622 I KeyboardWrapper: KeyboardWrapper.doActivateKeyboard():612 doActivateKeyboard(): prime
+04-10 09:04:26.138  1588  2673 D BackgroundInstallControlService: Package event received: 0
+04-10 09:04:26.138  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.138  3622  3622 W TooltipLifecycleManager: TooltipLifecycleManager.dismissTooltips():153 Tooltip with id undo_access_point_promotion_banner not found in tooltipManager.
+04-10 09:04:26.138  2721  2733 V WindowManagerShell: onTransitionReady(transaction=6820408214582)
+04-10 09:04:26.138  2721  2751 V WindowManagerShell: onTransitionReady (#985) android.os.BinderProxy@8d24339: {id=985 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+04-10 09:04:26.138  2721  2751 V WindowManagerShell:         {m=OPEN f=NONE leash=Surface(name=Task=769#10376)/@0x5cd3d63 sb=Rect(0, 0 - 1080, 2364) eb=Rect(0, 0 - 1080, 2364) epz=Point(1080, 2364) d=0 taskParent=-1 winMode=1 userId=0},
+04-10 09:04:26.138  2721  2751 V WindowManagerShell:         {m=TO_BACK f=NONE leash=Surface(name=Task=740#4363)/@0xea97d60 sb=Rect(0, 0 - 1080, 2364) eb=Rect(0, 0 - 1080, 2364) epz=Point(1080, 2364) d=0 taskParent=-1 winMode=1 userId=0}
+04-10 09:04:26.138  2721  2751 V WindowManagerShell:     ]}
+04-10 09:04:26.139  2721  2751 V ShellDesktopMode: DesktopModeLogger: taskInfo map after processing changes 0
+04-10 09:04:26.139  2721  2751 D ShellDesktopMode: DesktopTaskChangeListener: onTaskMovingToBack for taskId=740, displayId=0 - desktop not supported
+04-10 09:04:26.139  2721  2751 D ShellDesktopMode: DesktopTaskChangeListener: onTaskOpening for taskId=769, displayId=0 userId=0 currentUserId=0 parentTaskId=-1 isFreeform=false isActive=false isPinned=false
+04-10 09:04:26.139  2721  2751 D ShellDesktopMode: DesktopTaskChangeListener: onTaskOpening for taskId=769, displayId=0 - desktop not supported
+04-10 09:04:26.139  3622  3840 I OnDeviceWmrCalculator: OnDeviceWmrCalculator.calculateWmr():94 WMR: 0.0000 (0 / 1)
+04-10 09:04:26.139  2721  2751 V WindowManagerShell: Playing animation for (#985) android.os.BinderProxy@8d24339@0
+04-10 09:04:26.139  3622  3622 I KeyboardModeUtils: KeyboardModeUtils.getKeyboardBottomOffset():432 inch: 0.350000 ydpi: 408.472992 adjustKeyboardBottomByDisplaySize: false currentDensityDpi: 390 defaultDensityDpi: 390 keyboardBottomToScreenPx: 142 keyboardBottomToNavBarPx: 25 navBarHeight: 117
+04-10 09:04:26.139  2721  2751 D ShellSplitScreen: startAnimation: transition=985 isSplitActive=false
+04-10 09:04:26.139  2721  2751 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+04-10 09:04:26.139  2721  2751 V ShellDesktopMode: DesktopMixedTransitionHandler: No pending desktop transition
+04-10 09:04:26.139  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.139  2721  2751 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=985 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{m=OPEN f=NONE leash=Surface(name=Task=769#10376)/@0x5cd3d63 sb=Rect(0, 0 - 1080, 2364) eb=Rect(0, 0 - 1080, 2364) epz=Point(1080, 2364) d=0 taskParent=-1 winMode=1 userId=0},{m=TO_BACK f=NONE leash=Surface(name=Task=740#4363)/@0xea97d60 sb=Rect(0, 0 - 1080, 2364) eb=Rect(0, 0 - 1080, 2364) epz=Point(1080, 2364) d=0 taskParent=-1 winMode=1 userId=0}]}
+04-10 09:04:26.139  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.139  3622  3622 I AndroidIME: KeyboardViewManager.updateKeyboardBottomFrame():489 Set bottomFrameHeight = 25 while holderPaddingBottom = 25; navigationHeight = 117
+04-10 09:04:26.139  2721  2751 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=undefined independent=true modes=[CLOSE,TO_BACK] flags=IN_TASK_WITH_EMBEDDED_ACTIVITY mustBeTask=false order=ANY topActivity=null launchCookie=null taskFragmentToken=android.os.BinderProxy@1f76083 windowingMode=undefined isCrossDisplayMove=false}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@e0e3200, appThread = android.app.IApplicationThread$Stub$Proxy@b477a39, debugName = overlayBackTransition, filter = null }}
+04-10 09:04:26.139  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.139  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.139  2721  2751 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=dream independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null windowingMode=undefined isCrossDisplayMove=false},{atype=home independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null windowingMode=undefined isCrossDisplayMove=false}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@5c2987e, appThread = android.app.IApplicationThread$Stub$Proxy@dc581df, debugName = LauncherToDream, filter = null }}
+04-10 09:04:26.139  2721  2751 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=standard independent=false modes=[CHANGE] flags=NONE mustBeTask=true order=ANY topActivity=null launchCookie=null windowingMode=undefined isCrossDisplayMove=true}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@c246e2c, appThread = android.app.IApplicationThread$Stub$Proxy@71c80f5, debugName = QuickstepDisplayMove, filter = null }}
+04-10 09:04:26.139  2721  2751 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=ANY topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity} launchCookie=null windowingMode=undefined isCrossDisplayMove=false},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null windowingMode=undefined isCrossDisplayMove=false},{NOT atype=undefined independent=true modes=[] flags=NONE mustBeTask=true order=ANY topActivity=null launchCookie=null customAnim=true windowingMode=undefined isCrossDisplayMove=false}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@8ebbe8a, appThread = android.app.IApplicationThread$Stub$Proxy@92a5cfb, debugName = QuickstepLaunchHome, filter = null }}
+04-10 09:04:26.139  2721  2751 V WindowManagerShell:  Checking filter Pair{{types=[OPEN,TO_FRONT] flags=0x0] notFlags=0x0 checks=[{atype=standard independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=true order=ANY topActivity=null launchCookie=null windowingMode=freeform isCrossDisplayMove=false}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@810e62b, appThread = null, debugName = DesktopWindowLimitUnminimize, filter = null }}
+04-10 09:04:26.139  2721  2751 V WindowManagerShell:  Delegate animation for (#985) to null
+04-10 09:04:26.139  2721  2751 V WindowManagerShell: start default transition animation, info = {id=985 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{m=OPEN f=NONE leash=Surface(name=Task=769#10376)/@0x5cd3d63 sb=Rect(0, 0 - 1080, 2364) eb=Rect(0, 0 - 1080, 2364) epz=Point(1080, 2364) d=0 taskParent=-1 winMode=1 userId=0},{m=TO_BACK f=NONE leash=Surface(name=Task=740#4363)/@0xea97d60 sb=Rect(0, 0 - 1080, 2364) eb=Rect(0, 0 - 1080, 2364) epz=Point(1080, 2364) d=0 taskParent=-1 winMode=1 userId=0}]}
+04-10 09:04:26.139  3622  3622 I GlobeKeyExtension: GlobeKeyExtension.getKeyboardInitialStates():185 
+04-10 09:04:26.139  2721  2751 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@5190f8c animAttr=0x9 type=OPEN isEntrance=false
+04-10 09:04:26.139  3622  3622 W Keyboard: Keyboard.getKeyboardViewHelper():607 null helper is returned: keyboardDef=abzp{processedConditions={show_comma_key=true, enable_more_candidates_view_for_multilingual=false, layout_9key_split=false, enable_secondary_symbols=false, pref_enable_flick_symbols=false, enable_scrub_move=true, language=en-US, deprecate_long_press_space_for_ime_picker=false, show_suggestion_strip=true, expressions=normal, android_software_xr_api_spatial=false, variant=qwerty, free_cursor=false, show_period_key=true, enable_number_row=true, device=phone, keyboard_mode=normal, show_secondary_digits=false, enable_pk_simulator=false, enable_preemptive_decode=true}, globalConditions={global_theme_key=theme,!gsf,!pgsf,!use_system_font,BORDER,FLAVOR_DPI=XXHDPI,KEYBOARD_WIDTH_CATEGORY=NORMAL,KEY_BORDER_SHAPE=1,LIGHT_THEME=false,PHYSICAL_DIAGONAL=6.295603,POPUP,SCREEN_SHORTEST_WIDTH=443,SCREEN_SHORTEST_WIDTH_NO_SCALE=443,SW400DP,XXHDPI,bottom4dp,enable_popup_on_keypress=true,keyboard_height_48_mm,non_linear_scale,noshadow,overlay_builtin_dynamic_color_dark_base.binarypb:gm3-dark-ff0e0e0f-ffc2c6d6-50e5e33af8dea09b23627b75f5894c20,pgsans,silkpopup, global_locale=en_US, global_density_dpi=390, global_orientation=1}, className=.latin.keyboard.LatinPasswordKeyboard, resourceIds=[#0x7f1705f9, #0x7f17088e, #0x7f1706b9], initialStates=0, keyboardViewDefs=[acap{direction=null, id=#0x7f0b0229, isScalable=true, layoutId=#0x7f0e02b7, type=BODY, touchable=true, defaultShow=true}, acap{direction=null, id=#0x7f0b0229, isScalable=false, layoutId=#0x7f0e0212, type=FLOATING_CANDIDATES, touchable=false, defaultShow=false}, acap{direction=LOCALE, id=#0x7f0b0229, isScalable=false, layoutId=#0x7f0e051a, type=HEADER, touchable=true, defaultShow=true}], persistentStates=0, persistentStatesPrefKey=null, popupBubbleLayoutId=#0x7f0e060b, recentKeyLayoutId=#0x0, recentKeyPopupLayoutId=#0x0, recentKeyType=null, rememberRecentKey=NONE, sessionStates=26388279066624}, type=WIDGET, helpersCreated={HEADER=aaxu@ef5e88c, BODY=aaxu@3d6dbd5, FLOATING_CANDIDATES=aaxu@534afea}, context.getResources().getConfiguration(): {1.1 310mcc280mnc [en_US] ldltr sw443dp w443dp h970dp 390dpi nrml long compactNeeded hdr widecg port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2364) mAppBounds=Rect(0, 0 - 1080, 2364) mMaxBounds=Rect(0, 0 - 1080, 2364) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.3 s.93 fontWeightAdjustment=0}
+04-10 09:04:26.139  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.140  3622  3622 I AndroidIME: InputBundleManager.startInput():361 startInput() with acai[keyboardType=prime, payload=null]
+04-10 09:04:26.140  3622  3622 I GlobeKeyExtension: GlobeKeyExtension.onDeactivate():153 
+04-10 09:04:26.140  3622  3622 I JarvisExtension: JarvisExtension.onDeactivate():1136 onDeactivate
+04-10 09:04:26.140  3622  3622 I JarvisTriggersManager: JarvisTriggersManager.onDeactivate():764 onDeactivate
+04-10 09:04:26.140  3622  3622 I NgaExtension: NgaExtension.onDeactivate():647 NgaExtension#onDeactivate [SDG]
+04-10 09:04:26.140  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020528, callback=wgq@2fbbdd2, lastModifier=2, keyCodes=[32], actions=[0]}
+04-10 09:04:26.140  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020528, callback=wgq@b71fea3, lastModifier=0, keyCodes=[319], actions=[0]}
+04-10 09:04:26.140  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020528, callback=wgq@fc3d2a7, lastModifier=2, keyCodes=[32], actions=[0]}
+04-10 09:04:26.140  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020528, callback=wgq@4b9c354, lastModifier=0, keyCodes=[319], actions=[0]}
+04-10 09:04:26.140  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020528, callback=wgq@3145a0, lastModifier=2, keyCodes=[32], actions=[0]}
+04-10 09:04:26.140  3622 12944 I NgaDataShareClient: NgaDataShareClient.sendCorrectionsAndEndSession():412 endDataPushSession() [SDG]
+04-10 09:04:26.140  1588  1802 I ActivityManager: Start proc 13091:com.adamoutler.ssh/u0a385 for next-top-activity {com.adamoutler.ssh/com.adamoutler.ssh.MainActivity}
+04-10 09:04:26.140  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020528, callback=wgq@1f19559, lastModifier=0, keyCodes=[319], actions=[0]}
+04-10 09:04:26.140  3622 12944 I NgaDataShareClient: NgaDataShareClient.sendCorrectionsList():420 sendCorrectionsList() [SDG]
+04-10 09:04:26.140  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020528, callback=wgq@6b5bbf2, lastModifier=2, keyCodes=[32], actions=[0]}
+04-10 09:04:26.140  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020528, callback=wgq@a99c0c0, lastModifier=0, keyCodes=[319], actions=[0]}
+04-10 09:04:26.140  3622 12944 W NotificationCenter: NotificationCenter.unregisterListener():480 Listener omf@66602b1 was not registered for notification class aauh
+04-10 09:04:26.140  3622 12944 W NotificationCenter: NotificationCenter.unregisterListener():480 Listener ome@4274396 was not registered for notification class aakc
+04-10 09:04:26.140  3622  3622 W NotificationCenter: NotificationCenter.unregisterListener():480 Listener oii@af4544b was not registered for notification class aakc
+04-10 09:04:26.140  3622 12944 I DataShareHelper: DataShareHelper.shareCorrections():24 shareCorrections() [SD]
+04-10 09:04:26.141  3622  3622 I NgaVoiceInputHandler: NgaVoiceInputHandler.shutdownInternalLegacy():337 VoiceInputHandler:deactivating [SDG]
+04-10 09:04:26.141  3622  3622 W NotificationCenter: NotificationCenter.unregisterListener():480 Listener achz@a9dc193 was not registered for notification class acia
+04-10 09:04:26.141  3622  3622 I SmartEdit: SmartEdit.unloadModels():144 SmartEdit: unloading models [SDG]
+04-10 09:04:26.141  3622  3622 I NgaInputManager: NgaInputManager.onDeactivate():478 SmartEdit: unloading models false [SDG]
+04-10 09:04:26.141  3622  3622 I PkModeUpdater: PkModeUpdater.onActivate():76 onActivate false true
+04-10 09:04:26.141  3622  3622 I AccessoryInputModeManager: AccessoryInputModeManager.onModeStarted():346 Accessory input mode started: null
+04-10 09:04:26.141  3622  3622 W SupplementaryKeyboardsWrapper: SupplementaryKeyboardsWrapper.deactivateKeyboard():162 keyboard accessory_candidates_consumer is not activated before!
+04-10 09:04:26.141  3622  3622 I GlobeKeyExtension: GlobeKeyExtension.onActivate():129 
+04-10 09:04:26.141  3622  3622 I JarvisAccessPointCooperativeModeHelper: JarvisAccessPointCooperativeModeHelper.onActivate():157 onActivate
+04-10 09:04:26.141  3622  3622 I JarvisTriggersManager: JarvisTriggersManager.onActivate():222 onActivate
+04-10 09:04:26.141  3622  3622 I JarvisHelper: JarvisHelper.activateAutoFixItChipForEditor():120 Disable Fix it button as the editor does not support AC
+04-10 09:04:26.141  3622  3622 I JarvisExtension: JarvisExtension.onActivate():342 onActivate
+04-10 09:04:26.141  3622 12942 I KeyboardGroupDefParser: KeyboardGroupDefParser.parseKeyboardGroupDef():86 parseKeyboardGroupDef() 2132214002 -> 0_resource_name_obfuscated : WaitTime = 0 ms : RunTime = 0 ms
+04-10 09:04:26.142  3622  3622 I KeyboardModeUtils: KeyboardModeUtils.getKeyboardBottomOffset():432 inch: 0.350000 ydpi: 408.472992 adjustKeyboardBottomByDisplaySize: false currentDensityDpi: 390 defaultDensityDpi: 390 keyboardBottomToScreenPx: 142 keyboardBottomToNavBarPx: 25 navBarHeight: 117
+04-10 09:04:26.142  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.142  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.142  3622  3622 I AndroidIME: KeyboardViewManager.updateKeyboardBottomFrame():489 Set bottomFrameHeight = 25 while holderPaddingBottom = 25; navigationHeight = 117
+04-10 09:04:26.142  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.142  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.142  3622  3622 W ExtensionWrapper: ExtensionWrapper.setExtensionViewVisibility():878 interface abeq is not activate
+04-10 09:04:26.142  3622  3622 I NewLanguagePromptExtension: NewLanguagePromptExtension.onActivate():189 Not activated NewLanguagePromptExtension: not a normal text input box.
+04-10 09:04:26.142  3622  3622 I NgaExtension: NgaExtension.onActivate():609 NgaExtension#onActivate [SDG]
+04-10 09:04:26.142  3622  3622 I NgaVoiceInputHandlerSwitcher: NgaVoiceInputHandlerSwitcher.restorePrimary():234 not switching to primary. fallback is null [SDG]
+04-10 09:04:26.142  3622  3622 I NgaVoiceInputHandler: NgaVoiceInputHandler.maybeCreateInputManager():255 VoiceInputHandler:activating [SDG]
+04-10 09:04:26.142  3622  3622 I SpeechEnhancementLogger: SpeechEnhancementLogger.logAtInfo():24 Speech enhancement is disabled because flag is disabled [SD]
+04-10 09:04:26.142  3622  3622 I CompositeIntentClassifier: CompositeIntentClassifier.<init>():49 Determined SmartEdit intent-classifier threshold: 0.900000 [SDG]
+04-10 09:04:26.142  3622  3622 I MobileBertIntentClassifier: MobileBertIntentClassifier.<init>():174 Successfully loaded native lib mobilebert_classifier_android_jni
+04-10 09:04:26.142  3622  3622 I ModelessCommandDetector: ModelessCommandDetector.<init>():86 Created modeless command detector with language code en [SDG]
+04-10 09:04:26.142  3622  3622 W NotificationCenter: NotificationCenter.unregisterListener():480 Listener acig@aa1f682 was not registered for notification class acih
+04-10 09:04:26.142  3622  3622 W NotificationCenter: NotificationCenter.unregisterListener():480 Listener achz@a9dc193 was not registered for notification class acia
+04-10 09:04:26.142  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020528, callback=wgq@fc3d2a7, lastModifier=2, keyCodes=[32], actions=[0]}
+04-10 09:04:26.142  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020528, callback=wgq@4b9c354, lastModifier=0, keyCodes=[319], actions=[0]}
+04-10 09:04:26.142  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020528, callback=wgq@182f233, lastModifier=2, keyCodes=[32], actions=[0]}
+04-10 09:04:26.142  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020528, callback=wgq@fed9f0, lastModifier=0, keyCodes=[319], actions=[0]}
+04-10 09:04:26.142  3622 12635 W AutoCloseableReference: AutoCloseablePhantomReference.close():42 close() is invoked more than once
+04-10 09:04:26.142  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020528, callback=wgq@6b5bbf2, lastModifier=2, keyCodes=[32], actions=[0]}
+04-10 09:04:26.142  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020528, callback=wgq@a99c0c0, lastModifier=0, keyCodes=[319], actions=[0]}
+04-10 09:04:26.142  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020528, callback=wgq@55dd9ee, lastModifier=2, keyCodes=[32], actions=[0]}
+04-10 09:04:26.142  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020528, callback=wgq@d707e8f, lastModifier=0, keyCodes=[319], actions=[0]}
+04-10 09:04:26.142  3622  3622 I NgaExtension: NgaExtension.onActivate():632 NgaExtension: interaction type=4 [SDG]
+04-10 09:04:26.142  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020523, callback=wgq@d62c482, lastModifier=2, keyCodes=[56], actions=[0]}
+04-10 09:04:26.142  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020523, callback=wgq@9797793, lastModifier=0, keyCodes=[317], actions=[0]}
+04-10 09:04:26.142  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020523, callback=wgq@10fa51c, lastModifier=2, keyCodes=[56], actions=[0]}
+04-10 09:04:26.142  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020523, callback=wgq@7a00525, lastModifier=0, keyCodes=[317], actions=[0]}
+04-10 09:04:26.142  3622  3622 W AccessPointsManager: AccessPointsManager.addAccessPoint():1087 The holder controller #0x7f0b2487 is not registered
+04-10 09:04:26.143  3622  3622 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():103 repeatCheckTimes = 1, locked = false
+04-10 09:04:26.143  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020523, callback=wgq@9575f94, lastModifier=2, keyCodes=[56], actions=[0]}
+04-10 09:04:26.143  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020523, callback=wgq@9cafa3d, lastModifier=0, keyCodes=[317], actions=[0]}
+04-10 09:04:26.143  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020523, callback=wgq@30074ab, lastModifier=2, keyCodes=[56], actions=[0]}
+04-10 09:04:26.143  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020523, callback=wgq@1fff708, lastModifier=0, keyCodes=[317], actions=[0]}
+04-10 09:04:26.143  3622  3622 I VoiceImeExtension: VoiceImeExtension.shouldStartVoiceInputAutomaticallyInCurrentInputBox():384 No private IME option set to start voice input.
+04-10 09:04:26.143  3622  3622 I StylusModule: StylusModule.onUpdateToolType():774 Update tool type = 1
+04-10 09:04:26.145  1588  1773 V WindowManager: Sent Transition (#985) createdAt=04-10 09:04:26.109 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=769 effectiveUid=10385 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.adamoutler.ssh/.MainActivity } baseActivity=ComponentInfo{com.adamoutler.ssh/com.adamoutler.ssh.MainActivity} topActivity=ComponentInfo{com.adamoutler.ssh/com.adamoutler.ssh.MainActivity} origActivity=null realActivity=ComponentInfo{com.adamoutler.ssh/com.adamoutler.ssh.MainActivity} realActivityIsAppLockEnabled=false numActivities=1 lastActiveTime=123366706 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{e3d8f04 Task{8b8284b #769 type=standard A=10385:com.adamoutler.ssh}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 159 - 0, 0) topActivityInfo=ActivityInfo{2e14ced com.adamoutler.ssh.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=null leafTaskBoundsFromOptions= false capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=503 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false isLeafTask= true eligibleForLetterboxEducation= false isLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 159 - 1080, 2247) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null topNonResizableActivityAspectRatio=-1.0} topActivityMainWindowFrame=null isAppBubble=false}, pipChange = null, remoteTransitionInfo = null, displayChange = null, requestedLocation = null, userChange = null, windowingLayerChange = null, fullscreenRequestChange = null, flags = 0, debugId = 985 }
+04-10 09:04:26.145  1588  1773 V WindowManager:     startWCT=WindowContainerTransaction { changes= {} hops= [] flags= 0 errorCallbackToken=null taskFragmentOrganizer=null }
+04-10 09:04:26.145  1588  1773 V WindowManager:     info={id=985 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+04-10 09:04:26.145  1588  1773 V WindowManager:         {WCT{RemoteToken{e3d8f04 Task{8b8284b #769 type=standard A=10385:com.adamoutler.ssh}}} m=OPEN f=NONE leash=Surface(name=Task=769#10376)/@0xc46cc35 sb=Rect(0, 0 - 1080, 2364) eb=Rect(0, 0 - 1080, 2364) epz=Point(1080, 2364) d=0 taskParent=-1 winMode=1 userId=0},
+04-10 09:04:26.145  1588  1773 V WindowManager:         {WCT{RemoteToken{3fcdb03 Task{e0746f0 #740 type=standard A=10399:org.chromium.webapk.a5a8228c3188a0ef2_v2}}} m=TO_BACK f=NONE leash=Surface(name=Task=740#4363)/@0xecc4114 sb=Rect(0, 0 - 1080, 2364) eb=Rect(0, 0 - 1080, 2364) epz=Point(1080, 2364) d=0 taskParent=-1 winMode=1 userId=0}
+04-10 09:04:26.145  1588  1773 V WindowManager:     ]}
+04-10 09:04:26.146  3622  3622 I GoogleInputMethodService: GoogleInputMethodService$1.onKeyboardViewShown():343 onKeyboardViewShown: keyboardType=prime, keyboardViewType=HEADER keyboardView=com.google.android.libraries.inputmethod.widgets.SoftKeyboardView{97cc312 V.E...... ........ 0,0-1080,122}
+04-10 09:04:26.146  2721  2751 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@c17cfb6 animAttr=0x8 type=OPEN isEntrance=true
+04-10 09:04:26.146  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.146  3622  3622 I GoogleInputMethodService: GoogleInputMethodService$1.onKeyboardViewShown():343 onKeyboardViewShown: keyboardType=prime, keyboardViewType=BODY keyboardView=com.google.android.libraries.inputmethod.widgets.SoftKeyboardView{17b3a91 V.E...... ........ 0,0-1080,760}
+04-10 09:04:26.146  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.146  3622  3622 I GlobeKeyExtension: GlobeKeyExtension$1.onKeyboardViewShown():76 maybeDisableLanguageSwitchKeyPref when the keyboard is shown
+04-10 09:04:26.146  3622  3622 I GlobeKeyExtension: GlobeKeyExtension.maybeDisableLanguageSwitchKeyPref():210 maybeDisableLanguageSwitchKeyPref hasGlobeKeyBeenDisabled: true, shouldDisableLanguageSwitchKey: true
+04-10 09:04:26.146  3622  3622 I NewLanguagePromptExtension: NewLanguagePromptExtension$1.onKeyboardViewShown():88 Not show new language banner: not prime keyboard, or the extension not activated.
+04-10 09:04:26.146  3622  3622 I KeyboardModeUtils: KeyboardModeUtils.getKeyboardBottomOffset():432 inch: 0.350000 ydpi: 408.472992 adjustKeyboardBottomByDisplaySize: false currentDensityDpi: 390 defaultDensityDpi: 390 keyboardBottomToScreenPx: 142 keyboardBottomToNavBarPx: 25 navBarHeight: 117
+04-10 09:04:26.146  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.147  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.147  3622  3622 I AndroidIME: KeyboardViewManager.updateKeyboardBottomFrame():489 Set bottomFrameHeight = 25 while holderPaddingBottom = 25; navigationHeight = 117
+04-10 09:04:26.147  2721  2751 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@9233f8c
+04-10 09:04:26.148  2721  2751 V ShellTaskOrganizer: Task appeared taskId=769 listener=FullscreenTaskListener
+04-10 09:04:26.148  2721  2751 V ShellTaskOrganizer: Fullscreen Task Appeared: #769
+04-10 09:04:26.148  3622 12941 I KeyboardEventHandler: KeyboardEventHandler.handleKeyboardVisibilityEvent():214 Handling KeyboardVisibilityEvent: KEYBOARD_CLOSED [SD]
+04-10 09:04:26.149  3622 12941 I KeyboardEventHandler: KeyboardEventHandler.handleKeyboardVisibilityEvent():214 Handling KeyboardVisibilityEvent: KEYBOARD_OPENED [SD]
+04-10 09:04:26.150  3622 12667 I SystemHapticSettings: SystemHapticSettings.updateSystemVibrationState():61 update vibration state: true
+04-10 09:04:26.150  3622  3622 I KeyboardModeUtils: KeyboardModeUtils.getKeyboardBottomOffset():432 inch: 0.350000 ydpi: 408.472992 adjustKeyboardBottomByDisplaySize: false currentDensityDpi: 390 defaultDensityDpi: 390 keyboardBottomToScreenPx: 142 keyboardBottomToNavBarPx: 25 navBarHeight: 117
+04-10 09:04:26.150  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.150  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.150  3622  3622 I AndroidIME: KeyboardViewManager.updateKeyboardBottomFrame():489 Set bottomFrameHeight = 25 while holderPaddingBottom = 25; navigationHeight = 117
+04-10 09:04:26.151  3622 12945 I SpeechEnhancementLogger: SpeechEnhancementLogger.logAtInfo():24 Speech enhancement is disabled because flag is disabled [SD]
+04-10 09:04:26.151  3622 12941 I PackageStatusChecker: PackageStatusChecker.isPackageSuspended():24 Current package suspended=false [SD]
+04-10 09:04:26.152 22953 22953 D b/417220811: invalidateLoadedTasks - previous requestLoadId: -1
+04-10 09:04:26.152  1588  1777 I ImeTracker: system_server:bb66690e: onRequestShow at ORIGIN_SERVER reason CONTROLS_CHANGED fromUser false displayId 0
+04-10 09:04:26.153 13091 13091 I Zygote  : Process 13091 created for com.adamoutler.ssh
+04-10 09:04:26.153 13091 13091 I .adamoutler.ssh: Late-enabling -Xcheck:jni
+04-10 09:04:26.153  6953  6953 I ImeTracker: system_server:bb66690e: onCancelled at PHASE_CLIENT_ON_CONTROLS_CHANGED
+04-10 09:04:26.154  3622 12945 I MultilangConditionManagerImpl: MultilangConditionManagerImpl.isAutomaticSwitchingEnabled():77 Automatic switching disabled because Gboard setting is not shown [SD]
+04-10 09:04:26.154  3622 12945 I MultilangConditionManagerImpl: MultilangConditionManagerImpl.isAutomaticSwitchingEnabled():92 Automatic switching disabled because there aren't enough supported keyboard languages [SD]
+04-10 09:04:26.154  3622 12940 I AsrProviderChoice: AsrProviderChoice.setChosenProvider():83 Setting chosen ASR provider to: 6 [SD]
+04-10 09:04:26.154  3622 12940 I EligibilityChecker: EligibilityChecker.getDictationConfigEligibilityForLocale():310 Dictation is enabled. workprofile=false [SD]
+04-10 09:04:26.154  3622 12940 I EligibilityUtilKt: EligibilityUtilKt.isDictationSupportedInInputField():92 Field type is not set, assuming supported input field. [SD]
+04-10 09:04:26.154  3622 12940 I MultilangConditionManagerImpl: MultilangConditionManagerImpl.isAutomaticSwitchingEnabled():77 Automatic switching disabled because Gboard setting is not shown [SD]
+04-10 09:04:26.154  3622 12940 I MultilangConditionManagerImpl: MultilangConditionManagerImpl.isAutomaticSwitchingEnabled():92 Automatic switching disabled because there aren't enough supported keyboard languages [SD]
+04-10 09:04:26.154  3622  3622 I NgaStateManager: NgaStateManager.setAssistantDictationEligibility():188 AssistantDictationEligibility = 1 [SDG]
+04-10 09:04:26.154  3622  3622 I NgaStateManager: NgaStateManager.buildConfigEligibilityPerLanguageTag():306 AssistantDictationEligibility(config, en-US) = 1 [SDG]
+04-10 09:04:26.154  3622  3622 I NgaStateManager: NgaStateManager.setAssistantDictationEligibility():197 AssistantDictationEligibility(inputField) = 1 [SDG]
+04-10 09:04:26.154  3622  3622 I NgaInputHandlerFactory: NgaInputHandlerFactory.restorePrimary():137 restoring primary [SDG]
+04-10 09:04:26.154  3622  3622 I NgaVoiceInputHandlerSwitcher: NgaVoiceInputHandlerSwitcher.restorePrimary():234 not switching to primary. fallback is null [SDG]
+04-10 09:04:26.154  3622 12940 I KeyboardEligibilityNotifier: KeyboardEligibilityNotifier.notifyEligibility():76 Keyboard notified that eligibility=ELIGIBLE [SD]
+04-10 09:04:26.154  3622 12940 I KeyboardUiManagerImpl: KeyboardUiManagerImpl.onKeyboardShownAgain():168 #onKeyboardShownAgain scheduled [SD]
+04-10 09:04:26.154  3622 12940 I KeyboardUiManagerImpl: KeyboardUiManagerImpl.onKeyboardShownAgain():171 #onKeyboardShownAgain [SD]
+04-10 09:04:26.154  3622 12940 I KeyboardEventHandler: KeyboardEventHandler.handleFieldChangedEvent():454 Handling FieldChangedEvent: fgPkg=com.android.chrome, fieldType=0, interactionType=FIELD_CHANGE [SD]
+04-10 09:04:26.155  3622 12943 I SpeechEnhancementLogger: SpeechEnhancementLogger.logAtInfo():24 Speech enhancement is disabled because flag is disabled [SD]
+04-10 09:04:26.155  3622 12941 I PackageStatusChecker: PackageStatusChecker.isPackageSuspended():24 Current package suspended=false [SD]
+04-10 09:04:26.157  3622 12945 I MultilangConditionManagerImpl: MultilangConditionManagerImpl.isAutomaticSwitchingEnabled():77 Automatic switching disabled because Gboard setting is not shown [SD]
+04-10 09:04:26.157  3622 12945 I MultilangConditionManagerImpl: MultilangConditionManagerImpl.isAutomaticSwitchingEnabled():92 Automatic switching disabled because there aren't enough supported keyboard languages [SD]
+04-10 09:04:26.157  3622 12945 I AsrProviderChoice: AsrProviderChoice.setChosenProvider():83 Setting chosen ASR provider to: 6 [SD]
+04-10 09:04:26.157  3622 12945 I EligibilityChecker: EligibilityChecker.getDictationConfigEligibilityForLocale():310 Dictation is enabled. workprofile=false [SD]
+04-10 09:04:26.157  3622 12945 I EligibilityUtilKt: EligibilityUtilKt.isDictationSupportedInInputField():92 Field type is not set, assuming supported input field. [SD]
+04-10 09:04:26.158  3622 12945 I MultilangConditionManagerImpl: MultilangConditionManagerImpl.isAutomaticSwitchingEnabled():77 Automatic switching disabled because Gboard setting is not shown [SD]
+04-10 09:04:26.158  3622 12945 I MultilangConditionManagerImpl: MultilangConditionManagerImpl.isAutomaticSwitchingEnabled():92 Automatic switching disabled because there aren't enough supported keyboard languages [SD]
+04-10 09:04:26.158  3622 12945 I KeyboardEligibilityNotifier: KeyboardEligibilityNotifier.notifyEligibility():76 Keyboard notified that eligibility=ELIGIBLE [SD]
+04-10 09:04:26.158  3622  3622 I NgaStateManager: NgaStateManager.setAssistantDictationEligibility():188 AssistantDictationEligibility = 1 [SDG]
+04-10 09:04:26.158  3622  3622 I NgaStateManager: NgaStateManager.buildConfigEligibilityPerLanguageTag():306 AssistantDictationEligibility(config, en-US) = 1 [SDG]
+04-10 09:04:26.158  3622  3622 I NgaStateManager: NgaStateManager.setAssistantDictationEligibility():197 AssistantDictationEligibility(inputField) = 1 [SDG]
+04-10 09:04:26.158  3622  3622 I NgaInputHandlerFactory: NgaInputHandlerFactory.restorePrimary():137 restoring primary [SDG]
+04-10 09:04:26.158  3622  3622 I NgaVoiceInputHandlerSwitcher: NgaVoiceInputHandlerSwitcher.restorePrimary():234 not switching to primary. fallback is null [SDG]
+04-10 09:04:26.158  3622 12945 I KeyboardEventHandler: KeyboardEventHandler.handleJarvisState():314 Handling JarvisState. UiState=IDLE, undo_available=false, can_show_proofread_suggestion=false, can_be_activated=false, more_fixes_available=false, draft_selected_in_drafts_ui_session=false, num_fixes_available=0 [SD]
+04-10 09:04:26.158  3622 12945 I KeyboardUiManagerImpl: KeyboardUiManagerImpl.onJarvisState():570 #onJarvisState: # tfc@8f21a7fb isProofreadEnabled true [SD]
+04-10 09:04:26.158  3622 12945 I KeyboardEventHandler: KeyboardEventHandler.handleJarvisState():314 Handling JarvisState. UiState=IDLE, undo_available=false, can_show_proofread_suggestion=false, can_be_activated=true, more_fixes_available=false, draft_selected_in_drafts_ui_session=false, num_fixes_available=0 [SD]
+04-10 09:04:26.158  3622 12945 I KeyboardUiManagerImpl: KeyboardUiManagerImpl.onJarvisState():570 #onJarvisState: # tfc@12bd197d isProofreadEnabled true [SD]
+04-10 09:04:26.162  1519  1540 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [32222.00 32170.00 32145.00 31089.00 33165.00 32005.00 32942.00 33852.00 31116.00 ]
+04-10 09:04:26.162  1519  1540 I native  : I0000 00:00:1775826266.162844    1540 thermal_tflite_wrapper.cc:261] ThermalTfliteInvoke
+04-10 09:04:26.162  1519  1540 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [32281.3 ]
+04-10 09:04:26.163  1519  1540 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [32281.3 ]
+04-10 09:04:26.163  1519  1540 I pixel-thermal: VIRTUAL-SKIN-CPU-HIGH:32.2947 raw data: CLOSE_WEIGHT:1 OPEN_WEIGHT:0 VIRTUAL-SKIN:32294.7 VIRTUAL-SKIN-CLOSE:32570.4 VIRTUAL-SKIN-CLOSE-SUB-0:32570.4 VIRTUAL-SKIN-CLOSE-SUB-1:32144.1 VIRTUAL-SKIN-CLOSE-SUB-2:32478.6 VIRTUAL-SKIN-CLOSE-SUB-3:32214.6 VIRTUAL-SKIN-CLOSE-SUB-4:31979.3 VIRTUAL-SKIN-CPU-HIGH:32294.7 VIRTUAL-SKIN-LEGACY:32570.4 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:289.107 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:32281.3 VIRTUAL-SKIN-MODEL-CLAMPED:32281.3 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:-289.107 VIRTUAL-SKIN-MODEL-UPDATED:32294.7 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:32281.3 VIRTUAL-SKIN-OPEN:32683 VIRTUAL-SKIN-OPEN-SUB-0:32332 VIRTUAL-SKIN-OPEN-SUB-1:32683 VIRTUAL-SKIN-OPEN-SUB-2:32222.1 VIRTUAL-SKIN-OPEN-SUB-3:32378.9 VIRTUAL-SKIN-OPEN-SUB-4:32227.9 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 charging_therm:32222 flash_therm:31089 inner_brightness:0 inner_disp_therm:32170 north_therm:33165 outer_disp_therm:32145 quiet_therm:32005 rfpa_therm:32942 soc_therm:33852 usb_pwr_therm:31116 
+04-10 09:04:26.163  1519  1540 I pixel-thermal: STATS-UPDATOR:0 raw data: STATS-UPDATOR:0 VIRTUAL-SKIN-LEGACY:32570.4 VIRTUAL-SKIN-MODEL:32281.3 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:-289.107 
+04-10 09:04:26.163  1519  1540 I pixel-thermal: VIRTUAL-SKIN-CPU-LIGHT-ODPM:32.2947 raw data: VIRTUAL-SKIN:32294.7 VIRTUAL-SKIN-CPU-LIGHT-ODPM:32294.7 
+04-10 09:04:26.163  1519  1540 I pixel-thermal: BG-TASKS-THROTTLING-HINT:0 raw data: BG-TASKS-THROTTLING-EXP-PROPERTY:0 BG-TASKS-THROTTLING-HINT:0 BG_TASKS_THROTTLING_COUNT:0 IS_BG_TASKS_THROTTLING_ACTIVE:0 IS_CHARGING:0 VIRTUAL-SKIN:32294.7 thb_hda:0 
+04-10 09:04:26.163  1519  1540 I pixel-thermal: VIRTUAL-SKIN-CPU-ODPM:32.2947 raw data: VIRTUAL-SKIN:32294.7 VIRTUAL-SKIN-CPU-ODPM:32294.7 
+04-10 09:04:26.163  1519  1540 I pixel-thermal: VIRTUAL-SKIN-HINT:32.2947 raw data: VIRTUAL-SKIN:32294.7 VIRTUAL-SKIN-HINT:32294.7 
+04-10 09:04:26.163  1519  1540 I pixel-thermal: VIRTUAL-SKIN:32.2947 raw data: VIRTUAL-SKIN:32294.7 
+04-10 09:04:26.163  1519  1540 I pixel-thermal: VIRTUAL-SKIN-SOC:32.2947 raw data: VIRTUAL-SKIN:32294.7 VIRTUAL-SKIN-SOC:32294.7 
+04-10 09:04:26.163  1519  1540 I pixel-thermal: VIRTUAL-SKIN-INNER-DISPLAY:32.683 raw data: VIRTUAL-SKIN-INNER-DISPLAY:32683 VIRTUAL-SKIN-OPEN:32683 
+04-10 09:04:26.163  1519  1540 I pixel-thermal: VIRTUAL-SKIN-CPU-MID:32.2947 raw data: VIRTUAL-SKIN:32294.7 VIRTUAL-SKIN-CPU-MID:32294.7 
+04-10 09:04:26.163  1519  1540 I pixel-thermal: cellular-emergency:32.2947 raw data: VIRTUAL-SKIN:32294.7 cellular-emergency:32294.7 
+04-10 09:04:26.163  1519  1540 I pixel-thermal: quiet_therm:32.005 raw data: quiet_therm:32005 
+04-10 09:04:26.169  1588  1777 I ImeTracker: system_server:bf8cab3b: onRequestShow at ORIGIN_SERVER reason CONTROLS_CHANGED fromUser false displayId 0
+04-10 09:04:26.169  6953  6953 I ImeTracker: system_server:bf8cab3b: onCancelled at PHASE_CLIENT_ON_CONTROLS_CHANGED
+04-10 09:04:26.179 13091 13091 I .adamoutler.ssh: Using CollectorTypeCMC GC.
+04-10 09:04:26.180  1244  1244 D AOC     : A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 2 -> 1 d_lux:5.59 w_lux: 13.81 C:0.16 G:0.05
+04-10 09:04:26.183 21481 21486 I adbd    : jdwp connection from 13091
+04-10 09:04:26.186 13091 13091 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+04-10 09:04:26.194  1588  2673 D BackgroundInstallControlService: Package event received: 0
+04-10 09:04:26.194  2876 11042 D UidImportanceSource: onUidImportanceBlock: uid=10385 importance=100
+04-10 09:04:26.194  2876 11042 D UidImportanceSource: onUidImportanceBlock: packages=[com.adamoutler.ssh] importance=100
+04-10 09:04:26.194  2876 11042 D UidImportanceSource: onUidImportanceBlock: packageName=com.adamoutler.ssh importance=100
+04-10 09:04:26.194  2876 11042 D BusinessScope: Enqueuing the block
+04-10 09:04:26.194  1588  2673 D BackgroundInstallControlService: Package event received: 0
+04-10 09:04:26.194  2876  4383 D BusinessScope: Start running the #21027 block
+04-10 09:04:26.195  2876  4383 D BusinessScope: Enqueuing the block
+04-10 09:04:26.195  2876  4383 D ImpulseStateSource: Notify clients: 10510
+04-10 09:04:26.195  2876  4383 D BusinessScope: Finish running the #21027 block
+04-10 09:04:26.195  2876  4383 D BusinessScope: Start running the #21028 block
+04-10 09:04:26.195  2876  4383 D BusinessScope: Finish running the #21028 block
+04-10 09:04:26.200 13091 13091 D CompatChangeReporter: Compat change id reported: 242716250; UID 10385; state: ENABLED
+04-10 09:04:26.201  1244  1244 D AOC     : A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 1 -> 2 d_lux:5.65 w_lux: 13.91 C:0.16 G:0.05
+04-10 09:04:26.205 13091 13091 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+04-10 09:04:26.205 13091 13091 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+04-10 09:04:26.218  1519  1519 I pixel-thermal: VIRTUAL-SKIN:32.2947 raw data: VIRTUAL-SKIN:32294.7 
+04-10 09:04:26.222  1244  1244 D AOC     : A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 2 -> 1 d_lux:5.51 w_lux: 13.91 C:0.16 G:0.05
+04-10 09:04:26.234 22953 22953 D b/417220811: invalidateLoadedTasks - previous requestLoadId: -1
+04-10 09:04:26.243  1244  1244 D AOC     : A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 1 -> 2 d_lux:5.45 w_lux: 14.00 C:0.16 G:0.05
+04-10 09:04:26.285   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:26.343 21481 21481 E adbd    : failed to connect to socket 'tcp:27042': Connection refused
+04-10 09:04:26.344 21481 21481 E adbd    : failed to connect to socket 'tcp:24072': Connection refused
+04-10 09:04:26.383 13091 13091 D nativeloader: Configuring clns-9 for other apk /data/app/~~mwL8gjC8azPjW72kG5kKvg==/com.adamoutler.ssh-bB-PTQUmdRbtxshwMxUBYg==/base.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~mwL8gjC8azPjW72kG5kKvg==/com.adamoutler.ssh-bB-PTQUmdRbtxshwMxUBYg==/lib/arm64:/data/app/~~mwL8gjC8azPjW72kG5kKvg==/com.adamoutler.ssh-bB-PTQUmdRbtxshwMxUBYg==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/com.adamoutler.ssh
+04-10 09:04:26.389  1244  1244 D AOC     : A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 2 -> 1 d_lux:5.73 w_lux: 13.91 C:0.16 G:0.06
+04-10 09:04:26.394 13091 13091 V GraphicsEnvironment: Currently set values for:
+04-10 09:04:26.394 13091 13091 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[com.android.angle]
+04-10 09:04:26.394 13091 13091 V GraphicsEnvironment:   angle_gl_driver_selection_values=[angle]
+04-10 09:04:26.394 13091 13091 V GraphicsEnvironment: com.adamoutler.ssh is not listed in per-application setting
+04-10 09:04:26.394 13091 13091 V GraphicsEnvironment: No special selections for ANGLE, returning default driver choice
+04-10 09:04:26.394 13091 13091 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+04-10 09:04:26.411  1244  1244 D AOC     : A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 1 -> 2 d_lux:5.83 w_lux: 13.81 C:0.16 G:0.05
+04-10 09:04:26.413  1519  1519 I pixel-thermal: VIRTUAL-USB-THROTTLING:0 raw data: USB-MINUS-CHARGING:-1106 VIRTUAL-USB-THROTTLING:0 charging_therm:32222 usb_pwr_therm:31116 
+04-10 09:04:26.413  1588  2673 D BackgroundInstallControlService: Package event received: 0
+04-10 09:04:26.413  1588  2673 D BackgroundInstallControlService: Package event received: 0
+04-10 09:04:26.413  1519  1519 I pixel-thermal: VIRTUAL-SKIN-CHARGE-PERSIST:33.0987 raw data: CLOSE_WEIGHT:1 IS_WLC:0 NO_WLC:1 OPEN_WEIGHT:0 VIRTUAL-SKIN-CHARGE-CLOSE:32098.7 VIRTUAL-SKIN-CHARGE-CLOSE-SUB-0:31911 VIRTUAL-SKIN-CHARGE-CLOSE-SUB-1:32098.7 VIRTUAL-SKIN-CHARGE-CLOSE-SUB-2:30450.8 VIRTUAL-SKIN-CHARGE-LEGACY:32098.7 VIRTUAL-SKIN-CHARGE-OPEN:32629.1 VIRTUAL-SKIN-CHARGE-OPEN-SUB-0:32325.9 VIRTUAL-SKIN-CHARGE-OPEN-SUB-1:32629.1 VIRTUAL-SKIN-CHARGE-OPEN-SUB-2:31679.4 VIRTUAL-SKIN-CHARGE-PERSIST:33098.7 VIRTUAL-SKIN-CHARGE-WLC-CLOSE:31937.1 VIRTUAL-SKIN-CHARGE-WLC-LEGACY:31937.1 VIRTUAL-SKIN-CHARGE-WLC-OPEN:32298.6 WLC_CHECK:1 charging_therm:32222 flash_therm:31089 inner_disp_therm:32170 north_therm:33165 outer_disp_therm:32145 quiet_therm:32005 rfpa_therm:32942 soc_therm:33852 thb_hda:0 
+04-10 09:04:26.413  1519  1519 I pixel-thermal: usb_pwr_therm:31.116 raw data: usb_pwr_therm:31116 
+04-10 09:04:26.413  1519  1519 I pixel-thermal: soc_therm:33.852 raw data: soc_therm:33852 
+04-10 09:04:26.413  1519  1519 I pixel-thermal: quiet_therm:32.005 raw data: quiet_therm:32005 
+04-10 09:04:26.413  1519  1519 I pixel-thermal: outer_disp_therm:32.145 raw data: outer_disp_therm:32145 
+04-10 09:04:26.413  1519  1519 I pixel-thermal: rfpa_therm:32.942 raw data: rfpa_therm:32942 
+04-10 09:04:26.413 13091 13123 I DisplayManager: Choreographer implicitly registered for the refresh rate.
+04-10 09:04:26.414 13091 13123 D vulkan  : searching for layers in '/data/app/~~mwL8gjC8azPjW72kG5kKvg==/com.adamoutler.ssh-bB-PTQUmdRbtxshwMxUBYg==/lib/arm64'
+04-10 09:04:26.414 13091 13123 D vulkan  : searching for layers in '/data/app/~~mwL8gjC8azPjW72kG5kKvg==/com.adamoutler.ssh-bB-PTQUmdRbtxshwMxUBYg==/base.apk!/lib/arm64-v8a'
+04-10 09:04:26.414  1519  1519 I pixel-thermal: VIRTUAL-SKIN-BOTTOM-SPEAKER:30.1841 raw data: VIRTUAL-SKIN-BOTTOM-SPEAKER:30184.1 
+04-10 09:04:26.414  1519  1519 I pixel-thermal: VIRTUAL-SKIN-TOP-SPEAKER:30.3268 raw data: VIRTUAL-SKIN-TOP-SPEAKER:30326.8 
+04-10 09:04:26.414  1519  1519 I pixel-thermal: cellular-emergency:32.2947 raw data: cellular-emergency:32294.7 
+04-10 09:04:26.414  1519  1519 I pixel-thermal: VIRTUAL-SKIN-OUTER-DISPLAY:31.854 raw data: VIRTUAL-SKIN-OUTER-DISPLAY:31854 
+04-10 09:04:26.414  1519  1519 I pixel-thermal: VIRTUAL-SKIN-INNER-DISPLAY:32.683 raw data: VIRTUAL-SKIN-INNER-DISPLAY:32683 
+04-10 09:04:26.415  1519  1519 I pixel-thermal: VIRTUAL-SKIN:32.2947 raw data: VIRTUAL-SKIN:32294.7 
+04-10 09:04:26.415  1519  1519 I pixel-thermal: inner_disp_therm:32.17 raw data: inner_disp_therm:32170 
+04-10 09:04:26.415  1519  1519 I pixel-thermal: VIRTUAL-USB-UI:0 raw data: USB-MINUS-CHARGING:-1106 VIRTUAL-USB-UI:0 usb_pwr_therm:31116 
+04-10 09:04:26.415  1519  1519 I pixel-thermal: VIRTUAL-SKIN-CHARGE-WIRED:33.0987 raw data: NO_WLC:1 VIRTUAL-SKIN-CHARGE-LEGACY:32098.7 VIRTUAL-SKIN-CHARGE-WIRED:33098.7 
+04-10 09:04:26.415  1519  1519 I pixel-thermal: north_therm:33.165 raw data: north_therm:33165 
+04-10 09:04:26.415  1519  1519 I pixel-thermal: flash_therm:31.089 raw data: flash_therm:31089 
+04-10 09:04:26.420  1588  1774 W AppWarnings: Showing PageSizeMismatchDialog for package com.adamoutler.ssh
+04-10 09:04:26.420 13091 13091 D DesktopExperienceFlags: Toggle override initialized to: false
+04-10 09:04:26.425  1588  1774 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): android.app.Dialog$$ExternalSyntheticLambda2@ab0eedf
+04-10 09:04:26.426  1588  1774 D CoreBackPreview: Window{77a46e8 u0 android}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.WindowOnBackInvokedDispatcher$OnBackInvokedCallbackWrapper@597d72c, mPriority=-1, mIsAnimationCallback=false, mOverrideBehavior=0}
+04-10 09:04:26.431 13091 13091 D DesktopModeFlags: Toggle override initialized to: OVERRIDE_UNSET
+04-10 09:04:26.436  3622  3622 I GoogleInputMethodService: GoogleInputMethodService.onFinishInputView():1660 onFinishInputView(false)
+04-10 09:04:26.436  3622  3622 I GlobeKeyExtension: GlobeKeyExtension.onDeactivate():153 
+04-10 09:04:26.436  3622  3622 I JarvisExtension: JarvisExtension.onDeactivate():1136 onDeactivate
+04-10 09:04:26.436  3622  3622 I JarvisTriggersManager: JarvisTriggersManager.onDeactivate():764 onDeactivate
+04-10 09:04:26.436  3622  3622 I NgaExtension: NgaExtension.onDeactivate():647 NgaExtension#onDeactivate [SDG]
+04-10 09:04:26.436  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020528, callback=wgq@182f233, lastModifier=2, keyCodes=[32], actions=[0]}
+04-10 09:04:26.436  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020528, callback=wgq@fed9f0, lastModifier=0, keyCodes=[319], actions=[0]}
+04-10 09:04:26.437  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020528, callback=wgq@b13fc74, lastModifier=2, keyCodes=[32], actions=[0]}
+04-10 09:04:26.437  3622 12945 I NgaDataShareClient: NgaDataShareClient.sendCorrectionsAndEndSession():412 endDataPushSession() [SDG]
+04-10 09:04:26.437  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020528, callback=wgq@426059d, lastModifier=0, keyCodes=[319], actions=[0]}
+04-10 09:04:26.437  3622 12945 I NgaDataShareClient: NgaDataShareClient.sendCorrectionsList():420 sendCorrectionsList() [SDG]
+04-10 09:04:26.437  3622 12945 W NotificationCenter: NotificationCenter.unregisterListener():480 Listener omf@66602b1 was not registered for notification class aauh
+04-10 09:04:26.437  3622 12943 I DataShareHelper: DataShareHelper.shareCorrections():24 shareCorrections() [SD]
+04-10 09:04:26.437  3622 12945 W NotificationCenter: NotificationCenter.unregisterListener():480 Listener ome@4274396 was not registered for notification class aakc
+04-10 09:04:26.441  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020528, callback=wgq@55dd9ee, lastModifier=2, keyCodes=[32], actions=[0]}
+04-10 09:04:26.442  3622  3622 I HardKeyTracker: HardKeyTracker.unregisterKeySequence():259 Unregister key sequence adoy{labelResId=2132020528, callback=wgq@d707e8f, lastModifier=0, keyCodes=[319], actions=[0]}
+04-10 09:04:26.442  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020528, callback=wgq@fbe660c, lastModifier=2, keyCodes=[32], actions=[0]}
+04-10 09:04:26.442  3622  3622 I HardKeyTracker: HardKeyTracker.registerKeySequence():201 Register key sequence adoy{labelResId=2132020528, callback=wgq@714b55, lastModifier=0, keyCodes=[319], actions=[0]}
+04-10 09:04:26.442  3622  3622 W NotificationCenter: NotificationCenter.unregisterListener():480 Listener oii@af4544b was not registered for notification class aakc
+04-10 09:04:26.442  3622  3622 W TooltipLifecycleManager: TooltipLifecycleManager.dismissTooltips():153 Tooltip with id spell_check_add_to_dictionary not found in tooltipManager.
+04-10 09:04:26.442  3622  3622 I NgaVoiceInputHandler: NgaVoiceInputHandler.shutdownInternalLegacy():337 VoiceInputHandler:deactivating [SDG]
+04-10 09:04:26.442  3622  3622 W NotificationCenter: NotificationCenter.unregisterListener():480 Listener achz@a9dc193 was not registered for notification class acia
+04-10 09:04:26.442  3622  3622 I SmartEdit: SmartEdit.unloadModels():144 SmartEdit: unloading models [SDG]
+04-10 09:04:26.443  3622  3622 I NgaInputManager: NgaInputManager.onDeactivate():478 SmartEdit: unloading models false [SDG]
+04-10 09:04:26.443  3622  3622 I AndroidIME: AbstractIme.onDeactivate():213 PasswordIme.onDeactivate()
+04-10 09:04:26.444  3622  3622 I PrimesLoggerHolder: FrameMetricServiceImpl.stopAsFuture():213 Measurement not found: OnConfigurationChanged
+04-10 09:04:26.444  3622 12667 W AutoCloseableReference: AutoCloseablePhantomReference.close():42 close() is invoked more than once
+04-10 09:04:26.444  3622  3622 W TooltipLifecycleManager: TooltipLifecycleManager.dismissTooltips():153 Tooltip with id undo_access_point_promotion_banner not found in tooltipManager.
+04-10 09:04:26.444  3622  3622 D ImeBackCallbackSender: Unregister OnBackInvokedCallback at app window (packageName=com.android.chrome)
+04-10 09:04:26.445  3622 12941 I KeyboardEventHandler: KeyboardEventHandler.handleKeyboardVisibilityEvent():214 Handling KeyboardVisibilityEvent: KEYBOARD_CLOSED [SD]
+04-10 09:04:26.445  3622  3622 I ImeTracker: com.android.chrome:5f55bf7c: onHidden
+04-10 09:04:26.446 13091 13091 I ContentCaptureHelper: Setting logging level to OFF
+04-10 09:04:26.446  3622  3622 I KeyboardModeUtils: KeyboardModeUtils.getKeyboardBottomOffset():432 inch: 0.350000 ydpi: 408.472992 adjustKeyboardBottomByDisplaySize: false currentDensityDpi: 390 defaultDensityDpi: 390 keyboardBottomToScreenPx: 142 keyboardBottomToNavBarPx: 25 navBarHeight: 117
+04-10 09:04:26.446  3622 12942 I KeyboardEventHandler: KeyboardEventHandler.handleJarvisState():314 Handling JarvisState. UiState=IDLE, undo_available=false, can_show_proofread_suggestion=false, can_be_activated=false, more_fixes_available=false, draft_selected_in_drafts_ui_session=false, num_fixes_available=0 [SD]
+04-10 09:04:26.446  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.446  3622  3622 I BaseKeyboardSizeHelper: BaseKeyboardSizeHelper.calculateMaxKeyboardBodyHeight():73 leave 261 height for app when ime window height:2088, header height:117 and isFullscreenMode:false, so the max keyboard body height is:1710
+04-10 09:04:26.446  3622  3622 I AndroidIME: KeyboardViewManager.updateKeyboardBottomFrame():489 Set bottomFrameHeight = 25 while holderPaddingBottom = 25; navigationHeight = 117
+04-10 09:04:26.446  3622 12942 I KeyboardUiManagerImpl: KeyboardUiManagerImpl.onJarvisState():570 #onJarvisState: # tfc@8f21a7fb isProofreadEnabled true [SD]
+04-10 09:04:26.462  1588  1773 D HintManagerService: Sent cleanup message for uid 10202
+04-10 09:04:26.472  2721  2721 D MediaRouter: onRestoreRoute() : route=RouteInfo{ name=Adam's Pixel Buds P, description=Bluetooth audio, status=null, category=RouteCategory{ name=System types=ROUTE_TYPE_LIVE_AUDIO ROUTE_TYPE_LIVE_VIDEO  groupable=false }, supportedTypes=ROUTE_TYPE_LIVE_AUDIO , presentationDisplay=null }
+04-10 09:04:26.472  2721  2721 V MediaRouter: Selecting route: RouteInfo{ name=Adam's Pixel Buds P, description=Bluetooth audio, status=null, category=RouteCategory{ name=System types=ROUTE_TYPE_LIVE_AUDIO ROUTE_TYPE_LIVE_VIDEO  groupable=false }, supportedTypes=ROUTE_TYPE_LIVE_AUDIO , presentationDisplay=null }
+04-10 09:04:26.472  2721 13078 D RingtonePlayer: player.start piid:3447
+04-10 09:04:26.472  1194 13080 I GenericSource: start
+04-10 09:04:26.473  3324 13068 I NearbyDiscovery: (REDACTED) [trigger-id=Plco80FCB3FC, feature-id=Sass] FastPair: AudioEventListener find active playback with other usage %d
+04-10 09:04:26.474  1194 13137 D CCodec  : allocate(c2.android.vorbis.decoder)
+04-10 09:04:26.478  1194 13137 I CCodec  : setting up 'default' as default (vendor) store
+04-10 09:04:26.479  1228  2774 I libbinder.BpBinder: onLastStrongRef automatically unlinking death recipients for binder (0xb400007c8aa57d30) with descriptor: 'android.hardware.media.bufferpool2.IAccessor'
+04-10 09:04:26.479  1228  2774 D AidlBufferPool: bufferpool2 0xb400007cfaa55e48 : 0(0 size) total buffers - 0(0 size) used buffers - 0/0 (recycle/alloc) - 0/0 (fetch/transfer)
+04-10 09:04:26.479  1228  2774 D AidlBufferPool: bufferpool2 0xb400007cfaa57318 : 6(24576 size) total buffers - 6(24576 size) used buffers - 1436/1457 (recycle/alloc) - 23/1457 (fetch/transfer)
+04-10 09:04:26.479  1228  2774 D AidlBufferPool: bufferpool2 0xb400007cfaa4e168 : 0(0 size) total buffers - 0(0 size) used buffers - 0/0 (recycle/alloc) - 0/0 (fetch/transfer)
+04-10 09:04:26.479  1228  2774 D AidlBufferPool: bufferpool2 0xb400007cfaa4d388 : 10(40960 size) total buffers - 10(40960 size) used buffers - 998/1019 (recycle/alloc) - 26/1019 (fetch/transfer)
+04-10 09:04:26.479  1228  2774 D AidlBufferPool: bufferpool2 0xb400007cfaa56098 : 0(0 size) total buffers - 0(0 size) used buffers - 0/0 (recycle/alloc) - 0/0 (fetch/transfer)
+04-10 09:04:26.479  1228  2774 D AidlBufferPool: bufferpool2 0xb400007cfaa534a8 : 9(36864 size) total buffers - 9(36864 size) used buffers - 156/166 (recycle/alloc) - 15/166 (fetch/transfer)
+04-10 09:04:26.479  1228  2774 D AidlBufferPool: bufferpool2 0xb400007cfaa50418 : 0(0 size) total buffers - 0(0 size) used buffers - 0/0 (recycle/alloc) - 0/0 (fetch/transfer)
+04-10 09:04:26.480  1194  2635 D AidlBufferPool: bufferpool2 0xb400006e994f8168 : 0(0 size) total buffers - 0(0 size) used buffers - 51/59 (recycle/alloc) - 8/58 (fetch/transfer)
+04-10 09:04:26.480  1194 13137 W mediaserver: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+04-10 09:04:26.480  1194  2635 D AidlBufferPool: Destruction - bufferpool2 0xb400006e994f8168 cached: 0/0M, 0/0% in use; allocs: 59, 86% recycled; transfers: 58, 86% unfetched
+04-10 09:04:26.480  1194 13137 I CCodec  : Created component [c2.android.vorbis.decoder] for [c2.android.vorbis.decoder]
+04-10 09:04:26.480  1194 13137 D CCodecConfig: read media type: audio/vorbis
+04-10 09:04:26.481  1194 13137 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+04-10 09:04:26.482  1194 13137 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+04-10 09:04:26.482  1194 13137 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+04-10 09:04:26.482  1194 13137 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+04-10 09:04:26.482  1194 13137 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+04-10 09:04:26.482  1194 13137 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+04-10 09:04:26.482  1194 13137 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+04-10 09:04:26.483  1194 13137 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+04-10 09:04:26.483  1194 13137 D CCodecConfig: c2 config diff is Dict {
+04-10 09:04:26.483  1194 13137 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+04-10 09:04:26.483  1194 13137 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 32768
+04-10 09:04:26.483  1194 13137 D CCodecConfig:   c2::u32 input.delay.value = 0
+04-10 09:04:26.483  1194 13137 D CCodecConfig:   string input.media-type.value = "audio/vorbis"
+04-10 09:04:26.483  1194 13137 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+04-10 09:04:26.483  1194 13137 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+04-10 09:04:26.483  1194 13137 D CCodecConfig:   string output.media-type.value = "audio/raw"
+04-10 09:04:26.483  1194 13137 D CCodecConfig:   c2::u32 raw.channel-count.value = 1
+04-10 09:04:26.483  1194 13137 D CCodecConfig:   c2::u32 raw.sample-rate.value = 48000
+04-10 09:04:26.483  1194 13137 D CCodecConfig: }
+04-10 09:04:26.485  1194 13136 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+04-10 09:04:26.485  1194 13137 D CCodec  : [c2.android.vorbis.decoder] buffers are bound to CCodec for this session
+04-10 09:04:26.485  1194 13137 D CCodecConfig: no c2 equivalents for durationUs
+04-10 09:04:26.485  1194 13137 D CCodecConfig: no c2 equivalents for csd-1
+04-10 09:04:26.485  1194 13137 D CCodecConfig: no c2 equivalents for flags
+04-10 09:04:26.486  1194 13137 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 120000
+04-10 09:04:26.487  1194 13137 D CCodec  : encoding statistics level = 0
+04-10 09:04:26.487  1194 13137 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+04-10 09:04:26.487  1194 13137 D CCodec  :   int32_t bitrate = 120000
+04-10 09:04:26.487  1194 13137 D CCodec  :   int32_t channel-count = 1
+04-10 09:04:26.487  1194 13137 D CCodec  :   int32_t max-input-size = 32768
+04-10 09:04:26.487  1194 13137 D CCodec  :   string mime = "audio/vorbis"
+04-10 09:04:26.487  1194 13137 D CCodec  :   int32_t sample-rate = 48000
+04-10 09:04:26.487  1194 13137 D CCodec  : }
+04-10 09:04:26.487  1194 13137 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+04-10 09:04:26.487  1194 13137 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+04-10 09:04:26.487  1194 13137 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+04-10 09:04:26.487  1194 13137 D CCodec  :   int32_t channel-count = 1
+04-10 09:04:26.487  1194 13137 D CCodec  :   string mime = "audio/raw"
+04-10 09:04:26.487  1194 13137 D CCodec  :   int32_t sample-rate = 48000
+04-10 09:04:26.487  1194 13137 D CCodec  :   int32_t channel-mask = 1
+04-10 09:04:26.487  1194 13137 D CCodec  :   int32_t android._config-pcm-encoding = 2
+04-10 09:04:26.487  1194 13137 D CCodec  : }
+04-10 09:04:26.487  1194 13137 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+04-10 09:04:26.487  1194 13137 E mediaserver: Failed to query component interface for required system resources: 6
+04-10 09:04:26.487  1194 13137 I MediaCodec: MediaCodec will operate in async mode
+04-10 09:04:26.487  1194 13136 D MediaCodec: keep callback message for reclaim
+04-10 09:04:26.488  1194 13137 I libbinder.BpBinder: onLastStrongRef automatically unlinking death recipients for binder (0xb400006f49507f30) with descriptor: 'android.hardware.media.bufferpool2.IAccessor'
+04-10 09:04:26.488  1194 13137 D CCodecBufferChannel: [c2.android.vorbis.decoder#663] Created input block pool with allocatorID 16 => poolID 113 - OK (0)
+04-10 09:04:26.488  1228  1372 D AidlBufferPool: bufferpool2 0xb400007cfaa4eaa8 : 0(0 size) total buffers - 0(0 size) used buffers - 52/56 (recycle/alloc) - 4/56 (fetch/transfer)
+04-10 09:04:26.488  1228  1372 D AidlBufferPool: Destruction - bufferpool2 0xb400007cfaa4eaa8 cached: 0/0M, 0/0% in use; allocs: 56, 93% recycled; transfers: 56, 93% unfetched
+04-10 09:04:26.489  1194 13137 I CCodecBufferChannel: [c2.android.vorbis.decoder#663] Created output block pool with allocatorID 16 => poolID 378 - OK
+04-10 09:04:26.489  1194 13137 D CCodecBufferChannel: [c2.android.vorbis.decoder#663] Configured output block pool ids 378 => OK
+04-10 09:04:26.489  1228  2752 E Codec2-ComponentInterface: We have a failed config
+04-10 09:04:26.489  1228 13139 D SimpleC2Component: Using output block pool with poolID 378 => got 378 - 0
+04-10 09:04:26.490  1228  1372 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+04-10 09:04:26.490  1194 13137 W mediaserver: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+04-10 09:04:26.494  1194  2635 W mediaserver: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+04-10 09:04:26.494  1228 13139 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+04-10 09:04:26.496  1008 15858 D AudioFlinger: Client defaulted notificationFrames to 12000 for frameCount 24000
+04-10 09:04:26.496  1008 15858 I AF::PthrPatchRecord: creating track with enforcement level 0
+04-10 09:04:26.511  1588  2673 D BackgroundInstallControlService: Package event received: 0
+04-10 09:04:26.523   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:26.543  1008  2323 D DeviceHalAidl: [default] createAudioPatch: sources: 1 sinks 1
+04-10 09:04:26.544  1008  2323 D Hal2AidlMapper: [default] createOrUpdatePatch: patch ID: 205, [disregard IDs] sources: [AudioPortConfig{id: 1, portId: 0, sampleRate: Int{value: 48000}, channelMask: AudioChannelLayout{layoutMask: 3}, format: AudioFormatDescription{type: PCM, pcm: FLOAT_32_BIT, encoding: }, gain: (null), flags: AudioIoFlags{output: 6}, ext: AudioPortExt{mix: AudioPortMixExt{handle: 13, usecase: AudioPortMixExtUseCase{stream: SYS_RESERVED_DEFAULT}, maxOpenStreamCount: 0, maxActiveStreamCount: 0, recommendedMuteDurationMs: 0}}}], sinks: [AudioPortConfig{id: 713, portId: 0, sampleRate: (null), channelMask: (null), format: (null), gain: (null), flags: (null), ext: AudioPortExt{device: AudioPortDeviceExt{device: AudioDevice{type: AudioDeviceDescription{type: OUT_DEVICE, connection: bt-a2dp}, address: AudioDeviceAddress{mac: [77, 51, 192, 116, 108, 67]}}, flags: 0, encodedFormats: [], encapsulationModes: 0, encapsulationMetadataTypes: 0, speakerLayout: (null)}}}]
+04-10 09:04:26.544  1008  2323 D Hal2AidlMapper: [default] findOrCreatePortConfig: device port config does not have audio or gain config specified
+04-10 09:04:26.544   912   952 I AHal::PortRouteManager: UpdateOrAddPatch: update patch 205, AudioPatch{id: 205, source: [400001/1: primary-playback], sink: [400232/300013: bluetooth-a2dp-device], min frames: 480, latencies: [140]}
+04-10 09:04:26.544   912   952 D AHal::Router: UpdateOrAddPatch: updated activated config [400002]
+04-10 09:04:26.544   912   952 I AHal::Router: InvalidateLocked: nothing change between graph #2606 and #2607
+04-10 09:04:26.544   912 15904 I ASvc::StreamOut: getRecommendedLatencyModes: modes = [LOW, FREE]
+04-10 09:04:26.544   912 15904 I StHal::SoundTriggerHal: ProcessStreamMetadata: active usage tracks: 0
+04-10 09:04:26.544   912 15904 D BTAudioSessionAidl: GetSupportedLatencyModes - SessionType=LE_AUDIO_HARDWARE_OFFLOAD_ENCODING_DATAPATH has NO session
+04-10 09:04:26.544   912 15904 D BTAudioSessionAidl: SetLatencyMode - SessionType=LE_AUDIO_HARDWARE_OFFLOAD_ENCODING_DATAPATH has NO session
+04-10 09:04:26.544   912 15904 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:26.544 14698 30335 I bluetooth-a2dp-ahal-aidl: system/audio_hal_interface/aidl/a2dp/a2dp_aidl_transport.cc:113 SetLatencyMode: latency_mode=FREE
+04-10 09:04:26.544 14698 30335 I bluetooth-a2dp: system/btif/src/btif_av.cc:4164 btif_av_set_low_latency: active_peer=xx:xx:xx:xx:29:03 is_low_latency=false
+04-10 09:04:26.544 14698 14737 I bluetooth-a2dp: system/btif/src/btif_av.cc:3181 btif_av_handle_event: peer=xx:xx:xx:xx:29:03 handle=0x0 event=BTIF_AV_SET_LATENCY_REQ_EVT(0x25)
+04-10 09:04:26.544 14698 14737 I bluetooth-a2dp: system/btif/src/btif_av.cc:2555 ProcessEvent: state=Started peer=xx:xx:xx:xx:29:03 event=BTIF_AV_SET_LATENCY_REQ_EVT(0x25) flags=0x0(None) active_peer=true
+04-10 09:04:26.544 14698 14737 I bluetooth-a2dp: system/btif/src/btif_av.cc:2742 ProcessEvent: Peer xx:xx:xx:xx:29:03 : event=BTIF_AV_SET_LATENCY_REQ_EVT(0x25) flags=0x0(None) is_low_latency=false
+04-10 09:04:26.544 14698 14737 I bluetooth-a2dp: system/bta/av/bta_av_api.cc:612 BTA_AvSetLatency: Set audio/video stream low latency bta_handle:65, is_low_latency:false
+04-10 09:04:26.544 14698 14737 I bt_l2cap: system/stack/l2cap/l2c_api.cc:1071 L2CA_SetAclLatency: BDA: xx:xx:xx:xx:29:03, latency: 0
+04-10 09:04:26.544 14698 14737 I l2c_utils: system/stack/l2cap/l2c_utils.cc:2544 l2cu_set_acl_latency: Set ACL low latency: 0
+04-10 09:04:26.544 14698 14751 I BluetoothAdapterService: getActiveDevices: A2dp device: XX:XX:XX:XX:6C:43
+04-10 09:04:26.544  1008  2290 I SoundDoseManager: mapAddressToDeviceId: map address: 128 to device id: 713
+04-10 09:04:26.544  1008  2290 I MelReporter: startMelComputationForActivePatch_l add stream 13 that uses device 713 for CSD, nr of streams: 3
+04-10 09:04:26.545  1008  2293 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.545  1008  2293 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.545  1008  2293 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.545  1008  2293 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.545  1008  2293 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.545  1008  2293 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.545  1008  2293 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.545  1008  2293 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.545  1008  2293 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.545  1008  2293 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:26.553 13091 13091 D VRI[MainActivity]: WindowInsets changed: 1080x2364 statusBars:[0,159,0,0] navigationBars:[0,0,0,117] mandatorySystemGestures:[0,188,0,117] 
+04-10 09:04:26.554 13091 13091 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): android.view.ViewRootImpl$$ExternalSyntheticLambda25@7560290
+04-10 09:04:26.554  1588  2995 D CoreBackPreview: Window{df9b1db u0 com.adamoutler.ssh/com.adamoutler.ssh.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@6b815a7, mPriority=0, mIsAnimationCallback=false, mOverrideBehavior=0}
+04-10 09:04:26.570 13091 13091 W .adamoutler.ssh: Method boolean androidx.compose.runtime.snapshots.SnapshotStateList.conditionalUpdate(boolean, kotlin.jvm.functions.Function1) failed lock verification and will run slower.
+04-10 09:04:26.570 13091 13091 W .adamoutler.ssh: Common causes for lock verification issues are non-optimized dex code
+04-10 09:04:26.570 13091 13091 W .adamoutler.ssh: and incorrect proguard optimizations.
+04-10 09:04:26.570 13091 13091 W .adamoutler.ssh: Method boolean androidx.compose.runtime.snapshots.SnapshotStateList.conditionalUpdate$default(androidx.compose.runtime.snapshots.SnapshotStateList, boolean, kotlin.jvm.functions.Function1, int, java.lang.Object) failed lock verification and will run slower.
+04-10 09:04:26.571 13091 13091 W .adamoutler.ssh: Method java.lang.Object androidx.compose.runtime.snapshots.SnapshotStateList.mutate(kotlin.jvm.functions.Function1) failed lock verification and will run slower.
+04-10 09:04:26.571 13091 13091 W .adamoutler.ssh: Method void androidx.compose.runtime.snapshots.SnapshotStateList.update(boolean, kotlin.jvm.functions.Function1) failed lock verification and will run slower.
+04-10 09:04:26.571 13091 13091 W .adamoutler.ssh: Method void androidx.compose.runtime.snapshots.SnapshotStateList.update$default(androidx.compose.runtime.snapshots.SnapshotStateList, boolean, kotlin.jvm.functions.Function1, int, java.lang.Object) failed lock verification and will run slower.
+04-10 09:04:26.610   480   480 D libnos_datagram: Calling App 0x02 with params 0x000a
+04-10 09:04:26.636  1008 23026 D NativePermissionController: checkPermission: missing 13 for 10209
+04-10 09:04:26.637  1588  3366 E AppOps  : attributionTag  not declared in manifest of com.android.systemui
+04-10 09:04:26.638   912 15904 D AHal::UseCase: SetActiveTracks: update primary-playback active tracks(1)
+04-10 09:04:26.638   912 15904 I StHal::SoundTriggerHal: ProcessStreamMetadata: active usage tracks: 0
+04-10 09:04:26.638   912 15904 D BTAudioSessionAidl: GetSupportedLatencyModes - SessionType=LE_AUDIO_HARDWARE_OFFLOAD_ENCODING_DATAPATH has NO session
+04-10 09:04:26.638   912 15904 D BTAudioSessionAidl: SetLatencyMode - SessionType=LE_AUDIO_HARDWARE_OFFLOAD_ENCODING_DATAPATH has NO session
+04-10 09:04:26.638   912 15904 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:26.638  1008 15135 D NativePermissionController: checkPermission: missing 13 for 10209
+04-10 09:04:26.638  1588  3366 E AppOps  : attributionTag  not declared in manifest of com.android.systemui
+04-10 09:04:26.638 14698 30335 I bluetooth-a2dp-ahal-aidl: system/audio_hal_interface/aidl/a2dp/a2dp_aidl_transport.cc:113 SetLatencyMode: latency_mode=FREE
+04-10 09:04:26.638 14698 30335 I bluetooth-a2dp: system/btif/src/btif_av.cc:4164 btif_av_set_low_latency: active_peer=xx:xx:xx:xx:29:03 is_low_latency=false
+04-10 09:04:26.638 14698 14737 I bluetooth-a2dp: system/btif/src/btif_av.cc:3181 btif_av_handle_event: peer=xx:xx:xx:xx:29:03 handle=0x0 event=BTIF_AV_SET_LATENCY_REQ_EVT(0x25)
+04-10 09:04:26.638 14698 14737 I bluetooth-a2dp: system/btif/src/btif_av.cc:2555 ProcessEvent: state=Started peer=xx:xx:xx:xx:29:03 event=BTIF_AV_SET_LATENCY_REQ_EVT(0x25) flags=0x0(None) active_peer=true
+04-10 09:04:26.638 14698 14737 I bluetooth-a2dp: system/btif/src/btif_av.cc:2742 ProcessEvent: Peer xx:xx:xx:xx:29:03 : event=BTIF_AV_SET_LATENCY_REQ_EVT(0x25) flags=0x0(None) is_low_latency=false
+04-10 09:04:26.638 14698 14737 I bluetooth-a2dp: system/bta/av/bta_av_api.cc:612 BTA_AvSetLatency: Set audio/video stream low latency bta_handle:65, is_low_latency:false
+04-10 09:04:26.638 14698 14737 I bt_l2cap: system/stack/l2cap/l2c_api.cc:1071 L2CA_SetAclLatency: BDA: xx:xx:xx:xx:29:03, latency: 0
+04-10 09:04:26.638 14698 14737 I l2c_utils: system/stack/l2cap/l2c_utils.cc:2544 l2cu_set_acl_latency: Set ACL low latency: 0
+04-10 09:04:26.638  1194  2744 D MediaPlayerService: onAudioDeviceUpdate deviceIds: 713
+04-10 09:04:26.639   912  2321 I ASvc::CommandWorker: cw-primary-playback: Command{start: Void{}} in StreamOutStandbyState
+04-10 09:04:26.639 14698 14751 I BluetoothAdapterService: getActiveDevices: A2dp device: XX:XX:XX:XX:6C:43
+04-10 09:04:26.639  1008  2875 D NativePermissionController: checkPermission: missing 13 for 10209
+04-10 09:04:26.639   912  2321 I ASvc::CommandWorker: cw-primary-playback: Command{burst: 0} in StreamOutIdleState
+04-10 09:04:26.640  1008 15135 D NativePermissionController: checkPermission: missing 13 for 10209
+04-10 09:04:26.640   912  2321 I ASvc::CommandWorker: StartStreamAndActivateRoute: try to start primary-playback, counter 5
+04-10 09:04:26.640   912  2321 I AHal::Router: RequestActivateScopedLock: requesting scoped lock for 400001
+04-10 09:04:26.640   912  2321 I AHal::Router: Activate: activate 400001
+04-10 09:04:26.640   912  2321 I AHal::Router: InvalidateLocked: new graph #2608 Edges(2):
+04-10 09:04:26.640   912  2321 I AHal::Router:   [direction: 0, use case: deep-buffer-playback, id: 0, use case extras: [aec: false, ns: false], use case attributes: [active track: true][sample_rate: 48000][channel layout: AudioChannelLayout{layoutMask: 3}][format: AudioFormatDescription{type: PCM, pcm: FLOAT_32_BIT, encoding: }], device: bluetooth-a2dp-device, sibling device: , handle: 0xb4000077b399c890, device extras: [source: SYS_RESERVED_INVALID, voice call: false, st aec: false, hac: false, sr: 48000, ch: AudioChannelLayout{layoutMask: 3}, f: AudioFormatDescription{type: PCM, pcm: DEFAULT, encoding: }, hifi: 0], config id: [u: 400002, d:400232], priority: 0000]
+04-10 09:04:26.640   912  2321 I AHal::Router:   [direction: 0, use case: primary-playback, id: 0, use case extras: [aec: false, ns: false], use case attributes: [active track: true][sample_rate: 48000][channel layout: AudioChannelLayout{layoutMask: 3}][format: AudioFormatDescription{type: PCM, pcm: FLOAT_32_BIT, encoding: }], device: bluetooth-a2dp-device, sibling device: , handle: 0xb4000077b399c890, device extras: [source: SYS_RESERVED_INVALID, voice call: false, st aec: false, hac: false, sr: 48000, ch: AudioChannelLayout{layoutMask: 3}, f: AudioFormatDescription{type: PCM, pcm: DEFAULT, encoding: }, hifi: 0], config id: [u: 400001, d:400232], priority: 0000]
+04-10 09:04:26.640   912  2321 I AHal::Router: InvalidateLocked: ============ apply graph #2608 [Fri Apr 10 09:04:26 2026] start ============
+04-10 09:04:26.640   912  2321 I AHal::Router: LogTransferring: Transferring (1):
+04-10 09:04:26.640   912  2321 I AHal::Router: LogTransferring:   deep-buffer-playback-0 -> bluetooth-a2dp-device => primary-playback-0 -> bluetooth-a2dp-device
+04-10 09:04:26.640   912  2321 I AHal::AocDspModeAdapter: RemoveRoutes: remove Route:{{use case = deep-buffer-playback, device = bluetooth-a2dp-device, source = SYS_RESERVED_INVALID, channel_count = 2}}, current active route: 
+04-10 09:04:26.640   912  2321 I AHal::AocDspModeAdapter: AddRoutes: Active Route:{{use case = primary-playback, device = bluetooth-a2dp-device, source = SYS_RESERVED_INVALID, channel_count = 2}},
+04-10 09:04:26.640   912  2321 I AHal::VoiceCall: Update: set echo reference on bluetooth-a2dp-device for primary-playback
+04-10 09:04:26.640   912  2321 D audio_route: Apply path: primary-playback-0 -> bluetooth-a2dp-device
+04-10 09:04:26.641   912  2321 I AHal::AudioRoutePathController: ApplyPath: primary-playback-0 -> bluetooth-a2dp-device: true
+04-10 09:04:26.641   912  2321 I AHal::DeviceInterface: Connect: connect primary-playback-0 -> bluetooth-a2dp-device
+04-10 09:04:26.641   912  2321 I AHal::Router: InvalidateLocked: ============ apply graph #2608 end ============
+04-10 09:04:26.641   912  2321 D AHal::AudioMetric::EventDataHandler: UpdatePlaybackInfo: Updating Playback Info: PlaybackInfo {Route: {audio_source: SYS_RESERVED_INVALID, device: bluetooth-a2dp-device, use_case: deep-buffer-playback}, volume: 0, is_active: 0, sample_rate: 48000, channel_count: 2, audio_format_type: PCM, pcm_type: FLOAT_32_BIT, encoding:  Route: {audio_source: SYS_RESERVED_INVALID, device: bluetooth-a2dp-device, use_case: primary-playback}, volume: 0, is_active: 0, sample_rate: 48000, channel_count: 2, audio_format_type: PCM, pcm_type: FLOAT_32_BIT, encoding:  }
+04-10 09:04:26.641   912  2321 D AHal::AudioMetric::AtomWriter: WriteAtom: Writing atom to statsd service. Atom: MediaPlaybackUsageAtom: Playback Info: PlaybackInfo {Route: {audio_source: SYS_RESERVED_INVALID, device: bluetooth-a2dp-device, use_case: deep-buffer-playback}, volume: 0, is_active: 0, sample_rate: 48000, channel_count: 2, audio_format_type: PCM, pcm_type: FLOAT_32_BIT, encoding:  }, Device State: {camera_type: Back, screen_orientation: DEG_0, screen_state: on, folded_type: kClose, in_thermal_throttle_duration_ms: 0, thermal_throttle_count: 0, in_acoustic_shock_duration_ms: 0, acoustic_shock_count: 0, in_battery_adapted_audio_control_duration_ms: 0, battery_adapted_audio_control_count: 0}, duration_second: 17, is_ended: 0
+04-10 09:04:26.641   912  2321 D AHal::AudioMetric::EventDataHandler: UpdateCaptureInfo: Updating Capture Info: CaptureInfo: {}
+04-10 09:04:26.641   912  2321 D AHal::AudioMetric::EventDataHandler: UpdateCallInfo: Updating Call Info: RoutingInfo:
+04-10 09:04:26.641   912  2321 D AHal::AudioMetric::EventDataHandler: Uplink: NULL, 
+04-10 09:04:26.641   912  2321 D AHal::AudioMetric::EventDataHandler: Downlink: NULL
+04-10 09:04:26.641   912  2321 D AHal::AudioMetric::EventDataHandler: AudioMode: NORMAL
+04-10 09:04:26.641   912  2321 I AHal::AocDspModeAdapter: AddRoutes: Active Route:{{use case = primary-playback, device = bluetooth-a2dp-device, source = SYS_RESERVED_INVALID, channel_count = 2}},{{use case = deep-buffer-playback, device = bluetooth-a2dp-device, source = SYS_RESERVED_INVALID, channel_count = 2}},
+04-10 09:04:26.641   912  2321 I ASvc::PeriodicWorker: SetLinkedConfigIds: update linked configs [400232]
+04-10 09:04:26.641   912  2321 I AHal::Stream: Start: start stream primary-playback
+04-10 09:04:26.641   912  2321 D AHal::TinyalsaDriverOperations: OpenAndPrepareLocked: open pcmC0D1p with {channel: 2, rate: 48000, period_size: 480, period_count: 4, format: 9, start_threshold: 0, stop_threshold: 18446744073709551615, silence_threshold: 0, silence_size: 0, avail_min: 0}
+04-10 09:04:26.641  1244  1244 D AOC     : F1:MSG: controller.cc, 275: AudioOutCtrl: cmd ID: 0x010f, tag: 0x61 [cntr = 6614]
+04-10 09:04:26.641  1244  1244 D AOC     : F1:Source 1 [Primary] mastered by sink 2 [Bluetooth]
+04-10 09:04:26.641  3324 13068 I NearbyDiscovery: (REDACTED) [trigger-id=Plco3DDC2E34, feature-id=Sass] FastPair: AudioEventListener find active playback with other usage %d
+04-10 09:04:26.642  1244  1244 D AOC     : F1:AT Map:22 (LL:0), 2 EPs active, Power: No, Config: No
+04-10 09:04:26.642  1244  1244 D AOC     : F1:Mixer 2 configuration changed: (22)
+04-10 09:04:26.642  1244  1244 D AOC     : F1:Sink 2 Configuration changed: ULL (enabled)
+04-10 09:04:26.642  1244  1244 D AOC     : F1:F1 Bitmap updated.
+04-10 09:04:26.642  1244  1244 D AOC     : F1:[Idle Tracker] long no idle:[0] average between idle:[0.280694ms] max no idle:[11.772632ms]
+04-10 09:04:26.642  1244  1244 D AOC     : F1:MSG: controller.cc, 933: AudioOutCtrl: ipc: audio_output_co, cmd ID: 0x010f, tag: 0x61, rc: 0
+04-10 09:04:26.643  1244  1244 D AOC     : F1:MSG: controller.cc, 275: AudioOutCtrl: cmd ID: 0x00ce, tag: 0x62 [cntr = 6615]
+04-10 09:04:26.643  1244  1244 D AOC     : F1:MSG: controller_audio_output.cc, 2007: audio_playback1 set default threshold 11520
+04-10 09:04:26.643  1244  1244 D AOC     : F1:RAW Endpoint Data Format: 32-bit floating point (XTensa Optimized)
+04-10 09:04:26.643   912  2321 I AHal::Router: ReleaseActivatingConfigId: releasing scoped lock for 400001
+04-10 09:04:26.644   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:26.644  1244  1244 D AOC     : F1:MSG: controller.cc, 933: AudioOutCtrl: ipc: audio_output_co, cmd ID: 0x0134, tag: 0xe8, rc: 0
+04-10 09:04:26.644  1244  1244 D AOC     : F1:MSG: controller.cc, 275: AudioOutCtrl: cmd ID: 0x012a, tag: 0x63 [cntr = 6616]
+04-10 09:04:26.644  1244  1244 D AOC     : F1:MSG: controller_audio_output.cc, 2146: audio_playback1 set threshold 11520 of 15360
+04-10 09:04:26.644  1244  1244 D AOC     : F1:MSG: controller.cc, 933: AudioOutCtrl: ipc: audio_output_co, cmd ID: 0x012a, tag: 0x63, rc: 0
+04-10 09:04:26.644  3324 13068 I NearbyDiscovery: (REDACTED) [trigger-id=PlcoEA74F883, feature-id=Sass] FastPair: AudioEventListener find active playback with other usage %d
+04-10 09:04:26.644  1244  1244 D AOC     : F1:MSG: controller.cc, 275: AudioOutCtrl: cmd ID: 0x00c9, tag: 0x64 [cntr = 6617]
+04-10 09:04:26.646  1244  1244 E AOC     : F1:ERR: audio_entrypoint.cc, 147: Primary, ZeroEP 480 frames, count: 1
+04-10 09:04:26.646  1244  1244 D AOC     : F1:MSG: controller.cc, 933: AudioOutCtrl: ipc: audio_output_co, cmd ID: 0x00c9, tag: 0x64, rc: 0
+04-10 09:04:26.646  1244  1244 D AOC     : H0:Mixer AMixBT: 480 samples (0022/0022) (ON) multi out OFF
+04-10 09:04:26.646  1244  1244 D AOC     : H0:	 1: 0x405bde7c
+04-10 09:04:26.647  1244  1244 D AOC     : H0:	 5: 0x405be2bc
+04-10 09:04:26.647  1244  1244 D AOC     : A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00cb, tag: 0x0c, rc: 0
+04-10 09:04:26.647  1244  1244 D AOC     : A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00cb, tag: 0x0d, rc: 0
+04-10 09:04:26.647  1244  1244 D AOC     : A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00cb, tag: 0x0e, rc: 0
+04-10 09:04:26.647  1244  1244 D AOC     : A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00cb, tag: 0x0f, rc: 0
+04-10 09:04:26.656   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.656   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 10 app_status = 0
+04-10 09:04:26.656   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.658   480   480 D libnos_datagram: Calling App 0x02 with params 0x000c
+04-10 09:04:26.658  2721  2751 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#985) android.os.BinderProxy@8d24339@0
+04-10 09:04:26.660  1588  1773 V WindowManager: Finish Transition (#985): created at 04-10 09:04:26.109 collect-started=0.073ms request-sent=5.925ms started=8.424ms ready=25.933ms sent=26.941ms commit=14.62ms finished=550.67ms
+04-10 09:04:26.660  6953  6953 D VRI[SameTaskWebApkActivity]: visibilityChanged oldVisibility=true newVisibility=false
+04-10 09:04:26.661  2721  2751 V WindowManagerShell: Track 0 became idle
+04-10 09:04:26.661  2721  2751 V WindowManagerShell: All active transition animations finished
+04-10 09:04:26.662  1588  2692 W ImageReader_JNI: Unable to acquire a buffer item, very likely client tried to acquire more than maxImages buffers
+04-10 09:04:26.663   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.663   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 12 app_status = 0
+04-10 09:04:26.663   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.664 13091 13098 I .adamoutler.ssh: Compiler allocated 5049KB to compile void android.view.ViewRootImpl.performTraversals()
+04-10 09:04:26.664   912 15904 I StHal::SoundTriggerHal: ProcessStreamMetadata: active usage tracks: 0
+04-10 09:04:26.664   912 15904 D BTAudioSessionAidl: GetSupportedLatencyModes - SessionType=LE_AUDIO_HARDWARE_OFFLOAD_ENCODING_DATAPATH has NO session
+04-10 09:04:26.664   912 15904 D BTAudioSessionAidl: SetLatencyMode - SessionType=LE_AUDIO_HARDWARE_OFFLOAD_ENCODING_DATAPATH has NO session
+04-10 09:04:26.664   912 15904 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:26.664 14698 30335 I bluetooth-a2dp-ahal-aidl: system/audio_hal_interface/aidl/a2dp/a2dp_aidl_transport.cc:113 SetLatencyMode: latency_mode=FREE
+04-10 09:04:26.664 14698 30335 I bluetooth-a2dp: system/btif/src/btif_av.cc:4164 btif_av_set_low_latency: active_peer=xx:xx:xx:xx:29:03 is_low_latency=false
+04-10 09:04:26.664 14698 14737 I bluetooth-a2dp: system/btif/src/btif_av.cc:3181 btif_av_handle_event: peer=xx:xx:xx:xx:29:03 handle=0x0 event=BTIF_AV_SET_LATENCY_REQ_EVT(0x25)
+04-10 09:04:26.664 14698 14737 I bluetooth-a2dp: system/btif/src/btif_av.cc:2555 ProcessEvent: state=Started peer=xx:xx:xx:xx:29:03 event=BTIF_AV_SET_LATENCY_REQ_EVT(0x25) flags=0x0(None) active_peer=true
+04-10 09:04:26.664 14698 14737 I bluetooth-a2dp: system/btif/src/btif_av.cc:2742 ProcessEvent: Peer xx:xx:xx:xx:29:03 : event=BTIF_AV_SET_LATENCY_REQ_EVT(0x25) flags=0x0(None) is_low_latency=false
+04-10 09:04:26.664 14698 14737 I bluetooth-a2dp: system/bta/av/bta_av_api.cc:612 BTA_AvSetLatency: Set audio/video stream low latency bta_handle:65, is_low_latency:false
+04-10 09:04:26.664 14698 14737 I bt_l2cap: system/stack/l2cap/l2c_api.cc:1071 L2CA_SetAclLatency: BDA: xx:xx:xx:xx:29:03, latency: 0
+04-10 09:04:26.664 14698 14737 I l2c_utils: system/stack/l2cap/l2c_utils.cc:2544 l2cu_set_acl_latency: Set ACL low latency: 0
+04-10 09:04:26.664 14698 14751 I BluetoothAdapterService: getActiveDevices: A2dp device: XX:XX:XX:XX:6C:43
+04-10 09:04:26.665   480   480 D libnos_datagram: Calling App 0x02 with params 0x000a
+04-10 09:04:26.667  6953  6953 E cr_CompositorSurfaceMgr: surfaceDestroyed format : -3
+04-10 09:04:26.679   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.680   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 10 app_status = 0
+04-10 09:04:26.680   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.681   480   480 D libnos_datagram: Calling App 0x02 with params 0x000c
+04-10 09:04:26.685  1588  2995 I ImeTracker: system_server:370f583b: onRequestShow at ORIGIN_SERVER reason CONTROLS_CHANGED fromUser false displayId 0
+04-10 09:04:26.686   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.686   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 12 app_status = 0
+04-10 09:04:26.686   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.687  6953  6953 I ImeTracker: system_server:370f583b: onCancelled at PHASE_CLIENT_ON_CONTROLS_CHANGED
+04-10 09:04:26.691   480   480 D libnos_datagram: Calling App 0x02 with params 0x000a
+04-10 09:04:26.706   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.706   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 10 app_status = 0
+04-10 09:04:26.706   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.707   480   480 D libnos_datagram: Calling App 0x02 with params 0x000b
+04-10 09:04:26.713   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.713   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 11 app_status = 0
+04-10 09:04:26.713   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.713   480   480 D libnos_datagram: Calling App 0x02 with params 0x000c
+04-10 09:04:26.719   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.719   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 12 app_status = 0
+04-10 09:04:26.719   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.723   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:26.723   480   480 D libnos_datagram: Calling App 0x02 with params 0x000a
+04-10 09:04:26.738   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.738   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 10 app_status = 0
+04-10 09:04:26.738   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.739   480   480 D libnos_datagram: Calling App 0x02 with params 0x000c
+04-10 09:04:26.739   912  2282 I AUtl::WakeLock: Acquire: acquired wake lock for aoc_sound_dose
+04-10 09:04:26.739   912  2282 I AHal::AocSoundDoseBridge: GetMelDataFromAoc ret_size: 502 fd: 18
+04-10 09:04:26.739   912  2282 I AHal::AocSoundDoseBridge: HandlePeriodMelUpdate: 3 records
+04-10 09:04:26.739  1244  1244 D AOC     : F1:onNewMelValues timestamp 135745198058 total data count = 3
+04-10 09:04:26.739  1244  1244 D AOC     : A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00cb, tag: 0x10, rc: 0
+04-10 09:04:26.740   912  2282 I AUtl::WakeLock: Release: released wake lock for aoc_sound_dose
+04-10 09:04:26.744   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.744   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 12 app_status = 0
+04-10 09:04:26.744   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.745   480   480 D libnos_datagram: Calling App 0x02 with params 0x000a
+04-10 09:04:26.760   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.760   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 10 app_status = 0
+04-10 09:04:26.760   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.760   480   480 D libnos_datagram: Calling App 0x02 with params 0x000c
+04-10 09:04:26.765   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.765   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 12 app_status = 0
+04-10 09:04:26.765   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.766   480   480 D libnos_datagram: Calling App 0x02 with params 0x000a
+04-10 09:04:26.781   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.781   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 10 app_status = 0
+04-10 09:04:26.781   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.782   480   480 D libnos_datagram: Calling App 0x02 with params 0x000b
+04-10 09:04:26.786   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.786   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 11 app_status = 0
+04-10 09:04:26.786   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.787   480   480 D libnos_datagram: Calling App 0x02 with params 0x000c
+04-10 09:04:26.792   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.792   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 12 app_status = 0
+04-10 09:04:26.792   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.799   480   480 D libnos_datagram: Calling App 0x02 with params 0x000a
+04-10 09:04:26.815   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.815   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 10 app_status = 0
+04-10 09:04:26.815   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.815   480   480 D libnos_datagram: Calling App 0x02 with params 0x000c
+04-10 09:04:26.820   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.820   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 12 app_status = 0
+04-10 09:04:26.820   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.821   480   480 D libnos_datagram: Calling App 0x02 with params 0x000a
+04-10 09:04:26.836   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.836   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 10 app_status = 0
+04-10 09:04:26.836   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.837   480   480 D libnos_datagram: Calling App 0x02 with params 0x000c
+04-10 09:04:26.842   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.842   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 12 app_status = 0
+04-10 09:04:26.842   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.843   480   480 D libnos_datagram: Calling App 0x02 with params 0x000a
+04-10 09:04:26.854   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:26.858   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.858   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 10 app_status = 0
+04-10 09:04:26.858   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.858   480   480 D libnos_datagram: Calling App 0x02 with params 0x000b
+04-10 09:04:26.863   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.863   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 11 app_status = 0
+04-10 09:04:26.863   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.863   480   480 D libnos_datagram: Calling App 0x02 with params 0x000c
+04-10 09:04:26.868   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.868   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 12 app_status = 0
+04-10 09:04:26.868   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.870   480   480 D libnos_datagram: Calling App 0x02 with params 0x000a
+04-10 09:04:26.885   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.885   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 10 app_status = 0
+04-10 09:04:26.885   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.886   480   480 D libnos_datagram: Calling App 0x02 with params 0x000c
+04-10 09:04:26.891   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.891   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 12 app_status = 0
+04-10 09:04:26.891   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.892   480   480 D libnos_datagram: Calling App 0x02 with params 0x000a
+04-10 09:04:26.906   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.906   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 10 app_status = 0
+04-10 09:04:26.907   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.907   480   480 D libnos_datagram: Calling App 0x02 with params 0x000c
+04-10 09:04:26.913   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.913   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 12 app_status = 0
+04-10 09:04:26.913   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.914   480   480 D libnos_datagram: Calling App 0x02 with params 0x000a
+04-10 09:04:26.924   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:26.928   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.928   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 10 app_status = 0
+04-10 09:04:26.928   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.929   480   480 D libnos_datagram: Calling App 0x02 with params 0x000b
+04-10 09:04:26.933   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.933   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 11 app_status = 0
+04-10 09:04:26.933   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.934   480   480 D libnos_datagram: Calling App 0x02 with params 0x000c
+04-10 09:04:26.939   480   480 D libnos_datagram: App 0x02 returning 0x0
+04-10 09:04:26.939   480   480 I citadeld: reportCitadelAppCalled app_id =  2 arg = 12 app_status = 0
+04-10 09:04:26.939   480   480 I citadeld: Recorded atom for RPC call
+04-10 09:04:26.948  3622  3622 W TooltipLifecycleManager: TooltipLifecycleManager.dismissTooltips():153 Tooltip with id undo_access_point_promotion_banner not found in tooltipManager.
+04-10 09:04:26.953  1588  2995 I ImeTracker: system_server:12884fc8: onRequestHide at ORIGIN_SERVER reason IME_REQUESTED_CHANGED_LISTENER fromUser false displayId 0
+04-10 09:04:26.953  1588  1776 I ImeTracker: system_server:12884fc8: onCancelled at PHASE_SERVER_SHOULD_HIDE
+--------- beginning of kernel
+04-10 09:04:26.955     0     0 I trusty  : gsp_crypto_proxy_srv: 97: Coercing legacy key derivation response
+04-10 09:04:26.959     0     0 I trusty  : gsp_crypto_proxy_srv: 97: Coercing legacy key derivation response
+04-10 09:04:26.964     0     0 I trusty  : gsp_crypto_proxy_srv: 97: Coercing legacy key derivation response
+04-10 09:04:26.968     0     0 I trusty  : gsp_crypto_proxy_srv: 97: Coercing legacy key derivation response
+04-10 09:04:27.005 13091 13091 I HWUI    : Using FreeType backend (prop=Auto)
+04-10 09:04:27.041 13091 13091 D CompatChangeReporter: Compat change id reported: 289878283; UID 10385; state: ENABLED
+04-10 09:04:27.045  3622 12941 I KeyboardEventHandler: KeyboardEventHandler.handleKeyboardHidden():293 Keyboard closed, ending dictation. [SD]
+04-10 09:04:27.063   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:27.086  1244  1244 D AOC     : CHRE: DRAM vote count begins
+04-10 09:04:27.086  1244  1244 D AOC     : F1:MSG: controller.cc, 275: AudioInCtrl: cmd ID: 0x00f4, tag: 0xf4 [cntr = 7738]
+04-10 09:04:27.086  1244  1244 D AOC     : F1:MSG: controller_audio_input.cc, 4423: Got Chre audio start cmd (input path = 0)
+04-10 09:04:27.086  1244  1244 D AOC     : F1:MSG: audio_capture_pdm.cc, 454: Reconfig not seamless
+04-10 09:04:27.086  1244  1244 D AOC     : F1:Stream 4: mask 0x1, rings {7, 0}, pipe 0x10, sr 16000, il {0,0,0,0}, en 1, mc 0, ni 10, fpo 0, ru 1, hq 0
+04-10 09:04:27.087  1244  1244 D AOC     : F1:MSG: audio_capture_pdm.cc, 580: Stream 4 restarted (ramp ON)
+04-10 09:04:27.087  1244  1244 D AOC     : A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00c8, tag: 0x11, rc: 0
+04-10 09:04:27.087  1244  1244 D AOC     : A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00c8, tag: 0x12, rc: 0
+04-10 09:04:27.087  1244  1244 D AOC     : A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00c8, tag: 0x13, rc: 0
+04-10 09:04:27.087  1244  1244 D AOC     : F1:MSG: audio_capture_pdm.cc, 1048: Starting PDM in Low Power mode, mask=0x1
+04-10 09:04:27.088   916   935 I CHRE    : @ 123370.416: [vice_ambient_volume] SendMessageToAmbientVolume, message_type: 33281 to instance_id: 0x3
+04-10 09:04:27.088   916   935 I CHRE    : @ 123370.416: [vice_ambient_volume] Ambient Volume enabled
+04-10 09:04:27.088   916   935 I CHRE    : @ 123370.416: [AV] Client info registered: client endpoint 0x19, include_volume_history_seconds: transition=0 exposure=0
+04-10 09:04:27.088  1244  1244 D AOC     : CHRE: DRAM vote count ends: 0 ms
+04-10 09:04:27.088  1244  1244 D AOC     : CHRE: DRAM vote count begins
+04-10 09:04:27.088  1244  1244 D AOC     : CHRE: DRAM vote count ends: 0 ms
+04-10 09:04:27.101   592  2828 W powerhal-libperfmgr: The actual duration is way far from the target (617585026 >> 11620000)
+04-10 09:04:27.104  1588  1773 I ActivityTaskManager: Displayed com.adamoutler.ssh/.MainActivity for user 0: +1s4ms
+04-10 09:04:27.109     0     0 I trusty  : gsp_crypto_proxy_srv: 97: Coercing legacy key derivation response
+04-10 09:04:27.113     0     0 I trusty  : gsp_crypto_proxy_srv: 97: Coercing legacy key derivation response
+04-10 09:04:27.117     0     0 I trusty  : gsp_crypto_proxy_srv: 97: Coercing legacy key derivation response
+04-10 09:04:27.120     0     0 I trusty  : gsp_crypto_proxy_srv: 97: Coercing legacy key derivation response
+04-10 09:04:27.123 13091 13091 I Choreographer: Skipped 73 frames!  The application may be doing too much work on its main thread.
+04-10 09:04:27.135  3324  5387 I FontLog : (REDACTED) Received query %s, URI %s
+04-10 09:04:27.135  3324  5387 I FontLog : (REDACTED) Query [%s] resolved to %s
+04-10 09:04:27.137  3324  5387 I FontLog : (REDACTED) Fetch %s end status %s
+04-10 09:04:27.139  1244  1244 D AOC     : F1:MSG: chre_src.cc, 427: Set input source to 0
+04-10 09:04:27.139  1244  1244 D AOC     : F1:TRC: hotword_input_processor.cc, 1014: Receive cmd: 0x84 (132)
+04-10 09:04:27.139  1244  1244 D AOC     : F1:TRC: hotword_input_processor.cc, 1510: Finished cmd: 0x84 (132)
+04-10 09:04:27.139  3324  5589 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
+04-10 09:04:27.139  1244  1244 D AOC     : F1:MSG: controller.cc, 933: AudioInCtrl: ipc: C-Ch-AI, cmd ID: 0x00f4, tag: 0xf4, rc: 0
+04-10 09:04:27.140  1244  1244 D AOC     : CHRE: DRAM vote count begins
+04-10 09:04:27.140  1244  1244 D AOC     : CHRE: DRAM vote count ends: 0 ms
+04-10 09:04:27.141  1244  1244 D AOC     : CHRE: DRAM vote count begins
+04-10 09:04:27.141  1244  1244 D AOC     : CHRE: DRAM vote count ends: 0 ms
+04-10 09:04:27.141   916   935 D CHRE    : @ 123370.470: request audio send: 0
+04-10 09:04:27.141   916   935 I CHRE    : @ 123370.470: [AV] Requested audio from handle 0, status: 1
+04-10 09:04:27.141   916   935 I CHRE    : @ 123370.470: [vice_ambient_volume] Received ACK from Ambient Volume for enable request
+04-10 09:04:27.142  6953  6953 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): android.app.Activity$$ExternalSyntheticLambda0@ee5af08
+04-10 09:04:27.142  1588  2995 D CoreBackPreview: Window{5735362 u0 com.android.chrome/org.chromium.chrome.browser.webapps.SameTaskWebApkActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@f18f084, mPriority=-1, mIsAnimationCallback=false, mOverrideBehavior=0}
+04-10 09:04:27.142  3324  5589 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
+04-10 09:04:27.144  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:27.144  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:27.144  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:27.144  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:27.144  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:27.144  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:27.144  1177  2527 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+04-10 09:04:27.147  2876 11042 D UidImportanceSource: onUidImportanceBlock: uid=10209 importance=125
+04-10 09:04:27.147  2876 11042 D UidImportanceSource: onUidImportanceBlock: packages=[com.android.chrome] importance=125
+04-10 09:04:27.147  2876 11042 D UidImportanceSource: onUidImportanceBlock: packageName=com.android.chrome importance=125
+04-10 09:04:27.147  2876 11042 D BusinessScope: Enqueuing the block
+04-10 09:04:27.148  4786 29252 I enwz    : (REDACTED) appOpsListener %s %s
+04-10 09:04:27.148  4786 29252 I enwz    : (REDACTED) Ignoring irrelevant audio permission changes for package %s
+04-10 09:04:27.150  2876  3175 D BusinessScope: Start running the #21029 block
+04-10 09:04:27.150  2876  3175 D BusinessScope: Enqueuing the block
+04-10 09:04:27.150  2876  3175 D ImpulseStateSource: Notify clients: 10511
+04-10 09:04:27.150  2876  3175 D BusinessScope: Finish running the #21029 block
+04-10 09:04:27.150  2876  3175 D BusinessScope: Start running the #21030 block
+04-10 09:04:27.150  2876  3175 D BusinessScope: Finish running the #21030 block
+04-10 09:04:27.151  1244  1244 D AOC     : F1:MSG: chre_src.cc, 152: CHRE SRC Reset Requested
+04-10 09:04:27.156  6953  6953 E AtomicFile: Failed to sync file output stream
+04-10 09:04:27.156  6953  6953 W cr_BotControlsStacker: Using mTotalHeight before initialization
+04-10 09:04:27.156 21314 21330 E ashmem  : readlink(/proc/self/fd/79) failed: Operation not permitted
+04-10 09:04:27.157 21314 21330 E ashmem  : readlink(/proc/self/fd/79) failed: Operation not permitted
+04-10 09:04:27.157 21314 21330 E ashmem  : readlink(/proc/self/fd/79) failed: Operation not permitted
+04-10 09:04:27.157 21314 21330 E ashmem  : readlink(/proc/self/fd/79) failed: Operation not permitted
+04-10 09:04:27.163   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:27.167  1588  2673 D BackgroundInstallControlService: Package event received: 0
+04-10 09:04:27.169  1194 13137 D CCodecBuffers: [c2.android.vorbis.decoder#663:1D-Output] received null buffer
+04-10 09:04:27.274   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:27.300  1244  1244 D AOC     : A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 2 -> 1 d_lux:6.35 w_lux: 14.86 C:0.17 G:0.06
+04-10 09:04:27.364   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:27.378  1004  1004 I WifiHAL : Creating message to get link statistics; iface = 47
+04-10 09:04:27.411  1004  1004 I WifiHAL : Getting cached scan results, iface handle = 0xb400006fdb012990
+04-10 09:04:27.411  1004  1004 E WifiHAL : Creating message to get cached scan results
+04-10 09:04:27.415  1004  1004 I WifiHAL : In GetCachedScanResultsCommand::handleResponse
+04-10 09:04:27.420  1194 13135 D AudioTrack: stop(792): called with 52906 frames delivered
+04-10 09:04:27.421  1588  3863 E AppOps  : attributionTag  not declared in manifest of com.android.systemui
+04-10 09:04:27.422  1588  5004 E AppOps  : attributionTag  not declared in manifest of com.android.systemui
+04-10 09:04:27.436  1004  1059 D WifiHAL : Start debug command: mType GET_FEATURE
+04-10 09:04:27.436  1004  1059 I WifiHAL : CreateRequest mType = GET_FEATURE
+04-10 09:04:27.436  1004  1059 D WifiHAL : In DebugCommand::handleResponse, mType:GET_FEATURE
+04-10 09:04:27.436  1004  1059 D WifiHAL : len = 4, expected len = 4
+04-10 09:04:27.439   480   495 D libnos_datagram: Calling App 0x00 with params 0x0200
+04-10 09:04:27.441  4786 29252 I enwz    : (REDACTED) appOpsListener %s %s
+04-10 09:04:27.441  4786 29252 I enwz    : (REDACTED) Ignoring irrelevant audio permission changes for package %s
+04-10 09:04:27.446  1244  1244 D AOC     : A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 1 -> 2 d_lux:5.88 w_lux: 15.01 C:0.17 G:0.06
+04-10 09:04:27.446  3622 13093 I KeyboardActiveSessionStreamManager: KeyboardActiveSessionStreamManager.closeStream():125 Closing stream. [SDG]
+04-10 09:04:27.447  3622 13093 I Interaction: Interaction$KeyboardEventStreamObserver.onCompleted():141 Interaction#243 completed by the client [SD]
+04-10 09:04:27.447  3622 12945 I Interaction: Interaction.shutdownAndForget$java_com_google_android_libraries_inputmethod_voice_smartdictation_service_interaction_interaction():92 Shutting down Interaction#243 [SD]
+04-10 09:04:27.448  3622 12943 I KeyboardActiveSessionStreamManager: KeyboardActiveSessionStreamManager$AssistantEventObserver.onCompleted():275 Assistant event stream completed. [SDG]
+04-10 09:04:27.448  3622 12943 I InteractionManager: InteractionManager.forgetInteraction$java_com_google_android_libraries_inputmethod_voice_smartdictation_service_interaction_interaction():50 Forgetting Interaction#243 [SD]
+04-10 09:04:27.467  1244  1244 D AOC     : A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 2 -> 1 d_lux:6.25 w_lux: 15.20 C:0.17 G:0.06
+04-10 09:04:27.467  1588  2506 D HintManagerService: Starts cleaning for 10202
+04-10 09:04:27.468   480   495 D libnos_datagram: App 0x00 returning 0x0
+04-10 09:04:27.480  2721  2792 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): null
+04-10 09:04:27.481  1588  3863 D CoreBackPreview: Window{201febe u0 Splash Screen com.adamoutler.ssh EXITING}: Setting back callback null
+04-10 09:04:27.484   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:27.557  1244  1244 D AOC     : A3:MSG: usf_vsc_log.cc, 83: VSC: [WO] Rejected by swing_time. Last detected 0 ms ago.
+04-10 09:04:27.564   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:27.640  1588  1838 D DisplayWhiteBalanceController: Display cct: 5587.2715 Latest ambient cct: 5330.917 Latest ambient lux: 4.803819 Latest low light bias: 0.25768846 Latest high light bias: 0.0
+04-10 09:04:27.641  1588  1776 D ColorDisplayService: DisplayWhiteBalanceTintController animation started: toCct=5587 fromCct=5387 with duration=3000
+04-10 09:04:27.642  1588  1776 D ColorDisplayService: computeDisplayWhiteBalanceMatrix: cct =5380 matrix =
+04-10 09:04:27.642  1588  1776 D ColorDisplayService:        0.950976-0.001910-0.003981 0.000000 0.040628 0.914361-0.014651 0.000000 0.008395 0.003289 0.759814 0.000000 0.000000 0.000000 0.000000 1.000000
+04-10 09:04:27.649  3025  3684 I PixelDisplayManager: onDisplayChanged(Inner Display, 1, local:4619827677550801152): screenOn=false, hbmMode=0, br=0.0, product=DeviceProductInfo{name=Common Panel, manufacturerPnpId=GGL, productId=0, modelYear=null, manufactureDate=ManufactureDate{week=1, year=1990}, connectionToSinkType=1, edidStructureMetadata=EdidStructureMetadata{version=0, revision=0}, videoInputType=0}
+04-10 09:04:27.652  3025  3684 I PixelDisplayManager: onDisplayChanged(Outer Display, 0, local:4619827677550801153): screenOn=true, hbmMode=0, br=0.013155899, product=DeviceProductInfo{name=Common Panel, manufacturerPnpId=GGL, productId=0, modelYear=null, manufactureDate=ManufactureDate{week=1, year=1990}, connectionToSinkType=1, edidStructureMetadata=EdidStructureMetadata{version=0, revision=0}, videoInputType=0}
+04-10 09:04:27.694   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:27.765   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:27.904   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:28.005   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:28.114   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:28.144  1588  1776 D ColorDisplayService: computeDisplayWhiteBalanceMatrix: cct =5420 matrix =
+04-10 09:04:28.144  1588  1776 D ColorDisplayService:        0.953747-0.001792-0.003839 0.000000 0.038187 0.919351-0.014172 0.000000 0.008067 0.003190 0.769586 0.000000 0.000000 0.000000 0.000000 1.000000
+04-10 09:04:28.229  2721 13078 D RingtonePlayer: onCompletion() abandoning AudioFocus
+04-10 09:04:28.231  1588  5026 I MediaFocusControl: abandonAudioFocus() from uid/pid 10248/2721 clientId=android.media.AudioManager@9f13281 callingPack=com.android.systemui
+04-10 09:04:28.233  1588  5026 I AS.FadeOutManager: unfadeOutUid() uid:10209
+04-10 09:04:28.233  6953  6953 I AudioManager: dispatching onAudioFocusChange(1) to android.media.AudioManager@59382fdorg.chromium.content.browser.AudioFocusDelegate@bf78525
+04-10 09:04:28.233  2721 13078 D RingtonePlayer: onCompletion queue size=0
+04-10 09:04:28.234  2721 13078 D RingtonePlayer: in onCompletion quitting looper Looper (Thread-77, tid 775) {5174723}
+04-10 09:04:28.234  2721 13078 I NotificationPlayer: About to release MediaPlayer piid:3447 due to onCompletion
+04-10 09:04:28.234  2721 13078 V MediaPlayer: resetDrmState:  mDrmInfo=null mDrmProvisioningThread=null mPrepareDrmInProgress=false mActiveDrmScheme=false
+04-10 09:04:28.234  2721 13078 V MediaPlayer: cleanDrmObj: mDrmObj=null mDrmSessionId=null
+04-10 09:04:28.234  1194  2744 D NuPlayerDriver: reset(0xb4000070094f80d0) at state 6
+04-10 09:04:28.246  6953  6953 D MediaRouter: onRestoreRoute() : route=RouteInfo{ name=Adam's Pixel Buds P, description=Bluetooth audio, status=null, category=RouteCategory{ name=System types=ROUTE_TYPE_LIVE_AUDIO ROUTE_TYPE_LIVE_VIDEO  groupable=false }, supportedTypes=ROUTE_TYPE_LIVE_AUDIO , presentationDisplay=null }
+04-10 09:04:28.246  6953  6953 V MediaRouter: Selecting route: RouteInfo{ name=Adam's Pixel Buds P, description=Bluetooth audio, status=null, category=RouteCategory{ name=System types=ROUTE_TYPE_LIVE_AUDIO ROUTE_TYPE_LIVE_VIDEO  groupable=false }, supportedTypes=ROUTE_TYPE_LIVE_AUDIO , presentationDisplay=null }
+04-10 09:04:28.246   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:28.255   912 15904 D AHal::UseCase: SetActiveTracks: update primary-playback active tracks(0)
+04-10 09:04:28.255   912 15904 I StHal::SoundTriggerHal: ProcessStreamMetadata: active usage tracks: 0
+04-10 09:04:28.255   912 15904 D BTAudioSessionAidl: GetSupportedLatencyModes - SessionType=LE_AUDIO_HARDWARE_OFFLOAD_ENCODING_DATAPATH has NO session
+04-10 09:04:28.255   912 15904 D BTAudioSessionAidl: SetLatencyMode - SessionType=LE_AUDIO_HARDWARE_OFFLOAD_ENCODING_DATAPATH has NO session
+04-10 09:04:28.255   912 15904 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:28.255  1228  2752 I libbinder.BpBinder: onLastStrongRef automatically unlinking death recipients for binder (0xb400007c8aa5d110) with descriptor: 'android.hardware.media.bufferpool2.IClientManager'
+04-10 09:04:28.256 14698 30335 I bluetooth-a2dp-ahal-aidl: system/audio_hal_interface/aidl/a2dp/a2dp_aidl_transport.cc:113 SetLatencyMode: latency_mode=FREE
+04-10 09:04:28.256 14698 30335 I bluetooth-a2dp: system/btif/src/btif_av.cc:4164 btif_av_set_low_latency: active_peer=xx:xx:xx:xx:29:03 is_low_latency=false
+04-10 09:04:28.256 14698 14737 I bluetooth-a2dp: system/btif/src/btif_av.cc:3181 btif_av_handle_event: peer=xx:xx:xx:xx:29:03 handle=0x0 event=BTIF_AV_SET_LATENCY_REQ_EVT(0x25)
+04-10 09:04:28.256 14698 14737 I bluetooth-a2dp: system/btif/src/btif_av.cc:2555 ProcessEvent: state=Started peer=xx:xx:xx:xx:29:03 event=BTIF_AV_SET_LATENCY_REQ_EVT(0x25) flags=0x0(None) active_peer=true
+04-10 09:04:28.256 14698 14737 I bluetooth-a2dp: system/btif/src/btif_av.cc:2742 ProcessEvent: Peer xx:xx:xx:xx:29:03 : event=BTIF_AV_SET_LATENCY_REQ_EVT(0x25) flags=0x0(None) is_low_latency=false
+04-10 09:04:28.256 14698 14737 I bluetooth-a2dp: system/bta/av/bta_av_api.cc:612 BTA_AvSetLatency: Set audio/video stream low latency bta_handle:65, is_low_latency:false
+04-10 09:04:28.256 14698 14737 I bt_l2cap: system/stack/l2cap/l2c_api.cc:1071 L2CA_SetAclLatency: BDA: xx:xx:xx:xx:29:03, latency: 0
+04-10 09:04:28.257 14698 14737 I l2c_utils: system/stack/l2cap/l2c_utils.cc:2544 l2cu_set_acl_latency: Set ACL low latency: 0
+04-10 09:04:28.257 14698 14751 I BluetoothAdapterService: getActiveDevices: A2dp device: XX:XX:XX:XX:6C:43
+04-10 09:04:28.263  1228  2752 D AidlBufferPool: Destruction - bufferpool2 0xb400007cfaa55508 cached: 0/0M, 0/0% in use; allocs: 0, 0% recycled; transfers: 0, 0% unfetched
+04-10 09:04:28.281  1194 13080 D NuPlayerDriver: notifyResetComplete(0xb4000070094f80d0)
+04-10 09:04:28.281  1194  2744 W AMessage: failed to post message as target looper for handler 0 is gone.
+04-10 09:04:28.287  1228  8447 D AidlBufferPool: bufferpool2 0xb400007cfaa4a0a8 : 3(12288 size) total buffers - 1(4096 size) used buffers - 34668/34717 (recycle/alloc) - 409/34716 (fetch/transfer)
+04-10 09:04:28.326   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:28.327  7181 31039 D CCodecBuffers: [c2.android.aac.decoder#306:EncryptedInput.Impl[N]] codec released a buffer owned by client (index 3)
+04-10 09:04:28.447   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:28.447  1008  2329 D AF::Track: interceptBuffer: took 758us to intercept 0 tracks
+04-10 09:04:28.501  3324 13022 I NearbyDiscovery: [trigger-id=ScanEED402CE, feature-id=Sass] NearbyDeviceManager: notifyActiveAudioStatusChanged profile list including BluetoothLeAudio  [CONTEXT service_id=265 ]
+04-10 09:04:28.505  3324 13022 D BluetoothA2dp: isA2dpPlaying(XX:XX:XX:XX:6C:43)
+04-10 09:04:28.508  3324 13022 I NearbyDiscovery: (REDACTED) [trigger-id=ScanEED402CE, feature-id=Sass] NearbyDeviceManager: notifyActiveAudioStatusChanged check device %s, profile %d, active state:%b
+04-10 09:04:28.511  3324  6273 I NearbyDiscovery: (REDACTED) [trigger-id=ScanEED402CE, feature-id=Sass] NearbyDeviceManager: sendMessageViaEventStream, device:%s, eventCode:%s, data:%s, result:%s
+04-10 09:04:28.512  3324 13022 I NearbyDiscovery: (REDACTED) [trigger-id=ScanEED402CE, feature-id=Sass] SassDevice: SetCustomData for device %s to %d result %s
+04-10 09:04:28.513  3324 13068 I NearbyFastPair: (REDACTED) %s: setResult to %s, sendLogs:%s
+04-10 09:04:28.524  3324 13065 I NearbyDiscovery: (REDACTED) %s %s
+04-10 09:04:28.534   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:28.550  3324 12579 I NearbyDiscovery: (REDACTED) %s %s
+04-10 09:04:28.559  3324 13068 I NearbyDiscovery: (REDACTED) [trigger-id=ScanEED402CE, feature-id=Sass] NearbyDeviceManager: Call onEventStreamResponse for BluetoothDevice with %s
+04-10 09:04:28.574  3324 12579 I NearbyDiscovery: (REDACTED) %s %s
+04-10 09:04:28.578  3324 10831 I NearbyDiscovery: (REDACTED) [trigger-id=ScanEED402CE, feature-id=Sass] SassDevice %s onEventStream called, eventCode=%d, additionalData=%s
+04-10 09:04:28.589  3324 13022 I NearbyFastPair: (REDACTED) AudioFocusMonitor: getAudioFocusAndMediaPlayingPackage, has package : %s
+04-10 09:04:28.684   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:28.734   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:28.746  1588  1776 D ColorDisplayService: computeDisplayWhiteBalanceMatrix: cct =5460 matrix =
+04-10 09:04:28.746  1588  1776 D ColorDisplayService:        0.956491-0.001675-0.003697 0.000000 0.035770 0.924293-0.013691 0.000000 0.007739 0.003090 0.779337 0.000000 0.000000 0.000000 0.000000 1.000000
+04-10 09:04:28.885   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:28.944   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:29.086   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:29.139  1242  1242 W TracingMuxer: type=1400 audit(0.0:16509): avc:  denied  { write } for  name="traced_producer" dev="tmpfs" ino=1380 scontext=u:r:gxp_logging:s0 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0
+04-10 09:04:29.153   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:29.194  1244  1244 D AOC     : CHRE: DRAM vote count begins
+04-10 09:04:29.194  1244  1244 D AOC     : CHRE: DRAM vote count ends: 0 ms
+04-10 09:04:29.194  1244  1244 D AOC     : CHRE: DRAM vote count begins
+04-10 09:04:29.194  1244  1244 D AOC     : CHRE: DRAM vote count ends: 0 ms
+04-10 09:04:29.196   916   935 I CHRE    : @ 123372.516: [vice_ambient_volume] SendMessageToAmbientVolume, message_type: 33283 to instance_id: 0x3
+04-10 09:04:29.196   916   935 I CHRE    : @ 123372.516: nappId=25 tried to cancel expired/invalid timer 8242
+04-10 09:04:29.196   916   935 I CHRE    : @ 123372.516: [vice_ambient_volume] SendMessageToAmbientVolume, message_type: 33282 to instance_id: 0x3
+04-10 09:04:29.197   916   935 E CHRE    : @ 123372.516: [AV] Client 3 is not found.
+04-10 09:04:29.197   916   935 I CHRE    : @ 123372.516: [AV] disabling detection
+04-10 09:04:29.197   916   935 D CHRE    : @ 123372.518: request audio send: 0
+04-10 09:04:29.197   916   935 I CHRE    : @ 123372.519: [vice_ambient_volume] Received ACK from Ambient Volume for disable request
+04-10 09:04:29.198  1244  1244 D AOC     : CHRE: DRAM vote count begins
+04-10 09:04:29.198  1244  1244 D AOC     : F1:MSG: controller.cc, 275: AudioInCtrl: cmd ID: 0x00f5, tag: 0xf5 [cntr = 7739]
+04-10 09:04:29.198  1244  1244 D AOC     : F1:MSG: controller_audio_input.cc, 4445: Got chre audio stop cmd
+04-10 09:04:29.198  1244  1244 D AOC     : F1:TRC: hotword_input_processor.cc, 1014: Receive cmd: 0x84 (132)
+04-10 09:04:29.198  1244  1244 D AOC     : F1:TRC: hotword_input_processor.cc, 1510: Finished cmd: 0x84 (132)
+04-10 09:04:29.199  1244  1244 D AOC     : F1:MSG: audio_capture_pdm.cc, 454: Reconfig not seamless
+04-10 09:04:29.199  1244  1244 D AOC     : F1:MSG: controller.cc, 933: AudioInCtrl: ipc: C-Ch-AI, cmd ID: 0x00f5, tag: 0xf5, rc: 0
+04-10 09:04:29.199  1244  1244 D AOC     : A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00c8, tag: 0x14, rc: 0
+04-10 09:04:29.199  1244  1244 D AOC     : A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00c8, tag: 0x15, rc: 0
+04-10 09:04:29.199  1244  1244 D AOC     : A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00c8, tag: 0x16, rc: 0
+04-10 09:04:29.199  1244  1244 D AOC     : CHRE: DRAM vote count ends: 0 ms
+04-10 09:04:29.199  1244  1244 D AOC     : CHRE: DRAM vote count begins
+04-10 09:04:29.200  1244  1244 D AOC     : CHRE: DRAM vote count ends: 0 ms
+04-10 09:04:29.200  1244  1244 D AOC     : CHRE: DRAM vote count begins
+04-10 09:04:29.200  1244  1244 D AOC     : CHRE: DRAM vote count ends: 0 ms
+04-10 09:04:29.200  1244  1244 D AOC     : CHRE: DRAM vote count begins
+04-10 09:04:29.200  1244  1244 D AOC     : CHRE: DRAM vote count ends: 0 ms
+04-10 09:04:29.325   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:29.338  1588  1776 D ColorDisplayService: computeDisplayWhiteBalanceMatrix: cct =5500 matrix =
+04-10 09:04:29.338  1588  1776 D ColorDisplayService:        0.959210-0.001560-0.003556 0.000000 0.033379 0.929185-0.013209 0.000000 0.007411 0.002989 0.789065 0.000000 0.000000 0.000000 0.000000 1.000000
+04-10 09:04:29.356   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:29.385  7181  8446 D AidlBufferPool: bufferpool2 0xb4000078d709e2b8 : 4(32768 size) total buffers - 4(32768 size) used buffers - 0/4 (recycle/alloc) - 55/34745 (fetch/transfer)
+04-10 09:04:29.526   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:29.566   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:29.656  1244  1244 D AOC     : A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 1 -> 2 d_lux:6.12 w_lux: 15.71 C:0.17 G:0.06
+04-10 09:04:29.676  1244  1244 D AOC     : A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 2 -> 1 d_lux:6.18 w_lux: 15.84 C:0.17 G:0.06
+04-10 09:04:29.740  1244  1244 D AOC     : F1:onNewMelValues timestamp 135745198058 total data count = 3
+04-10 09:04:29.741   912  2282 I AUtl::WakeLock: Acquire: acquired wake lock for aoc_sound_dose
+04-10 09:04:29.741   912  2282 I AHal::AocSoundDoseBridge: GetMelDataFromAoc ret_size: 502 fd: 18
+04-10 09:04:29.741   912  2282 I AHal::AocSoundDoseBridge: HandlePeriodMelUpdate: 3 records
+04-10 09:04:29.742   912  2282 I AUtl::WakeLock: Release: released wake lock for aoc_sound_dose
+04-10 09:04:29.743  1244  1244 D AOC     : A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00cb, tag: 0x17, rc: 0
+04-10 09:04:29.743  1244  1244 D AOC     : F1:BT_Tx (5s)MEL: 85.1  81.6  78.9  71.2  79.9
+04-10 09:04:29.764   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:29.774   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:29.792  1519  1540 I pixel-thermal: VIRTUAL-SKIN-CHARGE-WIRED:33.1541 raw data: CLOSE_WEIGHT:1 IS_WLC:0 NO_WLC:1 OPEN_WEIGHT:0 VIRTUAL-SKIN-CHARGE-CLOSE:32154.1 VIRTUAL-SKIN-CHARGE-CLOSE-SUB-0:31925.2 VIRTUAL-SKIN-CHARGE-CLOSE-SUB-1:32154.1 VIRTUAL-SKIN-CHARGE-CLOSE-SUB-2:30513 VIRTUAL-SKIN-CHARGE-LEGACY:32154.1 VIRTUAL-SKIN-CHARGE-OPEN:32680.4 VIRTUAL-SKIN-CHARGE-OPEN-SUB-0:32341.7 VIRTUAL-SKIN-CHARGE-OPEN-SUB-1:32680.4 VIRTUAL-SKIN-CHARGE-OPEN-SUB-2:31697.2 VIRTUAL-SKIN-CHARGE-WIRED:33154.1 WLC_CHECK:1 charging_therm:32214 flash_therm:31099 inner_brightness:0 inner_disp_therm:32173 north_therm:33175 outer_disp_therm:32166 quiet_therm:32013 rfpa_therm:33002 soc_therm:34092 thb_hda:0 
+04-10 09:04:29.795  1519  1540 I pixel-thermal: VIRTUAL-SKIN-TOP-SPEAKER: model_input: [32214.00 32173.00 32166.00 31099.00 33175.00 32013.00 33002.00 34092.00 31129.00 ]
+04-10 09:04:29.795  1519  1540 I native  : I0000 00:00:1775826269.795344    1540 thermal_tflite_wrapper.cc:261] ThermalTfliteInvoke
+04-10 09:04:29.796  1519  1540 I pixel-thermal: VIRTUAL-SKIN-TOP-SPEAKER: model_output: [30314.2 ]
+04-10 09:04:29.796  1519  1540 I pixel-thermal: VIRTUAL-SKIN-TOP-SPEAKER: predicted_value: [30314.2 ]
+04-10 09:04:29.796  1519  1540 I pixel-thermal: VIRTUAL-SKIN-TOP-SPEAKER:30.3142 raw data: VIRTUAL-SKIN-TOP-SPEAKER:30314.2 charging_therm:32214 flash_therm:31099 inner_disp_therm:32173 north_therm:33175 outer_disp_therm:32166 quiet_therm:32013 rfpa_therm:33002 soc_therm:34092 usb_pwr_therm:31129 
+04-10 09:04:29.797  1519  1540 I pixel-thermal: VIRTUAL-SKIN-BOTTOM-SPEAKER: model_input: [32214.00 32173.00 32166.00 31099.00 33175.00 32013.00 33002.00 34092.00 31129.00 ]
+04-10 09:04:29.797  1519  1540 I native  : I0000 00:00:1775826269.797208    1540 thermal_tflite_wrapper.cc:261] ThermalTfliteInvoke
+04-10 09:04:29.797  1519  1540 I pixel-thermal: VIRTUAL-SKIN-BOTTOM-SPEAKER: model_output: [30233.7 ]
+04-10 09:04:29.797  1519  1540 I pixel-thermal: VIRTUAL-SKIN-BOTTOM-SPEAKER: predicted_value: [30233.7 ]
+04-10 09:04:29.797  1519  1540 I pixel-thermal: VIRTUAL-SKIN-BOTTOM-SPEAKER:30.2337 raw data: VIRTUAL-SKIN-BOTTOM-SPEAKER:30233.7 charging_therm:32214 flash_therm:31099 inner_disp_therm:32173 north_therm:33175 outer_disp_therm:32166 quiet_therm:32013 rfpa_therm:33002 soc_therm:34092 usb_pwr_therm:31129 
+04-10 09:04:29.797  1519  1540 I pixel-thermal: rfpa_therm:33.002 raw data: rfpa_therm:33002 
+04-10 09:04:29.798  1519  1540 I pixel-thermal: soc_therm:34.092 raw data: soc_therm:34092 
+04-10 09:04:29.799  1519  1540 I pixel-thermal: VIRTUAL-SKIN-CHARGE-PERSIST:33.1541 raw data: CLOSE_WEIGHT:1 IS_WLC:0 NO_WLC:1 OPEN_WEIGHT:0 VIRTUAL-SKIN-CHARGE-LEGACY:32154.1 VIRTUAL-SKIN-CHARGE-PERSIST:33154.1 VIRTUAL-SKIN-CHARGE-WLC-CLOSE:31998.3 VIRTUAL-SKIN-CHARGE-WLC-LEGACY:31998.3 VIRTUAL-SKIN-CHARGE-WLC-OPEN:32324.9 charging_therm:32214 flash_therm:31099 inner_disp_therm:32173 north_therm:33175 outer_disp_therm:32166 quiet_therm:32013 rfpa_therm:33002 soc_therm:34092 
+04-10 09:04:29.858  1588  1838 D DisplayWhiteBalanceController: Display cct: 5821.502 Latest ambient cct: 5330.917 Latest ambient lux: 6.0565476 Latest low light bias: 0.43664968 Latest high light bias: 0.0
+04-10 09:04:29.859  1588  1776 D ColorDisplayService: DisplayWhiteBalanceTintController animation cancelled
+04-10 09:04:29.859  1588  1776 D ColorDisplayService: DisplayWhiteBalanceTintController animation ended: wasCancelled=true toCct=5587 fromCct=5387
+04-10 09:04:29.859  1588  1776 D ColorDisplayService: DisplayWhiteBalanceTintController animation started: toCct=5821 fromCct=5500 with duration=3000
+04-10 09:04:29.867  3025  3684 I PixelDisplayManager: onDisplayChanged(Inner Display, 1, local:4619827677550801152): screenOn=false, hbmMode=0, br=0.0, product=DeviceProductInfo{name=Common Panel, manufacturerPnpId=GGL, productId=0, modelYear=null, manufactureDate=ManufactureDate{week=1, year=1990}, connectionToSinkType=1, edidStructureMetadata=EdidStructureMetadata{version=0, revision=0}, videoInputType=0}
+04-10 09:04:29.874  3025  3684 I PixelDisplayManager: onDisplayChanged(Outer Display, 0, local:4619827677550801153): screenOn=true, hbmMode=0, br=0.013155899, product=DeviceProductInfo{name=Common Panel, manufacturerPnpId=GGL, productId=0, modelYear=null, manufactureDate=ManufactureDate{week=1, year=1990}, connectionToSinkType=1, edidStructureMetadata=EdidStructureMetadata{version=0, revision=0}, videoInputType=0}
+04-10 09:04:29.975   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:30.006   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:30.006  1519  1540 I pixel-thermal: VIRTUAL-USB-UI:0 raw data: USB-MINUS-CHARGING:-1085 VIRTUAL-USB-UI:0 charging_therm:32214 usb_pwr_therm:31129 
+04-10 09:04:30.006  1519  1540 I pixel-thermal: inner_disp_therm:32.173 raw data: inner_disp_therm:32173 
+04-10 09:04:30.007  1519  1540 I pixel-thermal: VIRTUAL-SKIN-OUTER-DISPLAY: model_input: [32214.00 32173.00 32166.00 31099.00 33175.00 32013.00 33002.00 34092.00 31129.00 ]
+04-10 09:04:30.007  1519  1540 I native  : I0000 00:00:1775826270.007399    1540 thermal_tflite_wrapper.cc:261] ThermalTfliteInvoke
+04-10 09:04:30.008  1519  1540 I pixel-thermal: VIRTUAL-SKIN-OUTER-DISPLAY: model_output: [31839.1 ]
+04-10 09:04:30.008  1519  1540 I pixel-thermal: VIRTUAL-SKIN-OUTER-DISPLAY: predicted_value: [31839.1 ]
+04-10 09:04:30.008  1519  1540 I pixel-thermal: VIRTUAL-SKIN-OUTER-DISPLAY:31.8391 raw data: VIRTUAL-SKIN-OUTER-DISPLAY:31839.1 charging_therm:32214 flash_therm:31099 inner_disp_therm:32173 north_therm:33175 outer_disp_therm:32166 quiet_therm:32013 rfpa_therm:33002 soc_therm:34092 usb_pwr_therm:31129 
+04-10 09:04:30.008  1519  1540 I pixel-thermal: usb_pwr_therm:31.129 raw data: usb_pwr_therm:31129 
+04-10 09:04:30.008  1519  1540 I pixel-thermal: outer_disp_therm:32.166 raw data: outer_disp_therm:32166 
+04-10 09:04:30.009  1519  1540 I pixel-thermal: VIRTUAL-USB-THROTTLING:0 raw data: USB-MINUS-CHARGING:-1085 VIRTUAL-USB-THROTTLING:0 usb_pwr_therm:31129 
+04-10 09:04:30.185   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:30.240  1588  1776 D ColorDisplayService: computeDisplayWhiteBalanceMatrix: cct =5540 matrix =
+04-10 09:04:30.240  1588  1776 D ColorDisplayService:        0.961904-0.001446-0.003413 0.000000 0.031012 0.934030-0.012724 0.000000 0.007084 0.002888 0.798767 0.000000 0.000000 0.000000 0.000000 1.000000
+04-10 09:04:30.251   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:30.260  3324 13022 I NearbyDiscovery: [trigger-id=ScanEED402CE, feature-id=Sass] NearbyDeviceManager: notifyActiveAudioStatusChanged profile list including BluetoothLeAudio  [CONTEXT service_id=265 ]
+04-10 09:04:30.263  3324 13022 D BluetoothA2dp: isA2dpPlaying(XX:XX:XX:XX:6C:43)
+04-10 09:04:30.265  3324 13022 I NearbyDiscovery: (REDACTED) [trigger-id=ScanEED402CE, feature-id=Sass] NearbyDeviceManager: notifyActiveAudioStatusChanged check device %s, profile %d, active state:%b
+04-10 09:04:30.283  3324  6273 I NearbyDiscovery: (REDACTED) [trigger-id=ScanEED402CE, feature-id=Sass] NearbyDeviceManager: sendMessageViaEventStream, device:%s, eventCode:%s, data:%s, result:%s
+04-10 09:04:30.284  3324 12630 I NearbyDiscovery: (REDACTED) %s %s
+04-10 09:04:30.314  3324 12579 I NearbyDiscovery: (REDACTED) %s %s
+04-10 09:04:30.316  3324 13022 I NearbyDiscovery: (REDACTED) [trigger-id=ScanEED402CE, feature-id=Sass] NearbyDeviceManager: Call onEventStreamResponse for BluetoothDevice with %s
+04-10 09:04:30.317  3324 13022 I NearbyDiscovery: (REDACTED) [trigger-id=ScanEED402CE, feature-id=Sass] SassDevice: SetCustomData for device %s to %d result %s
+04-10 09:04:30.317  3324 10831 I NearbyFastPair: (REDACTED) %s: setResult to %s, sendLogs:%s
+04-10 09:04:30.333  3324 12579 I NearbyDiscovery: (REDACTED) %s %s
+04-10 09:04:30.338  3324 13022 I NearbyDiscovery: (REDACTED) [trigger-id=ScanEED402CE, feature-id=Sass] SassDevice %s onEventStream called, eventCode=%d, additionalData=%s
+04-10 09:04:30.350  3324 10831 I NearbyFastPair: (REDACTED) AudioFocusMonitor: getAudioFocusAndMediaPlayingPackage, has package : %s
+04-10 09:04:30.394   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:30.443  1004  1059 I WifiHAL : Creating message to get link statistics; iface = 47
+04-10 09:04:30.482  1004  1004 I WifiHAL : Getting cached scan results, iface handle = 0xb400006fdb012990
+04-10 09:04:30.482  1004  1004 E WifiHAL : Creating message to get cached scan results
+04-10 09:04:30.484   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:30.486  1004  1004 I WifiHAL : In GetCachedScanResultsCommand::handleResponse
+04-10 09:04:30.508  1004  1059 D WifiHAL : Start debug command: mType GET_FEATURE
+04-10 09:04:30.508  1004  1059 I WifiHAL : CreateRequest mType = GET_FEATURE
+04-10 09:04:30.508  1004  1059 D WifiHAL : In DebugCommand::handleResponse, mType:GET_FEATURE
+04-10 09:04:30.508  1004  1059 D WifiHAL : len = 4, expected len = 4
+04-10 09:04:30.606   912  2320 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:30.616  1588  1776 D ColorDisplayService: computeDisplayWhiteBalanceMatrix: cct =5580 matrix =
+04-10 09:04:30.616  1588  1776 D ColorDisplayService:        0.964574-0.001334-0.003271 0.000000 0.028669 0.938829-0.012239 0.000000 0.006758 0.002786 0.808446 0.000000 0.000000 0.000000 0.000000 1.000000
+04-10 09:04:30.692  1244  1244 D AOC     : A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 1 -> 0 d_lux:7.57 w_lux: 18.39 C:0.19 G:0.08
+04-10 09:04:30.717  1244  1244 D AOC     : A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 0 -> 1 d_lux:7.77 w_lux: 18.60 C:0.19 G:0.08
+04-10 09:04:30.727   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:30.733  1519  1540 I pixel-thermal: north_therm:33.175 raw data: north_therm:33175 
+04-10 09:04:30.777  1008  2323 D StreamHalAidl: [out|ioHandle:13] standby
+04-10 09:04:30.778  1008  2323 D StreamHalAidl: [out|ioHandle:13] pause
+04-10 09:04:30.778   912  2321 I AHal::Stream: Stop: stop stream primary-playback
+04-10 09:04:30.778   912  2321 I AHal::TinyalsaDriverOperations: Stop: pcm_close card_index 0 device 1
+04-10 09:04:30.785   912  2321 I AHal::Router: Deactivate: deactivate 400001
+04-10 09:04:30.785   912  2321 I AHal::Router: InvalidateLocked: new graph #2609 Edges(1):
+04-10 09:04:30.785   912  2321 I AHal::Router:   [direction: 0, use case: deep-buffer-playback, id: 0, use case extras: [aec: false, ns: false], use case attributes: [active track: true][sample_rate: 48000][channel layout: AudioChannelLayout{layoutMask: 3}][format: AudioFormatDescription{type: PCM, pcm: FLOAT_32_BIT, encoding: }], device: bluetooth-a2dp-device, sibling device: , handle: 0xb4000077b399c890, device extras: [source: SYS_RESERVED_INVALID, voice call: false, st aec: false, hac: false, sr: 48000, ch: AudioChannelLayout{layoutMask: 3}, f: AudioFormatDescription{type: PCM, pcm: DEFAULT, encoding: }, hifi: 0], config id: [u: 400002, d:400232], priority: 0000]
+04-10 09:04:30.785   912  2321 I AHal::Router: InvalidateLocked: ============ apply graph #2609 [Fri Apr 10 09:04:30 2026] start ============
+04-10 09:04:30.786   912  2321 I AHal::DeviceInterface: Disconnect: disconnect primary-playback-0 -> bluetooth-a2dp-device
+04-10 09:04:30.792   912  2321 I AHal::AudioRoutePathController: ResetPath: primary-playback-0 -> bluetooth-a2dp-device: true
+04-10 09:04:30.792   912  2321 I AHal::Router: LogTransferring: Transferring (1):
+04-10 09:04:30.792   912  2321 I AHal::Router: LogTransferring:   primary-playback-0 -> bluetooth-a2dp-device => deep-buffer-playback-0 -> bluetooth-a2dp-device
+04-10 09:04:30.793   912  2321 I AHal::AocDspModeAdapter: RemoveRoutes: remove Route:{{use case = primary-playback, device = bluetooth-a2dp-device, source = SYS_RESERVED_INVALID, channel_count = 2}}, current active route: {{use case = deep-buffer-playback, device = bluetooth-a2dp-device, source = SYS_RESERVED_INVALID, channel_count = 2}},
+04-10 09:04:30.793   912  2321 I AHal::AocDspModeAdapter: AddRoutes: Active Route:{{use case = deep-buffer-playback, device = bluetooth-a2dp-device, source = SYS_RESERVED_INVALID, channel_count = 2}},
+04-10 09:04:30.793   912  2321 I AHal::VoiceCall: Update: set echo reference on bluetooth-a2dp-device for deep-buffer-playback
+04-10 09:04:30.793   912  2321 I AHal::Router: InvalidateLocked: ============ apply graph #2609 end ============
+04-10 09:04:30.793   912  2321 D AHal::AudioMetric::EventDataHandler: UpdatePlaybackInfo: Updating Playback Info: PlaybackInfo {Route: {audio_source: SYS_RESERVED_INVALID, device: bluetooth-a2dp-device, use_case: deep-buffer-playback}, volume: 0, is_active: 0, sample_rate: 48000, channel_count: 2, audio_format_type: PCM, pcm_type: FLOAT_32_BIT, encoding:  }
+04-10 09:04:30.794   912  2321 D AHal::AudioMetric::AtomWriter: WriteAtom: Writing atom to statsd service. Atom: MediaPlaybackUsageAtom: Playback Info: PlaybackInfo {Route: {audio_source: SYS_RESERVED_INVALID, device: bluetooth-a2dp-device, use_case: deep-buffer-playback}, volume: 0, is_active: 0, sample_rate: 48000, channel_count: 2, audio_format_type: PCM, pcm_type: FLOAT_32_BIT, encoding:  Route: {audio_source: SYS_RESERVED_INVALID, device: bluetooth-a2dp-device, use_case: primary-playback}, volume: 0, is_active: 0, sample_rate: 48000, channel_count: 2, audio_format_type: PCM, pcm_type: FLOAT_32_BIT, encoding:  }, Device State: {camera_type: Back, screen_orientation: DEG_0, screen_state: on, folded_type: kClose, in_thermal_throttle_duration_ms: 0, thermal_throttle_count: 0, in_acoustic_shock_duration_ms: 0, acoustic_shock_count: 0, in_battery_adapted_audio_control_duration_ms: 0, battery_adapted_audio_control_count: 0}, duration_second: 4, is_ended: 0
+04-10 09:04:30.794   912  2321 D AHal::AudioMetric::EventDataHandler: UpdateCaptureInfo: Updating Capture Info: CaptureInfo: {}
+04-10 09:04:30.794   912  2321 D AHal::AudioMetric::EventDataHandler: UpdateCallInfo: Updating Call Info: RoutingInfo:
+04-10 09:04:30.794   912  2321 D AHal::AudioMetric::EventDataHandler: Uplink: NULL, 
+04-10 09:04:30.794   912  2321 D AHal::AudioMetric::EventDataHandler: Downlink: NULL
+04-10 09:04:30.794   912  2321 D AHal::AudioMetric::EventDataHandler: AudioMode: NORMAL
+04-10 09:04:30.796   912  2321 I AHal::AocDspModeAdapter: RemoveRoutes: remove Route:{{use case = primary-playback, device = bluetooth-a2dp-device, source = SYS_RESERVED_INVALID, channel_count = 2}}, current active route: {{use case = deep-buffer-playback, device = bluetooth-a2dp-device, source = SYS_RESERVED_INVALID, channel_count = 2}},
+04-10 09:04:30.796   912  2321 I ASvc::PeriodicWorker: SetLinkedConfigIds: update linked configs []
+04-10 09:04:30.797  1008  2323 D StreamHalAidl: [out|ioHandle:13] flush
+04-10 09:04:30.798   912  2321 I ASvc::CommandWorker: cw-primary-playback: Command{flush: Void{}} in StreamOutPausedState
+04-10 09:04:30.798   912  2321 I ASvc::StreamOutSyncStates: FlushDataQueue: flush 0 bytes in data queue
+04-10 09:04:30.799  1244  1244 D AOC     : F1:MSG: controller.cc, 275: AudioOutCtrl: cmd ID: 0x00c9, tag: 0x65 [cntr = 6618]
+04-10 09:04:30.799  1244  1244 D AOC     : F1:MSG: controller.cc, 933: AudioOutCtrl: ipc: audio_output_co, cmd ID: 0x00c9, tag: 0x65, rc: 0
+04-10 09:04:30.799  1244  1244 D AOC     : A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00cb, tag: 0x18, rc: 0
+04-10 09:04:30.800  1244  1244 D AOC     : H0:Mixer AMixBT Input 1 RB overflow. Resyncing.
+04-10 09:04:30.800  1244  1244 D AOC     : F1:MSG: controller.cc, 275: AudioOutCtrl: cmd ID: 0x010f, tag: 0x66 [cntr = 6619]
+04-10 09:04:30.800  1244  1244 D AOC     : F1:Unregistered Source 1 [Primary] from Sink 2 [Bluetooth]
+04-10 09:04:30.800   912  2321 I ASvc::CommandWorker: cw-primary-playback: Command{standby: Void{}} in StreamOutIdleState
+04-10 09:04:30.800  1244  1244 D AOC     : F1:AT Map:20 (LL:0), 1 EPs active, Power: No, Config: No
+04-10 09:04:30.800  1244  1244 D AOC     : F1:Mixer 2 configuration changed: (20)
+04-10 09:04:30.804  1244  1244 D AOC     : F1:Sink 2 Configuration changed: ULL (enabled)
+04-10 09:04:30.805  1244  1244 D AOC     : F1:F1 Bitmap updated.
+04-10 09:04:30.805  1244  1244 D AOC     : F1:[Idle Tracker] long no idle:[0] average between idle:[0.280703ms] max no idle:[11.772632ms]
+04-10 09:04:30.805  1244  1244 D AOC     : F1:MSG: controller.cc, 933: AudioOutCtrl: ipc: audio_output_co, cmd ID: 0x010f, tag: 0x66, rc: 0
+04-10 09:04:30.805  1244  1244 D AOC     : H0:Mixer AMixBT: 480 samples (0020/0020) (ON) multi out OFF
+04-10 09:04:30.806  1244  1244 D AOC     : H0:	 5: 0x405be2bc
+04-10 09:04:30.806  1244  1244 D AOC     : A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00cb, tag: 0x19, rc: 0
+04-10 09:04:30.907  1588  1838 D DisplayWhiteBalanceController: Display cct: 5984.545 Latest ambient cct: 5330.917 Latest ambient lux: 6.9285464 Latest low light bias: 0.56122094 Latest high light bias: 0.0
+04-10 09:04:30.910  1588  1776 D ColorDisplayService: DisplayWhiteBalanceTintController animation cancelled
+04-10 09:04:30.910  1588  1776 D ColorDisplayService: DisplayWhiteBalanceTintController animation ended: wasCancelled=true toCct=5821 fromCct=5500
+04-10 09:04:30.910  1588  1776 D ColorDisplayService: DisplayWhiteBalanceTintController animation started: toCct=5984 fromCct=5580 with duration=3000
+04-10 09:04:30.918  3025  3684 I PixelDisplayManager: onDisplayChanged(Inner Display, 1, local:4619827677550801152): screenOn=false, hbmMode=0, br=0.0, product=DeviceProductInfo{name=Common Panel, manufacturerPnpId=GGL, productId=0, modelYear=null, manufactureDate=ManufactureDate{week=1, year=1990}, connectionToSinkType=1, edidStructureMetadata=EdidStructureMetadata{version=0, revision=0}, videoInputType=0}
+04-10 09:04:30.923  3025  3684 I PixelDisplayManager: onDisplayChanged(Outer Display, 0, local:4619827677550801153): screenOn=true, hbmMode=0, br=0.013155899, product=DeviceProductInfo{name=Common Panel, manufacturerPnpId=GGL, productId=0, modelYear=null, manufactureDate=ManufactureDate{week=1, year=1990}, connectionToSinkType=1, edidStructureMetadata=EdidStructureMetadata{version=0, revision=0}, videoInputType=0}
+04-10 09:04:30.965   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:31.207   912  2326 D BTAudioSessionAidl: GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-10 09:04:31.217  1588  1776 D ColorDisplayService: computeDisplayWhiteBalanceMatrix: cct =5620 matrix =
+04-10 09:04:31.217  1588  1776 D ColorDisplayService:        0.967218-0.001222-0.003129 0.000000 0.026350 0.943580-0.011752 0.000000 0.006432 0.002684 0.818099 0.000000 0.000000 0.000000 0.000000 1.000000
+04-10 09:04:31.228  3324  6273 I NearbyDiscovery: (REDACTED) [trigger-id=ScanCD30D437] FastPairCache: Bloom filter changed, %s, newData=%s, oldData=%s, scanMode=%s
+04-10 09:04:31.253  3324  3324 I NearbyDiscovery: (REDACTED) DiscoveryService onStartCommand action: %s
+04-10 09:04:31.254  3324  6273 I NearbyDiscovery: FastPairApiHandler: trigger firmware update check [CONTEXT service_id=265 ]
+04-10 09:04:31.255  1588  2673 D BackgroundInstallControlService: Package event received: 0
+04-10 09:04:31.259  3324 13041 I NearbyDiscovery: (REDACTED) FastPairApiHandler: Send result, package=(%s), requestType=(%s), status=(%s)
