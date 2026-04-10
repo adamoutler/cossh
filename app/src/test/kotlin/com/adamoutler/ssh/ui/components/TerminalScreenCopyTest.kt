@@ -23,7 +23,7 @@ class TerminalScreenCopyTest {
         val client = com.adamoutler.ssh.network.SshSessionProvider.terminalSessionClient
         
         val dummySession = try {
-            TerminalSession("/system/bin/sh", "/", arrayOf(), arrayOf("TERM=xterm-256color"), 100, client)
+            TerminalSession("/system/bin/cat", "/", arrayOf(), arrayOf("TERM=xterm-256color"), 100, client)
         } catch (e: Throwable) {
             null
         }
