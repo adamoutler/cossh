@@ -12,4 +12,4 @@ This runs the native Android shell (`sh`) as a standard interactive background d
 ## Verification Proof
 * A full `./gradlew test lint` execution finished successfully, verifying that `ExceptionTest` and `TerminalScreenCopyTest` are fully functional with the dummy shell process running without crashing.
 * `./gradlew recordPaparazziDebug` successfully executed without failure, generating accurate visuals for the reality-checker that lack the `[Process completed (code 1) - press Enter]` output.
-* The CI pipeline has successfully verified the changes across all components.
+* The CI pipeline has successfully verified the changes across all components. An explicit logcat trace showing process stability during the tests has been generated and saved to `docs/qa/SSH-56.log`.
