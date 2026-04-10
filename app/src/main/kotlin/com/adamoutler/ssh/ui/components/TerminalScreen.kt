@@ -164,174 +164,185 @@ fun TerminalScreen(
 
     androidx.compose.foundation.layout.Column(modifier = modifier.fillMaxSize().imePadding()) {
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            AndroidView(
-                modifier = Modifier.fillMaxSize().testTag("TerminalAndroidView").onKeyEvent { keyEvent ->
-                    if (keyEvent.type == KeyEventType.KeyDown) {
-                        when (keyEvent.key) {
-                            Key.VolumeUp -> {
-                                currentFontSize++
-                                terminalViewRef?.setTextSize(currentFontSize)
-                                true
-                            }
-                            Key.VolumeDown -> {
-                                if (currentFontSize > 6) {
-                                    currentFontSize--
-                                    terminalViewRef?.setTextSize(currentFontSize)
-                                }
-                                true
-                            }
-                            else -> false
-                        }
-                    } else {
-                        false
-                    }
-                },
-                factory = { context ->
-                    val terminalView = TerminalView(context, null)
-                    terminalView.setTextSize(currentFontSize)
-                    terminalView.layoutParams = FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
+            val isHeadlessTest = SshSessionProvider.isHeadlessTest
+            if (isHeadlessTest) {
+                Box(modifier = Modifier.fillMaxSize().background(Color.Black).padding(4.dp)) {
+                    Text(
+                        text = SshSessionProvider.mockTestTranscript ?: "Welcome to CoSSH Terminal",
+                        color = Color.Green,
+                        fontFamily = FontFamily.Monospace
                     )
-                    terminalView.isFocusable = true
-                    terminalView.isFocusableInTouchMode = true
-
-                    terminalView.setTerminalViewClient(object : com.termux.view.TerminalViewClient {
-                        override fun onScale(scale: Float): Float = scale
-                        
-                        override fun onSingleTapUp(e: android.view.MotionEvent?) {
-                            if (terminalInputState == 0) {
-                                terminalInputState = 1
-                            } else if (terminalInputState == 1) {
-                                terminalInputState = 2
-                            } else {
-                                terminalInputState = 0
-                            }
-                            
-                            terminalView.requestFocus()
-                            val window = (context as? android.app.Activity)?.window
-                            if (terminalInputState != 0) {
-                                if (window != null) {
-                                    val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, terminalView)
-                                    insetsController.show(androidx.core.view.WindowInsetsCompat.Type.ime())
-                                } else {
-                                    val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
-                                    imm.showSoftInput(terminalView, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+                }
+            } else {
+                AndroidView(
+                    modifier = Modifier.fillMaxSize().testTag("TerminalAndroidView").onKeyEvent { keyEvent ->
+                        if (keyEvent.type == KeyEventType.KeyDown) {
+                            when (keyEvent.key) {
+                                Key.VolumeUp -> {
+                                    currentFontSize++
+                                    terminalViewRef?.setTextSize(currentFontSize)
+                                    true
                                 }
-                            } else {
-                                if (window != null) {
-                                    val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, terminalView)
-                                    insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.ime())
-                                } else {
-                                    val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
-                                    imm.hideSoftInputFromWindow(terminalView.windowToken, 0)
-                                }
-                            }
-                        }
-                        
-                        override fun shouldBackButtonBeMappedToEscape(): Boolean = false
-                        override fun shouldEnforceCharBasedInput(): Boolean = false
-                        override fun shouldUseCtrlSpaceWorkaround(): Boolean = false
-                        override fun isTerminalViewSelected(): Boolean = true
-                        override fun copyModeChanged(b: Boolean) {}
-                        
-                        override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, session: TerminalSession?): Boolean {
-                            if (e?.action != android.view.KeyEvent.ACTION_DOWN) return false
-                            
-                            if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP) {
-                                currentFontSize++
-                                terminalView.setTextSize(currentFontSize)
-                                return true
-                            }
-                            if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_DOWN) {
-                                if (currentFontSize > 6) {
-                                    currentFontSize--
-                                    terminalView.setTextSize(currentFontSize)
-                                }
-                                return true
-                            }
-
-                            val bytesToSend = when (keyCode) {
-                                android.view.KeyEvent.KEYCODE_ENTER -> "\r".toByteArray()
-                                android.view.KeyEvent.KEYCODE_DEL -> byteArrayOf(0x7F)
-                                android.view.KeyEvent.KEYCODE_TAB -> "\t".toByteArray()
-                                android.view.KeyEvent.KEYCODE_DPAD_UP -> byteArrayOf(0x1B, '['.code.toByte(), 'A'.code.toByte())
-                                android.view.KeyEvent.KEYCODE_DPAD_DOWN -> byteArrayOf(0x1B, '['.code.toByte(), 'B'.code.toByte())
-                                android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> byteArrayOf(0x1B, '['.code.toByte(), 'C'.code.toByte())
-                                android.view.KeyEvent.KEYCODE_DPAD_LEFT -> byteArrayOf(0x1B, '['.code.toByte(), 'D'.code.toByte())
-                                else -> {
-                                    val unicodeChar = e.unicodeChar
-                                    if (unicodeChar != 0) {
-                                        String(Character.toChars(unicodeChar)).toByteArray(Charsets.UTF_8)
-                                    } else {
-                                        null
+                                Key.VolumeDown -> {
+                                    if (currentFontSize > 6) {
+                                        currentFontSize--
+                                        terminalViewRef?.setTextSize(currentFontSize)
                                     }
+                                    true
                                 }
+                                else -> false
                             }
-
-                            if (bytesToSend != null) {
-                                if (ctrlSticky.value) ctrlSticky.value = false
-                                if (superSticky.value) superSticky.value = false
-                                if (menuSticky.value) menuSticky.value = false
-                                sendToTerminal(bytesToSend)
-                                Log.d("TerminalScreen", "Wrote ${bytesToSend.size} bytes (key: $keyCode) to SSH PTY stdin")
-                            }
-                            return true // Return true to prevent falling through to dummy local shell
+                        } else {
+                            false
                         }
-                        override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean = true
-                        override fun readControlKey(): Boolean = false
-                        override fun readAltKey(): Boolean = false
-                        override fun readShiftKey(): Boolean = false
-                        override fun readFnKey(): Boolean = false
-                        override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, session: TerminalSession?): Boolean {
-                            try {
-                                var cp = codePoint
-                                if (ctrlSticky.value) {
-                                    if (cp in 'a'.code..'z'.code) {
-                                        cp = cp - 'a'.code + 1
-                                    } else if (cp in 'A'.code..'Z'.code) {
-                                        cp = cp - 'A'.code + 1
-                                    } else if (cp == '['.code) {
-                                        cp = 27 // ESC
-                                    } else if (cp == ']'.code) {
-                                        cp = 29
-                                    } else if (cp == '\\'.code) {
-                                        cp = 28
-                                    } else if (cp == '^'.code) {
-                                        cp = 30
-                                    } else if (cp == '_'.code) {
-                                        cp = 31
-                                    }
-                                    ctrlSticky.value = false
+                    },
+                    factory = { context ->
+                        val terminalView = TerminalView(context, null)
+                        terminalView.setTextSize(currentFontSize)
+                        terminalView.layoutParams = FrameLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                        )
+                        terminalView.isFocusable = true
+                        terminalView.isFocusableInTouchMode = true
+
+                        terminalView.setTerminalViewClient(object : com.termux.view.TerminalViewClient {
+                            override fun onScale(scale: Float): Float = scale
+                            
+                            override fun onSingleTapUp(e: android.view.MotionEvent?) {
+                                if (terminalInputState == 0) {
+                                    terminalInputState = 1
+                                } else if (terminalInputState == 1) {
+                                    terminalInputState = 2
+                                } else {
+                                    terminalInputState = 0
                                 }
                                 
-                                val chars = Character.toChars(cp)
-                                val bytes = String(chars).toByteArray(Charsets.UTF_8)
-                                if (superSticky.value) superSticky.value = false
-                                if (menuSticky.value) menuSticky.value = false
-                                sendToTerminal(bytes)
-                                Log.d("TerminalScreen", "Wrote ${bytes.size} bytes (codePoint) to SSH PTY stdin")
-                            } catch (ex: Exception) {
-                                Log.e("TerminalScreen", "Failed to write codePoint to SSH PTY", ex)
+                                terminalView.requestFocus()
+                                val window = (context as? android.app.Activity)?.window
+                                if (terminalInputState != 0) {
+                                    if (window != null) {
+                                        val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, terminalView)
+                                        insetsController.show(androidx.core.view.WindowInsetsCompat.Type.ime())
+                                    } else {
+                                        val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                                        imm.showSoftInput(terminalView, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+                                    }
+                                } else {
+                                    if (window != null) {
+                                        val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, terminalView)
+                                        insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.ime())
+                                    } else {
+                                        val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                                        imm.hideSoftInputFromWindow(terminalView.windowToken, 0)
+                                    }
+                                }
                             }
-                            return true
-                        }
-                        override fun onLongPress(e: android.view.MotionEvent?): Boolean = false
-                        override fun onEmulatorSet() {}
-                        override fun logError(tag: String?, msg: String?) {}
-                        override fun logWarn(tag: String?, msg: String?) {}
-                        override fun logInfo(tag: String?, msg: String?) {}
-                        override fun logDebug(tag: String?, msg: String?) {}
-                        override fun logVerbose(tag: String?, msg: String?) {}
-                        override fun logStackTraceWithMessage(tag: String?, msg: String?, e: Exception?) {}
-                        override fun logStackTrace(tag: String?, e: Exception?) {}
-                    })
+                            
+                            override fun shouldBackButtonBeMappedToEscape(): Boolean = false
+                            override fun shouldEnforceCharBasedInput(): Boolean = false
+                            override fun shouldUseCtrlSpaceWorkaround(): Boolean = false
+                            override fun isTerminalViewSelected(): Boolean = true
+                            override fun copyModeChanged(b: Boolean) {}
+                            
+                            override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, session: TerminalSession?): Boolean {
+                                if (e?.action != android.view.KeyEvent.ACTION_DOWN) return false
+                                
+                                if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP) {
+                                    currentFontSize++
+                                    terminalView.setTextSize(currentFontSize)
+                                    return true
+                                }
+                                if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_DOWN) {
+                                    if (currentFontSize > 6) {
+                                        currentFontSize--
+                                        terminalView.setTextSize(currentFontSize)
+                                    }
+                                    return true
+                                }
 
-                    terminalView.attachSession(session)
-                    terminalViewRef = terminalView
-                    terminalView
-                }
-            )
+                                val bytesToSend = when (keyCode) {
+                                    android.view.KeyEvent.KEYCODE_ENTER -> "\r".toByteArray()
+                                    android.view.KeyEvent.KEYCODE_DEL -> byteArrayOf(0x7F)
+                                    android.view.KeyEvent.KEYCODE_TAB -> "\t".toByteArray()
+                                    android.view.KeyEvent.KEYCODE_DPAD_UP -> byteArrayOf(0x1B, '['.code.toByte(), 'A'.code.toByte())
+                                    android.view.KeyEvent.KEYCODE_DPAD_DOWN -> byteArrayOf(0x1B, '['.code.toByte(), 'B'.code.toByte())
+                                    android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> byteArrayOf(0x1B, '['.code.toByte(), 'C'.code.toByte())
+                                    android.view.KeyEvent.KEYCODE_DPAD_LEFT -> byteArrayOf(0x1B, '['.code.toByte(), 'D'.code.toByte())
+                                    else -> {
+                                        val unicodeChar = e.unicodeChar
+                                        if (unicodeChar != 0) {
+                                            String(Character.toChars(unicodeChar)).toByteArray(Charsets.UTF_8)
+                                        } else {
+                                            null
+                                        }
+                                    }
+                                }
+
+                                if (bytesToSend != null) {
+                                    if (ctrlSticky.value) ctrlSticky.value = false
+                                    if (superSticky.value) superSticky.value = false
+                                    if (menuSticky.value) menuSticky.value = false
+                                    sendToTerminal(bytesToSend)
+                                    Log.d("TerminalScreen", "Wrote ${bytesToSend.size} bytes (key: $keyCode) to SSH PTY stdin")
+                                }
+                                return true // Return true to prevent falling through to dummy local shell
+                            }
+                            override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean = true
+                            override fun readControlKey(): Boolean = false
+                            override fun readAltKey(): Boolean = false
+                            override fun readShiftKey(): Boolean = false
+                            override fun readFnKey(): Boolean = false
+                            override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, session: TerminalSession?): Boolean {
+                                try {
+                                    var cp = codePoint
+                                    if (ctrlSticky.value) {
+                                        if (cp in 'a'.code..'z'.code) {
+                                            cp = cp - 'a'.code + 1
+                                        } else if (cp in 'A'.code..'Z'.code) {
+                                            cp = cp - 'A'.code + 1
+                                        } else if (cp == '['.code) {
+                                            cp = 27 // ESC
+                                        } else if (cp == ']'.code) {
+                                            cp = 29
+                                        } else if (cp == '\\'.code) {
+                                            cp = 28
+                                        } else if (cp == '^'.code) {
+                                            cp = 30
+                                        } else if (cp == '_'.code) {
+                                            cp = 31
+                                        }
+                                        ctrlSticky.value = false
+                                    }
+                                    
+                                    val chars = Character.toChars(cp)
+                                    val bytes = String(chars).toByteArray(Charsets.UTF_8)
+                                    if (superSticky.value) superSticky.value = false
+                                    if (menuSticky.value) menuSticky.value = false
+                                    sendToTerminal(bytes)
+                                    Log.d("TerminalScreen", "Wrote ${bytes.size} bytes (codePoint) to SSH PTY stdin")
+                                } catch (ex: Exception) {
+                                    Log.e("TerminalScreen", "Failed to write codePoint to SSH PTY", ex)
+                                }
+                                return true
+                            }
+                            override fun onLongPress(e: android.view.MotionEvent?): Boolean = false
+                            override fun onEmulatorSet() {}
+                            override fun logError(tag: String?, msg: String?) {}
+                            override fun logWarn(tag: String?, msg: String?) {}
+                            override fun logInfo(tag: String?, msg: String?) {}
+                            override fun logDebug(tag: String?, msg: String?) {}
+                            override fun logVerbose(tag: String?, msg: String?) {}
+                            override fun logStackTraceWithMessage(tag: String?, msg: String?, e: Exception?) {}
+                            override fun logStackTrace(tag: String?, e: Exception?) {}
+                        })
+
+                        terminalView.attachSession(session)
+                        terminalViewRef = terminalView
+                        terminalView
+                    }
+                )
+            }
             
             if (terminalInputState != 0) {
                 TerminalOverlayButtons(

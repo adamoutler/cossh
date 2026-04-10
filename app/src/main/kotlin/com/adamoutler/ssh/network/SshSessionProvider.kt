@@ -13,6 +13,8 @@ object SshSessionProvider {
     var terminalSession: TerminalSession? = null
     var onScreenUpdated: (() -> Unit)? = null
     var getContext: (() -> android.content.Context?)? = null
+    var mockTestTranscript: String? = null
+    var isHeadlessTest: Boolean = false
 
     val terminalSessionClient = object : TerminalSessionClient {
         override fun onTextChanged(session: TerminalSession) {
