@@ -46,61 +46,14 @@ enum class TerminalInputState {
     NONE, KEYBOARD, KEYBOARD_AND_BUTTONS
 }
 
-fun createTerminalSessionClient(
-    onScreenUpdated: () -> Unit,
-    getContext: () -> android.content.Context?
-): TerminalSessionClient {
-    return object : TerminalSessionClient {
-        override fun onTextChanged(session: TerminalSession) {
-            onScreenUpdated()
-        }
-        override fun onTitleChanged(session: TerminalSession) {}
-        override fun onSessionFinished(session: TerminalSession) {}
-        override fun onCopyTextToClipboard(session: TerminalSession, text: String) {
-            val context = getContext() ?: return
-            val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-            val clip = android.content.ClipData.newPlainText("Terminal text", text.trimEnd())
-            clipboard.setPrimaryClip(clip)
-        }
-        override fun onPasteTextFromClipboard(session: TerminalSession) {}
-        override fun onBell(session: TerminalSession) {}
-        override fun onColorsChanged(session: TerminalSession) {}
-        override fun onTerminalCursorStateChange(state: Boolean) {}
-        override fun getTerminalCursorStyle(): Int = 0
-        override fun logError(tag: String?, msg: String?) {}
-        override fun logWarn(tag: String?, msg: String?) {}
-        override fun logInfo(tag: String?, msg: String?) {}
-        override fun logDebug(tag: String?, msg: String?) {}
-        override fun logVerbose(tag: String?, msg: String?) {}
-        override fun logStackTraceWithMessage(tag: String?, msg: String?, e: Exception?) {}
-        override fun logStackTrace(tag: String?, e: Exception?) {}
-    }
-}
-
 @Composable
 fun TerminalScreen(
     modifier: Modifier = Modifier,
-    initialText: String = "Welcome to CoSSH Terminal\r\n\u001B[32mANSI Color Support Active!\u001B[0m\r\n",
     onNavigateBack: () -> Unit = {}
 ) {
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
 
-    val session = remember {
-        val client = createTerminalSessionClient(
-            onScreenUpdated = { terminalViewRef?.onScreenUpdated() },
-            getContext = { terminalViewRef?.context }
-        )
-        
-        val dummySession = try {
-            val s = TerminalSession("/system/bin/sh", "/", arrayOf("-c", "cat"), arrayOf(), 100, client)
-            s
-        } catch (e: Throwable) {
-            null
-        }
-
-        dummySession?.emulator?.append(initialText.toByteArray(), initialText.length)
-        dummySession
-    }
+    val session = remember { SshSessionProvider.getOrCreateSession() }
 
     if (session == null) {
         Box(modifier = modifier.fillMaxSize().background(Color.Black).padding(4.dp)) {
@@ -114,13 +67,11 @@ fun TerminalScreen(
     }
 
     DisposableEffect(Unit) {
-        SshSessionProvider.onOutputReceived = { bytes, length ->
-            session.emulator?.append(bytes, length)
-            terminalViewRef?.onScreenUpdated()
-            Log.d("TerminalScreen", "Appended ${length} bytes from SSH PTY stdout")
-        }
+        SshSessionProvider.onScreenUpdated = { terminalViewRef?.onScreenUpdated() }
+        SshSessionProvider.getContext = { terminalViewRef?.context }
         onDispose {
-            SshSessionProvider.onOutputReceived = null
+            SshSessionProvider.onScreenUpdated = null
+            SshSessionProvider.getContext = null
         }
     }
 

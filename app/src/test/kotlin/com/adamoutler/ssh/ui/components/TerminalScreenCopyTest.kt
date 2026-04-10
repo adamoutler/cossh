@@ -19,10 +19,8 @@ class TerminalScreenCopyTest {
     fun testTerminalCopyTextStripsTrailingSpaces() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         
-        val client = createTerminalSessionClient(
-            onScreenUpdated = { },
-            getContext = { context }
-        )
+        com.adamoutler.ssh.network.SshSessionProvider.getContext = { context }
+        val client = com.adamoutler.ssh.network.SshSessionProvider.terminalSessionClient
         
         val dummySession = try {
             TerminalSession("/system/bin/sh", "/", arrayOf("-c", "cat"), arrayOf(), 100, client)

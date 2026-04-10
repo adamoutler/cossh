@@ -84,7 +84,9 @@ class SshService : Service() {
                             SshSessionProvider.ptyOutputStream = outStream
                         },
                         onOutput = { bytes, length ->
-                            SshSessionProvider.onOutputReceived?.invoke(bytes, length)
+                            val session = SshSessionProvider.getOrCreateSession()
+                            session?.emulator?.append(bytes, length)
+                            SshSessionProvider.onScreenUpdated?.invoke()
                         }
                     )
                 } else {
@@ -95,6 +97,7 @@ class SshService : Service() {
                 updateNotification("Connection failed")
             } finally {
                 SshSessionProvider.removeConnection(profileId)
+                SshSessionProvider.clearSession()
                 stopSelf()
             }
         }
