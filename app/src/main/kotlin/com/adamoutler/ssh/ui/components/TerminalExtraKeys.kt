@@ -2,9 +2,9 @@ package com.adamoutler.ssh.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun TerminalExtraKeys(
     ctrlActive: Boolean,
@@ -26,35 +27,48 @@ fun TerminalExtraKeys(
     onKeyPress: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val row1 = listOf("Esc", "Super", "Menu", "Up", "Tab", "Home", "PgUp", "Ins", "PrtSc")
-    val row2 = listOf("Ctrl", "Alt", "Left", "Down", "Right", "End", "PgDn", "Del", "Pause")
+    val page1Row1 = listOf("Esc", "Super", "Menu", "Up", "Tab", "Home")
+    val page1Row2 = listOf("Ctrl", "Alt", "Left", "Down", "Right", "End")
+    val page2Row1 = listOf("PgUp", "Ins", "PrtSc")
+    val page2Row2 = listOf("PgDn", "Del", "Pause")
 
-    Column(
+    val pagerState = rememberPagerState(pageCount = { 2 })
+
+    HorizontalPager(
+        state = pagerState,
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .background(Color(0xFF222222))
             .focusProperties { canFocus = false }
             .padding(4.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), 
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            row1.forEach { key ->
-                ExtraKeyButton(key, isActive(key, ctrlActive, altActive, superActive, menuActive)) {
-                    handleKey(key, onKeyToggle, onKeyPress)
+    ) { page ->
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                val items1 = if (page == 0) page1Row1 else page2Row1
+                items1.forEach { key ->
+                    ExtraKeyButton(key, isActive(key, ctrlActive, altActive, superActive, menuActive), Modifier.weight(1f)) {
+                        handleKey(key, onKeyToggle, onKeyPress)
+                    }
+                }
+                if (items1.size < 6) {
+                    repeat(6 - items1.size) {
+                        Spacer(modifier = Modifier.weight(1f).padding(horizontal = 2.dp))
+                    }
                 }
             }
-        }
-        Spacer(modifier = Modifier.height(4.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), 
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            row2.forEach { key ->
-                ExtraKeyButton(key, isActive(key, ctrlActive, altActive, superActive, menuActive)) {
-                    handleKey(key, onKeyToggle, onKeyPress)
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                val items2 = if (page == 0) page1Row2 else page2Row2
+                items2.forEach { key ->
+                    ExtraKeyButton(key, isActive(key, ctrlActive, altActive, superActive, menuActive), Modifier.weight(1f)) {
+                        handleKey(key, onKeyToggle, onKeyPress)
+                    }
+                }
+                if (items2.size < 6) {
+                    repeat(6 - items2.size) {
+                        Spacer(modifier = Modifier.weight(1f).padding(horizontal = 2.dp))
+                    }
                 }
             }
         }
@@ -80,20 +94,22 @@ private fun handleKey(key: String, onKeyToggle: (String) -> Unit, onKeyPress: (S
 }
 
 @Composable
-fun ExtraKeyButton(text: String, isActive: Boolean, onClick: () -> Unit) {
+fun ExtraKeyButton(text: String, isActive: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Box(
-        modifier = Modifier
+        modifier = modifier
+            .padding(horizontal = 2.dp)
+            .height(48.dp)
             .background(if (isActive) MaterialTheme.colorScheme.primary else Color(0xFF444444), shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp))
             .focusProperties { canFocus = false }
-            .clickable { onClick() }
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
             color = if (isActive) MaterialTheme.colorScheme.onPrimary else Color.White,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold
+            fontSize = 12.sp, // Slightly smaller text to fit
+            fontWeight = FontWeight.Bold,
+            maxLines = 1
         )
     }
 }
