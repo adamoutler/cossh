@@ -18,6 +18,7 @@ sshj = "0.38.0"
 slf4j = "2.0.12"
 sshd = "2.12.1"
 termuxTerminalView = "v0.118.0"
+testcontainers = "1.19.7"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -46,6 +47,7 @@ slf4j-nop = { group = "org.slf4j", name = "slf4j-nop", version.ref = "slf4j" }
 sshd-core = { group = "org.apache.sshd", name = "sshd-core", version.ref = "sshd" }
 termux-terminal-view = { group = "com.github.termux.termux-app", name = "terminal-view", version.ref = "termuxTerminalView" }
 termux-shared = { group = "com.github.termux.termux-app", name = "termux-shared", version.ref = "termuxTerminalView" }
+testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

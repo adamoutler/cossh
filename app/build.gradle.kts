@@ -83,6 +83,7 @@ dependencies {
     testImplementation(libs.sshd.core)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
+    testImplementation(libs.testcontainers)
     testImplementation("androidx.test:core:1.5.0")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
