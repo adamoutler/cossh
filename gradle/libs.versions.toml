@@ -19,6 +19,7 @@ slf4j = "2.0.12"
 sshd = "2.12.1"
 termuxTerminalView = "v0.118.0"
 testcontainers = "1.19.7"
+bouncycastle = "1.78.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -48,6 +49,7 @@ sshd-core = { group = "org.apache.sshd", name = "sshd-core", version.ref = "sshd
 termux-terminal-view = { group = "com.github.termux.termux-app", name = "terminal-view", version.ref = "termuxTerminalView" }
 termux-shared = { group = "com.github.termux.termux-app", name = "termux-shared", version.ref = "termuxTerminalView" }
 testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
+bouncycastle-prov = { group = "org.bouncycastle", name = "bcprov-jdk18on", version.ref = "bouncycastle" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

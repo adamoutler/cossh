@@ -81,6 +81,7 @@ dependencies {
     implementation(libs.slf4j.nop)
     implementation(libs.termux.terminal.view)
     implementation(libs.termux.shared)
+    implementation(libs.bouncycastle.prov)
     
     testImplementation(libs.junit)
     testImplementation(libs.sshd.core)
