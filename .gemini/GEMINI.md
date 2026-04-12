@@ -55,3 +55,6 @@ To prevent context fragmentation and ensure continuity, you MUST route informati
 - **Personal Notes & Syntheses (`mcp_joplin_notes_remember` tool):** Use Joplin to save detailed summaries, research findings, or broad architectural patterns if you want the human user to read them easily or if you need to reference them semantically later.
 - **Task Communication & QA (`mcp_kanban_update_ticket` tool):** ALL discussion, status updates, and notes intended for the `@reality-checker` or other agents regarding a specific task MUST be recorded directly as comments on the Kanban ticket.
 - **Hard Artifacts (`docs/qa/` and `app/src/test/snapshots/images/`):** Store raw logs, test outputs, and generated screenshots here. These are read-only proof artifacts, NOT communication channels.
+
+### 6. Validating
+- **Ending Development:** If you are running under "adamoutler" user, you should look for a connected `adb devices` with an IP and Port instead of a serial number.  If you see this, you should always install the app at the end of a development cycle.
