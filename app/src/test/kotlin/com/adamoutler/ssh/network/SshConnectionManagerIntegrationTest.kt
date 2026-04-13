@@ -42,7 +42,7 @@ class SshConnectionManagerIntegrationTest {
             username == testUser // Simplified for testing
         }
 
-        sshd.commandFactory = CommandFactory { channel, command ->
+        sshd.commandFactory = CommandFactory { _, command ->
             object : Command {
                 private var out: OutputStream? = null
                 private var exitCallback: org.apache.sshd.server.Environment? = null

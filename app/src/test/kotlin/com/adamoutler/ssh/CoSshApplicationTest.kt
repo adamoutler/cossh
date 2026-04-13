@@ -17,7 +17,6 @@ class CoSshApplicationTest {
 
     @Test
     fun testSecureCrashHandlerIsRegistered() {
-        val app = RuntimeEnvironment.getApplication() as CoSshApplication
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         assertTrue("SecureCrashHandler should be registered as default uncaught exception handler", defaultHandler is SecureCrashHandler)
     }
