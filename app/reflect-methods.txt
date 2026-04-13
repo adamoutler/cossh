@@ -10,7 +10,6 @@ logDebug | public abstract void com.termux.view.TerminalViewClient.logDebug(java
 logVerbose | public abstract void com.termux.view.TerminalViewClient.logVerbose(java.lang.String,java.lang.String)
 logStackTraceWithMessage | public abstract void com.termux.view.TerminalViewClient.logStackTraceWithMessage(java.lang.String,java.lang.String,java.lang.Exception)
 logStackTrace | public abstract void com.termux.view.TerminalViewClient.logStackTrace(java.lang.String,java.lang.Exception)
-onScale | public abstract float com.termux.view.TerminalViewClient.onScale(float)
 shouldEnforceCharBasedInput | public abstract boolean com.termux.view.TerminalViewClient.shouldEnforceCharBasedInput()
 shouldUseCtrlSpaceWorkaround | public abstract boolean com.termux.view.TerminalViewClient.shouldUseCtrlSpaceWorkaround()
 isTerminalViewSelected | public abstract boolean com.termux.view.TerminalViewClient.isTerminalViewSelected()
@@ -22,3 +21,4 @@ readFnKey | public abstract boolean com.termux.view.TerminalViewClient.readFnKey
 onCodePoint | public abstract boolean com.termux.view.TerminalViewClient.onCodePoint(int,boolean,com.termux.terminal.TerminalSession)
 onEmulatorSet | public abstract void com.termux.view.TerminalViewClient.onEmulatorSet()
 shouldBackButtonBeMappedToEscape | public abstract boolean com.termux.view.TerminalViewClient.shouldBackButtonBeMappedToEscape()
+onScale | public abstract float com.termux.view.TerminalViewClient.onScale(float)
