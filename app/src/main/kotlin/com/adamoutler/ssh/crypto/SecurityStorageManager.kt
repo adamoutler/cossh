@@ -42,27 +42,32 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
         }
     }
 
+    private fun decryptPassword(base64EncryptedPwd: String?): ByteArray? {
+        if (base64EncryptedPwd == null) return null
+        val encryptedBytes = java.util.Base64.getDecoder().decode(base64EncryptedPwd)
+        return PasswordCipher.decrypt(encryptedBytes)
+    }
+
     fun saveProfile(profile: ConnectionProfile) {
         val jsonString = Json.encodeToString(profile)
-        encryptedPrefs.edit().putString(profile.id, jsonString).apply()
+        val editor = encryptedPrefs.edit()
+        editor.putString(profile.id, jsonString)
         
         if (profile.password != null) {
             val encryptedPassword = PasswordCipher.encrypt(profile.password!!)
-            encryptedPrefs.edit().putString("${profile.id}_pwd", java.util.Base64.getEncoder().encodeToString(encryptedPassword)).apply()
+            val base64Password = java.util.Base64.getEncoder().encodeToString(encryptedPassword)
+            editor.putString("${profile.id}_pwd", base64Password)
         } else {
-            encryptedPrefs.edit().remove("${profile.id}_pwd").apply()
+            editor.remove("${profile.id}_pwd")
         }
+        editor.apply()
     }
 
     fun getProfile(id: String): ConnectionProfile? {
         val jsonString = encryptedPrefs.getString(id, null) ?: return null
         return try {
             val profile = Json.decodeFromString<ConnectionProfile>(jsonString)
-            val pwdString = encryptedPrefs.getString("${id}_pwd", null)
-            if (pwdString != null) {
-                val encryptedPassword = java.util.Base64.getDecoder().decode(pwdString)
-                profile.password = PasswordCipher.decrypt(encryptedPassword)
-            }
+            profile.password = decryptPassword(encryptedPrefs.getString("${id}_pwd", null))
             profile
         } catch (e: kotlinx.serialization.SerializationException) {
             android.util.Log.e("SecurityStorageManager", "Failed to deserialize profile", e)
@@ -76,14 +81,11 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
     fun getAllProfiles(): List<ConnectionProfile> {
         val profiles = mutableListOf<ConnectionProfile>()
         for ((key, value) in encryptedPrefs.all) {
-            if (value is String && !key.endsWith("_pwd")) {
+            // Skip password entries and key entries
+            if (value is String && !key.endsWith("_pwd") && !key.startsWith("key_")) {
                 try {
                     val profile = Json.decodeFromString<ConnectionProfile>(value)
-                    val pwdString = encryptedPrefs.getString("${profile.id}_pwd", null)
-                    if (pwdString != null) {
-                        val encryptedPassword = java.util.Base64.getDecoder().decode(pwdString)
-                        profile.password = PasswordCipher.decrypt(encryptedPassword)
-                    }
+                    profile.password = decryptPassword(encryptedPrefs.getString("${profile.id}_pwd", null))
                     profiles.add(profile)
                 } catch (e: kotlinx.serialization.SerializationException) {
                     android.util.Log.e("SecurityStorageManager", "Failed to deserialize profile during list generation", e)
