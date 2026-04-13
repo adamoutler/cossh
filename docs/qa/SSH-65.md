@@ -1,97 +1,48 @@
-app/src/main/kotlin/com/adamoutler/ssh/security/GEMINI.md
-app/src/main/kotlin/com/adamoutler/ssh/data/GEMINI.md
-app/src/main/kotlin/com/adamoutler/ssh/network/GEMINI.md
-app/src/main/kotlin/com/adamoutler/ssh/ui/GEMINI.md
-app/src/main/kotlin/com/adamoutler/ssh/backup/GEMINI.md
-app/src/main/kotlin/com/adamoutler/ssh/crypto/GEMINI.md
-diff --git a/app/reflect-methods.txt b/app/reflect-methods.txt
-index fbbaa08..ef7c9d7 100644
---- a/app/reflect-methods.txt
-+++ b/app/reflect-methods.txt
-@@ -10,11 +10,6 @@ logDebug | public abstract void com.termux.view.TerminalViewClient.logDebug(java
- logVerbose | public abstract void com.termux.view.TerminalViewClient.logVerbose(java.lang.String,java.lang.String)
- logStackTraceWithMessage | public abstract void com.termux.view.TerminalViewClient.logStackTraceWithMessage(java.lang.String,java.lang.String,java.lang.Exception)
- logStackTrace | public abstract void com.termux.view.TerminalViewClient.logStackTrace(java.lang.String,java.lang.Exception)
--shouldBackButtonBeMappedToEscape | public abstract boolean com.termux.view.TerminalViewClient.shouldBackButtonBeMappedToEscape()
--onScale | public abstract float com.termux.view.TerminalViewClient.onScale(float)
--shouldEnforceCharBasedInput | public abstract boolean com.termux.view.TerminalViewClient.shouldEnforceCharBasedInput()
--isTerminalViewSelected | public abstract boolean com.termux.view.TerminalViewClient.isTerminalViewSelected()
--shouldUseCtrlSpaceWorkaround | public abstract boolean com.termux.view.TerminalViewClient.shouldUseCtrlSpaceWorkaround()
- copyModeChanged | public abstract void com.termux.view.TerminalViewClient.copyModeChanged(boolean)
- readControlKey | public abstract boolean com.termux.view.TerminalViewClient.readControlKey()
- readAltKey | public abstract boolean com.termux.view.TerminalViewClient.readAltKey()
-@@ -22,3 +17,8 @@ readShiftKey | public abstract boolean com.termux.view.TerminalViewClient.readSh
- readFnKey | public abstract boolean com.termux.view.TerminalViewClient.readFnKey()
- onCodePoint | public abstract boolean com.termux.view.TerminalViewClient.onCodePoint(int,boolean,com.termux.terminal.TerminalSession)
- onEmulatorSet | public abstract void com.termux.view.TerminalViewClient.onEmulatorSet()
-+shouldBackButtonBeMappedToEscape | public abstract boolean com.termux.view.TerminalViewClient.shouldBackButtonBeMappedToEscape()
-+onScale | public abstract float com.termux.view.TerminalViewClient.onScale(float)
-+shouldEnforceCharBasedInput | public abstract boolean com.termux.view.TerminalViewClient.shouldEnforceCharBasedInput()
-+shouldUseCtrlSpaceWorkaround | public abstract boolean com.termux.view.TerminalViewClient.shouldUseCtrlSpaceWorkaround()
-+isTerminalViewSelected | public abstract boolean com.termux.view.TerminalViewClient.isTerminalViewSelected()
-diff --git a/app/src/main/kotlin/com/adamoutler/ssh/crypto/SecurityStorageManager.kt b/app/src/main/kotlin/com/adamoutler/ssh/crypto/SecurityStorageManager.kt
-index c6babc1..8e7bf32 100644
---- a/app/src/main/kotlin/com/adamoutler/ssh/crypto/SecurityStorageManager.kt
-+++ b/app/src/main/kotlin/com/adamoutler/ssh/crypto/SecurityStorageManager.kt
-@@ -42,27 +42,32 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
-         }
-     }
- 
-+    private fun decryptPassword(base64EncryptedPwd: String?): ByteArray? {
-+        if (base64EncryptedPwd == null) return null
-+        val encryptedBytes = java.util.Base64.getDecoder().decode(base64EncryptedPwd)
-+        return PasswordCipher.decrypt(encryptedBytes)
-+    }
-+
-     fun saveProfile(profile: ConnectionProfile) {
-         val jsonString = Json.encodeToString(profile)
--        encryptedPrefs.edit().putString(profile.id, jsonString).apply()
-+        val editor = encryptedPrefs.edit()
-+        editor.putString(profile.id, jsonString)
-         
-         if (profile.password != null) {
-             val encryptedPassword = PasswordCipher.encrypt(profile.password!!)
--            encryptedPrefs.edit().putString("${profile.id}_pwd", java.util.Base64.getEncoder().encodeToString(encryptedPassword)).apply()
-+            val base64Password = java.util.Base64.getEncoder().encodeToString(encryptedPassword)
-+            editor.putString("${profile.id}_pwd", base64Password)
-         } else {
--            encryptedPrefs.edit().remove("${profile.id}_pwd").apply()
-+            editor.remove("${profile.id}_pwd")
-         }
-+        editor.apply()
-     }
- 
-     fun getProfile(id: String): ConnectionProfile? {
-         val jsonString = encryptedPrefs.getString(id, null) ?: return null
-         return try {
-             val profile = Json.decodeFromString<ConnectionProfile>(jsonString)
--            val pwdString = encryptedPrefs.getString("${id}_pwd", null)
--            if (pwdString != null) {
--                val encryptedPassword = java.util.Base64.getDecoder().decode(pwdString)
--                profile.password = PasswordCipher.decrypt(encryptedPassword)
--            }
-+            profile.password = decryptPassword(encryptedPrefs.getString("${id}_pwd", null))
-             profile
-         } catch (e: kotlinx.serialization.SerializationException) {
-             android.util.Log.e("SecurityStorageManager", "Failed to deserialize profile", e)
-@@ -76,14 +81,11 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
-     fun getAllProfiles(): List<ConnectionProfile> {
-         val profiles = mutableListOf<ConnectionProfile>()
-         for ((key, value) in encryptedPrefs.all) {
--            if (value is String && !key.endsWith("_pwd")) {
-+            // Skip password entries and key entries
-+            if (value is String && !key.endsWith("_pwd") && !key.startsWith("key_")) {
-                 try {
-                     val profile = Json.decodeFromString<ConnectionProfile>(value)
--                    val pwdString = encryptedPrefs.getString("${profile.id}_pwd", null)
--                    if (pwdString != null) {
--                        val encryptedPassword = java.util.Base64.getDecoder().decode(pwdString)
--                        profile.password = PasswordCipher.decrypt(encryptedPassword)
--                    }
-+                    profile.password = decryptPassword(encryptedPrefs.getString("${profile.id}_pwd", null))
-                     profiles.add(profile)
-                 } catch (e: kotlinx.serialization.SerializationException) {
-                     android.util.Log.e("SecurityStorageManager", "Failed to deserialize profile during list generation", e)
+> Task :app:clean
+> Task :app:checkKotlinGradlePluginConfigurationErrors
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig
+> Task :app:generateDebugResValues
+> Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugMainManifest
+> Task :app:mergeDebugResources
+> Task :app:processDebugManifest
+> Task :app:javaPreCompileDebug
+> Task :app:preparePaparazziDebugResources
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+> Task :app:packageDebugUnitTestForUnitTest
+> Task :app:generateDebugUnitTestConfig
+> Task :app:compileDebugKotlin
+> Task :app:compileDebugJavaWithJavac
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:processDebugJavaRes
+
+> Task :app:compileDebugUnitTestKotlin
+w: file:///home/adamoutler/git/ssh/app/src/test/kotlin/com/adamoutler/ssh/CoSshApplicationTest.kt:20:13 Variable 'app' is never used
+w: file:///home/adamoutler/git/ssh/app/src/test/kotlin/com/adamoutler/ssh/network/SshConnectionManagerIntegrationTest.kt:45:48 Parameter 'channel' is never used, could be renamed to _
+
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes
+> Task :app:testDebugUnitTest
+See the Paparazzi report at: file:///home/adamoutler/git/ssh/app/build/reports/paparazzi/debug/index.html
+
+BUILD SUCCESSFUL in 49s
+31 actionable tasks: 31 executed
 > Task :app:checkKotlinGradlePluginConfigurationErrors
 > Task :app:preBuild UP-TO-DATE
 > Task :app:preDebugBuild UP-TO-DATE
@@ -127,43 +78,45 @@ index c6babc1..8e7bf32 100644
 > Task :app:generateDebugUnitTestConfig UP-TO-DATE
 > Task :app:processDebugJavaRes UP-TO-DATE
 > Task :app:processDebugUnitTestJavaRes UP-TO-DATE
-> Task :app:testDebugUnitTest UP-TO-DATE
-> Task :app:buildKotlinToolingMetadata UP-TO-DATE
-> Task :app:preReleaseBuild UP-TO-DATE
-> Task :app:generateReleaseBuildConfig UP-TO-DATE
-> Task :app:checkReleaseAarMetadata UP-TO-DATE
-> Task :app:generateReleaseResValues UP-TO-DATE
-> Task :app:mapReleaseSourceSetPaths UP-TO-DATE
-> Task :app:generateReleaseResources UP-TO-DATE
-> Task :app:mergeReleaseResources UP-TO-DATE
-> Task :app:packageReleaseResources UP-TO-DATE
-> Task :app:parseReleaseLocalResources UP-TO-DATE
-> Task :app:createReleaseCompatibleScreenManifests UP-TO-DATE
-> Task :app:extractDeepLinksRelease UP-TO-DATE
-> Task :app:processReleaseMainManifest UP-TO-DATE
-> Task :app:processReleaseManifest UP-TO-DATE
-> Task :app:processReleaseManifestForPackage UP-TO-DATE
-> Task :app:processReleaseResources UP-TO-DATE
-> Task :app:compileReleaseKotlin UP-TO-DATE
-> Task :app:javaPreCompileRelease UP-TO-DATE
-> Task :app:compileReleaseJavaWithJavac UP-TO-DATE
-> Task :app:bundleReleaseClassesToRuntimeJar UP-TO-DATE
-> Task :app:bundleReleaseClassesToCompileJar UP-TO-DATE
-> Task :app:preparePaparazziReleaseResources UP-TO-DATE
-> Task :app:compileReleaseUnitTestKotlin UP-TO-DATE
-> Task :app:preReleaseUnitTestBuild UP-TO-DATE
-> Task :app:javaPreCompileReleaseUnitTest UP-TO-DATE
-> Task :app:compileReleaseUnitTestJavaWithJavac NO-SOURCE
-> Task :app:mergeReleaseShaders UP-TO-DATE
-> Task :app:compileReleaseShaders NO-SOURCE
-> Task :app:generateReleaseAssets UP-TO-DATE
-> Task :app:mergeReleaseAssets UP-TO-DATE
-> Task :app:packageReleaseUnitTestForUnitTest UP-TO-DATE
-> Task :app:generateReleaseUnitTestConfig UP-TO-DATE
-> Task :app:processReleaseJavaRes UP-TO-DATE
-> Task :app:processReleaseUnitTestJavaRes UP-TO-DATE
-> Task :app:testReleaseUnitTest UP-TO-DATE
-> Task :app:test UP-TO-DATE
+> Task :app:testDebugUnitTest
+See the Paparazzi report at: file:///home/adamoutler/git/ssh/app/build/reports/paparazzi/debug/index.html
 
-BUILD SUCCESSFUL in 1s
-60 actionable tasks: 1 executed, 59 up-to-date
+> Task :app:verifyPaparazziDebug
+
+BUILD SUCCESSFUL in 31s
+30 actionable tasks: 2 executed, 28 up-to-date
+Paparazzi Visual Proof (Screenshots verifying connection list UI):
+2213f5270c8b592212a4590f8b144f048f93ad38.png
+26391bf7bb406d369d93263204a663e31780af9c.png
+285a4fb84a85dc43467d33834fc46877f94beca4.png
+354d7ce4f8da855067eb1934da4137837b9ddbf0.png
+47462ab36ad835b9a0940be4060ce56fe4e86e9a.png
+48de65767f9dc85c1a68619d94fb289f8c4a410c.png
+4a5d247592047494bcba0b8cecdd0e0b398420f6.png
+84c97bf323935948f47d6c1ce9e9d6d187a78f50.png
+85be0c9eb3b9bfb6593cfb1dca07b608fad3716e.png
+92336b1ce55e1e2156acf42f08160233416d9613.png
+9b72c9a3144d35e95657a373c2f8fd0debe1b03a.png
+9c30b1c889a60b19c72f1aeaaf965c2d170f3c78.png
+a346073aa0c2443e26be7f914a743c92698cd60d.png
+c6e78e7957066fc859cda3a27cd18f24ff798aa9.png
+com.adamoutler.ssh.network_NotificationScreenshotTest_testForegroundNotification.png
+com.adamoutler.ssh_PlaceholderScreenScreenshotTest_defaultScreen.png
+com.adamoutler.ssh.ui.components_TerminalExtraKeysScreenshotTest_page1_noModifiers.png
+com.adamoutler.ssh.ui.components_TerminalExtraKeysScreenshotTest_page1_withModifiers.png
+com.adamoutler.ssh.ui.components_TerminalScreenDialogScreenshotTest_keepAliveDialogScreen.png
+com.adamoutler.ssh.ui.components_TerminalScreenOverlayScreenshotTest_overlayButtonsVisible.png
+com.adamoutler.ssh.ui.components_TerminalScreenResumeScreenshotTest_terminalShowsPersistedHistoryOnResume.png
+com.adamoutler.ssh.ui.keys_KeyManagementScreenScreenshotTest_defaultScreen.png
+com.adamoutler.ssh.ui.keys_KeyManagementScreenScreenshotTest_screenWithGeneratedKey.png
+com.adamoutler.ssh.ui.screens_AddEditProfileScreenScreenshotTest_defaultScreenKeyAuth.png
+com.adamoutler.ssh.ui.screens_AddEditProfileScreenScreenshotTest_defaultScreenPasswordAuth.png
+com.adamoutler.ssh.ui.screens_ConnectionListScreenScreenshotTest_activeConnectionBadgeScreen.png
+com.adamoutler.ssh.ui.screens_ConnectionListScreenScreenshotTest_defaultScreen.png
+com.adamoutler.ssh.ui.screens_ConnectionListScreenScreenshotTest_draggedConnectionItemScreen.png
+com.adamoutler.ssh.ui.screens_ConnectionListScreenScreenshotTest_menuExpandedScreen.png
+dbfefdadefc857622360fb960ecbe1d71c99e333.png
+e5c7019e8655398ede91e0119f00c2e21b3d5c72.png
+f4802355d015a7d0a65b7ab529902ee47394e5eb.png
+ff5954d9cdc2da23f099e0f3f7c9dc9418c7c81d.png
+live_terminal_actual.png
