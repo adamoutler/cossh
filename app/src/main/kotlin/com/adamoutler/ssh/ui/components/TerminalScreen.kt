@@ -108,6 +108,17 @@ fun TerminalScreen(
     var showKeepAliveDialog by remember { mutableStateOf(false) }
     val activeConnections by SshSessionProvider.activeConnections.collectAsState()
     val isConnectionActive = activeConnections.isNotEmpty()
+    var wasActive by remember { mutableStateOf(false) }
+    var showDisconnectedOverlay by remember { mutableStateOf(false) }
+
+    androidx.compose.runtime.LaunchedEffect(isConnectionActive) {
+        if (isConnectionActive) {
+            wasActive = true
+            showDisconnectedOverlay = false
+        } else if (wasActive) {
+            showDisconnectedOverlay = true
+        }
+    }
 
     androidx.activity.compose.BackHandler(enabled = true) {
         if (terminalInputState != 0) {
@@ -159,17 +170,38 @@ fun TerminalScreen(
         )
     }
 
-    val sendToTerminal: (ByteArray) -> Unit = { bytes ->
-        try {
-            var finalBytes = bytes
-            if (altSticky.value && bytes.size == 1) {
-                finalBytes = byteArrayOf(0x1B) + finalBytes
-                altSticky.value = false
+    if (showDisconnectedOverlay) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { 
+                showDisconnectedOverlay = false
+                onNavigateBack()
+            },
+            title = { Text("Session Disconnected") },
+            text = { Text("The SSH session has ended or the connection was lost.") },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    showDisconnectedOverlay = false
+                    onNavigateBack()
+                }) { Text("OK") }
             }
-            SshSessionProvider.ptyOutputStream?.write(finalBytes)
-            SshSessionProvider.ptyOutputStream?.flush()
-        } catch (ex: Exception) {
-            Log.e("TerminalScreen", "Failed to write to SSH PTY", ex)
+        )
+    }
+
+    val sendToTerminal: (ByteArray) -> Unit = { bytes ->
+        if (showDisconnectedOverlay) {
+            Log.d("TerminalScreen", "Input locked: session disconnected.")
+        } else {
+            try {
+                var finalBytes = bytes
+                if (altSticky.value && bytes.size == 1) {
+                    finalBytes = byteArrayOf(0x1B) + finalBytes
+                    altSticky.value = false
+                }
+                SshSessionProvider.ptyOutputStream?.write(finalBytes)
+                SshSessionProvider.ptyOutputStream?.flush()
+            } catch (ex: Exception) {
+                Log.e("TerminalScreen", "Failed to write to SSH PTY", ex)
+            }
         }
     }
 
