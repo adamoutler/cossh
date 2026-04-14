@@ -92,10 +92,18 @@ fun TerminalScreen(
     // - Note: Tapping does NOT hide the keyboard (never goes back to State 0).
     //         Only the Android Back button transitions to State 0 and hides the keyboard.
     var terminalInputState by remember { mutableStateOf(0) }
+    var showOverlayButtons by remember { mutableStateOf(false) }
     val ctrlSticky = remember { mutableStateOf(false) }
     val altSticky = remember { mutableStateOf(false) }
     val superSticky = remember { mutableStateOf(false) }
     val menuSticky = remember { mutableStateOf(false) }
+
+    androidx.compose.runtime.LaunchedEffect(showOverlayButtons) {
+        if (showOverlayButtons) {
+            kotlinx.coroutines.delay(3000)
+            showOverlayButtons = false
+        }
+    }
 
     var showKeepAliveDialog by remember { mutableStateOf(false) }
     val activeConnections by SshSessionProvider.activeConnections.collectAsState()
@@ -220,6 +228,7 @@ fun TerminalScreen(
                             override fun onScale(scale: Float): Float = scale
                             
                             override fun onSingleTapUp(e: android.view.MotionEvent?) {
+                                showOverlayButtons = true
                                 if (terminalInputState == 0) {
                                     terminalInputState = 1
                                 } else if (terminalInputState == 1) {
@@ -374,7 +383,11 @@ fun TerminalScreen(
                 )
             }
             
-            if (terminalInputState != 0) {
+            androidx.compose.animation.AnimatedVisibility(
+                visible = showOverlayButtons,
+                enter = androidx.compose.animation.fadeIn(),
+                exit = androidx.compose.animation.fadeOut()
+            ) {
                 TerminalOverlayButtons(
                     onBackground = { onNavigateBack() },
                     onTerminate = {
