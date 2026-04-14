@@ -16,6 +16,12 @@ import java.io.File
 class CoSshApplicationTest {
 
     @Test
+    fun testBouncyCastleProviderIsRegistered() {
+        val provider = java.security.Security.getProviders()[0]
+        assertTrue("BouncyCastleProvider should be registered at position 1", provider is org.bouncycastle.jce.provider.BouncyCastleProvider)
+    }
+
+    @Test
     fun testSecureCrashHandlerIsRegistered() {
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         assertTrue("SecureCrashHandler should be registered as default uncaught exception handler", defaultHandler is SecureCrashHandler)
