@@ -22,6 +22,27 @@ class TerminalScreenDialogScreenshotTest {
     )
 
     @Test
+    fun sessionDisconnectedDialogScreen() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    AlertDialog(
+                        onDismissRequest = { },
+                        title = { Text("Session Disconnected") },
+                        text = { Text("The SSH session has ended or the connection was lost.") },
+                        confirmButton = {
+                            TextButton(onClick = { }) { Text("OK") }
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
     fun keepAliveDialogScreen() {
         paparazzi.snapshot {
             CoSSHTheme {

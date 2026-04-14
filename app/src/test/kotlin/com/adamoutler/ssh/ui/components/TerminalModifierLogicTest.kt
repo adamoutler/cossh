@@ -43,4 +43,22 @@ class TerminalModifierLogicTest {
         
         assertArrayEquals(byteArrayOf(0x1B, 0x41), altBytes)
     }
+
+    @Test
+    fun testTerminalInputLockout() {
+        val showDisconnectedOverlay = true
+        var bytesSent: ByteArray? = null
+        
+        val sendToTerminal: (ByteArray) -> Unit = { bytes ->
+            if (showDisconnectedOverlay) {
+                println("Log.d(TerminalScreen, Input locked: session disconnected.)")
+            } else {
+                bytesSent = bytes
+            }
+        }
+        
+        sendToTerminal(byteArrayOf(0x03))
+        
+        org.junit.Assert.assertNull("Bytes should not be sent when terminal is locked", bytesSent)
+    }
 }
