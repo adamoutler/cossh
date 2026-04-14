@@ -80,7 +80,7 @@ class SshConnectionManager(
         profile: ConnectionProfile,
         keyPair: KeyPair? = null,
         onOutput: (ByteArray, Int) -> Unit,
-        onConnect: (java.io.OutputStream) -> Unit
+        onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell) -> Unit
     ) = withContext(Dispatchers.IO) {
         val client = SSHClient(net.schmizz.sshj.AndroidConfig())
         client.connectTimeout = 10000
@@ -126,7 +126,7 @@ class SshConnectionManager(
                 session.allocateDefaultPTY()
                 val shell = session.startShell()
                 
-                onConnect(shell.outputStream)
+                onConnect(shell.outputStream, shell)
 
                 val buffer = ByteArray(4096)
                 var read: Int

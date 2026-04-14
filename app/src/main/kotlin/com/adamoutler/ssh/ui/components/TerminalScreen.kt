@@ -9,6 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -162,7 +167,11 @@ fun TerminalScreen(
 
     var currentFontSize by remember { mutableStateOf(14) }
 
-    androidx.compose.foundation.layout.Column(modifier = modifier.fillMaxSize().imePadding()) {
+    androidx.compose.foundation.layout.Column(
+        modifier = modifier
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.navigationBars))
+    ) {
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             val isHeadlessTest = SshSessionProvider.isHeadlessTest
             if (isHeadlessTest) {
@@ -198,6 +207,7 @@ fun TerminalScreen(
                     },
                     factory = { context ->
                         val terminalView = TerminalView(context, null)
+                        terminalView.setBackgroundColor(android.graphics.Color.BLACK)
                         terminalView.setTextSize(currentFontSize)
                         terminalView.layoutParams = FrameLayout.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -336,6 +346,26 @@ fun TerminalScreen(
                             override fun logStackTraceWithMessage(tag: String?, msg: String?, e: Exception?) {}
                             override fun logStackTrace(tag: String?, e: Exception?) {}
                         })
+
+                        var lastCols = -1
+                        var lastRows = -1
+                        terminalView.viewTreeObserver.addOnPreDrawListener {
+                            val emulator = session.emulator
+                            if (emulator != null) {
+                                val cols = emulator.mColumns
+                                val rows = emulator.mRows
+                                if (cols != lastCols || rows != lastRows) {
+                                    lastCols = cols
+                                    lastRows = rows
+                                    try {
+                                        SshSessionProvider.activeSshSession?.changeWindowDimensions(cols, rows, terminalView.width, terminalView.height)
+                                    } catch (e: Exception) {
+                                        Log.e("TerminalScreen", "Failed to send SIGWINCH", e)
+                                    }
+                                }
+                            }
+                            true
+                        }
 
                         terminalView.attachSession(session)
                         terminalViewRef = terminalView

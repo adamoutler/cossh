@@ -9,6 +9,7 @@ import com.termux.terminal.TerminalSessionClient
 
 object SshSessionProvider {
     var ptyOutputStream: OutputStream? = null
+    var activeSshSession: net.schmizz.sshj.connection.channel.direct.Session.Shell? = null
     
     var terminalSession: TerminalSession? = null
     var onScreenUpdated: (() -> Unit)? = null
@@ -60,7 +61,7 @@ object SshSessionProvider {
     fun getOrCreateSession(): TerminalSession? {
         if (terminalSession == null) {
             terminalSession = try {
-                val session = TerminalSession("/system/bin/cat", "/", arrayOf(), arrayOf("TERM=xterm-256color"), 100, terminalSessionClient)
+                val session = TerminalSession("/system/bin/sh", "/", arrayOf("-c", "cat"), arrayOf("TERM=xterm-256color"), 100, terminalSessionClient)
                 val initialText = "Welcome to CoSSH Terminal\r\n\u001B[32mANSI Color Support Active!\u001B[0m\r\n"
                 session.emulator?.append(initialText.toByteArray(), initialText.length)
                 session

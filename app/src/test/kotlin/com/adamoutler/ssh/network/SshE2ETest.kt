@@ -67,7 +67,7 @@ class SshE2ETest {
         val job1 = launch(Dispatchers.IO) {
             manager.connectPty(
                 profile = profile,
-                onConnect = { outStream ->
+                onConnect = { outStream, _ ->
                     Thread {
                         Thread.sleep(2000) // Wait for shell to be ready
                         outStream.write("echo 'Hello Multi-Session' > /config/testfile.txt\n".toByteArray())
@@ -109,7 +109,7 @@ class SshE2ETest {
         val job2 = launch(Dispatchers.IO) {
             manager.connectPty(
                 profile = profile2,
-                onConnect = { outStream ->
+                onConnect = { outStream, _ ->
                     Thread {
                         Thread.sleep(2000) // Wait for shell
                         outStream.write("cat /config/testfile.txt\n".toByteArray())

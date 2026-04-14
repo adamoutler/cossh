@@ -80,8 +80,9 @@ class SshService : Service() {
                     
                     sshManager?.connectPty(
                         profile = profile,
-                        onConnect = { outStream ->
+                        onConnect = { outStream, session ->
                             SshSessionProvider.ptyOutputStream = outStream
+                            SshSessionProvider.activeSshSession = session
                         },
                         onOutput = { bytes, length ->
                             val session = SshSessionProvider.getOrCreateSession()
@@ -97,6 +98,7 @@ class SshService : Service() {
                 updateNotification("Connection failed")
             } finally {
                 SshSessionProvider.removeConnection(profileId)
+                SshSessionProvider.activeSshSession = null
                 SshSessionProvider.clearSession()
                 stopSelf()
             }

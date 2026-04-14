@@ -108,7 +108,7 @@ class SshPtyIntegrationTest {
         val job = launch(Dispatchers.IO) {
             manager.connectPty(
                 profile = profile,
-                onConnect = { outStream ->
+                onConnect = { outStream, _ ->
                     SshSessionProvider.ptyOutputStream = outStream
                     // Simulate UI typing
                     Thread {
