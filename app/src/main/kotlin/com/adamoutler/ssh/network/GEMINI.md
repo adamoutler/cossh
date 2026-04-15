@@ -13,3 +13,8 @@ This module provides the SSH protocol implementation and manages the connection 
 
 ## Dependents
 - **ui:** The Terminal screen and Connection List screen depend on the network module to display live output, accept input, and show connection statuses.
+
+## Testing Standards
+- **Real User Journeys:** Testing must reflect real user journeys and ViewModel integration where applicable, rather than fully isolated mock component testing.
+- **Integration Testing:** Mandate integration tests for SSH session lifecycles.
+- **Realistic Environments:** Tests must use real or robustly simulated containers to verify network operations and connection handling accurately.

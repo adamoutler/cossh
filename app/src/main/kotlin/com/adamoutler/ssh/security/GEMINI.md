@@ -12,3 +12,7 @@ This module implements system-wide hardening and defensive measures against data
 
 ## Dependents
 - **Application Scope (`CoSshApplication`):** The main application class depends on this module to set up global crash handlers at startup.
+
+## Testing Standards
+- **Real User Journeys:** Testing must reflect real user journeys and ViewModel integration where applicable, rather than fully isolated mock component testing.
+- **Realistic Contexts:** Security measures, such as crash handling and volatile state sanitization, must be verified in realistic application contexts and scenarios.

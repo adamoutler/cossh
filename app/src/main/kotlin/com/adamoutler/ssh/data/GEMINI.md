@@ -15,3 +15,7 @@ This module defines the core data models and state definitions for CoSSH.
 - **crypto:** Secures the data models using encryption.
 - **network:** Consumes the connection data to establish SSH sessions.
 - **ui:** Displays the connection data in the user interface.
+
+## Testing Standards
+- **Real User Journeys:** Testing must reflect real user journeys and ViewModel integration, rather than fully isolated mock component testing.
+- **Serialization Flows:** Data models must be tested in conjunction with their serialization and deserialization processes in realistic flows.

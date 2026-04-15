@@ -15,3 +15,8 @@ This module contains security-critical operations including key storage, encrypt
 - **backup:** Uses crypto utilities to secure exported archives.
 - **network:** Retrieves keys and credentials to establish SSH connections.
 - **ui:** Requests profile data and key generation from this module.
+
+## Testing Standards
+- **Real User Journeys:** Testing must reflect real user journeys and ViewModel integration where applicable, rather than fully isolated mock component testing.
+- **Encryption Testing:** Mandate encryption testing under real conditions, avoiding over-reliance on mocks for cryptographic operations.
+- **Keystore Fallbacks:** Mandate robust testing of Keystore fallbacks to ensure security invariants are maintained even when hardware-backed keystores fail or act unpredictably.

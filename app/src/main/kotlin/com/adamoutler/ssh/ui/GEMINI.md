@@ -15,3 +15,9 @@ This module contains the Jetpack Compose visual layer of CoSSH.
 
 ## Dependents
 - **Application Entry Point (`MainActivity`):** The main activity depends on the UI module to host the navigation graph and root composable screens.
+
+## Testing Standards
+- **Real User Journeys:** Testing must reflect real user journeys rather than fully isolated mock component testing.
+- **ViewModel Integration:** Tests must involve the ViewModel and verify its integration with the UI components.
+- **State Management:** Tests must actively handle and assert state changes within the application.
+- **User Story Mapping:** Every test must map directly to a defined User Story to ensure functional requirements are met.
