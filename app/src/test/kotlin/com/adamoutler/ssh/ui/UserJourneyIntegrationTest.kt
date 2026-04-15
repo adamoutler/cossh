@@ -32,12 +32,23 @@ class UserJourneyIntegrationTest {
 
     private fun saveScreenshot(filename: String) {
         try {
-            // Give time for compose to settle
+            // Need to allow the rendering to happen on the main thread
             ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-            
+            composeTestRule.waitForIdle()
+
             val view = (composeTestRule.onRoot().fetchSemanticsNode().root as androidx.compose.ui.platform.ViewRootForTest).view
+            
+            // Force measure and layout to prevent blank screenshots in Robolectric
+            view.measure(
+                android.view.View.MeasureSpec.makeMeasureSpec(1080, android.view.View.MeasureSpec.EXACTLY),
+                android.view.View.MeasureSpec.makeMeasureSpec(1920, android.view.View.MeasureSpec.EXACTLY)
+            )
+            view.layout(0, 0, view.measuredWidth, view.measuredHeight)
+
             val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
             val canvas = android.graphics.Canvas(bitmap)
+            // Fill with a background color just in case the root view is transparent
+            canvas.drawColor(android.graphics.Color.WHITE)
             view.draw(canvas)
             
             val file = File("src/test/snapshots/images/$filename")
@@ -52,11 +63,13 @@ class UserJourneyIntegrationTest {
 
     @Test
     fun testUserJourney_AddProfileAndSeeInList() {
-        // Wait for MainActivity initial render
+        // We DO NOT call setContent here because MainActivity already does it!
+
+        // Wait for initial render
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
         composeTestRule.waitForIdle()
 
-        // Capture State 1: Initial Empty Screen (which might have default profiles or be empty)
+        // Capture State 1: Initial Empty Form
         saveScreenshot("com.adamoutler.ssh.ui_UserJourneyIntegrationTest_step1_InitialEmptyForm_1_initialemptyform.png")
 
         // 1. Click Add Connection FAB
