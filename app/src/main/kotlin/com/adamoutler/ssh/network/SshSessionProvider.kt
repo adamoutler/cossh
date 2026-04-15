@@ -59,6 +59,7 @@ object SshSessionProvider {
     }
 
     fun getOrCreateSession(): TerminalSession? {
+        if (isHeadlessTest) return null
         if (terminalSession == null) {
             terminalSession = try {
                 val session = TerminalSession("/system/bin/sh", "/", arrayOf("-c", "cat"), arrayOf("TERM=xterm-256color"), 100, terminalSessionClient)

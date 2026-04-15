@@ -18,6 +18,10 @@ import org.junit.Test
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Files
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 
 class SshConnectionManagerIntegrationTest {
 
@@ -99,6 +103,11 @@ class SshConnectionManagerIntegrationTest {
 
         assertEquals("CoSSH_Test\n", output)
     }
+
+
+
+
+
 
     @Test
     fun testHeadlessPasswordConnectionFailsAndClearsMemory() = runBlocking {

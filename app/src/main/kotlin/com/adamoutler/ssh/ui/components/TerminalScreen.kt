@@ -39,6 +39,8 @@ import com.adamoutler.ssh.network.SshSessionProvider
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalView
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 import java.lang.Exception
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -187,20 +189,24 @@ fun TerminalScreen(
         )
     }
 
+    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
+
     val sendToTerminal: (ByteArray) -> Unit = { bytes ->
         if (showDisconnectedOverlay) {
             Log.d("TerminalScreen", "Input locked: session disconnected.")
         } else {
-            try {
-                var finalBytes = bytes
-                if (altSticky.value && bytes.size == 1) {
-                    finalBytes = byteArrayOf(0x1B) + finalBytes
-                    altSticky.value = false
+            coroutineScope.launch(Dispatchers.IO) {
+                try {
+                    var finalBytes = bytes
+                    if (altSticky.value && bytes.size == 1) {
+                        finalBytes = byteArrayOf(0x1B) + finalBytes
+                        altSticky.value = false
+                    }
+                    SshSessionProvider.ptyOutputStream?.write(finalBytes)
+                    SshSessionProvider.ptyOutputStream?.flush()
+                } catch (ex: Exception) {
+                    Log.e("TerminalScreen", "Failed to write to SSH PTY", ex)
                 }
-                SshSessionProvider.ptyOutputStream?.write(finalBytes)
-                SshSessionProvider.ptyOutputStream?.flush()
-            } catch (ex: Exception) {
-                Log.e("TerminalScreen", "Failed to write to SSH PTY", ex)
             }
         }
     }

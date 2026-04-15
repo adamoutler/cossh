@@ -18,6 +18,7 @@ class TerminalSessionPersistenceTest {
 
     @Before
     fun setup() {
+        SshSessionProvider.isHeadlessTest = false
         SshSessionProvider.clearSession()
     }
 
