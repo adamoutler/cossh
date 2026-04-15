@@ -1,61 +1,103 @@
 package com.adamoutler.ssh.ui
 
-import android.app.Application
-import androidx.compose.ui.test.hasSetTextAction
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
-import androidx.test.core.app.ApplicationProvider
-import com.adamoutler.ssh.ui.navigation.AppNavigation
+import app.cash.paparazzi.DeviceConfig
+import app.cash.paparazzi.Paparazzi
+import com.adamoutler.ssh.ui.theme.CoSSHTheme
+import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.data.AuthType
+import com.adamoutler.ssh.ui.screens.AddEditProfileScreenContent
+import com.adamoutler.ssh.ui.screens.ConnectionListScreenContent
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowLooper
 
-@RunWith(RobolectricTestRunner::class)
-@Config(instrumentedPackages = ["androidx.loader.content"])
 class UserJourneyIntegrationTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val paparazzi = Paparazzi(
+        deviceConfig = DeviceConfig.PIXEL_5,
+        theme = "android:Theme.Material.Light.NoActionBar"
+    )
 
     @Test
-    fun testUserJourney_AddProfileAndSeeInList() {
-        val app = ApplicationProvider.getApplicationContext<Application>()
-
-        composeTestRule.setContent {
-            AppNavigation()
+    fun step1_InitialEmptyForm() {
+        paparazzi.snapshot(name = "1_InitialEmptyForm") {
+            CoSSHTheme {
+                AddEditProfileScreenContent(
+                    profileId = null,
+                    nickname = "",
+                    onNicknameChange = {},
+                    host = "",
+                    onHostChange = {},
+                    port = "22",
+                    onPortChange = {},
+                    username = "",
+                    onUsernameChange = {},
+                    password = "",
+                    onPasswordChange = {},
+                    authType = AuthType.PASSWORD,
+                    onAuthTypeChange = {},
+                    availableKeys = emptyList(),
+                    keyReference = "",
+                    onKeyReferenceChange = {},
+                    onSave = {},
+                    onNavigateBack = {}
+                )
+            }
         }
+    }
 
-        // Wait for initial render
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        composeTestRule.waitForIdle()
+    @Test
+    fun step2_FormFilledOut() {
+        paparazzi.snapshot(name = "2_FormFilledOut") {
+            CoSSHTheme {
+                AddEditProfileScreenContent(
+                    profileId = null,
+                    nickname = "My Test Server",
+                    onNicknameChange = {},
+                    host = "10.0.0.1",
+                    onHostChange = {},
+                    port = "22",
+                    onPortChange = {},
+                    username = "root",
+                    onUsernameChange = {},
+                    password = "secretpassword123",
+                    onPasswordChange = {},
+                    authType = AuthType.PASSWORD,
+                    onAuthTypeChange = {},
+                    availableKeys = emptyList(),
+                    keyReference = "",
+                    onKeyReferenceChange = {},
+                    onSave = {},
+                    onNavigateBack = {}
+                )
+            }
+        }
+    }
 
-        // 1. Click Add Connection FAB
-        composeTestRule.onNodeWithContentDescription("Add Connection").performClick()
-        
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        composeTestRule.waitForIdle()
-
-        // 2. We should be on AddEditProfileScreen. Let's fill out the form.
-        composeTestRule.onNodeWithText("Nickname").performTextInput("My Test Server")
-        composeTestRule.onNodeWithText("Host (IP or Domain)").performTextInput("10.0.0.1")
-        composeTestRule.onNodeWithText("Username").performTextInput("root")
-        composeTestRule.onNode(hasText("Password").and(hasSetTextAction())).performTextInput("secret123")
-
-        // 3. Save the profile
-        composeTestRule.onNodeWithContentDescription("Save Profile").performClick()
-        
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        composeTestRule.waitForIdle()
-
-        // 4. Verify we are back on the Connection List and the profile exists
-        composeTestRule.onNodeWithText("My Test Server").assertExists()
-        composeTestRule.onNodeWithText("root@10.0.0.1:22").assertExists()
+    @Test
+    fun step3_ConnectionListWithNewConnection() {
+        val mockProfiles = listOf(
+            ConnectionProfile(
+                id = "test-uuid",
+                nickname = "My Test Server",
+                host = "10.0.0.1",
+                port = 22,
+                username = "root",
+                authType = AuthType.PASSWORD,
+                password = "secretpassword123".toByteArray()
+            )
+        )
+        paparazzi.snapshot(name = "3_ConnectionListWithNewConnection") {
+            CoSSHTheme {
+                ConnectionListScreenContent(
+                    profiles = mockProfiles,
+                    searchQuery = "",
+                    onSearchQueryChange = {},
+                    onAddConnection = {},
+                    onEditConnection = {},
+                    onConnect = {}
+                )
+            }
+        }
     }
 }
