@@ -1,22 +1,24 @@
-# Crypto Module
+# Crypto Module (`com.adamoutler.ssh.crypto`)
 
-This module contains security-critical operations including key storage, encryption, and key generation. It acts as the backbone of CoSSH's security invariants.
+This module is the security core of CoSSH, managing key storage, encryption, and secure data persistence.
 
-## Functionality
-- Integrates with the Android Keystore for secure key management.
-- Persists and manages connection profiles using `SecurityStorageManager`.
-- Generates SSH keys (e.g., RSA, ED25519) used for secure authentication.
-- Implements encryption and decryption routines for volatile state and persistent storage.
+## Package Responsibility
+The crypto package implements the application's security invariants. It provides secure storage for connection profiles, encrypts sensitive fields (like passwords) that are explicitly excluded from standard serialization, and generates SSH keys for authentication. It utilizes a layered encryption approach (JSON blob + separate encrypted passwords) and includes robust fallback mechanisms for hardware-backed security (StrongBox).
+
+## Core Components
+- **`SecurityStorageManager`**: Primary manager for encrypted storage of connection profiles using Android's `EncryptedSharedPreferences`.
+- **`PasswordCipher`**: Provides low-level AES-GCM encryption for passwords, backed by the Android Keystore.
+- **`SSHKeyGenerator`**: Handles the generation of RSA-4096 and Ed25519 SSH key pairs.
 
 ## Dependencies
-- **data:** Operates on `ConnectionProfile` and other models that require encryption or secure storage.
+- **`com.adamoutler.ssh.data`**: Operates on `ConnectionProfile` models.
+- **Android Security Crypto**: Relies on `androidx.security.crypto` for `EncryptedSharedPreferences`.
+- **Kotlinx Serialization**: Used for converting models to JSON before encryption.
 
 ## Dependents
-- **backup:** Uses crypto utilities to secure exported archives.
-- **network:** Retrieves keys and credentials to establish SSH connections.
-- **ui:** Requests profile data and key generation from this module.
+- **`com.adamoutler.ssh.ui`**: Uses `SecurityStorageManager` for profile persistence (e.g., `AddEditProfileViewModel`).
+- **`com.adamoutler.ssh.backup`**: Uses `SecurityStorageManager` for reading/writing profiles during export/import.
+- **`com.adamoutler.ssh.network`**: Retrieves credentials and generated keys to establish SSH connections.
 
-## Testing Standards
-- **Real User Journeys:** Testing must reflect real user journeys and ViewModel integration where applicable, rather than fully isolated mock component testing.
-- **Encryption Testing:** Mandate encryption testing under real conditions, avoiding over-reliance on mocks for cryptographic operations.
-- **Keystore Fallbacks:** Mandate robust testing of Keystore fallbacks to ensure security invariants are maintained even when hardware-backed keystores fail or act unpredictably.
+## Testing Context
+Encryption testing must be performed under real conditions. Avoid over-reliance on mocks for cryptographic operations. Mandate robust testing of Keystore fallbacks to ensure security invariants are maintained even when hardware-backed keystores fail.

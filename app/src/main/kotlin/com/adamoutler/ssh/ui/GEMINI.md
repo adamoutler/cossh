@@ -1,23 +1,24 @@
-# UI Module
+# UI Module (`com.adamoutler.ssh.ui`)
 
-This module contains the Jetpack Compose visual layer of CoSSH.
+This module contains the Jetpack Compose visual layer and presentation logic of CoSSH.
 
-## Functionality
-- Renders the "cobalt-blue" aesthetic and standard user screens (ConnectionList, Terminal, Keys, Add/Edit Profile).
-- Handles user interactions, navigation, and visual state management.
-- Presents dialogs, menus, and bottom sheets for the application.
+## Package Responsibility
+The UI package renders the application's "cobalt-blue" aesthetic and manages user interactions following the MVVM pattern. It is responsible for navigation, dialog presentation, and bridging user actions to the underlying business logic (network, crypto, backup).
+
+## Core Structure
+- **`navigation/AppNavigation`**: Defines the entry point and routes for all composable screens.
+- **`screens/`**: Contains the primary Views and ViewModels (e.g., `ConnectionListViewModel`, `AddEditProfileViewModel`, `TerminalScreen`).
+- **`events/UiEventBus`**: Implements a decoupled event system for handling one-time UI actions (snackbars, navigation triggers) asynchronously.
+- **`theme/` & `components/`**: Manages visual styling, colors, and reusable UI widgets.
 
 ## Dependencies
-- **data:** Displays and edits connection profiles and keys.
-- **network:** Sends user input to active SSH sessions and displays terminal output.
-- **crypto:** Calls storage and key generation methods.
-- **backup:** Triggers backup export and import flows.
+- **`com.adamoutler.ssh.data`**: Consumes models to display and edit profiles and keys.
+- **`com.adamoutler.ssh.network`**: Reads connection states and terminal output; sends user keystrokes.
+- **`com.adamoutler.ssh.crypto`**: Triggers storage saving and key generation.
+- **`com.adamoutler.ssh.backup`**: Initiates export and import flows.
 
 ## Dependents
-- **Application Entry Point (`MainActivity`):** The main activity depends on the UI module to host the navigation graph and root composable screens.
+- **`com.adamoutler.ssh` (Root)**: The `MainActivity` hosts the navigation graph defined in this package.
 
-## Testing Standards
-- **Real User Journeys:** Testing must reflect real user journeys rather than fully isolated mock component testing.
-- **ViewModel Integration:** Tests must involve the ViewModel and verify its integration with the UI components.
-- **State Management:** Tests must actively handle and assert state changes within the application.
-- **User Story Mapping:** Every test must map directly to a defined User Story to ensure functional requirements are met.
+## Testing Context
+Testing must reflect real user journeys rather than fully isolated mock component testing. Every UI test must map directly to a defined User Story. Tests must involve the ViewModel, verify integration with UI components, and actively handle and assert state changes.

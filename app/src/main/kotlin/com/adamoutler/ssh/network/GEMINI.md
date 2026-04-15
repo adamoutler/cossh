@@ -1,20 +1,22 @@
-# Network Module
+# Network Module (`com.adamoutler.ssh.network`)
 
-This module provides the SSH protocol implementation and manages the connection lifecycle.
+This module is the core engine for SSH connectivity and terminal session management.
 
-## Functionality
-- Manages SSH session lifecycles including connecting, maintaining, and disconnecting sessions.
-- Runs the `SshService` to keep connections alive in the background when necessary.
-- Provisions SSH sessions and ensures network timeouts and limits are strictly adhered to.
+## Package Responsibility
+The network package manages SSH session lifecycles, authenticates users (Password and RSA/ED25519 Keys), and provides the PTY streams necessary for the terminal emulator. It ensures connections persist in the background via Android Services and enforces strict network timeout security invariants (10s default).
+
+## Core Components
+- **`SshConnectionManager`**: A functional wrapper for the `sshj` library that handles connecting, authenticating, and managing PTY sessions.
+- **`SshService`**: An Android Foreground Service that ensures SSH connections persist even when the app is backgrounded. It bridges the remote output to the local terminal emulator.
+- **`SshSessionProvider`**: A singleton state broker connecting the background `SshService` to the Jetpack Compose `TerminalScreen`. It holds the `TerminalSession` and the PTY `OutputStream`.
 
 ## Dependencies
-- **data:** Uses `ConnectionProfile` to determine connection targets and parameters.
-- **crypto:** Uses credentials and generated keys from the crypto module for authentication.
+- **`com.adamoutler.ssh.data`**: Uses `ConnectionProfile` to determine connection targets.
+- **`com.adamoutler.ssh.crypto`**: Uses credentials and generated keys for authentication.
+- **External Libraries**: Heavibly relies on `com.hierynomus:sshj` (protocol), `com.github.termux.termux-app:terminal-view` (emulation), and `org.bouncycastle:bcprov-jdk18on` (crypto).
 
 ## Dependents
-- **ui:** The Terminal screen and Connection List screen depend on the network module to display live output, accept input, and show connection statuses.
+- **`com.adamoutler.ssh.ui`**: `TerminalScreen` and `ConnectionListScreen` depend on this package to initiate connections, monitor status, and read/write to the interactive terminal.
 
-## Testing Standards
-- **Real User Journeys:** Testing must reflect real user journeys and ViewModel integration where applicable, rather than fully isolated mock component testing.
-- **Integration Testing:** Mandate integration tests for SSH session lifecycles.
-- **Realistic Environments:** Tests must use real or robustly simulated containers to verify network operations and connection handling accurately.
+## Testing Context
+Integration tests for SSH session lifecycles are mandatory. Tests must use real or robustly simulated containers to verify network operations and connection handling accurately.
