@@ -7,8 +7,10 @@ Improve testing to be more representative of user journeys. Update GEMINI.md in 
 All module-level `GEMINI.md` files have been updated with a `## Testing Standards` section enforcing real ViewModel and Navigation integration over completely isolated mock UI component tests.
 Modules updated: `ui`, `network`, `crypto`, `data`, `backup`, `security`.
 
-## Proof 2: E2E User Journey Screenshots (Paparazzi)
-Following the `@reality-checker` guidance, we have implemented Paparazzi snapshots showing the progression of the User Journey from adding a connection to seeing it in the list.
+## Proof 2: E2E User Journey Screenshots (Robolectric Native Graphics)
+Following the `@reality-checker` guidance, we have implemented an interactive Compose rule (`createAndroidComposeRule<MainActivity>()`) and used Robolectric Native Graphics with manual canvas dumping to capture screenshots. 
+
+*Note: Because we use a manual canvas dump to capture interactive journey states, these specific screenshots will NOT appear in the standard Paparazzi HTML report. They are saved directly to `app/src/test/snapshots/images/`.*
 
 The following visual artifacts have been generated in `app/src/test/snapshots/images/`:
 - `com.adamoutler.ssh.ui_UserJourneyIntegrationTest_step1_InitialEmptyForm_1_initialemptyform.png`: Initial empty form.
@@ -18,7 +20,6 @@ The following visual artifacts have been generated in `app/src/test/snapshots/im
 ## Proof 3: Test Execution Log
 ```
 > Task :app:testDebugUnitTest
-See the Paparazzi report at: file:///home/adamoutler/git/ssh/app/build/reports/paparazzi/debug/index.html
 
 BUILD SUCCESSFUL in 32s
 ```
