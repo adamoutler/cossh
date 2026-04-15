@@ -30,15 +30,16 @@ class UserJourneyIntegrationTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
+    private fun settleUI() {
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        composeTestRule.mainClock.advanceTimeBy(1000)
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+    }
+
     private fun saveScreenshot(filename: String) {
         try {
-            // Need to allow the rendering to happen on the main thread
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-            composeTestRule.waitForIdle()
-
+            settleUI()
             val view = (composeTestRule.onRoot().fetchSemanticsNode().root as androidx.compose.ui.platform.ViewRootForTest).view
-            
-            // Force measure and layout to prevent blank screenshots in Robolectric
             view.measure(
                 android.view.View.MeasureSpec.makeMeasureSpec(1080, android.view.View.MeasureSpec.EXACTLY),
                 android.view.View.MeasureSpec.makeMeasureSpec(1920, android.view.View.MeasureSpec.EXACTLY)
@@ -47,7 +48,6 @@ class UserJourneyIntegrationTest {
 
             val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
             val canvas = android.graphics.Canvas(bitmap)
-            // Fill with a background color just in case the root view is transparent
             canvas.drawColor(android.graphics.Color.WHITE)
             view.draw(canvas)
             
@@ -63,11 +63,9 @@ class UserJourneyIntegrationTest {
 
     @Test
     fun testUserJourney_AddProfileAndSeeInList() {
-        // We DO NOT call setContent here because MainActivity already does it!
+        composeTestRule.mainClock.autoAdvance = false
 
-        // Wait for initial render
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        composeTestRule.waitForIdle()
+        settleUI()
 
         // Capture State 1: Initial Empty Form
         saveScreenshot("com.adamoutler.ssh.ui_UserJourneyIntegrationTest_step1_InitialEmptyForm_1_initialemptyform.png")
@@ -75,8 +73,7 @@ class UserJourneyIntegrationTest {
         // 1. Click Add Connection FAB
         composeTestRule.onNodeWithContentDescription("Add Connection").performClick()
         
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        composeTestRule.waitForIdle()
+        settleUI()
 
         // 2. Fill out the form
         composeTestRule.onNodeWithText("Nickname").performTextInput("My Test Server")
@@ -84,9 +81,7 @@ class UserJourneyIntegrationTest {
         composeTestRule.onNodeWithText("Username").performTextInput("root")
         composeTestRule.onNode(hasText("Password").and(hasSetTextAction())).performTextInput("secret123")
 
-        // Wait for inputs to settle
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        composeTestRule.waitForIdle()
+        settleUI()
 
         // Capture State 2: Form Filled Out
         saveScreenshot("com.adamoutler.ssh.ui_UserJourneyIntegrationTest_step2_FormFilledOut_2_formfilledout.png")
@@ -94,8 +89,7 @@ class UserJourneyIntegrationTest {
         // 3. Save the profile
         composeTestRule.onNodeWithContentDescription("Save Profile").performClick()
         
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        composeTestRule.waitForIdle()
+        settleUI()
 
         // 4. Verify we are back on the Connection List and the profile exists
         composeTestRule.onNodeWithText("My Test Server").assertExists()

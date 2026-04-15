@@ -40,9 +40,18 @@ fun ConnectionListScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     val activeConnections by com.adamoutler.ssh.network.SshSessionProvider.activeConnections.collectAsState()
     val context = LocalContext.current
+    val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
 
-    LaunchedEffect(Unit) {
-        viewModel.loadProfiles()
+    DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                viewModel.loadProfiles()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     var pendingExportUri by remember { mutableStateOf<Uri?>(null) }
