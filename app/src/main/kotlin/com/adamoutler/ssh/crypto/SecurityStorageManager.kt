@@ -60,7 +60,7 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
         } else {
             editor.remove("${profile.id}_pwd")
         }
-        editor.apply()
+        editor.commit() // Synchronous to ensure disk write completes immediately for test reliability
     }
 
     fun getProfile(id: String): ConnectionProfile? {

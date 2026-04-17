@@ -38,15 +38,16 @@ class ConnectionListViewModel(
     fun loadProfiles() {
         launchWithHandler {
             if (com.adamoutler.ssh.BuildConfig.DEBUG && storageManager.getAllProfiles().isEmpty()) {
+                // Troubleshooting profile: 192.168.1.115 — port 32222 is SSH, port 32223 is HTTP health check
                 val testProfile = ConnectionProfile(
                     id = "default_test_profile",
-                    nickname = "Test Connection (test.rebex.net)",
-                    host = "test.rebex.net",
-                    username = "demo",
+                    nickname = "Troubleshooting (192.168.1.115)",
+                    host = "192.168.1.115",
+                    username = "test",
                     authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
-                    port = 22
+                    port = 32222
                 ).apply {
-                    password = "password".toByteArray()
+                    password = "test".toByteArray()
                 }
                 storageManager.saveProfile(testProfile)
             }

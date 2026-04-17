@@ -28,13 +28,13 @@
 > Task :app:generateDebugAndroidTestResources UP-TO-DATE
 > Task :app:mergeDebugAndroidTestResources UP-TO-DATE
 > Task :app:processDebugAndroidTestResources UP-TO-DATE
-> Task :app:compileDebugAndroidTestKotlin UP-TO-DATE
 > Task :app:javaPreCompileDebugAndroidTest UP-TO-DATE
-> Task :app:compileDebugAndroidTestJavaWithJavac UP-TO-DATE
 > Task :app:mergeDebugShaders UP-TO-DATE
 > Task :app:compileDebugShaders NO-SOURCE
 > Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:compileDebugAndroidTestKotlin
 > Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compileDebugAndroidTestJavaWithJavac UP-TO-DATE
 > Task :app:compressDebugAssets UP-TO-DATE
 > Task :app:desugarDebugFileDependencies UP-TO-DATE
 > Task :app:dexBuilderDebug UP-TO-DATE
@@ -60,44 +60,38 @@
 > Task :app:mergeDebugAndroidTestAssets UP-TO-DATE
 > Task :app:compressDebugAndroidTestAssets UP-TO-DATE
 > Task :app:desugarDebugAndroidTestFileDependencies UP-TO-DATE
-> Task :app:dexBuilderDebugAndroidTest UP-TO-DATE
+> Task :app:dexBuilderDebugAndroidTest
 > Task :app:mergeDebugAndroidTestGlobalSynthetics UP-TO-DATE
 > Task :app:processDebugAndroidTestJavaRes UP-TO-DATE
 > Task :app:mergeDebugAndroidTestJavaResource UP-TO-DATE
 > Task :app:checkDebugAndroidTestDuplicateClasses UP-TO-DATE
 > Task :app:mergeExtDexDebugAndroidTest UP-TO-DATE
 > Task :app:mergeLibDexDebugAndroidTest UP-TO-DATE
-> Task :app:mergeProjectDexDebugAndroidTest UP-TO-DATE
 > Task :app:mergeDebugAndroidTestJniLibFolders UP-TO-DATE
 > Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
 > Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
 > Task :app:validateSigningDebugAndroidTest UP-TO-DATE
 > Task :app:writeDebugAndroidTestSigningConfigVersions UP-TO-DATE
-> Task :app:packageDebugAndroidTest UP-TO-DATE
+> Task :app:mergeProjectDexDebugAndroidTest
+> Task :app:packageDebugAndroidTest
 > Task :app:createDebugAndroidTestApkListingFileRedirect UP-TO-DATE
 
 > Task :app:connectedDebugAndroidTest
-Skipping device 'emulator-5554' (emulator-5554): Device is OFFLINE.
-Starting 4 tests on Pixel 10 Pro Fold - 16
+Starting 1 tests on Pixel 10 Pro Fold - 16
 
-com.adamoutler.ssh.ui.components.TerminalScreenInstrumentedTest > testBackPressWhenKeyboardHiddenNavigatesBack[Pixel 10 Pro Fold - 16] [31mFAILED [0m
-	java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.lang.RuntimeException: java.lang.NoSuchMethodException: android.hardware.input.InputManager.getInstance []
-	at androidx.test.espresso.Espresso.onIdle(Espresso.java:18)
+Pixel 10 Pro Fold - 16 Tests 0/1 completed. (0 skipped) (0 failed)
 
-com.adamoutler.ssh.ui.components.TerminalScreenInstrumentedTest > testKeepAliveDialogFlow[Pixel 10 Pro Fold - 16] [31mFAILED [0m
-	java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.lang.RuntimeException: java.lang.NoSuchMethodException: android.hardware.input.InputManager.getInstance []
-	at androidx.test.espresso.Espresso.onIdle(Espresso.java:18)
+> Task :app:connectedDebugAndroidTest
 
-com.adamoutler.ssh.ui.components.TerminalScreenInstrumentedTest > testBackPressNavigatesBackWhenConnectionDrops[Pixel 10 Pro Fold - 16] [31mFAILED [0m
-	java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.lang.RuntimeException: java.lang.NoSuchMethodException: android.hardware.input.InputManager.getInstance []
-	at androidx.test.espresso.Espresso.onIdle(Espresso.java:18)
+com.adamoutler.ssh.ConnectionCrashTest > testConnectionAndDataTransmission[Pixel 10 Pro Fold - 16] [31mFAILED [0m
+	java.lang.AssertionError: SSH Connection should be established
+	at org.junit.Assert.fail(Assert.java:89)
 
-com.adamoutler.ssh.ui.components.TerminalScreenInstrumentedTest > testFloatingOverlayButtons[Pixel 10 Pro Fold - 16] [31mFAILED [0m
-	java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.lang.RuntimeException: java.lang.NoSuchMethodException: android.hardware.input.InputManager.getInstance []
-	at androidx.test.espresso.Espresso.onIdle(Espresso.java:18)
-Tests on Pixel 10 Pro Fold - 16 failed: There was 4 failure(s).
+Pixel 10 Pro Fold - 16 Tests 1/1 completed. (0 skipped) (1 failed)
+Finished 1 tests on Pixel 10 Pro Fold - 16
 
-Finished 4 tests on Pixel 10 Pro Fold - 16
+> Task :app:connectedDebugAndroidTest
+Tests on Pixel 10 Pro Fold - 16 failed: There was 1 failure(s).
 
 > Task :app:connectedDebugAndroidTest FAILED
 
@@ -113,5 +107,5 @@ Execution failed for task ':app:connectedDebugAndroidTest'.
 > Run with --scan to get full insights.
 > Get more help at https://help.gradle.org.
 
-BUILD FAILED in 16s
-69 actionable tasks: 2 executed, 67 up-to-date
+BUILD FAILED in 42s
+69 actionable tasks: 6 executed, 63 up-to-date

@@ -17,7 +17,7 @@ robolectric = "4.12.1"
 sshj = "0.38.0"
 slf4j = "2.0.12"
 sshd = "2.12.1"
-termuxTerminalView = "v0.118.0"
+termuxTerminalView = "v0.118.3"
 testcontainers = "1.19.7"
 bouncycastle = "1.78.1"
 

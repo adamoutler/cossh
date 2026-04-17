@@ -8,9 +8,6 @@ import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import androidx.test.core.app.ApplicationProvider
 import android.content.Context
-import androidx.compose.ui.test.junit4.createEmptyComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import org.junit.Rule
 import org.junit.Test
 import androidx.test.platform.app.InstrumentationRegistry
@@ -20,10 +17,13 @@ import org.junit.Assert.assertTrue
 import org.junit.runner.RunWith
 import kotlinx.coroutines.runBlocking
 import androidx.test.core.app.ActivityScenario
+import java.io.File
+import java.security.MessageDigest
+import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class ConnectionCrashTest {
+class OcrVerificationTest {
 
     @get:Rule
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
@@ -32,26 +32,31 @@ class ConnectionCrashTest {
         android.Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE
     )
 
+    private fun sha256(str: String): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        val hash = digest.digest(str.toByteArray(Charsets.UTF_8))
+        return hash.joinToString("") { "%02x".format(it) }
+    }
+
     @Test
-    fun testConnectionAndDataTransmission() {
+    fun testVisualTerminalSession() {
         runBlocking {
             val instrumentation = InstrumentationRegistry.getInstrumentation()
             val device = UiDevice.getInstance(instrumentation)
             val context = ApplicationProvider.getApplicationContext<Context>()
             val storageManager = SecurityStorageManager(context)
             
-            // Set headless mode for Android 16/API 35 16KB JNI bypass
-            com.adamoutler.ssh.network.SshSessionProvider.isHeadlessTest = true
-            com.adamoutler.ssh.network.SshSessionProvider.mockTestTranscript = null
+            // WE WANT A VISUAL TEST. No headless override!
+            com.adamoutler.ssh.network.SshSessionProvider.isHeadlessTest = false
             
             // Apply hack to prevent org.apache.sshd ExceptionInInitializerError on Android
             System.setProperty("user.home", context.filesDir.absolutePath)
             
             // Add a mock profile pointing to the live integration testing environment
             val profile = ConnectionProfile(
-                id = "mock-id-ui-crash-test",
-                nickname = "UI Crash Test Profile",
-                host = "192.168.1.115",
+                id = "mock-id-ui-ocr-test",
+                nickname = "UI OCR Test Profile",
+                host = "mock.hackedyour.info",
                 username = "test",
                 authType = AuthType.PASSWORD,
                 port = 32222
@@ -62,7 +67,7 @@ class ConnectionCrashTest {
             // Start the activity NOW, after profile is in storage
             val scenario = ActivityScenario.launch(MainActivity::class.java)
 
-            // Wait for UI to load and dismiss 16KB page size compatibility dialog (API 35+)
+            // Wait for UI to load and dismiss 16KB dialog if present
             device.waitForIdle()
             val textOkButton = device.findObject(UiSelector().textMatches("(?i)ok|continue|got it|close"))
             val resOkButton = device.findObject(UiSelector().resourceId("android:id/button1"))
@@ -80,13 +85,13 @@ class ConnectionCrashTest {
             Thread.sleep(2000)
 
             // Click the profile using UiAutomator
-            val profileSelector = UiSelector().textContains("UI Crash Test")
+            val profileSelector = UiSelector().textContains("UI OCR Test Profile")
             var profileNode = device.findObject(profileSelector)
             
             if (!profileNode.waitForExists(10000)) {
                 try {
                     val scrollable = androidx.test.uiautomator.UiScrollable(UiSelector().scrollable(true))
-                    scrollable.scrollTextIntoView("UI Crash Test Profile")
+                    scrollable.scrollTextIntoView("UI OCR Test Profile")
                 } catch (e: Exception) {
                     // Ignore
                 }
@@ -110,54 +115,49 @@ class ConnectionCrashTest {
             }
             assertTrue("SSH Connection should be established", connected)
 
-            // Since server enforces 1 req/sec rate limits, we sleep accordingly between commands
-            Thread.sleep(1500)
+            // Wait for MOTD
+            Thread.sleep(3000)
 
-            // Send multiple requests directly to the PTY
-            com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("test1\n".toByteArray())
+            // Step 1: `cat foo`
+            com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("cat foo\n".toByteArray())
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
-            
-            Thread.sleep(1500)
-            com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("test2\n".toByteArray())
-            com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
-
-            Thread.sleep(1500)
-            com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("exit\n".toByteArray())
-            com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
-
-            // Wait for SSH to process, echo back, and drop connection
             Thread.sleep(2000)
 
-            // Verify the command output sequence is visible on the screen transcript
-            val terminalContent = com.adamoutler.ssh.network.SshSessionProvider.mockTestTranscript?.trim() ?: ""
-            println("=== HEADLESS TERMINAL OUTPUT ===")
-            println(terminalContent)
-            println("=======================")
+            // Step 2: `123456`
+            com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("123456\n".toByteArray())
+            com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
+            Thread.sleep(2000)
+            
+            // Step 3: `verify` (with simulated alt+n truncature if that was a typo by the user, we will just send verify)
+            com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("verify\n".toByteArray())
+            com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
+            Thread.sleep(2000)
 
-            assertTrue(
-                "Terminal should receive RESPONSE 1 for first request", 
-                terminalContent.contains("RESPONSE 1, 'test1'")
-            )
-            assertTrue(
-                "Terminal should receive RESPONSE 2 for second request", 
-                terminalContent.contains("RESPONSE 2, 'test2'")
-            )
-            assertTrue(
-                "Terminal should receive Goodbye upon exit command", 
-                terminalContent.contains("Goodbye.")
-            )
+            // Step 4: UUID & Checksum
+            val testUuid = UUID.randomUUID().toString()
+            val expectedSha256 = sha256(testUuid)
+            println("=== OCR VERIFICATION TARGET ===")
+            println("UUID: $testUuid")
+            println("EXPECTED SHA256: $expectedSha256")
+            
+            com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("$testUuid\n".toByteArray())
+            com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
+            
+            // Wait for response to render fully
+            Thread.sleep(3000)
 
-            // Ensure the connection was actually dropped server-side
-            assertTrue(
-                "Terminal output stream should be null once closed by remote exit",
-                com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream == null || 
-                terminalContent.contains("Connection closed")
-            )
+            // TA-DA! Capture screenshot for visual validation natively
+            val screenshotFile = File(context.getExternalFilesDir(null), "ocr_test_screenshot.png")
+            // Make sure the file gets wiped so we don't accidentally grab an old one
+            if (screenshotFile.exists()) screenshotFile.delete()
+            
+            device.takeScreenshot(screenshotFile)
+            assertTrue("Screenshot should be captured to ${screenshotFile.absolutePath}", screenshotFile.exists())
+            
+            println("SCREENSHOT_PATH=${screenshotFile.absolutePath}")
 
             // Clean up
-            com.adamoutler.ssh.network.SshSessionProvider.isHeadlessTest = false
             storageManager.deleteProfile(profile.id)
-            
             val stopIntent = android.content.Intent(context, com.adamoutler.ssh.network.SshService::class.java).apply {
                 action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
             }

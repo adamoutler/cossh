@@ -16,13 +16,19 @@ class Server(paramiko.ServerInterface):
     def check_channel_shell_request(self, channel):
         return True
 
+host_key = paramiko.RSAKey.generate(1024)
+
 def handle_client(client_socket):
     transport = paramiko.Transport(client_socket)
-    transport.add_server_key(paramiko.RSAKey.generate(2048))
+    transport.add_server_key(host_key)
     server = Server()
     try:
         transport.start_server(server=server)
-    except paramiko.SSHException:
+    except paramiko.SSHException as e:
+        print("SSHException during start_server: ", str(e))
+        return
+    except Exception as e:
+        print("Exception during start_server: ", str(e))
         return
     channel = transport.accept(20)
     if channel is None:
@@ -52,3 +58,10 @@ def serve():
 t = threading.Thread(target=serve)
 t.daemon = True
 t.start()
+
+import time
+try:
+    while True:
+        time.sleep(1)
+except KeyboardInterrupt:
+    pass

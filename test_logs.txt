@@ -1,0 +1,41 @@
+04-15 15:17:02.060 23264 23264 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+04-15 15:17:02.074 23264 23264 I AndroidRuntime: Using default boot image
+04-15 15:17:02.074 23264 23264 I AndroidRuntime: Leaving lock profiling enabled
+04-15 15:17:02.311 23264 23264 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+04-15 15:17:03.820 23287 23287 I AndroidJUnitRunner: onCreate Bundle[{testTimeoutSeconds=31536000, class=com.adamoutler.ssh.ConnectionCrashTest, additionalTestOutputDir=/sdcard/Android/media/com.adamoutler.ssh/additional_test_output}]
+04-15 15:17:04.022 23287 23303 D TestRequestBuilder: Skipping class path scanning and directly running [com.adamoutler.ssh.ConnectionCrashTest]
+04-15 15:17:04.079 23287 23303 I TestRunner: started: testConnectionAndDataTransmission(com.adamoutler.ssh.ConnectionCrashTest)
+04-15 15:17:12.836  1588  2446 I ActivityManager: Background started FGS: Allowed [callingPackage: com.adamoutler.ssh; callingUid: 10451; uidState: TOP ; uidBFSL: [BFSL]; intent: Intent { act=com.adamoutler.ssh.START_SSH xflg=0x4 cmp=com.adamoutler.ssh/.network.SshService (has extras) }; code:PROC_STATE_TOP; tempAllowListReason:<null>; allowWiu:12; targetSdkVersion:34; callerTargetSdkVersion:34; startForegroundCount:0; bindFromPackage:null: isBindService:false]
+04-15 15:17:13.881 23287 23368 W SshConnectionManager: 	at com.adamoutler.ssh.network.SshService$startSshConnection$1.invokeSuspend(SshService.kt:81)
+04-15 15:17:13.898 23287 23368 E SshService: SSH Connection failed
+04-15 15:17:13.898 23287 23368 E SshService: net.schmizz.sshj.transport.TransportException: Server closed connection during identification exchange
+04-15 15:17:13.898 23287 23368 E SshService: 	at net.schmizz.sshj.transport.TransportImpl.init(TransportImpl.java:165)
+04-15 15:17:13.898 23287 23368 E SshService: 	at net.schmizz.sshj.SSHClient.onConnect(SSHClient.java:806)
+04-15 15:17:13.898 23287 23368 E SshService: 	at net.schmizz.sshj.SocketClient.connect(SocketClient.java:69)
+04-15 15:17:13.898 23287 23368 E SshService: 	at com.adamoutler.ssh.network.SshConnectionManager$connectPty$2.invokeSuspend(SshConnectionManager.kt:99)
+04-15 15:17:13.898 23287 23368 E SshService: 	at com.adamoutler.ssh.network.SshConnectionManager$connectPty$2.invoke(Unknown Source:8)
+04-15 15:17:13.898 23287 23368 E SshService: 	at com.adamoutler.ssh.network.SshConnectionManager$connectPty$2.invoke(Unknown Source:4)
+04-15 15:17:13.898 23287 23368 E SshService: 	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:78)
+04-15 15:17:13.898 23287 23368 E SshService: 	at kotlinx.coroutines.BuildersKt__Builders_commonKt.withContext(Builders.common.kt:167)
+04-15 15:17:13.898 23287 23368 E SshService: 	at kotlinx.coroutines.BuildersKt.withContext(Unknown Source:1)
+04-15 15:17:13.898 23287 23368 E SshService: 	at com.adamoutler.ssh.network.SshConnectionManager.connectPty(SshConnectionManager.kt:84)
+04-15 15:17:13.898 23287 23368 E SshService: 	at com.adamoutler.ssh.network.SshConnectionManager.connectPty$default(SshConnectionManager.kt:79)
+04-15 15:17:13.898 23287 23368 E SshService: 	at com.adamoutler.ssh.network.SshService$startSshConnection$1.invokeSuspend(SshService.kt:81)
+04-15 15:17:13.898 23287 23368 E SshService: 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+04-15 15:17:13.898 23287 23368 E SshService: 	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108)
+04-15 15:17:13.898 23287 23368 E SshService: 	at kotlinx.coroutines.internal.LimitedDispatcher$Worker.run(LimitedDispatcher.kt:115)
+04-15 15:17:13.898 23287 23368 E SshService: 	at kotlinx.coroutines.scheduling.TaskImpl.run(Tasks.kt:103)
+04-15 15:17:13.898 23287 23368 E SshService: 	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:584)
+04-15 15:17:13.898 23287 23368 E SshService: 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:793)
+04-15 15:17:13.898 23287 23368 E SshService: 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:697)
+04-15 15:17:13.898 23287 23368 E SshService: 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:684)
+04-15 15:17:13.898 23287 23368 E SshService: Caused by: net.schmizz.sshj.transport.TransportException: Server closed connection during identification exchange
+04-15 15:17:13.898 23287 23368 E SshService: 	at net.schmizz.sshj.transport.TransportImpl.receiveServerIdent(TransportImpl.java:196)
+04-15 15:17:13.898 23287 23368 E SshService: 	at net.schmizz.sshj.transport.TransportImpl.init(TransportImpl.java:158)
+04-15 15:17:13.898 23287 23368 E SshService: 	... 19 more
+04-15 15:17:13.986  5066  5066 I DcNotificationSync: Notification removed sbn StatusBarNotification(pkg=com.adamoutler.ssh user=UserHandle{0} id=1 tag=null key=0|com.adamoutler.ssh|1|null|10451: Notification(channel=SshServiceChannel shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=ONGOING_EVENT|NO_CLEAR|FOREGROUND_SERVICE color=0x00000000 actions=1 vis=PRIVATE)), reason: 8, sbnCancelByRemote size: 0
+04-15 15:17:23.668 23287 23303 E TestRunner: failed: testConnectionAndDataTransmission(com.adamoutler.ssh.ConnectionCrashTest)
+04-15 15:17:23.674 23287 23303 E TestRunner: 	at com.adamoutler.ssh.ConnectionCrashTest$testConnectionAndDataTransmission$1.invokeSuspend(ConnectionCrashTest.kt:116)
+04-15 15:17:23.674 23287 23303 E TestRunner: 	at com.adamoutler.ssh.ConnectionCrashTest.testConnectionAndDataTransmission(ConnectionCrashTest.kt:34)
+04-15 15:17:23.677 23287 23303 I TestRunner: finished: testConnectionAndDataTransmission(com.adamoutler.ssh.ConnectionCrashTest)
+04-15 15:17:24.230 23264 23264 I AndroidRuntime: VM exiting with result code 0.

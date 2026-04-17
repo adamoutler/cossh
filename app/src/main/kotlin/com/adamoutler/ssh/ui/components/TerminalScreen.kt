@@ -406,13 +406,6 @@ fun TerminalScreen(
                                     lastRows = rows
                                     val width = terminalView.width
                                     val height = terminalView.height
-                                    // On resize with an active SSH session, clear the screen before
-                                    // SIGWINCH so reflowed content doesn't duplicate the server's redraw.
-                                    if (SshSessionProvider.activeSshSession != null) {
-                                        emulator.screen.clearTranscript()
-                                        val clearSeq = "\u001B[2J\u001B[H".toByteArray()
-                                        emulator.append(clearSeq, clearSeq.size)
-                                    }
                                     // MUST dispatch to IO thread: sshj performs a socket write
                                     // for SIGWINCH which triggers NetworkOnMainThreadException
                                     // on the UI thread, corrupting the SSH transport.
