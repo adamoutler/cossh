@@ -283,7 +283,7 @@ class DeterministicMultiTurnTest {
                     Thread.sleep(500)
                 }
                 if (!connected) {
-                    val diagnosticFile = File(context.getExternalFilesDir(null), "timeout_diagnostic.png")
+                    val diagnosticFile = File(context.filesDir, "timeout_diagnostic.png")
                     device.takeScreenshot(diagnosticFile)
                     println("DIAGNOSTIC SCREENSHOT saved to: ${diagnosticFile.absolutePath}")
                 }
@@ -344,13 +344,18 @@ class DeterministicMultiTurnTest {
                 }
 
                 // ── KEYBOARD TOGGLE & RAPID FIRE TEST ──
+                println("→ Capturing pre-keyboard screenshot")
+                device.takeScreenshot(File(context.filesDir, "pre_keyboard.png"))
+                
                 println("→ Tapping screen to toggle keyboard on")
                 device.click(device.displayWidth / 2, device.displayHeight / 2)
-                Thread.sleep(1000)
+                Thread.sleep(1500)
+                device.takeScreenshot(File(context.filesDir, "during_keyboard.png"))
 
                 println("→ Pressing back to hide keyboard")
                 device.pressBack()
-                Thread.sleep(1000)
+                Thread.sleep(1500)
+                device.takeScreenshot(File(context.filesDir, "after_keyboard.png"))
 
                 val expectedResponseFromLastCmd = payloadSequence.last().second
                 val screenContentAfterToggle = readTerminalScreenContent()
@@ -366,10 +371,11 @@ class DeterministicMultiTurnTest {
                 SshSessionProvider.ptyOutputStream?.write(rapidFireBuilder.toString().toByteArray())
                 SshSessionProvider.ptyOutputStream?.flush()
                 Thread.sleep(4000) // Wait for text to flow through PTY and render
+                device.takeScreenshot(File(context.filesDir, "after_rapid_fire.png"))
 
                 println("→ Tapping screen to toggle keyboard on again")
                 device.click(device.displayWidth / 2, device.displayHeight / 2)
-                Thread.sleep(1000)
+                Thread.sleep(1500)
 
                 println("→ Scrolling to top of terminal")
                 for (i in 1..3) {
@@ -382,6 +388,7 @@ class DeterministicMultiTurnTest {
                     )
                     Thread.sleep(500)
                 }
+                device.takeScreenshot(File(context.filesDir, "scrolled_to_top_with_keyboard.png"))
 
                 val screenContentAfterScroll = readTerminalScreenContent()
                 val topTextVisible = screenContentAfterScroll.contains("Rapid fire line 1") || screenContentAfterScroll.contains(expectedResponseFromLastCmd)

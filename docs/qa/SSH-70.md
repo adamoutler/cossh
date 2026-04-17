@@ -14,6 +14,13 @@ The golden standard E2E test `DeterministicMultiTurnTest.kt` was appended to tes
 2. **Rapid Fire Text Test**: Sends 100 lines (`Rapid fire line 1` through `100`) as a single byte chunk.
 3. **Scroll Test**: Brings the keyboard back up, executes 3 swipe gestures to scroll up the terminal buffer, and verifies that `Rapid fire line 1` or early text is still present in the transcript buffer.
 
+### Visual Evidence
+- Before Keyboard Toggle: ![Pre Keyboard](./SSH-70-pre_keyboard.png)
+- During Keyboard Active: ![During Keyboard](./SSH-70-during_keyboard.png)
+- After Keyboard Dismissed: ![After Keyboard](./SSH-70-after_keyboard.png)
+- After Rapid Fire Text (100 Lines): ![Rapid Fire](./SSH-70-after_rapid_fire.png)
+- Scrolled to Top with Keyboard Active: ![Scrolled with Keyboard](./SSH-70-scrolled_to_top_with_keyboard.png)
+
 ### Execution Log
 ```
 > Task :app:connectedDebugAndroidTest
