@@ -216,7 +216,7 @@ fun TerminalScreen(
     androidx.compose.foundation.layout.Column(
         modifier = modifier
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.navigationBars))
+            .imePadding()
     ) {
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             val isHeadlessTest = SshSessionProvider.isHeadlessTest
@@ -404,10 +404,24 @@ fun TerminalScreen(
                                 if (cols != lastCols || rows != lastRows) {
                                     lastCols = cols
                                     lastRows = rows
-                                    try {
-                                        SshSessionProvider.activeSshSession?.changeWindowDimensions(cols, rows, terminalView.width, terminalView.height)
-                                    } catch (e: Exception) {
-                                        Log.e("TerminalScreen", "Failed to send SIGWINCH", e)
+                                    val width = terminalView.width
+                                    val height = terminalView.height
+                                    // On resize with an active SSH session, clear the screen before
+                                    // SIGWINCH so reflowed content doesn't duplicate the server's redraw.
+                                    if (SshSessionProvider.activeSshSession != null) {
+                                        emulator.screen.clearTranscript()
+                                        val clearSeq = "\u001B[2J\u001B[H".toByteArray()
+                                        emulator.append(clearSeq, clearSeq.size)
+                                    }
+                                    // MUST dispatch to IO thread: sshj performs a socket write
+                                    // for SIGWINCH which triggers NetworkOnMainThreadException
+                                    // on the UI thread, corrupting the SSH transport.
+                                    coroutineScope.launch(Dispatchers.IO) {
+                                        try {
+                                            SshSessionProvider.activeSshSession?.changeWindowDimensions(cols, rows, width, height)
+                                        } catch (e: Exception) {
+                                            Log.e("TerminalScreen", "Failed to send SIGWINCH", e)
+                                        }
                                     }
                                 }
                             }

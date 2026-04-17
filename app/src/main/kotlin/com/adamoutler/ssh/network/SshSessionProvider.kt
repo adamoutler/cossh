@@ -1,5 +1,7 @@
 package com.adamoutler.ssh.network
 
+import android.os.Handler
+import android.os.Looper
 import java.io.OutputStream
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,8 +14,27 @@ object SshSessionProvider {
     var activeSshSession: net.schmizz.sshj.connection.channel.direct.Session.Shell? = null
     
     var terminalSession: TerminalSession? = null
-    var onScreenUpdated: (() -> Unit)? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var _onScreenUpdated: (() -> Unit)? = null
+    var onScreenUpdated: (() -> Unit)?
+        get() = _onScreenUpdated
+        set(value) { _onScreenUpdated = value }
     var getContext: (() -> android.content.Context?)? = null
+
+    /**
+     * Safely invoke the screen update callback on the main thread.
+     * This MUST be used instead of calling onScreenUpdated directly from IO threads,
+     * because TerminalView.invalidate() can only be called from the UI thread.
+     */
+    fun postScreenUpdate() {
+        _onScreenUpdated?.let { callback ->
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                callback()
+            } else {
+                mainHandler.post { callback() }
+            }
+        }
+    }
     var mockTestTranscript: String? = null
     var isHeadlessTest: Boolean = false
 
@@ -58,15 +79,31 @@ object SshSessionProvider {
         _activeConnections.value = emptySet()
     }
 
+    /** Track whether we've received the first SSH output to clear subprocess artifacts. */
+    @Volatile
+    var firstSshOutputReceived = false
+
     fun getOrCreateSession(): TerminalSession? {
         if (isHeadlessTest) return null
         if (terminalSession == null) {
             terminalSession = try {
-                val session = TerminalSession("/system/bin/sh", "/", arrayOf("-c", "cat"), arrayOf("TERM=xterm-256color"), 100, terminalSessionClient)
-                val initialText = "Welcome to CoSSH Terminal\r\n\u001B[32mANSI Color Support Active!\u001B[0m\r\n"
-                session.emulator?.append(initialText.toByteArray(), initialText.length)
+                // Use 'sh -c exec sleep' as a silent blocking process to keep TerminalSession alive.
+                // Key design decisions:
+                //   - argv[0] must be "sh" (toybox multi-call binary uses argv[0] to pick the applet)
+                //   - 'exec' replaces the shell with sleep (1 process, not 2)
+                //   - sleep does NOT read stdin, preventing echo feedback loops through the PTY
+                //   - The subprocess output (if any) will be cleared on first SSH data arrival
+                val session = TerminalSession(
+                    "/system/bin/sh", "/",
+                    arrayOf("sh", "-c", "exec sleep 2147483647"),
+                    arrayOf("TERM=xterm-256color"),
+                    0, // transcript rows = 0: no scrollback needed since SSH server manages its own
+                    terminalSessionClient
+                )
+                firstSshOutputReceived = false
                 session
             } catch (e: Throwable) {
+                android.util.Log.e("SshSessionProvider", "Failed to create TerminalSession", e)
                 null
             }
         }
@@ -76,5 +113,6 @@ object SshSessionProvider {
     fun clearSession() {
         terminalSession = null
         ptyOutputStream = null
+        firstSshOutputReceived = false
     }
 }

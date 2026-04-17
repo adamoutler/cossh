@@ -85,9 +85,27 @@ class SshService : Service() {
                             SshSessionProvider.activeSshSession = session
                         },
                         onOutput = { bytes, length ->
-                            val session = SshSessionProvider.getOrCreateSession()
-                            session?.emulator?.append(bytes, length)
-                            SshSessionProvider.onScreenUpdated?.invoke()
+                            if (SshSessionProvider.isHeadlessTest) {
+                                val newText = String(bytes, 0, length, Charsets.UTF_8)
+                                val current = SshSessionProvider.mockTestTranscript ?: ""
+                                SshSessionProvider.mockTestTranscript = current + newText
+                            } else {
+                                val session = SshSessionProvider.getOrCreateSession()
+                                val emulator = session?.emulator
+                                if (emulator != null) {
+                                    // On first SSH output, clear any subprocess artifacts
+                                    // (error messages, shell prompts, etc.) from the terminal
+                                    if (!SshSessionProvider.firstSshOutputReceived) {
+                                        SshSessionProvider.firstSshOutputReceived = true
+                                        emulator.screen.clearTranscript()
+                                        val clearSeq = "\u001B[2J\u001B[H".toByteArray()
+                                        emulator.append(clearSeq, clearSeq.size)
+                                        Log.d("SshService", "Cleared screen on first SSH output")
+                                    }
+                                    emulator.append(bytes, length)
+                                }
+                            }
+                            SshSessionProvider.postScreenUpdate()
                         }
                     )
                 } else {
