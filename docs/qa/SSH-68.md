@@ -13,4 +13,5 @@ The hack clearing the terminal transcript on resize (`SIGWINCH`) was removed (SS
 ## Verification
 - Local testing and `DeterministicMultiTurnTest.kt` confirm that standard input flows through SSH without local echoing.
 - Dismissing the keyboard triggers a `SIGWINCH` resize, and the terminal reflows without duplicating the text block.
+- A screenshot has been captured mid-execution (`docs/qa/SSH-68-screenshot.png`) demonstrating the terminal rendering properly without duplication.
 - All tests pass in CI.
