@@ -72,7 +72,11 @@ class SshConnectionManager(
                 return@withContext result
             }
         } finally {
-            client.disconnect()
+            try {
+                client.disconnect()
+            } catch (e: Exception) {
+                android.util.Log.e("SshConnectionManager", "Error during disconnect", e)
+            }
         }
     }
 
@@ -137,7 +141,11 @@ class SshConnectionManager(
                 }
             }
         } finally {
-            client.disconnect()
+            try {
+                client.disconnect()
+            } catch (e: Exception) {
+                android.util.Log.e("SshConnectionManager", "Error during disconnect", e)
+            }
         }
     }
 }

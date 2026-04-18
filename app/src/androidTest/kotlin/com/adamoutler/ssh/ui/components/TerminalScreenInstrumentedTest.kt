@@ -22,7 +22,7 @@ class TerminalScreenInstrumentedTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-    @Test
+    @Test(timeout = 300000L)
     fun testBackPressWhenKeyboardHiddenNavigatesBack() {
         // Clear any previous state
         com.adamoutler.ssh.network.SshSessionProvider.activeConnections.value.forEach {
@@ -60,7 +60,7 @@ class TerminalScreenInstrumentedTest {
         assertTrue("Back navigation was not called when keyboard was hidden", navigated || backNavigationCalled)
     }
 
-    @Test
+    @Test(timeout = 300000L)
     fun testKeepAliveDialogFlow() {
         var backNavigationCalled = false
 
@@ -104,7 +104,7 @@ class TerminalScreenInstrumentedTest {
         com.adamoutler.ssh.network.SshSessionProvider.removeConnection("test-id")
     }
 
-    @Test
+    @Test(timeout = 300000L)
     fun testBackPressNavigatesBackWhenConnectionDrops() {
         var backNavigationCalled = false
 
@@ -135,7 +135,7 @@ class TerminalScreenInstrumentedTest {
         assertTrue("Navigate back should be called since connection dropped", backNavigationCalled)
     }
 
-    @Test
+    @Test(timeout = 300000L)
     fun testFloatingOverlayButtons() {
         var backNavigationCalled = false
 

@@ -32,7 +32,7 @@ class ConnectionCrashTest {
         android.Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE
     )
 
-    @Test
+    @Test(timeout = 300000L)
     fun testConnectionAndDataTransmission() {
         runBlocking {
             val instrumentation = InstrumentationRegistry.getInstrumentation()

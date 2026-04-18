@@ -38,7 +38,7 @@ class OcrVerificationTest {
         return hash.joinToString("") { "%02x".format(it) }
     }
 
-    @Test
+    @Test(timeout = 300000L)
     fun testVisualTerminalSession() {
         runBlocking {
             val instrumentation = InstrumentationRegistry.getInstrumentation()

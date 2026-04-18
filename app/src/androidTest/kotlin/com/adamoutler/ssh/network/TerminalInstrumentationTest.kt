@@ -12,7 +12,7 @@ import org.junit.runner.RunWith
 @LargeTest
 class TerminalInstrumentationTest {
 
-    @Test
+    @Test(timeout = 300000L)
     fun testTerminalViewRendersWithoutCrashing() {
         // Launch the main activity which contains TerminalScreen and native TerminalView
         val scenario = ActivityScenario.launch(MainActivity::class.java)

@@ -28,7 +28,7 @@ class SshServiceInstrumentationTest {
         android.Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE
     )
 
-    @Test
+    @Test(timeout = 300000L)
     fun testForegroundServiceSurvivesActivityBackgrounding() = kotlinx.coroutines.runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val storageManager = com.adamoutler.ssh.crypto.SecurityStorageManager(context)

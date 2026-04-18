@@ -20,7 +20,7 @@ class ConnectionListScreenInstrumentedTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    @Test
+    @Test(timeout = 300000L)
     fun longPressTriggersEdit() {
         var onEditCalled = false
         val mockProfile = ConnectionProfile(
@@ -55,7 +55,7 @@ class ConnectionListScreenInstrumentedTest {
         assertTrue(onEditCalled)
     }
 
-    @Test
+    @Test(timeout = 300000L)
     fun tapTriggersConnect() {
         var onConnectCalled = false
         var capturedIntent: android.content.Intent? = null
@@ -114,7 +114,7 @@ class ConnectionListScreenInstrumentedTest {
         assertTrue(capturedIntent?.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID) == "1")
     }
 
-    @Test
+    @Test(timeout = 300000L)
     fun activeConnectionShowsBadge() {
         val mockProfile = ConnectionProfile(
             id = "1",

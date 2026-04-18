@@ -188,7 +188,7 @@ class DeterministicMultiTurnTest {
     //  The Test
     // ──────────────────────────────────────────────────────────────────────
 
-    @Test
+    @Test(timeout = 300000L)
     fun testDeterministicMultiTurnSshSession() {
         runBlocking {
             val instrumentation = InstrumentationRegistry.getInstrumentation()

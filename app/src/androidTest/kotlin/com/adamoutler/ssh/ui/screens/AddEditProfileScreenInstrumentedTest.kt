@@ -18,7 +18,7 @@ class AddEditProfileScreenInstrumentedTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    @Test
+    @Test(timeout = 300000L)
     fun saveButtonInTopAppBarTriggersSave() {
         var onSaveCalled = false
 
