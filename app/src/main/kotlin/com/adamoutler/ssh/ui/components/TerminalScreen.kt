@@ -55,12 +55,14 @@ enum class TerminalInputState {
 
 @Composable
 fun TerminalScreen(
+    profileId: String,
     modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit = {}
 ) {
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
 
-    val session = remember { SshSessionProvider.getOrCreateSession() }
+    val activeSession = remember(profileId) { SshSessionProvider.getOrCreateSession(profileId) }
+    val session = activeSession.terminalSession
 
     if (session == null) {
         Box(modifier = modifier.fillMaxSize().background(Color.Black).padding(4.dp)) {
@@ -73,8 +75,12 @@ fun TerminalScreen(
         return
     }
 
-    DisposableEffect(Unit) {
-        SshSessionProvider.onScreenUpdated = { terminalViewRef?.onScreenUpdated() }
+    DisposableEffect(profileId) {
+        SshSessionProvider.onScreenUpdated = { updatedProfileId -> 
+            if (updatedProfileId == profileId) {
+                terminalViewRef?.onScreenUpdated() 
+            }
+        }
         SshSessionProvider.getContext = { terminalViewRef?.context }
         onDispose {
             SshSessionProvider.onScreenUpdated = null
@@ -224,8 +230,8 @@ fun TerminalScreen(
                         finalBytes = byteArrayOf(0x1B) + finalBytes
                         altSticky.value = false
                     }
-                    SshSessionProvider.ptyOutputStream?.write(finalBytes)
-                    SshSessionProvider.ptyOutputStream?.flush()
+                    activeSession.ptyOutputStream?.write(finalBytes)
+                    activeSession.ptyOutputStream?.flush()
                 } catch (ex: Exception) {
                     Log.e("TerminalScreen", "Failed to write to SSH PTY", ex)
                 }
@@ -245,7 +251,7 @@ fun TerminalScreen(
             if (isHeadlessTest) {
                 Box(modifier = Modifier.fillMaxSize().background(Color.Black).padding(4.dp)) {
                     Text(
-                        text = SshSessionProvider.mockTestTranscript ?: "Welcome to CoSSH Terminal",
+                        text = activeSession.mockTestTranscript ?: "Welcome to CoSSH Terminal",
                         color = Color.Green,
                         fontFamily = FontFamily.Monospace
                     )
@@ -433,7 +439,7 @@ fun TerminalScreen(
                                     // on the UI thread, corrupting the SSH transport.
                                     coroutineScope.launch(Dispatchers.IO) {
                                         try {
-                                            SshSessionProvider.activeSshSession?.changeWindowDimensions(cols, rows, width, height)
+                                            activeSession.sshShell?.changeWindowDimensions(cols, rows, width, height)
                                         } catch (e: Exception) {
                                             Log.e("TerminalScreen", "Failed to send SIGWINCH", e)
                                         }

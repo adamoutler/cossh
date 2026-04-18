@@ -22,7 +22,7 @@ class TerminalScreenResumeScreenshotTest {
 
     @Before
     fun setup() {
-        SshSessionProvider.clearSession()
+        SshSessionProvider.clearSession("test")
         SshSessionProvider.getContext = { paparazzi.context }
         SshSessionProvider.isHeadlessTest = true
         
@@ -31,10 +31,12 @@ class TerminalScreenResumeScreenshotTest {
                         "This is a dummy log line 1 proving persistence.\r\n" +
                         "This is a dummy log line 2 proving persistence.\r\n" +
                         "This is a dummy log line 3 proving persistence.\r\n"
-        SshSessionProvider.mockTestTranscript = dummyText
+        
+        val sessionData = SshSessionProvider.getOrCreateSession("test")
+        sessionData.mockTestTranscript = dummyText
         
         // Emulate an existing background session with a lot of output
-        val session = SshSessionProvider.getOrCreateSession()
+        val session = sessionData.terminalSession
         session?.emulator?.append(dummyText.toByteArray(), dummyText.length)
     }
 
@@ -46,7 +48,7 @@ class TerminalScreenResumeScreenshotTest {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    TerminalScreen()
+                    TerminalScreen(profileId = "test")
                 }
             }
         }

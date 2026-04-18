@@ -59,7 +59,7 @@ class SshServiceForegroundTest {
             putExtra(SshService.EXTRA_PROFILE_ID, "id-fail")
         }
 
-        SshSessionProvider.clearSession()
+        SshSessionProvider.clearSession("id-fail")
         SshSessionProvider.clearConnections()
 
         val serviceController = Robolectric.buildService(SshService::class.java, intent)

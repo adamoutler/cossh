@@ -19,7 +19,7 @@ class TerminalSessionPersistenceTest {
     @Before
     fun setup() {
         SshSessionProvider.isHeadlessTest = false
-        SshSessionProvider.clearSession()
+        SshSessionProvider.clearSession("test")
     }
 
     @Test
@@ -28,7 +28,7 @@ class TerminalSessionPersistenceTest {
         SshSessionProvider.getContext = { context }
         
         // Emulate SshService initializing the session
-        val session1 = SshSessionProvider.getOrCreateSession()
+        val session1 = SshSessionProvider.getOrCreateSession("test").terminalSession
         assertNotNull(session1)
         
         // Emulate SshService receiving output from the network
@@ -36,7 +36,7 @@ class TerminalSessionPersistenceTest {
         session1?.emulator?.append(testOutput.toByteArray(), testOutput.length)
         
         // Emulate TerminalScreen picking up the session (e.g. upon Activity resume)
-        val session2 = SshSessionProvider.getOrCreateSession()
+        val session2 = SshSessionProvider.getOrCreateSession("test").terminalSession
         
         // Assert it is the exact same instance
         assertTrue(session1 === session2)

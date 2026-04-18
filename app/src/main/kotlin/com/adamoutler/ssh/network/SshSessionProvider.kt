@@ -3,6 +3,7 @@ package com.adamoutler.ssh.network
 import android.os.Handler
 import android.os.Looper
 import java.io.OutputStream
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,36 +16,48 @@ sealed interface ConnectionState {
     data class Error(val message: String) : ConnectionState
 }
 
+data class ActiveSession(
+    val profileId: String,
+    var ptyOutputStream: OutputStream? = null,
+    var sshShell: net.schmizz.sshj.connection.channel.direct.Session.Shell? = null,
+    var terminalSession: TerminalSession? = null,
+    var firstSshOutputReceived: Boolean = false,
+    var mockTestTranscript: String? = null,
+    val connectedAt: Long = System.currentTimeMillis()
+)
+
 object SshSessionProvider {
-    var ptyOutputStream: OutputStream? = null
-    var activeSshSession: net.schmizz.sshj.connection.channel.direct.Session.Shell? = null
-    
-    var terminalSession: TerminalSession? = null
+    val sessions = ConcurrentHashMap<String, ActiveSession>()
+
     private val mainHandler = Handler(Looper.getMainLooper())
-    private var _onScreenUpdated: (() -> Unit)? = null
-    var onScreenUpdated: (() -> Unit)?
+    private var _onScreenUpdated: ((String) -> Unit)? = null
+    var onScreenUpdated: ((String) -> Unit)?
         get() = _onScreenUpdated
         set(value) { _onScreenUpdated = value }
+        
     var getContext: (() -> android.content.Context?)? = null
 
-    /**
-     * Safely invoke the screen update callback on the main thread.
-     */
-    fun postScreenUpdate() {
+    fun postScreenUpdate(profileId: String) {
         _onScreenUpdated?.let { callback ->
             if (Looper.myLooper() == Looper.getMainLooper()) {
-                callback()
+                callback(profileId)
             } else {
-                mainHandler.post { callback() }
+                mainHandler.post { callback(profileId) }
             }
         }
     }
-    var mockTestTranscript: String? = null
+
     var isHeadlessTest: Boolean = false
+
+    private fun getProfileIdForSession(session: TerminalSession): String? {
+        return sessions.entries.find { it.value.terminalSession === session }?.key
+    }
 
     val terminalSessionClient = object : TerminalSessionClient {
         override fun onTextChanged(session: TerminalSession) {
-            onScreenUpdated?.invoke()
+            getProfileIdForSession(session)?.let { profileId ->
+                postScreenUpdate(profileId)
+            }
         }
         override fun onTitleChanged(session: TerminalSession) {}
         override fun onSessionFinished(session: TerminalSession) {}
@@ -104,40 +117,29 @@ object SshSessionProvider {
         _activeConnections.value = emptySet()
     }
 
-    /** Track whether we've received the first SSH output to clear subprocess artifacts. */
-    @Volatile
-    var firstSshOutputReceived = false
-
-    fun getOrCreateSession(): TerminalSession? {
-        if (isHeadlessTest) return null
-        if (terminalSession == null) {
-            terminalSession = try {
-                // Use 'sh -c exec sleep' as a silent blocking process to keep TerminalSession alive.
-                // Key design decisions:
-                //   - argv[0] must be "sh" (toybox multi-call binary uses argv[0] to pick the applet)
-                //   - 'exec' replaces the shell with sleep (1 process, not 2)
-                //   - sleep does NOT read stdin, preventing echo feedback loops through the PTY
-                //   - The subprocess output (if any) will be cleared on first SSH data arrival
-                val session = TerminalSession(
-                    "/system/bin/sh", "/",
-                    arrayOf("sh", "-c", "exec sleep 2147483647"),
-                    arrayOf("TERM=xterm-256color"),
-                    0, // transcript rows = 0: no scrollback needed since SSH server manages its own
-                    terminalSessionClient
-                )
-                firstSshOutputReceived = false
-                session
-            } catch (e: Throwable) {
-                android.util.Log.e("SshSessionProvider", "Failed to create TerminalSession", e)
-                null
+    fun getOrCreateSession(profileId: String): ActiveSession {
+        return sessions.getOrPut(profileId) {
+            val newSession = ActiveSession(profileId = profileId)
+            if (!isHeadlessTest) {
+                newSession.terminalSession = try {
+                    val termSession = TerminalSession(
+                        "/system/bin/sh", "/",
+                        arrayOf("sh", "-c", "exec sleep 2147483647"),
+                        arrayOf("TERM=xterm-256color"),
+                        0,
+                        terminalSessionClient
+                    )
+                    termSession
+                } catch (e: Throwable) {
+                    android.util.Log.e("SshSessionProvider", "Failed to create TerminalSession", e)
+                    null
+                }
             }
+            newSession
         }
-        return terminalSession
     }
 
-    fun clearSession() {
-        terminalSession = null
-        ptyOutputStream = null
-        firstSshOutputReceived = false
+    fun clearSession(profileId: String) {
+        sessions.remove(profileId)
     }
 }

@@ -42,8 +42,15 @@ fun ConnectionListScreen(
     val context = LocalContext.current
     val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
 
+    var showSessionSelector by remember { mutableStateOf(false) }
+
     DisposableEffect(lifecycleOwner) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_START) {
+                if (com.adamoutler.ssh.network.SshSessionProvider.activeConnections.value.size > 1) {
+                    showSessionSelector = true
+                }
+            }
             if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
                 viewModel.loadProfiles()
             }
@@ -76,6 +83,36 @@ fun ConnectionListScreen(
             passwordInput = ""
             showPasswordDialog = true
         }
+    }
+
+    if (showSessionSelector) {
+        AlertDialog(
+            onDismissRequest = { showSessionSelector = false },
+            title = { Text("Active Sessions") },
+            text = {
+                Column {
+                    Text("You have multiple active sessions. Select one to resume or start a new one.")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LazyColumn {
+                        items(activeConnections.size) { index ->
+                            val profileId = activeConnections.toList()[index]
+                            val profile = profiles.find { it.id == profileId }
+                            TextButton(onClick = { 
+                                showSessionSelector = false
+                                onConnect(profileId) 
+                            }) {
+                                Text(profile?.nickname ?: profileId)
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showSessionSelector = false }) {
+                    Text("Start New")
+                }
+            }
+        )
     }
 
     if (showPasswordDialog) {

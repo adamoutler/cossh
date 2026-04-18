@@ -41,8 +41,10 @@ fun AppNavigation() {
             arguments = listOf(navArgument("profileId") {
                 type = NavType.StringType
             })
-        ) {
+        ) { backStackEntry ->
+            val profileId = backStackEntry.arguments?.getString("profileId") ?: ""
             TerminalScreen(
+                profileId = profileId,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

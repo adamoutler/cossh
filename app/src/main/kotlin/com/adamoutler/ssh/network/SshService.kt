@@ -18,16 +18,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
 
 class SshService : Service() {
 
     private val serviceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
-    private var sshManager: SshConnectionManager? = null
+    
+    private val sshManagers = ConcurrentHashMap<String, SshConnectionManager>()
+    private val connectionJobs = ConcurrentHashMap<String, Job>()
 
     companion object {
         private const val CHANNEL_ID = "SshServiceChannel"
-        private const val NOTIFICATION_ID = 1
+        const val GROUP_KEY_SSH = "com.adamoutler.ssh.ACTIVE_SESSIONS"
+        const val SUMMARY_NOTIFICATION_ID = 1000
         const val ACTION_START = "com.adamoutler.ssh.START_SSH"
         const val ACTION_DISCONNECT = "com.adamoutler.ssh.DISCONNECT_SSH"
         const val EXTRA_PROFILE_ID = "profile_id"
@@ -40,9 +44,10 @@ class SshService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val action = intent?.action
+        val profileId = intent?.getStringExtra(EXTRA_PROFILE_ID)
+        
         when (action) {
             ACTION_START -> {
-                val profileId = intent.getStringExtra(EXTRA_PROFILE_ID)
                 if (profileId != null) {
                     startSshConnection(profileId)
                 } else {
@@ -50,122 +55,172 @@ class SshService : Service() {
                 }
             }
             ACTION_DISCONNECT -> {
-                stopSshConnection()
-                stopSelf()
+                if (profileId != null) {
+                    stopSshConnection(profileId)
+                } else {
+                    stopAllConnections()
+                    stopSelf()
+                }
             }
         }
         return START_NOT_STICKY
     }
 
+    private fun getNotificationId(profileId: String): Int = profileId.hashCode()
+
     private fun startSshConnection(profileId: String) {
-        val notification = createNotification("Connecting...")
+        val notification = createSummaryNotification()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(
-                NOTIFICATION_ID, 
+                SUMMARY_NOTIFICATION_ID, 
                 notification, 
                 android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
             )
         } else {
-            startForeground(NOTIFICATION_ID, notification)
+            startForeground(SUMMARY_NOTIFICATION_ID, notification)
         }
 
-        serviceScope.launch {
+        val job = Job(serviceJob)
+        connectionJobs[profileId] = job
+
+        serviceScope.launch(job) {
             try {
                 val storageManager = SecurityStorageManager(applicationContext)
                 val profile = storageManager.getProfile(profileId)
                 if (profile != null) {
                     SshSessionProvider.updateConnectionState(profileId, ConnectionState.Connecting)
-                    updateNotification("Connecting to ${profile.nickname}")
-                    sshManager = SshConnectionManager()
+                    updateSessionNotification(profileId, profile.nickname, "Connecting...")
+                    val manager = SshConnectionManager()
+                    sshManagers[profileId] = manager
                     
-                    sshManager?.connectPty(
+                    manager.connectPty(
                         profile = profile,
                         onConnect = { outStream, session ->
-                            SshSessionProvider.ptyOutputStream = outStream
-                            SshSessionProvider.activeSshSession = session
+                            val activeSession = SshSessionProvider.getOrCreateSession(profileId)
+                            activeSession.ptyOutputStream = outStream
+                            activeSession.sshShell = session
                             SshSessionProvider.updateConnectionState(profileId, ConnectionState.Connected)
-                            updateNotification("Connected to ${profile.nickname}")
+                            updateSessionNotification(profileId, profile.nickname, "Connected")
                         },
                         onOutput = { bytes, length ->
+                            val activeSession = SshSessionProvider.getOrCreateSession(profileId)
                             if (SshSessionProvider.isHeadlessTest) {
                                 val newText = String(bytes, 0, length, Charsets.UTF_8)
-                                val current = SshSessionProvider.mockTestTranscript ?: ""
-                                SshSessionProvider.mockTestTranscript = current + newText
+                                val current = activeSession.mockTestTranscript ?: ""
+                                activeSession.mockTestTranscript = current + newText
                             } else {
-                                val session = SshSessionProvider.getOrCreateSession()
-                                val emulator = session?.emulator
+                                val emulator = activeSession.terminalSession?.emulator
                                 if (emulator != null) {
-                                    if (!SshSessionProvider.firstSshOutputReceived) {
-                                        SshSessionProvider.firstSshOutputReceived = true
+                                    if (!activeSession.firstSshOutputReceived) {
+                                        activeSession.firstSshOutputReceived = true
                                         emulator.screen.clearTranscript()
                                         val clearSeq = "\u001B[2J\u001B[H".toByteArray()
                                         emulator.append(clearSeq, clearSeq.size)
-                                        Log.d("SshService", "Cleared screen on first SSH output")
+                                        Log.d("SshService", "Cleared screen on first SSH output for $profileId")
                                     }
                                     emulator.append(bytes, length)
                                 }
                             }
-                            SshSessionProvider.postScreenUpdate()
+                            SshSessionProvider.postScreenUpdate(profileId)
                         }
                     )
                 } else {
-                    Log.e("SshService", "Profile not found")
+                    Log.e("SshService", "Profile not found: $profileId")
                     SshSessionProvider.updateConnectionState(profileId, ConnectionState.Error("Profile not found"))
                 }
             } catch (e: Exception) {
-                Log.e("SshService", "SSH Connection failed", e)
-                updateNotification("Connection failed")
+                Log.e("SshService", "SSH Connection failed for $profileId", e)
+                updateSessionNotification(profileId, "Connection", "Connection failed")
                 SshSessionProvider.updateConnectionState(profileId, ConnectionState.Error(e.message ?: "Connection failed"))
             } finally {
-                // Remove from active connections, but don't clear state if it's an Error, so UI can display it.
                 SshSessionProvider.removeConnection(profileId)
                 val currentState = SshSessionProvider.connectionStates.value[profileId]
                 if (currentState !is ConnectionState.Error) {
                     SshSessionProvider.clearConnectionState(profileId)
                 }
-                SshSessionProvider.activeSshSession = null
-                SshSessionProvider.clearSession()
-                stopSelf()
+                
+                SshSessionProvider.clearSession(profileId)
+                
+                val notificationManager = getSystemService(NotificationManager::class.java)
+                notificationManager.cancel(getNotificationId(profileId))
+                
+                connectionJobs.remove(profileId)
+                sshManagers.remove(profileId)
+                
+                if (connectionJobs.isEmpty()) {
+                    stopForeground(STOP_FOREGROUND_REMOVE)
+                    stopSelf()
+                } else {
+                    updateSummaryNotification()
+                }
             }
         }
     }
 
-    private fun stopSshConnection() {
-        serviceScope.cancel()
-        // SshConnectionManager disconnect is handled by its finally block when the coroutine is cancelled
+    private fun stopSshConnection(profileId: String) {
+        connectionJobs[profileId]?.cancel()
+        // The finally block in startSshConnection will clean up state and stop the service if needed.
     }
 
-    private fun createNotification(contentText: String): Notification {
+    private fun stopAllConnections() {
+        serviceScope.cancel()
+    }
+
+    private fun createSummaryNotification(): Notification {
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("CoSSH")
+            .setContentText("${connectionJobs.size.coerceAtLeast(1)} Active Sessions")
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setGroup(GROUP_KEY_SSH)
+            .setGroupSummary(true)
+            .setOngoing(true)
+            .build()
+    }
+
+    private fun updateSummaryNotification() {
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        notificationManager.notify(SUMMARY_NOTIFICATION_ID, createSummaryNotification())
+    }
+
+    private fun updateSessionNotification(profileId: String, profileName: String, contentText: String) {
+        val activeSession = SshSessionProvider.sessions[profileId]
+        val connectedAt = activeSession?.connectedAt ?: System.currentTimeMillis()
+
         val pendingIntent: PendingIntent =
             Intent(this, MainActivity::class.java).let { notificationIntent ->
+                // To allow navigation back to the specific terminal, pass profileId
+                notificationIntent.putExtra(EXTRA_PROFILE_ID, profileId)
                 PendingIntent.getActivity(
-                    this, 0, notificationIntent,
-                    PendingIntent.FLAG_IMMUTABLE
+                    this, profileId.hashCode(), notificationIntent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                 )
             }
 
         val disconnectIntent = Intent(this, SshService::class.java).apply {
             action = ACTION_DISCONNECT
+            putExtra(EXTRA_PROFILE_ID, profileId)
         }
         val disconnectPendingIntent: PendingIntent =
             PendingIntent.getService(
-                this, 1, disconnectIntent,
-                PendingIntent.FLAG_IMMUTABLE
+                this, profileId.hashCode(), disconnectIntent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
 
-        return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("CoSSH Session")
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle(profileName)
             .setContentText(contentText)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // Placeholder
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentIntent(pendingIntent)
+            .setUsesChronometer(true)
+            .setWhen(connectedAt)
+            .setGroup(GROUP_KEY_SSH)
             .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Disconnect", disconnectPendingIntent)
             .setOngoing(true)
             .build()
-    }
 
-    private fun updateNotification(contentText: String) {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(NOTIFICATION_ID, createNotification(contentText))
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        notificationManager.notify(getNotificationId(profileId), notification)
+        updateSummaryNotification()
     }
 
     private fun createNotificationChannel() {
@@ -181,11 +236,11 @@ class SshService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? {
-        return null // We don't provide binding for now
+        return null
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        stopSshConnection()
+        stopAllConnections()
     }
 }
