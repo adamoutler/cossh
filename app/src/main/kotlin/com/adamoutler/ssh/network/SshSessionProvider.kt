@@ -9,6 +9,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 
+sealed interface ConnectionState {
+    object Connecting : ConnectionState
+    object Connected : ConnectionState
+    data class Error(val message: String) : ConnectionState
+}
+
 object SshSessionProvider {
     var ptyOutputStream: OutputStream? = null
     var activeSshSession: net.schmizz.sshj.connection.channel.direct.Session.Shell? = null
@@ -23,8 +29,6 @@ object SshSessionProvider {
 
     /**
      * Safely invoke the screen update callback on the main thread.
-     * This MUST be used instead of calling onScreenUpdated directly from IO threads,
-     * because TerminalView.invalidate() can only be called from the UI thread.
      */
     fun postScreenUpdate() {
         _onScreenUpdated?.let { callback ->
@@ -64,8 +68,29 @@ object SshSessionProvider {
         override fun logStackTrace(tag: String?, e: java.lang.Exception?) {}
     }
 
+    private val _connectionStates = MutableStateFlow<Map<String, ConnectionState>>(emptyMap())
+    val connectionStates: StateFlow<Map<String, ConnectionState>> = _connectionStates.asStateFlow()
+
     private val _activeConnections = MutableStateFlow<Set<String>>(emptySet())
     val activeConnections: StateFlow<Set<String>> = _activeConnections.asStateFlow()
+
+    fun updateConnectionState(profileId: String, state: ConnectionState) {
+        val newMap = _connectionStates.value.toMutableMap()
+        newMap[profileId] = state
+        _connectionStates.value = newMap
+        
+        if (state == ConnectionState.Connected) {
+            _activeConnections.value = _activeConnections.value + profileId
+        } else {
+            _activeConnections.value = _activeConnections.value - profileId
+        }
+    }
+
+    fun clearConnectionState(profileId: String) {
+        val newMap = _connectionStates.value.toMutableMap()
+        newMap.remove(profileId)
+        _connectionStates.value = newMap
+    }
 
     fun addConnection(profileId: String) {
         _activeConnections.value = _activeConnections.value + profileId

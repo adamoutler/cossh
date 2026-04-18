@@ -74,8 +74,8 @@ class SshService : Service() {
                 val storageManager = SecurityStorageManager(applicationContext)
                 val profile = storageManager.getProfile(profileId)
                 if (profile != null) {
-                    SshSessionProvider.addConnection(profileId)
-                    updateNotification("Connected to ${profile.nickname}")
+                    SshSessionProvider.updateConnectionState(profileId, ConnectionState.Connecting)
+                    updateNotification("Connecting to ${profile.nickname}")
                     sshManager = SshConnectionManager()
                     
                     sshManager?.connectPty(
@@ -83,6 +83,8 @@ class SshService : Service() {
                         onConnect = { outStream, session ->
                             SshSessionProvider.ptyOutputStream = outStream
                             SshSessionProvider.activeSshSession = session
+                            SshSessionProvider.updateConnectionState(profileId, ConnectionState.Connected)
+                            updateNotification("Connected to ${profile.nickname}")
                         },
                         onOutput = { bytes, length ->
                             if (SshSessionProvider.isHeadlessTest) {
@@ -93,8 +95,6 @@ class SshService : Service() {
                                 val session = SshSessionProvider.getOrCreateSession()
                                 val emulator = session?.emulator
                                 if (emulator != null) {
-                                    // On first SSH output, clear any subprocess artifacts
-                                    // (error messages, shell prompts, etc.) from the terminal
                                     if (!SshSessionProvider.firstSshOutputReceived) {
                                         SshSessionProvider.firstSshOutputReceived = true
                                         emulator.screen.clearTranscript()
@@ -110,12 +110,19 @@ class SshService : Service() {
                     )
                 } else {
                     Log.e("SshService", "Profile not found")
+                    SshSessionProvider.updateConnectionState(profileId, ConnectionState.Error("Profile not found"))
                 }
             } catch (e: Exception) {
                 Log.e("SshService", "SSH Connection failed", e)
                 updateNotification("Connection failed")
+                SshSessionProvider.updateConnectionState(profileId, ConnectionState.Error(e.message ?: "Connection failed"))
             } finally {
+                // Remove from active connections, but don't clear state if it's an Error, so UI can display it.
                 SshSessionProvider.removeConnection(profileId)
+                val currentState = SshSessionProvider.connectionStates.value[profileId]
+                if (currentState !is ConnectionState.Error) {
+                    SshSessionProvider.clearConnectionState(profileId)
+                }
                 SshSessionProvider.activeSshSession = null
                 SshSessionProvider.clearSession()
                 stopSelf()

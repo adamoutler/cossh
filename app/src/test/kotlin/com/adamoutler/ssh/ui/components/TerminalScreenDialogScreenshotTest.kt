@@ -65,4 +65,25 @@ class TerminalScreenDialogScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun connectionFailedDialogScreen() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    AlertDialog(
+                        onDismissRequest = { },
+                        title = { Text("Connection Failed") },
+                        text = { Text("Error: Authentication exhausted") },
+                        confirmButton = {
+                            TextButton(onClick = { }) { Text("OK") }
+                        }
+                    )
+                }
+            }
+        }
+    }
 }

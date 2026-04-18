@@ -44,4 +44,39 @@ class SshServiceForegroundTest {
         
         println("Service started successfully without MissingForegroundServiceTypeException on API 34.")
     }
+
+    @Test
+    fun `test service connection state transitions to error on failure`() = kotlinx.coroutines.runBlocking {
+        val app = ApplicationProvider.getApplicationContext<android.app.Application>()
+        val storageManager = SecurityStorageManager(app, app.getSharedPreferences("test_fgs_error", 0))
+        
+        // This profile points to a non-existent local server, ensuring a failure
+        val p1 = ConnectionProfile("id-fail", "FailServer", "127.0.0.1", port = 65535, username = "u1", authType = AuthType.PASSWORD, password = "pwd".toByteArray())
+        storageManager.saveProfile(p1)
+
+        val intent = Intent(app, SshService::class.java).apply {
+            action = SshService.ACTION_START
+            putExtra(SshService.EXTRA_PROFILE_ID, "id-fail")
+        }
+
+        SshSessionProvider.clearSession()
+        SshSessionProvider.clearConnections()
+
+        val serviceController = Robolectric.buildService(SshService::class.java, intent)
+        serviceController.create().startCommand(0, 1)
+
+        // Wait a bit for coroutines to execute and fail
+        var retries = 0
+        var currentState: ConnectionState? = null
+        while (retries < 50) {
+            currentState = SshSessionProvider.connectionStates.value["id-fail"]
+            if (currentState is ConnectionState.Error) {
+                break
+            }
+            kotlinx.coroutines.delay(100)
+            retries++
+        }
+        
+        org.junit.Assert.assertTrue("State should transition to Error", currentState is ConnectionState.Error)
+    }
 }

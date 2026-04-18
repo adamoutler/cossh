@@ -113,6 +113,28 @@ fun TerminalScreen(
     var wasActive by remember { mutableStateOf(false) }
     var showDisconnectedOverlay by remember { mutableStateOf(false) }
 
+    val connectionStates by SshSessionProvider.connectionStates.collectAsState()
+    val errorStateEntry = connectionStates.entries.firstOrNull { it.value is com.adamoutler.ssh.network.ConnectionState.Error }
+    val errorProfileId = errorStateEntry?.key
+    val errorMessage = (errorStateEntry?.value as? com.adamoutler.ssh.network.ConnectionState.Error)?.message
+
+    if (errorProfileId != null && errorMessage != null) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { 
+                SshSessionProvider.clearConnectionState(errorProfileId)
+                onNavigateBack()
+            },
+            title = { Text("Connection Failed") },
+            text = { Text("Error: $errorMessage") },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    SshSessionProvider.clearConnectionState(errorProfileId)
+                    onNavigateBack()
+                }) { Text("OK") }
+            }
+        )
+    }
+
     androidx.compose.runtime.LaunchedEffect(isConnectionActive) {
         if (isConnectionActive) {
             wasActive = true
