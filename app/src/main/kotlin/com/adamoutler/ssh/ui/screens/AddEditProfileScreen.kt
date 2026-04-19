@@ -103,10 +103,11 @@ fun AddEditProfileScreenContent(
     keyReference: String,
     @Suppress("UNUSED_PARAMETER") onKeyReferenceChange: (String) -> Unit,
     onSave: () -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    defaultPasswordVisible: Boolean = false
 ) {
     var isDropdownExpanded by remember { mutableStateOf(false) }
-    var passwordVisible by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(defaultPasswordVisible) }
 
     Scaffold(
         topBar = {

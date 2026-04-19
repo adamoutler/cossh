@@ -84,4 +84,38 @@ class AddEditProfileScreenScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun toggledScreenPasswordAuth() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    AddEditProfileScreenContent(
+                        profileId = null,
+                        nickname = "Test Server",
+                        onNicknameChange = {},
+                        host = "test.example.com",
+                        onHostChange = {},
+                        port = "22",
+                        onPortChange = {},
+                        username = "ubuntu",
+                        onUsernameChange = {},
+                        password = "secure_password",
+                        onPasswordChange = {},
+                        authType = AuthType.PASSWORD,
+                        onAuthTypeChange = {},
+                        availableKeys = emptyList(),
+                        keyReference = "",
+                        onKeyReferenceChange = {},
+                        onSave = {},
+                        onNavigateBack = {},
+                        defaultPasswordVisible = true
+                    )
+                }
+            }
+        }
+    }
 }
