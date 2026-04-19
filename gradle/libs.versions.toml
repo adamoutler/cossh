@@ -20,6 +20,11 @@ sshd = "2.12.1"
 termuxTerminalView = "v0.118.3"
 testcontainers = "1.19.7"
 bouncycastle = "1.84"
+netty = "4.1.132.Final"
+jose4j = "0.9.6"
+jdom2 = "2.0.6.1"
+commonsIo = "2.14.0"
+protobuf = "3.25.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
