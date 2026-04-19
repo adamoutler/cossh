@@ -14,7 +14,6 @@ onScale | public abstract float com.termux.view.TerminalViewClient.onScale(float
 shouldEnforceCharBasedInput | public abstract boolean com.termux.view.TerminalViewClient.shouldEnforceCharBasedInput()
 shouldUseCtrlSpaceWorkaround | public abstract boolean com.termux.view.TerminalViewClient.shouldUseCtrlSpaceWorkaround()
 isTerminalViewSelected | public abstract boolean com.termux.view.TerminalViewClient.isTerminalViewSelected()
-shouldBackButtonBeMappedToEscape | public abstract boolean com.termux.view.TerminalViewClient.shouldBackButtonBeMappedToEscape()
 copyModeChanged | public abstract void com.termux.view.TerminalViewClient.copyModeChanged(boolean)
 readControlKey | public abstract boolean com.termux.view.TerminalViewClient.readControlKey()
 readAltKey | public abstract boolean com.termux.view.TerminalViewClient.readAltKey()
@@ -22,3 +21,4 @@ readShiftKey | public abstract boolean com.termux.view.TerminalViewClient.readSh
 readFnKey | public abstract boolean com.termux.view.TerminalViewClient.readFnKey()
 onCodePoint | public abstract boolean com.termux.view.TerminalViewClient.onCodePoint(int,boolean,com.termux.terminal.TerminalSession)
 onEmulatorSet | public abstract void com.termux.view.TerminalViewClient.onEmulatorSet()
+shouldBackButtonBeMappedToEscape | public abstract boolean com.termux.view.TerminalViewClient.shouldBackButtonBeMappedToEscape()
