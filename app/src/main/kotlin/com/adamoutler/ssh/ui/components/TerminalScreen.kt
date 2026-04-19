@@ -403,28 +403,26 @@ fun TerminalScreen(
                             override fun logStackTrace(tag: String?, e: Exception?) {}
                         })
 
-                        var lastCols = -1
-                        var lastRows = -1
-                        terminalView.viewTreeObserver.addOnPreDrawListener {
-                            val emulator = session.emulator
-                            if (emulator != null) {
-                                val cols = emulator.mColumns
-                                val rows = emulator.mRows
-                                if (cols != lastCols || rows != lastRows) {
-                                    lastCols = cols
-                                    lastRows = rows
-                                    val width = terminalView.width
-                                    val height = terminalView.height
+                        terminalView.addOnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+                            val newWidth = right - left
+                            val newHeight = bottom - top
+                            val oldWidth = oldRight - oldLeft
+                            val oldHeight = oldBottom - oldTop
+
+                            if (newWidth != oldWidth || newHeight != oldHeight) {
+                                val emulator = session.emulator
+                                if (emulator != null) {
+                                    val cols = emulator.mColumns
+                                    val rows = emulator.mRows
                                     coroutineScope.launch(Dispatchers.IO) {
                                         try {
-                                            activeSession.sshShell?.changeWindowDimensions(cols, rows, width, height)
+                                            activeSession.sshShell?.changeWindowDimensions(cols, rows, newWidth, newHeight)
                                         } catch (e: Exception) {
                                             Log.e("TerminalScreen", "Failed to send SIGWINCH", e)
                                         }
                                     }
                                 }
                             }
-                            true
                         }
 
                         terminalView.attachSession(session)

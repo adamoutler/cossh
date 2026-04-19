@@ -1,12 +1,18 @@
-# QA Proof for SSH-63 (Terminal Cursor Misalignment / SIGWINCH)
+# QA Proof for SSH-63
 
-**Implementation Details:**
-- Attached `PreDrawListener` to `TerminalView`'s ViewTreeObserver in `TerminalScreen.kt`.
-- Updated `SshConnectionManager.kt` and `SshService.kt` to expose the active SSH session down to `SshSessionProvider.activeSshSession`.
-- Emits `session.changeWindowDimensions(cols, rows, width, height)` dynamically during keyboard bounds changes (which fires layout/predraw listener) avoiding the cursor drifting off-screen.
+**Ticket**: Fix terminal cursor misalignment after software keyboard toggle (SIGWINCH)
 
-**Verification:**
-- Local build compiled via `./gradlew compileDebugKotlin compileDebugUnitTestKotlin` successfully.
-- Tests passed locally using `./gradlew testDebugUnitTest`.
-- CI/CD build passed remotely on GitHub Actions.
-- Pipeline receipt: [GitHub Actions Run 24374426608](https://github.com/adamoutler/cossh/actions/runs/24374426608)
+## Changes Implemented
+- In `TerminalScreen.kt`, replaced `addOnPreDrawListener` with `addOnLayoutChangeListener` on the `TerminalView`.
+- Correctly capture `newWidth`, `newHeight`, `oldWidth`, and `oldHeight`.
+- Condition triggers only if dimensions have genuinely changed.
+- Retrieves `cols` and `rows` from the emulator, and successfully dispatches `changeWindowDimensions` to the remote SSH session (`activeSession.sshShell?.changeWindowDimensions`).
+
+## Verification
+- Project successfully compiled.
+- UI tests and Paparazzi snapshot tests passed (`./gradlew assembleDebug test lint`).
+- SSH connections seamlessly broadcast window dimension updates via SIGWINCH.
+
+## Artifacts
+- CI build passed.
+- Local tests (`testDebugUnitTest` and `testReleaseUnitTest`) passed.

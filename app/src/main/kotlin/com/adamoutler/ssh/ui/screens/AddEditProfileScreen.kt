@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.data.AuthType
@@ -105,6 +106,7 @@ fun AddEditProfileScreenContent(
     onNavigateBack: () -> Unit
 ) {
     var isDropdownExpanded by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -182,7 +184,12 @@ fun AddEditProfileScreenContent(
                     value = password,
                     onValueChange = onPasswordChange,
                     label = { Text("Password") },
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        TextButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Text(text = if (passwordVisible) "Hide" else "Show")
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
             } else {
