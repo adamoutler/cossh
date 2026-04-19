@@ -1,0 +1,343 @@
+build	Set up job	﻿2026-04-19T01:14:08.9661950Z Current runner version: '2.333.1'
+build	Set up job	2026-04-19T01:14:08.9696885Z ##[group]Runner Image Provisioner
+build	Set up job	2026-04-19T01:14:08.9698651Z Hosted Compute Agent
+build	Set up job	2026-04-19T01:14:08.9699568Z Version: 20260213.493
+build	Set up job	2026-04-19T01:14:08.9700813Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
+build	Set up job	2026-04-19T01:14:08.9702153Z Build Date: 2026-02-13T00:28:41Z
+build	Set up job	2026-04-19T01:14:08.9703193Z Worker ID: {f5a63a38-7e89-4080-973b-84d76d44c3cc}
+build	Set up job	2026-04-19T01:14:08.9704391Z Azure Region: eastus2
+build	Set up job	2026-04-19T01:14:08.9705334Z ##[endgroup]
+build	Set up job	2026-04-19T01:14:08.9707526Z ##[group]Operating System
+build	Set up job	2026-04-19T01:14:08.9708476Z Ubuntu
+build	Set up job	2026-04-19T01:14:08.9709372Z 24.04.4
+build	Set up job	2026-04-19T01:14:08.9710198Z LTS
+build	Set up job	2026-04-19T01:14:08.9711192Z ##[endgroup]
+build	Set up job	2026-04-19T01:14:08.9712144Z ##[group]Runner Image
+build	Set up job	2026-04-19T01:14:08.9713059Z Image: ubuntu-24.04
+build	Set up job	2026-04-19T01:14:08.9713940Z Version: 20260413.86.1
+build	Set up job	2026-04-19T01:14:08.9715691Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260413.86/images/ubuntu/Ubuntu2404-Readme.md
+build	Set up job	2026-04-19T01:14:08.9718660Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260413.86
+build	Set up job	2026-04-19T01:14:08.9720365Z ##[endgroup]
+build	Set up job	2026-04-19T01:14:08.9722490Z ##[group]GITHUB_TOKEN Permissions
+build	Set up job	2026-04-19T01:14:08.9725192Z Contents: read
+build	Set up job	2026-04-19T01:14:08.9726195Z Metadata: read
+build	Set up job	2026-04-19T01:14:08.9727097Z Packages: read
+build	Set up job	2026-04-19T01:14:08.9727978Z ##[endgroup]
+build	Set up job	2026-04-19T01:14:08.9731186Z Secret source: Actions
+build	Set up job	2026-04-19T01:14:08.9732628Z Prepare workflow directory
+build	Set up job	2026-04-19T01:14:09.0187036Z Prepare all required actions
+build	Set up job	2026-04-19T01:14:09.0241583Z Getting action download info
+build	Set up job	2026-04-19T01:14:09.3388736Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+build	Set up job	2026-04-19T01:14:09.5005516Z Download action repository 'actions/setup-java@v3' (SHA:17f84c3641ba7b8f6deff6309fc4c864478f5d62)
+build	Set up job	2026-04-19T01:14:09.7971130Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+build	Set up job	2026-04-19T01:14:10.1216390Z Complete job name: build
+build	Run actions/checkout@v4	﻿2026-04-19T01:14:10.1908080Z ##[group]Run actions/checkout@v4
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1908910Z with:
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1909316Z   repository: adamoutler/cossh
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1909954Z   token: ***
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1910340Z   ssh-strict: true
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1910989Z   ssh-user: git
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1911404Z   persist-credentials: true
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1911848Z   clean: true
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1912256Z   sparse-checkout-cone-mode: true
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1912745Z   fetch-depth: 1
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1913126Z   fetch-tags: false
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1913578Z   show-progress: true
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1913979Z   lfs: false
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1914351Z   submodules: false
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1914755Z   set-safe-directory: true
+build	Run actions/checkout@v4	2026-04-19T01:14:10.1915464Z ##[endgroup]
+build	Run actions/checkout@v4	2026-04-19T01:14:10.2976507Z Syncing repository: adamoutler/cossh
+build	Run actions/checkout@v4	2026-04-19T01:14:10.2978334Z ##[group]Getting Git version info
+build	Run actions/checkout@v4	2026-04-19T01:14:10.2978991Z Working directory is '/home/runner/work/cossh/cossh'
+build	Run actions/checkout@v4	2026-04-19T01:14:10.2979939Z [command]/usr/bin/git version
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3021364Z git version 2.53.0
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3048372Z ##[endgroup]
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3065625Z Temporarily overriding HOME='/home/runner/work/_temp/90414ec6-f837-4450-9e29-aa368ef0bf50' before making global git config changes
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3067952Z Adding repository directory to the temporary git global config as a safe directory
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3072611Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/cossh/cossh
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3111479Z Deleting the contents of '/home/runner/work/cossh/cossh'
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3115001Z ##[group]Initializing the repository
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3118990Z [command]/usr/bin/git init /home/runner/work/cossh/cossh
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3232121Z hint: Using 'master' as the name for the initial branch. This default branch name
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3233844Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3235892Z hint: to use in all of your new repositories, which will suppress this warning,
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3237200Z hint: call:
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3237843Z hint:
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3238868Z hint: 	git config --global init.defaultBranch <name>
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3239929Z hint:
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3241249Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3242773Z hint: 'development'. The just-created branch can be renamed via this command:
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3244045Z hint:
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3244741Z hint: 	git branch -m <name>
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3245537Z hint:
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3246634Z hint: Disable this message with "git config set advice.defaultBranchName false"
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3247784Z Initialized empty Git repository in /home/runner/work/cossh/cossh/.git/
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3249271Z [command]/usr/bin/git remote add origin https://github.com/adamoutler/cossh
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3276595Z ##[endgroup]
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3277791Z ##[group]Disabling automatic garbage collection
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3281859Z [command]/usr/bin/git config --local gc.auto 0
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3309739Z ##[endgroup]
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3310430Z ##[group]Setting up auth
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3316637Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3347800Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3625000Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3654908Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3863510Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build	Run actions/checkout@v4	2026-04-19T01:14:10.3893743Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build	Run actions/checkout@v4	2026-04-19T01:14:10.4116936Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+build	Run actions/checkout@v4	2026-04-19T01:14:10.4150858Z ##[endgroup]
+build	Run actions/checkout@v4	2026-04-19T01:14:10.4151653Z ##[group]Fetching the repository
+build	Run actions/checkout@v4	2026-04-19T01:14:10.4158816Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +4a9496d04d56bd97ce3aaab31f64dc767f597a52:refs/remotes/origin/main
+build	Run actions/checkout@v4	2026-04-19T01:14:10.9373610Z From https://github.com/adamoutler/cossh
+build	Run actions/checkout@v4	2026-04-19T01:14:10.9375644Z  * [new ref]         4a9496d04d56bd97ce3aaab31f64dc767f597a52 -> origin/main
+build	Run actions/checkout@v4	2026-04-19T01:14:10.9411669Z ##[endgroup]
+build	Run actions/checkout@v4	2026-04-19T01:14:10.9412667Z ##[group]Determining the checkout info
+build	Run actions/checkout@v4	2026-04-19T01:14:10.9415801Z ##[endgroup]
+build	Run actions/checkout@v4	2026-04-19T01:14:10.9423193Z [command]/usr/bin/git sparse-checkout disable
+build	Run actions/checkout@v4	2026-04-19T01:14:10.9463835Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+build	Run actions/checkout@v4	2026-04-19T01:14:10.9491303Z ##[group]Checking out the ref
+build	Run actions/checkout@v4	2026-04-19T01:14:10.9495583Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+build	Run actions/checkout@v4	2026-04-19T01:14:11.0363737Z Switched to a new branch 'main'
+build	Run actions/checkout@v4	2026-04-19T01:14:11.0365040Z branch 'main' set up to track 'origin/main'.
+build	Run actions/checkout@v4	2026-04-19T01:14:11.0379987Z ##[endgroup]
+build	Run actions/checkout@v4	2026-04-19T01:14:11.0416328Z [command]/usr/bin/git log -1 --format=%H
+build	Run actions/checkout@v4	2026-04-19T01:14:11.0437671Z 4a9496d04d56bd97ce3aaab31f64dc767f597a52
+build	set up JDK 17	﻿2026-04-19T01:14:11.0742777Z ##[group]Run actions/setup-java@v3
+build	set up JDK 17	2026-04-19T01:14:11.0743423Z with:
+build	set up JDK 17	2026-04-19T01:14:11.0743825Z   java-version: 17
+build	set up JDK 17	2026-04-19T01:14:11.0744265Z   distribution: temurin
+build	set up JDK 17	2026-04-19T01:14:11.0744719Z   cache: gradle
+build	set up JDK 17	2026-04-19T01:14:11.0745147Z   java-package: jdk
+build	set up JDK 17	2026-04-19T01:14:11.0745580Z   check-latest: false
+build	set up JDK 17	2026-04-19T01:14:11.0746022Z   server-id: github
+build	set up JDK 17	2026-04-19T01:14:11.0746464Z   server-username: GITHUB_ACTOR
+build	set up JDK 17	2026-04-19T01:14:11.0747208Z   server-password: GITHUB_TOKEN
+build	set up JDK 17	2026-04-19T01:14:11.0747737Z   overwrite-settings: true
+build	set up JDK 17	2026-04-19T01:14:11.0748222Z   job-status: success
+build	set up JDK 17	2026-04-19T01:14:11.0748815Z   token: ***
+build	set up JDK 17	2026-04-19T01:14:11.0749233Z ##[endgroup]
+build	set up JDK 17	2026-04-19T01:14:11.2744887Z ##[group]Installed distributions
+build	set up JDK 17	2026-04-19T01:14:11.3006635Z Resolved Java 17.0.18+8 from tool-cache
+build	set up JDK 17	2026-04-19T01:14:11.3008217Z Setting Java 17.0.18+8 as the default
+build	set up JDK 17	2026-04-19T01:14:11.3021235Z Creating toolchains.xml for JDK version 17 from temurin
+build	set up JDK 17	2026-04-19T01:14:11.3097921Z Writing to /home/runner/.m2/toolchains.xml
+build	set up JDK 17	2026-04-19T01:14:11.3099115Z 
+build	set up JDK 17	2026-04-19T01:14:11.3099600Z Java configuration:
+build	set up JDK 17	2026-04-19T01:14:11.3100976Z   Distribution: temurin
+build	set up JDK 17	2026-04-19T01:14:11.3102147Z   Version: 17.0.18+8
+build	set up JDK 17	2026-04-19T01:14:11.3103742Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+build	set up JDK 17	2026-04-19T01:14:11.3105156Z 
+build	set up JDK 17	2026-04-19T01:14:11.3106558Z ##[endgroup]
+build	set up JDK 17	2026-04-19T01:14:11.3123909Z Creating settings.xml with server-id: github
+build	set up JDK 17	2026-04-19T01:14:11.3135560Z Writing to /home/runner/.m2/settings.xml
+build	set up JDK 17	2026-04-19T01:14:11.5088042Z gradle cache is not found
+build	Grant execute permission for gradlew	﻿2026-04-19T01:14:11.5261453Z ##[group]Run chmod +x gradlew
+build	Grant execute permission for gradlew	2026-04-19T01:14:11.5262653Z [36;1mchmod +x gradlew[0m
+build	Grant execute permission for gradlew	2026-04-19T01:14:11.5291109Z shell: /usr/bin/bash -e {0}
+build	Grant execute permission for gradlew	2026-04-19T01:14:11.5292163Z env:
+build	Grant execute permission for gradlew	2026-04-19T01:14:11.5293354Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+build	Grant execute permission for gradlew	2026-04-19T01:14:11.5295501Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+build	Grant execute permission for gradlew	2026-04-19T01:14:11.5297167Z ##[endgroup]
+build	Build with Gradle	﻿2026-04-19T01:14:11.5520955Z ##[group]Run ./gradlew assembleDebug
+build	Build with Gradle	2026-04-19T01:14:11.5522264Z [36;1m./gradlew assembleDebug[0m
+build	Build with Gradle	2026-04-19T01:14:11.5543804Z shell: /usr/bin/bash -e {0}
+build	Build with Gradle	2026-04-19T01:14:11.5544733Z env:
+build	Build with Gradle	2026-04-19T01:14:11.5545887Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+build	Build with Gradle	2026-04-19T01:14:11.5547922Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+build	Build with Gradle	2026-04-19T01:14:11.5549506Z ##[endgroup]
+build	Build with Gradle	2026-04-19T01:14:12.4618706Z Downloading https://services.gradle.org/distributions/gradle-8.7-bin.zip
+build	Build with Gradle	2026-04-19T01:14:15.1650141Z ............10%.............20%.............30%.............40%............50%.............60%.............70%.............80%.............90%............100%
+build	Build with Gradle	2026-04-19T01:14:16.2964989Z 
+build	Build with Gradle	2026-04-19T01:14:16.2965889Z Welcome to Gradle 8.7!
+build	Build with Gradle	2026-04-19T01:14:16.2966801Z 
+build	Build with Gradle	2026-04-19T01:14:16.2967598Z Here are the highlights of this release:
+build	Build with Gradle	2026-04-19T01:14:16.2971451Z  - Compiling and testing with Java 22
+build	Build with Gradle	2026-04-19T01:14:16.2972800Z  - Cacheable Groovy script compilation
+build	Build with Gradle	2026-04-19T01:14:16.2974131Z  - New methods in lazy collection properties
+build	Build with Gradle	2026-04-19T01:14:16.2974581Z 
+build	Build with Gradle	2026-04-19T01:14:16.2980024Z For more details see https://docs.gradle.org/8.7/release-notes.html
+build	Build with Gradle	2026-04-19T01:14:16.2980837Z 
+build	Build with Gradle	2026-04-19T01:14:16.4971963Z Starting a Gradle Daemon (subsequent builds will be faster)
+build	Build with Gradle	2026-04-19T01:15:27.0959444Z WARNING: The following problems were found when resolving the SDK location:
+build	Build with Gradle	2026-04-19T01:15:27.0960962Z Where: sdk.dir property in local.properties file. Problem: Directory does not exist
+build	Build with Gradle	2026-04-19T01:15:27.0961696Z 
+build	Build with Gradle	2026-04-19T01:15:27.8002760Z > Task :app:preBuild UP-TO-DATE
+build	Build with Gradle	2026-04-19T01:15:27.8007319Z > Task :app:preDebugBuild UP-TO-DATE
+build	Build with Gradle	2026-04-19T01:15:27.8966280Z > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+build	Build with Gradle	2026-04-19T01:15:27.8977434Z > Task :app:checkKotlinGradlePluginConfigurationErrors
+build	Build with Gradle	2026-04-19T01:15:27.9957716Z > Task :app:generateDebugBuildConfig
+build	Build with Gradle	2026-04-19T01:15:41.5965734Z > Task :app:generateDebugResValues
+build	Build with Gradle	2026-04-19T01:15:41.6963009Z > Task :app:checkDebugAarMetadata
+build	Build with Gradle	2026-04-19T01:15:41.6964108Z > Task :app:mapDebugSourceSetPaths
+build	Build with Gradle	2026-04-19T01:15:41.6964767Z > Task :app:generateDebugResources
+build	Build with Gradle	2026-04-19T01:15:42.8981715Z > Task :app:packageDebugResources
+build	Build with Gradle	2026-04-19T01:15:43.9980117Z > Task :app:createDebugCompatibleScreenManifests
+build	Build with Gradle	2026-04-19T01:15:44.0011564Z > Task :app:extractDeepLinksDebug
+build	Build with Gradle	2026-04-19T01:15:44.0041159Z > Task :app:mergeDebugResources
+build	Build with Gradle	2026-04-19T01:15:44.0958809Z > Task :app:parseDebugLocalResources
+build	Build with Gradle	2026-04-19T01:15:44.3961743Z 
+build	Build with Gradle	2026-04-19T01:15:44.3981761Z > Task :app:processDebugMainManifest
+build	Build with Gradle	2026-04-19T01:15:44.4021928Z /home/runner/work/cossh/cossh/app/src/main/AndroidManifest.xml:14:9-41 Warning:
+build	Build with Gradle	2026-04-19T01:15:44.4072227Z 	android:extractNativeLibs should not be specified in this source AndroidManifest.xml file. See https://d.android.com/guide/topics/manifest/application-element#extractNativeLibs for more information.
+build	Build with Gradle	2026-04-19T01:15:44.4097232Z The AGP Upgrade Assistant can remove the attribute from the AndroidManifest.xml file and update the build file accordingly. See https://d.android.com/studio/build/agp-upgrade-assistant for more information.
+build	Build with Gradle	2026-04-19T01:15:44.4963295Z 
+build	Build with Gradle	2026-04-19T01:15:44.4964131Z > Task :app:processDebugManifest
+build	Build with Gradle	2026-04-19T01:15:44.4964911Z > Task :app:javaPreCompileDebug
+build	Build with Gradle	2026-04-19T01:15:44.4965983Z > Task :app:processDebugManifestForPackage
+build	Build with Gradle	2026-04-19T01:15:45.9968106Z > Task :app:mergeDebugShaders
+build	Build with Gradle	2026-04-19T01:15:46.0012127Z > Task :app:compileDebugShaders NO-SOURCE
+build	Build with Gradle	2026-04-19T01:15:46.0041253Z > Task :app:generateDebugAssets UP-TO-DATE
+build	Build with Gradle	2026-04-19T01:15:46.0981163Z > Task :app:mergeDebugAssets
+build	Build with Gradle	2026-04-19T01:15:46.1001167Z > Task :app:compressDebugAssets
+build	Build with Gradle	2026-04-19T01:15:46.1021283Z > Task :app:desugarDebugFileDependencies
+build	Build with Gradle	2026-04-19T01:15:46.9958328Z > Task :app:processDebugResources
+build	Build with Gradle	2026-04-19T01:15:47.5958218Z > Task :app:checkDebugDuplicateClasses
+build	Build with Gradle	2026-04-19T01:15:52.1961048Z > Task :app:mergeDebugStartupProfile
+build	Build with Gradle	2026-04-19T01:16:17.4960752Z > Task :app:compileDebugKotlin
+build	Build with Gradle	2026-04-19T01:16:22.1957660Z > Task :app:mergeExtDexDebug
+build	Build with Gradle	2026-04-19T01:17:20.1957697Z > Task :app:compileDebugJavaWithJavac
+build	Build with Gradle	2026-04-19T01:17:21.2981416Z > Task :app:dexBuilderDebug
+build	Build with Gradle	2026-04-19T01:17:21.3957630Z > Task :app:mergeDebugGlobalSynthetics
+build	Build with Gradle	2026-04-19T01:17:21.3979284Z > Task :app:processDebugJavaRes
+build	Build with Gradle	2026-04-19T01:17:22.4957307Z > Task :app:mergeLibDexDebug
+build	Build with Gradle	2026-04-19T01:17:22.5991764Z > Task :app:mergeDebugJniLibFolders
+build	Build with Gradle	2026-04-19T01:17:22.8998636Z > Task :app:mergeProjectDexDebug
+build	Build with Gradle	2026-04-19T01:17:22.9021071Z 
+build	Build with Gradle	2026-04-19T01:17:22.9035323Z > Task :app:mergeDebugNativeLibs
+build	Build with Gradle	2026-04-19T01:17:22.9052692Z 2 files found for path 'lib/arm64-v8a/libtermux.so'. This version of the Android Gradle Plugin chooses the file from the app or dynamic-feature module, but this can cause unexpected behavior or errors at runtime. Future versions of the Android Gradle Plugin may throw an error in this case.
+build	Build with Gradle	2026-04-19T01:17:22.9081127Z Inputs:
+build	Build with Gradle	2026-04-19T01:17:22.9111782Z  - /home/runner/work/cossh/cossh/app/build/intermediates/merged_jni_libs/debug/mergeDebugJniLibFolders/out/arm64-v8a/libtermux.so
+build	Build with Gradle	2026-04-19T01:17:22.9138928Z  - /home/runner/.gradle/caches/transforms-4/a8466922a88285e8e820506a7e2fdc31/transformed/terminal-emulator-v0.118.3/jni/arm64-v8a/libtermux.so
+build	Build with Gradle	2026-04-19T01:17:22.9140837Z 
+build	Build with Gradle	2026-04-19T01:17:22.9169973Z 2 files found for path 'lib/armeabi-v7a/libtermux.so'. This version of the Android Gradle Plugin chooses the file from the app or dynamic-feature module, but this can cause unexpected behavior or errors at runtime. Future versions of the Android Gradle Plugin may throw an error in this case.
+build	Build with Gradle	2026-04-19T01:17:22.9172382Z Inputs:
+build	Build with Gradle	2026-04-19T01:17:22.9173419Z  - /home/runner/work/cossh/cossh/app/build/intermediates/merged_jni_libs/debug/mergeDebugJniLibFolders/out/armeabi-v7a/libtermux.so
+build	Build with Gradle	2026-04-19T01:17:22.9205096Z  - /home/runner/.gradle/caches/transforms-4/a8466922a88285e8e820506a7e2fdc31/transformed/terminal-emulator-v0.118.3/jni/armeabi-v7a/libtermux.so
+build	Build with Gradle	2026-04-19T01:17:22.9230825Z 
+build	Build with Gradle	2026-04-19T01:17:22.9262405Z 2 files found for path 'lib/x86/libtermux.so'. This version of the Android Gradle Plugin chooses the file from the app or dynamic-feature module, but this can cause unexpected behavior or errors at runtime. Future versions of the Android Gradle Plugin may throw an error in this case.
+build	Build with Gradle	2026-04-19T01:17:22.9264455Z Inputs:
+build	Build with Gradle	2026-04-19T01:17:22.9291639Z  - /home/runner/work/cossh/cossh/app/build/intermediates/merged_jni_libs/debug/mergeDebugJniLibFolders/out/x86/libtermux.so
+build	Build with Gradle	2026-04-19T01:17:22.9321712Z  - /home/runner/.gradle/caches/transforms-4/a8466922a88285e8e820506a7e2fdc31/transformed/terminal-emulator-v0.118.3/jni/x86/libtermux.so
+build	Build with Gradle	2026-04-19T01:17:22.9330872Z 
+build	Build with Gradle	2026-04-19T01:17:22.9362471Z 2 files found for path 'lib/x86_64/libtermux.so'. This version of the Android Gradle Plugin chooses the file from the app or dynamic-feature module, but this can cause unexpected behavior or errors at runtime. Future versions of the Android Gradle Plugin may throw an error in this case.
+build	Build with Gradle	2026-04-19T01:17:22.9381123Z Inputs:
+build	Build with Gradle	2026-04-19T01:17:22.9403638Z  - /home/runner/work/cossh/cossh/app/build/intermediates/merged_jni_libs/debug/mergeDebugJniLibFolders/out/x86_64/libtermux.so
+build	Build with Gradle	2026-04-19T01:17:22.9431651Z  - /home/runner/.gradle/caches/transforms-4/a8466922a88285e8e820506a7e2fdc31/transformed/terminal-emulator-v0.118.3/jni/x86_64/libtermux.so
+build	Build with Gradle	2026-04-19T01:17:22.9450844Z 
+build	Build with Gradle	2026-04-19T01:17:23.9956480Z 
+build	Build with Gradle	2026-04-19T01:17:23.9972438Z > Task :app:mergeDebugJavaResource
+build	Build with Gradle	2026-04-19T01:17:24.1999279Z > Task :app:validateSigningDebug
+build	Build with Gradle	2026-04-19T01:17:24.2964188Z > Task :app:writeDebugAppMetadata
+build	Build with Gradle	2026-04-19T01:17:24.2979096Z > Task :app:writeDebugSigningConfigVersions
+build	Build with Gradle	2026-04-19T01:17:24.2979645Z 
+build	Build with Gradle	2026-04-19T01:17:24.2980007Z > Task :app:stripDebugDebugSymbols
+build	Build with Gradle	2026-04-19T01:17:24.2981066Z Unable to strip the following libraries, packaging them as they are: libtermux.so.
+build	Build with Gradle	2026-04-19T01:17:25.0958057Z 
+build	Build with Gradle	2026-04-19T01:17:25.0958775Z > Task :app:packageDebug
+build	Build with Gradle	2026-04-19T01:17:25.0959475Z > Task :app:createDebugApkListingFileRedirect
+build	Build with Gradle	2026-04-19T01:17:25.0960982Z > Task :app:assembleDebug
+build	Build with Gradle	2026-04-19T01:17:25.0965658Z 
+build	Build with Gradle	2026-04-19T01:17:25.0966037Z BUILD SUCCESSFUL in 3m 13s
+build	Build with Gradle	2026-04-19T01:17:25.1631066Z 39 actionable tasks: 39 executed
+build	Run Lint	﻿2026-04-19T01:17:25.4880421Z ##[group]Run ./gradlew lint
+build	Run Lint	2026-04-19T01:17:25.4881185Z [36;1m./gradlew lint[0m
+build	Run Lint	2026-04-19T01:17:25.4903927Z shell: /usr/bin/bash -e {0}
+build	Run Lint	2026-04-19T01:17:25.4904166Z env:
+build	Run Lint	2026-04-19T01:17:25.4904469Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+build	Run Lint	2026-04-19T01:17:25.4904940Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+build	Run Lint	2026-04-19T01:17:25.4905294Z ##[endgroup]
+build	Run Lint	2026-04-19T01:17:26.6871387Z WARNING: The following problems were found when resolving the SDK location:
+build	Run Lint	2026-04-19T01:17:26.6872824Z Where: sdk.dir property in local.properties file. Problem: Directory does not exist
+build	Run Lint	2026-04-19T01:17:26.6873635Z 
+build	Run Lint	2026-04-19T01:17:26.8872419Z > Task :app:checkKotlinGradlePluginConfigurationErrors
+build	Run Lint	2026-04-19T01:17:26.8891332Z > Task :app:preBuild UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:26.8912929Z > Task :app:preDebugBuild UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:26.8938372Z > Task :app:generateDebugBuildConfig UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:26.9853686Z > Task :app:checkDebugAarMetadata UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:26.9897970Z > Task :app:generateDebugResValues UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:26.9906570Z > Task :app:mapDebugSourceSetPaths UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:26.9936197Z > Task :app:generateDebugResources UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:26.9936712Z > Task :app:mergeDebugResources UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:26.9937153Z > Task :app:packageDebugResources UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:26.9937608Z > Task :app:parseDebugLocalResources UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:26.9947631Z > Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:26.9971274Z > Task :app:extractDeepLinksDebug UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:27.0861694Z > Task :app:processDebugMainManifest UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:27.0891331Z > Task :app:processDebugManifest UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:27.0951275Z > Task :app:processDebugManifestForPackage UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:27.0998676Z > Task :app:processDebugResources UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:27.1001466Z > Task :app:compileDebugKotlin UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:27.1002426Z > Task :app:javaPreCompileDebug UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:27.1003288Z > Task :app:compileDebugJavaWithJavac UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:27.1835292Z > Task :app:preDebugAndroidTestBuild SKIPPED
+build	Run Lint	2026-04-19T01:17:27.1836792Z > Task :app:generateDebugAndroidTestResValues
+build	Run Lint	2026-04-19T01:17:27.1837728Z > Task :app:extractProguardFiles
+build	Run Lint	2026-04-19T01:17:27.1846524Z > Task :app:bundleDebugClassesToCompileJar
+build	Run Lint	2026-04-19T01:17:28.7833748Z > Task :app:generateDebugLintReportModel
+build	Run Lint	2026-04-19T01:17:31.3834485Z > Task :app:generateDebugAndroidTestLintModel
+build	Run Lint	2026-04-19T01:17:31.3835275Z > Task :app:preDebugUnitTestBuild UP-TO-DATE
+build	Run Lint	2026-04-19T01:17:40.0834934Z > Task :app:generateDebugUnitTestLintModel
+build	Run Lint	2026-04-19T01:18:02.9845313Z > Task :app:lintAnalyzeDebugAndroidTest
+build	Run Lint	2026-04-19T01:18:03.1841594Z > Task :app:lintAnalyzeDebugUnitTest
+build	Run Lint	2026-04-19T01:18:10.0833993Z > Task :app:lintAnalyzeDebug
+build	Run Lint	2026-04-19T01:18:11.9846720Z 
+build	Run Lint	2026-04-19T01:18:11.9847430Z > Task :app:lintReportDebug
+build	Run Lint	2026-04-19T01:18:11.9848973Z Wrote HTML report to file:///home/runner/work/cossh/cossh/app/build/reports/lint-results-debug.html
+build	Run Lint	2026-04-19T01:18:11.9854101Z 
+build	Run Lint	2026-04-19T01:18:11.9859649Z > Task :app:lintDebug
+build	Run Lint	2026-04-19T01:18:11.9860244Z > Task :app:lint
+build	Run Lint	2026-04-19T01:18:11.9865182Z 
+build	Run Lint	2026-04-19T01:18:11.9902357Z BUILD SUCCESSFUL in 46s
+build	Run Lint	2026-04-19T01:18:11.9905598Z 29 actionable tasks: 12 executed, 17 up-to-date
+build	Upload APK Artifact	﻿2026-04-19T01:18:12.0236981Z ##[group]Run actions/upload-artifact@v4
+build	Upload APK Artifact	2026-04-19T01:18:12.0237262Z with:
+build	Upload APK Artifact	2026-04-19T01:18:12.0237435Z   name: app-debug
+build	Upload APK Artifact	2026-04-19T01:18:12.0237652Z   path: app/build/outputs/apk/debug/app-debug.apk
+build	Upload APK Artifact	2026-04-19T01:18:12.0237927Z   retention-days: 7
+build	Upload APK Artifact	2026-04-19T01:18:12.0238117Z   if-no-files-found: warn
+build	Upload APK Artifact	2026-04-19T01:18:12.0238314Z   compression-level: 6
+build	Upload APK Artifact	2026-04-19T01:18:12.0238505Z   overwrite: false
+build	Upload APK Artifact	2026-04-19T01:18:12.0238684Z   include-hidden-files: false
+build	Upload APK Artifact	2026-04-19T01:18:12.0238885Z env:
+build	Upload APK Artifact	2026-04-19T01:18:12.0239148Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+build	Upload APK Artifact	2026-04-19T01:18:12.0239605Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+build	Upload APK Artifact	2026-04-19T01:18:12.0239954Z ##[endgroup]
+build	Upload APK Artifact	2026-04-19T01:18:12.2409418Z With the provided path, there will be 1 file uploaded
+build	Upload APK Artifact	2026-04-19T01:18:12.2414888Z Artifact name is valid!
+build	Upload APK Artifact	2026-04-19T01:18:12.2416037Z Root directory input is valid!
+build	Upload APK Artifact	2026-04-19T01:18:12.3657661Z Beginning upload of artifact content to blob storage
+build	Upload APK Artifact	2026-04-19T01:18:12.8594467Z Uploaded bytes 8388608
+build	Upload APK Artifact	2026-04-19T01:18:13.1143432Z Uploaded bytes 16777216
+build	Upload APK Artifact	2026-04-19T01:18:13.1497078Z Uploaded bytes 17500823
+build	Upload APK Artifact	2026-04-19T01:18:13.1683568Z Finished uploading artifact content to blob storage!
+build	Upload APK Artifact	2026-04-19T01:18:13.1687121Z SHA256 digest of uploaded artifact zip is 6d37f78628c7447c4264c507f8bbddeb0e8a6aaec6a4164cdce7c56b3f6ee5ef
+build	Upload APK Artifact	2026-04-19T01:18:13.1688586Z Finalizing artifact upload
+build	Upload APK Artifact	2026-04-19T01:18:13.2802761Z Artifact app-debug.zip successfully finalized. Artifact ID 6514744740
+build	Upload APK Artifact	2026-04-19T01:18:13.2803902Z Artifact app-debug has been successfully uploaded! Final size is 17500823 bytes. Artifact ID is 6514744740
+build	Upload APK Artifact	2026-04-19T01:18:13.2814561Z Artifact download URL: https://github.com/adamoutler/cossh/actions/runs/24617945336/artifacts/6514744740
+build	Post set up JDK 17	﻿2026-04-19T01:18:13.2986995Z Post job cleanup.
+build	Post set up JDK 17	2026-04-19T01:18:13.4804796Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C /home/runner/work/cossh/cossh --files-from manifest.txt --use-compress-program zstdmt
+build	Post set up JDK 17	2026-04-19T01:18:19.2732896Z Sent 0 of 1119601903 (0.0%), 0.0 MBs/sec
+build	Post set up JDK 17	2026-04-19T01:18:20.2741725Z Sent 536870912 of 1119601903 (48.0%), 255.7 MBs/sec
+build	Post set up JDK 17	2026-04-19T01:18:21.2727776Z Sent 1006632960 of 1119601903 (89.9%), 319.8 MBs/sec
+build	Post set up JDK 17	2026-04-19T01:18:21.5068389Z Sent 1119601903 of 1119601903 (100.0%), 330.0 MBs/sec
+build	Post set up JDK 17	2026-04-19T01:18:21.6951419Z Cache saved with the key: setup-java-Linux-gradle-3232e67eaa2451029bebd16ae07c3ebefb7cd143ab4ebeebdb847c89ed7f6839
+build	Post Run actions/checkout@v4	﻿2026-04-19T01:18:21.7146865Z Post job cleanup.
+build	Post Run actions/checkout@v4	2026-04-19T01:18:21.8063555Z [command]/usr/bin/git version
+build	Post Run actions/checkout@v4	2026-04-19T01:18:21.8100040Z git version 2.53.0
+build	Post Run actions/checkout@v4	2026-04-19T01:18:21.8141868Z Temporarily overriding HOME='/home/runner/work/_temp/23772775-516b-488f-8a27-737d69cfa83b' before making global git config changes
+build	Post Run actions/checkout@v4	2026-04-19T01:18:21.8143091Z Adding repository directory to the temporary git global config as a safe directory
+build	Post Run actions/checkout@v4	2026-04-19T01:18:21.8153522Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/cossh/cossh
+build	Post Run actions/checkout@v4	2026-04-19T01:18:21.8185320Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build	Post Run actions/checkout@v4	2026-04-19T01:18:21.8215974Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build	Post Run actions/checkout@v4	2026-04-19T01:18:21.8429863Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build	Post Run actions/checkout@v4	2026-04-19T01:18:21.8449198Z http.https://github.com/.extraheader
+build	Post Run actions/checkout@v4	2026-04-19T01:18:21.8461382Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+build	Post Run actions/checkout@v4	2026-04-19T01:18:21.8489395Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build	Post Run actions/checkout@v4	2026-04-19T01:18:21.8700043Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build	Post Run actions/checkout@v4	2026-04-19T01:18:21.8728510Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build	Complete job	﻿2026-04-19T01:18:21.9046232Z Cleaning up orphan processes
+build	Complete job	2026-04-19T01:18:21.9353180Z Terminate orphan process: pid (2347) (java)
+build	Complete job	2026-04-19T01:18:21.9374349Z Terminate orphan process: pid (2505) (java)
+build	Complete job	2026-04-19T01:18:21.9416476Z ##[warning]Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, actions/setup-java@v3, actions/upload-artifact@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
