@@ -29,19 +29,7 @@ elif tool_name in ["mcp_kanban_transition_ticket", "transition_ticket"] and tick
 if not is_completing:
     allow()
 
-# Rate limit
-current_time = time.time()
-rate_limit_file = "/tmp/qa_gate_last_run"
-if os.path.exists(rate_limit_file):
-    with open(rate_limit_file, "r") as f:
-        try:
-            last_run = float(f.read())
-            if current_time - last_run < 30:
-                deny("Rate limit exceeded. Please wait 30 seconds between calls to mcp update ticket.")
-        except:
-            pass
-with open(rate_limit_file, "w") as f:
-    f.write(str(current_time))
+# Removed TOCTOU rate limit
 
 # Pre-flight checks
 status_out = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True).stdout.strip()
@@ -141,7 +129,35 @@ with open(ticket_file, "w") as f:
     f.write(f"---\nname: CI Dashboard Build Receipt\ndescription: The build results from the CI Dashboard for commit {current_commit}\n---\n{ci_receipt}\n")
 
 # Run Gemini
+import fcntl
+
+lock_file_path = "/tmp/qa-gate.lock"
+if not os.path.exists(lock_file_path):
+    open(lock_file_path, "a").close()
+
+lock_fd = open(lock_file_path, "r+")
+try:
+    fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    lock_fd.seek(0)
+    lock_fd.truncate()
+    lock_fd.write(str(time.time()))
+    lock_fd.flush()
+except BlockingIOError:
+    lock_fd.seek(0)
+    try:
+        lock_time = float(lock_fd.read().strip())
+        try_again_time = time.strftime('%H:%M:%S', time.localtime(lock_time + 300))
+    except:
+        try_again_time = time.strftime('%H:%M:%S', time.localtime(time.time() + 300))
+    deny(f"Another QA assessment is currently in progress. Please try again at {try_again_time}.")
+
 result = subprocess.run(["gemini", "-p", f" @reality-checker Please verify if the work item {ticket_id} is completed. Read the comments thoroughly. If the evidence is satisfactory, respond with READY. Otherwise, respond with a report, including keyword NEEDS WORK and what is expected to complete the ticket."], stdin=open(ticket_file, "r"), capture_output=True, text=True)
+
+try:
+    fcntl.flock(lock_fd, fcntl.LOCK_UN)
+    lock_fd.close()
+except:
+    pass
 
 output_text = (result.stdout or "") + "\n" + (result.stderr or "")
 if "429" in output_text and "too many requests" in output_text.lower():
