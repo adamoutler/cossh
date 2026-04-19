@@ -80,6 +80,7 @@ dependencies {
         implementation("org.jdom:jdom2:2.0.6.1")
         implementation("commons-io:commons-io:2.14.0")
         implementation("com.google.protobuf:protobuf-java:3.25.5")
+        implementation("com.google.guava:guava:33.2.0-jre")
         testImplementation("org.bouncycastle:bcprov-jdk15on:1.70")
         testImplementation("org.bouncycastle:bcpkix-jdk15on:1.70")
         testImplementation("org.bouncycastle:bcutil-jdk15on:1.70")
