@@ -15,9 +15,9 @@ buildscript {
         classpath("io.netty:netty-resolver:4.1.132.Final")
         classpath("io.netty:netty-transport-native-unix-common:4.1.132.Final")
         classpath("org.bitbucket.b_c:jose4j:0.9.6")
-        classpath("org.bouncycastle:bcprov-jdk18on:1.80")
-        classpath("org.bouncycastle:bcpkix-jdk18on:1.80")
-        classpath("org.bouncycastle:bcutil-jdk18on:1.80")
+        classpath("org.bouncycastle:bcprov-jdk18on:1.84")
+        classpath("org.bouncycastle:bcpkix-jdk18on:1.84")
+        classpath("org.bouncycastle:bcutil-jdk18on:1.84")
         classpath("org.jdom:jdom2:2.0.6.1")
         classpath("commons-io:commons-io:2.14.0")
         classpath("com.google.protobuf:protobuf-java:3.25.5")
@@ -37,17 +37,17 @@ allprojects {
             force("io.netty:netty-resolver:4.1.132.Final")
             force("io.netty:netty-transport-native-unix-common:4.1.132.Final")
             force("org.bitbucket.b_c:jose4j:0.9.6")
-            force("org.bouncycastle:bcprov-jdk18on:1.80")
-            force("org.bouncycastle:bcpkix-jdk18on:1.80")
-            force("org.bouncycastle:bcutil-jdk18on:1.80")
+            force("org.bouncycastle:bcprov-jdk18on:1.84")
+            force("org.bouncycastle:bcpkix-jdk18on:1.84")
+            force("org.bouncycastle:bcutil-jdk18on:1.84")
             force("org.jdom:jdom2:2.0.6.1")
             force("commons-io:commons-io:2.14.0")
             force("com.google.protobuf:protobuf-java:3.25.5")
             
             dependencySubstitution {
-                substitute(module("org.bouncycastle:bcprov-jdk15on")).using(module("org.bouncycastle:bcprov-jdk18on:1.80"))
-                substitute(module("org.bouncycastle:bcpkix-jdk15on")).using(module("org.bouncycastle:bcpkix-jdk18on:1.80"))
-                substitute(module("org.bouncycastle:bcutil-jdk15on")).using(module("org.bouncycastle:bcutil-jdk18on:1.80"))
+                substitute(module("org.bouncycastle:bcprov-jdk15on")).using(module("org.bouncycastle:bcprov-jdk18on:1.84"))
+                substitute(module("org.bouncycastle:bcpkix-jdk15on")).using(module("org.bouncycastle:bcpkix-jdk18on:1.84"))
+                substitute(module("org.bouncycastle:bcutil-jdk15on")).using(module("org.bouncycastle:bcutil-jdk18on:1.84"))
             }
         }
     }
