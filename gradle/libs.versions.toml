@@ -14,12 +14,12 @@ lifecycleViewModelCompose = "2.8.0"
 securityCrypto = "1.1.0-alpha06"
 kotlinxSerialization = "1.6.3"
 robolectric = "4.12.1"
-sshj = "0.38.0"
+sshj = "0.40.0"
 slf4j = "2.0.12"
 sshd = "2.12.1"
 termuxTerminalView = "v0.118.3"
 testcontainers = "1.19.7"
-bouncycastle = "1.84"
+bouncycastle = "1.80"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
