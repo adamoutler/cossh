@@ -64,9 +64,24 @@ android {
 
 configurations.all {
     exclude(group = "com.google.guava", module = "listenablefuture")
+    exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
+    exclude(group = "org.bouncycastle", module = "bcpkix-jdk15on")
+    exclude(group = "org.bouncycastle", module = "bcutil-jdk15on")
 }
 
 dependencies {
+    constraints {
+        implementation("io.netty:netty-codec-http2:4.1.132.Final")
+        implementation("io.netty:netty-codec-http:4.1.132.Final")
+        implementation("io.netty:netty-codec:4.1.132.Final")
+        implementation("io.netty:netty-common:4.1.132.Final")
+        implementation("io.netty:netty-handler:4.1.132.Final")
+        implementation("org.bitbucket.b_c:jose4j:0.9.6")
+        implementation("org.jdom:jdom2:2.0.6.1")
+        implementation("commons-io:commons-io:2.14.0")
+        implementation("com.google.protobuf:protobuf-java:3.25.5")
+    }
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -88,7 +103,11 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.sshd.core)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.robolectric)
+    testImplementation(libs.robolectric) {
+        exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
+        exclude(group = "org.bouncycastle", module = "bcpkix-jdk15on")
+        exclude(group = "org.bouncycastle", module = "bcutil-jdk15on")
+    }
     testImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.androidx.ui.test.junit4)
     testImplementation("org.hamcrest:hamcrest:2.2")
