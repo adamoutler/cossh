@@ -5,6 +5,7 @@ import app.cash.paparazzi.Paparazzi
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.ui.theme.CoSSHTheme
+import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
 import org.junit.Rule
 import org.junit.Test
 import androidx.compose.material3.Surface
@@ -42,7 +43,7 @@ class ConnectionListSessionSelectorScreenshotTest {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ConnectionListScreenContent(
+                    ConnectionListContent(
                         profiles = profiles,
                         searchQuery = "",
                         activeConnections = setOf("1", "2"),

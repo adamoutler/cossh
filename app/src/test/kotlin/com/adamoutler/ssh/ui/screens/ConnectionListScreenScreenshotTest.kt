@@ -5,6 +5,8 @@ import app.cash.paparazzi.Paparazzi
 import com.adamoutler.ssh.ui.theme.CoSSHTheme
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.AuthType
+import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
+import com.adamoutler.ssh.ui.screens.connectionlist.components.ConnectionItem
 import org.junit.Rule
 import org.junit.Test
 import androidx.compose.material3.Surface
@@ -50,7 +52,7 @@ class ConnectionListScreenScreenshotTest {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ConnectionListScreenContent(
+                    ConnectionListContent(
                         profiles = mockProfiles,
                         searchQuery = "",
                         onSearchQueryChange = {},
@@ -81,7 +83,7 @@ class ConnectionListScreenScreenshotTest {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ConnectionListScreenContent(
+                    ConnectionListContent(
                         profiles = mockProfiles,
                         searchQuery = "",
                         onSearchQueryChange = {},
@@ -144,7 +146,7 @@ class ConnectionListScreenScreenshotTest {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ConnectionListScreenContent(
+                    ConnectionListContent(
                         profiles = mockProfiles,
                         searchQuery = "",
                         activeConnections = setOf("1"),

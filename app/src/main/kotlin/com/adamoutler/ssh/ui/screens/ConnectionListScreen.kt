@@ -1,33 +1,19 @@
 package com.adamoutler.ssh.ui.screens
 
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.network.SshSessionProvider
+import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
+import com.adamoutler.ssh.ui.screens.connectionlist.dialogs.ActiveSessionSelectorDialog
+import com.adamoutler.ssh.ui.screens.connectionlist.dialogs.BackupPasswordDialog
 
 @Composable
 fun ConnectionListScreen(
@@ -38,20 +24,20 @@ fun ConnectionListScreen(
 ) {
     val profiles by viewModel.profiles.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
-    val activeConnections by com.adamoutler.ssh.network.SshSessionProvider.activeConnections.collectAsState()
+    val activeConnections by SshSessionProvider.activeConnections.collectAsState()
     val context = LocalContext.current
-    val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     var showSessionSelector by remember { mutableStateOf(false) }
 
     DisposableEffect(lifecycleOwner) {
-        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
-            if (event == androidx.lifecycle.Lifecycle.Event.ON_START) {
-                if (com.adamoutler.ssh.network.SshSessionProvider.activeConnections.value.size > 1) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_START) {
+                if (SshSessionProvider.activeConnections.value.size > 1) {
                     showSessionSelector = true
                 }
             }
-            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+            if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.loadProfiles()
             }
         }
@@ -86,82 +72,50 @@ fun ConnectionListScreen(
     }
 
     if (showSessionSelector) {
-        AlertDialog(
-            onDismissRequest = { showSessionSelector = false },
-            title = { Text("Active Sessions") },
-            text = {
-                Column {
-                    Text("You have multiple active sessions. Select one to resume or start a new one.")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    LazyColumn {
-                        items(activeConnections.size) { index ->
-                            val profileId = activeConnections.toList()[index]
-                            val profile = profiles.find { it.id == profileId }
-                            TextButton(onClick = { 
-                                showSessionSelector = false
-                                onConnect(profileId) 
-                            }) {
-                                Text(profile?.nickname ?: profileId)
-                            }
-                        }
-                    }
-                }
+        ActiveSessionSelectorDialog(
+            activeConnections = activeConnections,
+            profiles = profiles,
+            onSelectSession = { profileId ->
+                showSessionSelector = false
+                onConnect(profileId)
             },
-            confirmButton = {
-                TextButton(onClick = { showSessionSelector = false }) {
-                    Text("Start New")
-                }
-            }
+            onStartNew = { showSessionSelector = false },
+            onDismiss = { showSessionSelector = false }
         )
     }
 
     if (showPasswordDialog) {
-        AlertDialog(
-            onDismissRequest = { showPasswordDialog = false; pendingExportUri = null; pendingImportUri = null },
-            title = { Text(if (isExporting) "Export Backup" else "Import Backup") },
-            text = {
-                Column {
-                    Text(if (isExporting) "Enter a password to encrypt your backup:" else "Enter the backup password to decrypt:")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = passwordInput,
-                        onValueChange = { passwordInput = it },
-                        visualTransformation = PasswordVisualTransformation(),
-                        singleLine = true
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    val uri = if (isExporting) pendingExportUri else pendingImportUri
-                    val pwd = passwordInput.toCharArray()
-                    showPasswordDialog = false
-                    if (uri != null) {
-                        if (isExporting) {
-                            viewModel.exportBackup(uri, pwd) { success ->
-                                Toast.makeText(context, if (success) "Export successful" else "Export failed", Toast.LENGTH_SHORT).show()
-                            }
-                        } else {
-                            viewModel.importBackup(uri, pwd) { success ->
-                                Toast.makeText(context, if (success) "Import successful" else "Import failed (invalid password or corrupted file)", Toast.LENGTH_LONG).show()
-                            }
+        BackupPasswordDialog(
+            isExporting = isExporting,
+            passwordInput = passwordInput,
+            onPasswordChange = { passwordInput = it },
+            onConfirm = {
+                val uri = if (isExporting) pendingExportUri else pendingImportUri
+                val pwd = passwordInput.toCharArray()
+                showPasswordDialog = false
+                if (uri != null) {
+                    if (isExporting) {
+                        viewModel.exportBackup(uri, pwd) { success ->
+                            Toast.makeText(context, if (success) "Export successful" else "Export failed", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        viewModel.importBackup(uri, pwd) { success ->
+                            Toast.makeText(context, if (success) "Import successful" else "Import failed (invalid password or corrupted file)", Toast.LENGTH_LONG).show()
                         }
                     }
-                    pendingExportUri = null
-                    pendingImportUri = null
-                }) {
-                    Text("OK")
                 }
+                pendingExportUri = null
+                pendingImportUri = null
             },
-            dismissButton = {
-                TextButton(onClick = { showPasswordDialog = false; pendingExportUri = null; pendingImportUri = null }) {
-                    Text("Cancel")
-                }
+            onDismiss = {
+                showPasswordDialog = false
+                pendingExportUri = null
+                pendingImportUri = null
             }
         )
     }
 
-    ConnectionListScreenContent(
+    ConnectionListContent(
         profiles = profiles,
         searchQuery = searchQuery,
         activeConnections = activeConnections,
@@ -173,198 +127,4 @@ fun ConnectionListScreen(
         onExportRequested = { exportLauncher.launch("cossh_backup.zip") },
         onImportRequested = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) }
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ConnectionListScreenContent(
-    profiles: List<ConnectionProfile>,
-    searchQuery: String,
-    activeConnections: Set<String> = emptySet(),
-    onSearchQueryChange: (String) -> Unit,
-    onAddConnection: () -> Unit,
-    onEditConnection: (String) -> Unit,
-    onConnect: (String) -> Unit,
-    onMoveProfile: (Int, Int) -> Unit = { _, _ -> },
-    onExportRequested: () -> Unit = {},
-    onImportRequested: () -> Unit = {},
-    initialMenuExpanded: Boolean = false
-) {
-    var menuExpanded by remember { mutableStateOf(initialMenuExpanded) }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("CoSSH Connections") },
-                actions = {
-                    IconButton(onClick = { menuExpanded = true }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Menu")
-                    }
-                    DropdownMenu(
-                        expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Export Backup") },
-                            onClick = {
-                                menuExpanded = false
-                                onExportRequested()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Import Backup") },
-                            onClick = {
-                                menuExpanded = false
-                                onImportRequested()
-                            }
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = onAddConnection) {
-                Icon(Icons.Filled.Add, contentDescription = "Add Connection")
-            }
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = onSearchQueryChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                placeholder = { Text("Search connections...") },
-                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Search") },
-                singleLine = true
-            )
-
-            val context = LocalContext.current
-            val listState = rememberLazyListState()
-            var draggedItemIndex by remember { mutableStateOf<Int?>(null) }
-            var dragOffset by remember { mutableStateOf(0f) }
-
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(Unit) {
-                        detectDragGesturesAfterLongPress(
-                            onDragStart = { offset ->
-                                val itemInfo = listState.layoutInfo.visibleItemsInfo.firstOrNull {
-                                    offset.y.toInt() in it.offset..(it.offset + it.size)
-                                }
-                                if (itemInfo != null) {
-                                    draggedItemIndex = itemInfo.index
-                                    dragOffset = 0f
-                                }
-                            },
-                            onDrag = { change, dragAmount ->
-                                change.consume()
-                                dragOffset += dragAmount.y
-                                
-                                val draggedIndex = draggedItemIndex ?: return@detectDragGesturesAfterLongPress
-                                val draggedItem = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == draggedIndex }
-                                
-                                if (draggedItem != null) {
-                                    val currentCenter = draggedItem.offset + dragOffset + (draggedItem.size / 2)
-                                    val targetItem = listState.layoutInfo.visibleItemsInfo.firstOrNull {
-                                        it.index != draggedIndex && currentCenter.toInt() in it.offset..(it.offset + it.size)
-                                    }
-                                    
-                                    if (targetItem != null) {
-                                        onMoveProfile(draggedIndex, targetItem.index)
-                                        draggedItemIndex = targetItem.index
-                                        dragOffset = 0f
-                                    }
-                                }
-                            },
-                            onDragEnd = {
-                                draggedItemIndex = null
-                                dragOffset = 0f
-                            },
-                            onDragCancel = {
-                                draggedItemIndex = null
-                                dragOffset = 0f
-                            }
-                        )
-                    }
-            ) {
-                itemsIndexed(profiles, key = { _, profile -> profile.id }) { index, profile ->
-                    val isDragging = index == draggedItemIndex
-                    val translationY = if (isDragging) dragOffset else 0f
-                    
-                    Box(
-                        modifier = Modifier
-                            .zIndex(if (isDragging) 1f else 0f)
-                            .graphicsLayer { this.translationY = translationY }
-                    ) {
-                        ConnectionItem(
-                            profile = profile,
-                            isActive = activeConnections.contains(profile.id),
-                            elevation = if (isDragging) 8.dp else 2.dp,
-                            onClick = {
-                                Log.d("ConnectionListScreen", "Connecting to ${profile.nickname} (${profile.host})")
-                                val intent = android.content.Intent(context, com.adamoutler.ssh.network.SshService::class.java).apply {
-                                    action = com.adamoutler.ssh.network.SshService.ACTION_START
-                                    putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profile.id)
-                                }
-                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                    context.startForegroundService(intent)
-                                } else {
-                                    context.startService(intent)
-                                }
-                                onConnect(profile.id)
-                            },
-                            onEdit = { onEditConnection(profile.id) }
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
-@Composable
-fun ConnectionItem(profile: ConnectionProfile, isActive: Boolean = false, onClick: () -> Unit, onEdit: () -> Unit, elevation: androidx.compose.ui.unit.Dp = 2.dp) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onEdit
-            ),
-        elevation = CardDefaults.cardElevation(defaultElevation = elevation)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = profile.nickname, style = MaterialTheme.typography.titleMedium)
-                    if (isActive) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Badge { Text("1") }
-                    }
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "${profile.username}@${profile.host}:${profile.port}", style = MaterialTheme.typography.bodySmall)
-            }
-        }
-    }
 }
