@@ -10,7 +10,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.adamoutler.ssh.network.SshSessionProvider
+import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
 import com.adamoutler.ssh.ui.screens.connectionlist.dialogs.ActiveSessionSelectorDialog
 import com.adamoutler.ssh.ui.screens.connectionlist.dialogs.BackupPasswordDialog
@@ -24,7 +24,7 @@ fun ConnectionListScreen(
 ) {
     val profiles by viewModel.profiles.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
-    val activeConnections by SshSessionProvider.activeConnections.collectAsState()
+    val activeConnections by ConnectionStateRepository.activeConnections.collectAsState()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -33,7 +33,7 @@ fun ConnectionListScreen(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_START) {
-                if (SshSessionProvider.activeConnections.value.size > 1) {
+                if (ConnectionStateRepository.activeConnections.value.size > 1) {
                     showSessionSelector = true
                 }
             }

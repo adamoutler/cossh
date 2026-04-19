@@ -59,8 +59,8 @@ class SshServiceForegroundTest {
             putExtra(SshService.EXTRA_PROFILE_ID, "id-fail")
         }
 
-        SshSessionProvider.clearSession("id-fail")
-        SshSessionProvider.clearConnections()
+        ConnectionStateRepository.clearSession("id-fail")
+        ConnectionStateRepository.clearConnections()
 
         val serviceController = Robolectric.buildService(SshService::class.java, intent)
         serviceController.create().startCommand(0, 1)
@@ -69,7 +69,7 @@ class SshServiceForegroundTest {
         var retries = 0
         var currentState: ConnectionState? = null
         while (retries < 50) {
-            currentState = SshSessionProvider.connectionStates.value["id-fail"]
+            currentState = ConnectionStateRepository.connectionStates.value["id-fail"]
             if (currentState is ConnectionState.Error) {
                 break
             }

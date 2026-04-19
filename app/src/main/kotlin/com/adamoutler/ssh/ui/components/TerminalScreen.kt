@@ -9,14 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -24,20 +18,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.platform.testTag
-import com.adamoutler.ssh.network.SshSessionProvider
+import com.adamoutler.ssh.network.ConnectionStateRepository
+import com.adamoutler.ssh.ui.screens.TerminalViewModel
 import com.termux.terminal.TerminalSession
-import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalView
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
@@ -57,48 +47,39 @@ enum class TerminalInputState {
 fun TerminalScreen(
     profileId: String,
     modifier: Modifier = Modifier,
+    terminalViewModel: TerminalViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     onNavigateBack: () -> Unit = {}
 ) {
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
+    val context = androidx.compose.ui.platform.LocalContext.current
 
-    val activeSession = remember(profileId) { SshSessionProvider.getOrCreateSession(profileId) }
-    val session = activeSession.terminalSession
+    val session = remember(profileId) { terminalViewModel.getOrCreateSession(profileId, context) }
+    val activeSession = remember(profileId) { ConnectionStateRepository.getOrCreateSession(profileId) }
 
-    if (session == null) {
-        Box(modifier = modifier.fillMaxSize().background(Color.Black).padding(4.dp)) {
-            Text(
-                text = "Failed to initialize native terminal emulation.",
-                color = Color.Red,
-                fontFamily = FontFamily.Monospace
-            )
-        }
-        return
-    }
-
-    DisposableEffect(profileId) {
-        SshSessionProvider.onScreenUpdated = { updatedProfileId -> 
-            if (updatedProfileId == profileId) {
-                terminalViewRef?.onScreenUpdated() 
+    androidx.compose.runtime.LaunchedEffect(profileId) {
+        ConnectionStateRepository.sessionOutput.collect { (id, bytes) ->
+            if (id == profileId) {
+                if (ConnectionStateRepository.isHeadlessTest) {
+                    val newText = String(bytes, Charsets.UTF_8)
+                    val current = ConnectionStateRepository.mockTestTranscripts[profileId] ?: ""
+                    ConnectionStateRepository.mockTestTranscripts[profileId] = current + newText
+                } else {
+                    val emulator = session.emulator
+                    if (emulator != null) {
+                        if (!activeSession.firstSshOutputReceived) {
+                            activeSession.firstSshOutputReceived = true
+                            emulator.screen.clearTranscript()
+                            val clearSeq = "\u001B[2J\u001B[H".toByteArray()
+                            emulator.append(clearSeq, clearSeq.size)
+                        }
+                        emulator.append(bytes, bytes.size)
+                        terminalViewRef?.onScreenUpdated()
+                    }
+                }
             }
         }
-        SshSessionProvider.getContext = { terminalViewRef?.context }
-        onDispose {
-            SshSessionProvider.onScreenUpdated = null
-            SshSessionProvider.getContext = null
-        }
     }
 
-    // Terminal Input State Machine:
-    // State 0: No keyboard, no extra buttons.
-    // State 1: Soft keyboard visible, no extra buttons.
-    // State 2: Soft keyboard visible AND extra buttons (TerminalExtraKeys) visible.
-    // 
-    // Tap Behavior Expected:
-    // - Tap when State 0 -> Transitions to State 1 (shows keyboard)
-    // - Tap when State 1 -> Transitions to State 2 (shows buttons)
-    // - Tap when State 2 -> Transitions to State 1 (hides buttons)
-    // - Note: Tapping does NOT hide the keyboard (never goes back to State 0).
-    //         Only the Android Back button transitions to State 0 and hides the keyboard.
     var terminalInputState by remember { mutableStateOf(0) }
     var showOverlayButtons by remember { mutableStateOf(false) }
     val ctrlSticky = remember { mutableStateOf(false) }
@@ -114,12 +95,12 @@ fun TerminalScreen(
     }
 
     var showKeepAliveDialog by remember { mutableStateOf(false) }
-    val activeConnections by SshSessionProvider.activeConnections.collectAsState()
+    val activeConnections by ConnectionStateRepository.activeConnections.collectAsState()
     val isConnectionActive = activeConnections.isNotEmpty()
     var wasActive by remember { mutableStateOf(false) }
     var showDisconnectedOverlay by remember { mutableStateOf(false) }
 
-    val connectionStates by SshSessionProvider.connectionStates.collectAsState()
+    val connectionStates by ConnectionStateRepository.connectionStates.collectAsState()
     val errorStateEntry = connectionStates.entries.firstOrNull { it.value is com.adamoutler.ssh.network.ConnectionState.Error }
     val errorProfileId = errorStateEntry?.key
     val errorMessage = (errorStateEntry?.value as? com.adamoutler.ssh.network.ConnectionState.Error)?.message
@@ -127,14 +108,14 @@ fun TerminalScreen(
     if (errorProfileId != null && errorMessage != null) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { 
-                SshSessionProvider.clearConnectionState(errorProfileId)
+                ConnectionStateRepository.clearConnectionState(errorProfileId)
                 onNavigateBack()
             },
             title = { Text("Connection Failed") },
             text = { Text("Error: $errorMessage") },
             confirmButton = {
                 androidx.compose.material3.TextButton(onClick = {
-                    SshSessionProvider.clearConnectionState(errorProfileId)
+                    ConnectionStateRepository.clearConnectionState(errorProfileId)
                     onNavigateBack()
                 }) { Text("OK") }
             }
@@ -187,12 +168,12 @@ fun TerminalScreen(
             dismissButton = {
                 androidx.compose.material3.TextButton(onClick = {
                     showKeepAliveDialog = false
-                    val context = terminalViewRef?.context
-                    if (context != null) {
-                        val intent = android.content.Intent(context, com.adamoutler.ssh.network.SshService::class.java).apply { 
+                    val ctx = terminalViewRef?.context
+                    if (ctx != null) {
+                        val intent = android.content.Intent(ctx, com.adamoutler.ssh.network.SshService::class.java).apply { 
                             action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT 
                         }
-                        context.startService(intent)
+                        ctx.startService(intent)
                     }
                     onNavigateBack()
                 }) { Text("Terminate") }
@@ -247,11 +228,11 @@ fun TerminalScreen(
             .imePadding()
     ) {
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            val isHeadlessTest = SshSessionProvider.isHeadlessTest
+            val isHeadlessTest = ConnectionStateRepository.isHeadlessTest
             if (isHeadlessTest) {
                 Box(modifier = Modifier.fillMaxSize().background(Color.Black).padding(4.dp)) {
                     Text(
-                        text = activeSession.mockTestTranscript ?: "Welcome to CoSSH Terminal",
+                        text = ConnectionStateRepository.mockTestTranscripts[profileId] ?: "Welcome to CoSSH Terminal",
                         color = Color.Green,
                         fontFamily = FontFamily.Monospace
                     )
@@ -279,8 +260,8 @@ fun TerminalScreen(
                             false
                         }
                     },
-                    factory = { context ->
-                        val terminalView = TerminalView(context, null)
+                    factory = { ctx ->
+                        val terminalView = TerminalView(ctx, null)
                         terminalView.setBackgroundColor(android.graphics.Color.BLACK)
                         terminalView.setTextSize(currentFontSize)
                         terminalView.layoutParams = FrameLayout.LayoutParams(
@@ -304,13 +285,13 @@ fun TerminalScreen(
                                 }
                                 
                                 terminalView.requestFocus()
-                                val window = (context as? android.app.Activity)?.window
+                                val window = (ctx as? android.app.Activity)?.window
                                 if (terminalInputState != 0) {
                                     if (window != null) {
                                         val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, terminalView)
                                         insetsController.show(androidx.core.view.WindowInsetsCompat.Type.ime())
                                     } else {
-                                        val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                                        val imm = ctx.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
                                         imm.showSoftInput(terminalView, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
                                     }
                                 } else {
@@ -318,7 +299,7 @@ fun TerminalScreen(
                                         val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, terminalView)
                                         insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.ime())
                                     } else {
-                                        val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                                        val imm = ctx.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
                                         imm.hideSoftInputFromWindow(terminalView.windowToken, 0)
                                     }
                                 }
@@ -330,7 +311,7 @@ fun TerminalScreen(
                             override fun isTerminalViewSelected(): Boolean = true
                             override fun copyModeChanged(b: Boolean) {}
                             
-                            override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, session: TerminalSession?): Boolean {
+                            override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, s: TerminalSession?): Boolean {
                                 if (e?.action != android.view.KeyEvent.ACTION_DOWN) return false
                                 
                                 if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP) {
@@ -371,14 +352,14 @@ fun TerminalScreen(
                                     sendToTerminal(bytesToSend)
                                     Log.d("TerminalScreen", "Wrote ${bytesToSend.size} bytes (key: $keyCode) to SSH PTY stdin")
                                 }
-                                return true // Return true to prevent falling through to dummy local shell
+                                return true
                             }
                             override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean = true
                             override fun readControlKey(): Boolean = false
                             override fun readAltKey(): Boolean = false
                             override fun readShiftKey(): Boolean = false
                             override fun readFnKey(): Boolean = false
-                            override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, session: TerminalSession?): Boolean {
+                            override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, s: TerminalSession?): Boolean {
                                 try {
                                     var cp = codePoint
                                     if (ctrlSticky.value) {
@@ -434,9 +415,6 @@ fun TerminalScreen(
                                     lastRows = rows
                                     val width = terminalView.width
                                     val height = terminalView.height
-                                    // MUST dispatch to IO thread: sshj performs a socket write
-                                    // for SIGWINCH which triggers NetworkOnMainThreadException
-                                    // on the UI thread, corrupting the SSH transport.
                                     coroutineScope.launch(Dispatchers.IO) {
                                         try {
                                             activeSession.sshShell?.changeWindowDimensions(cols, rows, width, height)
@@ -464,12 +442,12 @@ fun TerminalScreen(
                 TerminalOverlayButtons(
                     onBackground = { onNavigateBack() },
                     onTerminate = {
-                        val context = terminalViewRef?.context
-                        if (context != null) {
-                            val intent = android.content.Intent(context, com.adamoutler.ssh.network.SshService::class.java).apply { 
+                        val ctx = terminalViewRef?.context
+                        if (ctx != null) {
+                            val intent = android.content.Intent(ctx, com.adamoutler.ssh.network.SshService::class.java).apply { 
                                 action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT 
                             }
-                            context.startService(intent)
+                            ctx.startService(intent)
                         }
                         onNavigateBack()
                     }

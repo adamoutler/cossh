@@ -2,7 +2,7 @@ package com.adamoutler.ssh.ui.components
 
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
-import com.adamoutler.ssh.network.SshSessionProvider
+import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.adamoutler.ssh.ui.theme.CoSSHTheme
 import org.junit.Before
 import org.junit.Rule
@@ -22,9 +22,8 @@ class TerminalScreenResumeScreenshotTest {
 
     @Before
     fun setup() {
-        SshSessionProvider.clearSession("test")
-        SshSessionProvider.getContext = { paparazzi.context }
-        SshSessionProvider.isHeadlessTest = true
+        ConnectionStateRepository.clearSession("test")
+        ConnectionStateRepository.isHeadlessTest = true
         
         val dummyText = "Welcome to CoSSH Terminal\r\n" +
                         "root@server:~# tail -f /var/log/syslog\r\n" +
@@ -32,23 +31,19 @@ class TerminalScreenResumeScreenshotTest {
                         "This is a dummy log line 2 proving persistence.\r\n" +
                         "This is a dummy log line 3 proving persistence.\r\n"
         
-        val sessionData = SshSessionProvider.getOrCreateSession("test")
-        sessionData.mockTestTranscript = dummyText
-        
-        // Emulate an existing background session with a lot of output
-        val session = sessionData.terminalSession
-        session?.emulator?.append(dummyText.toByteArray(), dummyText.length)
+        ConnectionStateRepository.mockTestTranscripts["test"] = dummyText
     }
 
     @Test
     fun terminalShowsPersistedHistoryOnResume() {
+        val viewModel = com.adamoutler.ssh.ui.screens.TerminalViewModel()
         paparazzi.snapshot {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    TerminalScreen(profileId = "test")
+                    TerminalScreen(profileId = "test", terminalViewModel = viewModel)
                 }
             }
         }

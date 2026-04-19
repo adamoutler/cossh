@@ -10,6 +10,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import com.adamoutler.ssh.ui.screens.TerminalViewModel
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -18,20 +19,12 @@ class TerminalScreenCopyTest {
     @Test
     fun testTerminalCopyTextStripsTrailingSpaces() {
         val context = ApplicationProvider.getApplicationContext<Context>()
+        val viewModel = TerminalViewModel()
         
-        com.adamoutler.ssh.network.SshSessionProvider.getContext = { context }
-        val client = com.adamoutler.ssh.network.SshSessionProvider.terminalSessionClient
-        
-        val dummySession = try {
-            TerminalSession("/system/bin/sh", "/", arrayOf("-c", "cat"), arrayOf("TERM=xterm-256color"), 100, client)
-        } catch (e: Throwable) {
-            null
-        }
+        val dummySession = viewModel.getOrCreateSession("test", context)
         
         val originalText = "User copied text   \n  \n"
-        if (dummySession != null) {
-            client.onCopyTextToClipboard(dummySession, originalText)
-        }
+        viewModel.onCopyTextToClipboard(dummySession, originalText)
         
         val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = clipboardManager.primaryClip

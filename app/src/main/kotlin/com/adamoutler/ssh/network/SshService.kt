@@ -88,7 +88,7 @@ class SshService : Service() {
                 val storageManager = SecurityStorageManager(applicationContext)
                 val profile = storageManager.getProfile(profileId)
                 if (profile != null) {
-                    SshSessionProvider.updateConnectionState(profileId, ConnectionState.Connecting)
+                    ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Connecting)
                     updateSessionNotification(profileId, profile.nickname, "Connecting...")
                     val manager = SshConnectionManager()
                     sshManagers[profileId] = manager
@@ -96,50 +96,46 @@ class SshService : Service() {
                     manager.connectPty(
                         profile = profile,
                         onConnect = { outStream, session ->
-                            val activeSession = SshSessionProvider.getOrCreateSession(profileId)
+                            val activeSession = ConnectionStateRepository.getOrCreateSession(profileId)
                             activeSession.ptyOutputStream = outStream
                             activeSession.sshShell = session
-                            SshSessionProvider.updateConnectionState(profileId, ConnectionState.Connected)
+                            ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Connected)
                             updateSessionNotification(profileId, profile.nickname, "Connected")
                         },
                         onOutput = { bytes, length ->
-                            val activeSession = SshSessionProvider.getOrCreateSession(profileId)
-                            if (SshSessionProvider.isHeadlessTest) {
+                            val activeSession = ConnectionStateRepository.getOrCreateSession(profileId)
+                            if (ConnectionStateRepository.isHeadlessTest) {
                                 val newText = String(bytes, 0, length, Charsets.UTF_8)
-                                val current = activeSession.mockTestTranscript ?: ""
-                                activeSession.mockTestTranscript = current + newText
-                            } else {
-                                val emulator = activeSession.terminalSession?.emulator
-                                if (emulator != null) {
-                                    if (!activeSession.firstSshOutputReceived) {
-                                        activeSession.firstSshOutputReceived = true
-                                        emulator.screen.clearTranscript()
-                                        val clearSeq = "\u001B[2J\u001B[H".toByteArray()
-                                        emulator.append(clearSeq, clearSeq.size)
-                                        Log.d("SshService", "Cleared screen on first SSH output for $profileId")
-                                    }
-                                    emulator.append(bytes, length)
-                                }
+                                val current = ConnectionStateRepository.mockTestTranscripts[profileId] ?: ""
+                                ConnectionStateRepository.mockTestTranscripts[profileId] = current + newText
                             }
-                            SshSessionProvider.postScreenUpdate(profileId)
+                            
+                            // Send bytes to UI via shared flow
+                            val copyBytes = bytes.copyOf(length)
+                            ConnectionStateRepository.emitOutput(profileId, copyBytes)
+                            
+                            if (!activeSession.firstSshOutputReceived) {
+                                activeSession.firstSshOutputReceived = true
+                                Log.d("SshService", "First SSH output received for $profileId")
+                            }
                         }
                     )
                 } else {
                     Log.e("SshService", "Profile not found: $profileId")
-                    SshSessionProvider.updateConnectionState(profileId, ConnectionState.Error("Profile not found"))
+                    ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error("Profile not found"))
                 }
             } catch (e: Exception) {
                 Log.e("SshService", "SSH Connection failed for $profileId", e)
                 updateSessionNotification(profileId, "Connection", "Connection failed")
-                SshSessionProvider.updateConnectionState(profileId, ConnectionState.Error(e.message ?: "Connection failed"))
+                ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error(e.message ?: "Connection failed"))
             } finally {
-                SshSessionProvider.removeConnection(profileId)
-                val currentState = SshSessionProvider.connectionStates.value[profileId]
+                ConnectionStateRepository.removeConnection(profileId)
+                val currentState = ConnectionStateRepository.connectionStates.value[profileId]
                 if (currentState !is ConnectionState.Error) {
-                    SshSessionProvider.clearConnectionState(profileId)
+                    ConnectionStateRepository.clearConnectionState(profileId)
                 }
                 
-                SshSessionProvider.clearSession(profileId)
+                ConnectionStateRepository.clearSession(profileId)
                 
                 val notificationManager = getSystemService(NotificationManager::class.java)
                 notificationManager.cancel(getNotificationId(profileId))
@@ -159,7 +155,6 @@ class SshService : Service() {
 
     private fun stopSshConnection(profileId: String) {
         connectionJobs[profileId]?.cancel()
-        // The finally block in startSshConnection will clean up state and stop the service if needed.
     }
 
     private fun stopAllConnections() {
@@ -183,12 +178,11 @@ class SshService : Service() {
     }
 
     private fun updateSessionNotification(profileId: String, profileName: String, contentText: String) {
-        val activeSession = SshSessionProvider.sessions[profileId]
+        val activeSession = ConnectionStateRepository.sessions[profileId]
         val connectedAt = activeSession?.connectedAt ?: System.currentTimeMillis()
 
         val pendingIntent: PendingIntent =
             Intent(this, MainActivity::class.java).let { notificationIntent ->
-                // To allow navigation back to the specific terminal, pass profileId
                 notificationIntent.putExtra(EXTRA_PROFILE_ID, profileId)
                 PendingIntent.getActivity(
                     this, profileId.hashCode(), notificationIntent,

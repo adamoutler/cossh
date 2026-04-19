@@ -6,14 +6,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.HostKeyVerifier
-import net.schmizz.sshj.userauth.keyprovider.KeyPairWrapper
-import net.schmizz.sshj.userauth.password.PasswordFinder
-import net.schmizz.sshj.userauth.password.Resource
 import java.security.KeyPair
 
 class SshConnectionManager(
     private val hostKeyVerifier: HostKeyVerifier? = null
 ) {
+    private fun getAuthenticator(profile: ConnectionProfile, keyPair: KeyPair?): SshAuthenticator {
+        return when (profile.authType) {
+            AuthType.PASSWORD -> PasswordAuthenticator()
+            AuthType.KEY -> {
+                if (keyPair == null) throw IllegalArgumentException("KeyPair required for key-based authentication")
+                KeyAuthenticator(keyPair)
+            }
+        }
+    }
+
     suspend fun connectAndExecute(profile: ConnectionProfile, command: String, keyPair: KeyPair? = null): String = withContext(Dispatchers.IO) {
         val client = SSHClient(net.schmizz.sshj.AndroidConfig())
         // Aggressive timeouts per security invariant
@@ -33,37 +40,7 @@ class SshConnectionManager(
             }
             
             client.connect(profile.host, profile.port)
-
-            when (profile.authType) {
-                AuthType.PASSWORD -> {
-                    val passwordBytes = profile.password ?: throw IllegalArgumentException("Password required for password auth")
-                    val passwordChars = CharArray(passwordBytes.size)
-                    try {
-                        for (i in passwordBytes.indices) {
-                            passwordChars[i] = passwordBytes[i].toInt().toChar()
-                        }
-                        
-                        val passwordFinder = object : PasswordFinder {
-                            override fun reqPassword(resource: Resource<*>?): CharArray {
-                                return passwordChars
-                            }
-                            override fun shouldRetry(resource: Resource<*>?): Boolean = false
-                        }
-                        
-                        client.authPassword(profile.username, passwordFinder)
-                    } finally {
-                        passwordChars.fill('\u0000')
-                        passwordBytes.fill(0)
-                    }
-                }
-                AuthType.KEY -> {
-                    if (keyPair == null) {
-                        throw IllegalArgumentException("KeyPair required for key-based authentication")
-                    }
-                    val keyProvider = KeyPairWrapper(keyPair)
-                    client.authPublickey(profile.username, keyProvider)
-                }
-            }
+            getAuthenticator(profile, keyPair).authenticate(client, profile)
 
             client.startSession().use { session ->
                 val cmd = session.exec(command)
@@ -83,7 +60,7 @@ class SshConnectionManager(
     suspend fun connectPty(
         profile: ConnectionProfile,
         keyPair: KeyPair? = null,
-        onOutput: (ByteArray, Int) -> Unit,
+        onOutput: suspend (ByteArray, Int) -> Unit,
         onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell) -> Unit
     ) = withContext(Dispatchers.IO) {
         val client = SSHClient(net.schmizz.sshj.AndroidConfig())
@@ -101,30 +78,7 @@ class SshConnectionManager(
                 }
             }
             client.connect(profile.host, profile.port)
-
-            when (profile.authType) {
-                AuthType.PASSWORD -> {
-                    val passwordBytes = profile.password ?: throw IllegalArgumentException("Password required for password auth")
-                    val passwordChars = CharArray(passwordBytes.size)
-                    try {
-                        for (i in passwordBytes.indices) {
-                            passwordChars[i] = passwordBytes[i].toInt().toChar()
-                        }
-                        val passwordFinder = object : PasswordFinder {
-                            override fun reqPassword(resource: Resource<*>?): CharArray = passwordChars
-                            override fun shouldRetry(resource: Resource<*>?): Boolean = false
-                        }
-                        client.authPassword(profile.username, passwordFinder)
-                    } finally {
-                        passwordChars.fill('\u0000')
-                        passwordBytes.fill(0)
-                    }
-                }
-                AuthType.KEY -> {
-                    if (keyPair == null) throw IllegalArgumentException("KeyPair required for key-based authentication")
-                    client.authPublickey(profile.username, KeyPairWrapper(keyPair))
-                }
-            }
+            getAuthenticator(profile, keyPair).authenticate(client, profile)
 
             client.startSession().use { session ->
                 session.allocateDefaultPTY()
@@ -132,13 +86,8 @@ class SshConnectionManager(
                 
                 onConnect(shell.outputStream, shell)
 
-                val buffer = ByteArray(4096)
-                var read: Int
-                while (shell.inputStream.read(buffer).also { read = it } != -1) {
-                    if (read > 0) {
-                        onOutput(buffer, read)
-                    }
-                }
+                val bridge = PtyStreamBridge(shell.inputStream, onOutput)
+                bridge.startBridge()
             }
         } finally {
             try {

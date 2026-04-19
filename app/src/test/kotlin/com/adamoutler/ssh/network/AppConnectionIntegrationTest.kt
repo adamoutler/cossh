@@ -35,7 +35,6 @@ class AppConnectionIntegrationTest {
             val pb = ProcessBuilder("python3", mockScript.absolutePath)
             pb.redirectErrorStream(true)
             mockSshdProcess = pb.start()
-            // Read output in a separate thread so it doesn't block
             Thread {
                 mockSshdProcess?.inputStream?.bufferedReader()?.use { reader ->
                     var line: String?
@@ -44,7 +43,7 @@ class AppConnectionIntegrationTest {
                     }
                 }
             }.start()
-            Thread.sleep(3000) // Wait for it to bind on 2222
+            Thread.sleep(3000)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -53,17 +52,17 @@ class AppConnectionIntegrationTest {
     @After
     fun tearDown() {
         mockSshdProcess?.destroy()
-        SshSessionProvider.isHeadlessTest = false
-        SshSessionProvider.clearSession("id_integration")
-        SshSessionProvider.clearConnections()
+        ConnectionStateRepository.isHeadlessTest = false
+        ConnectionStateRepository.clearSession("id_integration")
+        ConnectionStateRepository.clearConnections()
     }
 
     @Test(timeout = 300000L)
     fun testInAppTerminalConnectionAndDataTransfer() = runBlocking {
-        SshSessionProvider.isHeadlessTest = true 
-        SshSessionProvider.clearSession("id_integration")
-        val sessionData = SshSessionProvider.getOrCreateSession("id_integration")
-        sessionData.mockTestTranscript = ""
+        ConnectionStateRepository.isHeadlessTest = true 
+        ConnectionStateRepository.clearSession("id_integration")
+        val sessionData = ConnectionStateRepository.getOrCreateSession("id_integration")
+        ConnectionStateRepository.mockTestTranscripts["id_integration"] = ""
         
         val profile = ConnectionProfile(
             id = "id_integration",
@@ -86,11 +85,9 @@ class AppConnectionIntegrationTest {
                         sessionData.sshShell = session
                     },
                     onOutput = { bytes, length ->
-                        val session = SshSessionProvider.getOrCreateSession("id_integration")
-                        session.terminalSession?.emulator?.append(bytes, length)
                         val outStr = String(bytes, 0, length)
-                        session.mockTestTranscript = (session.mockTestTranscript ?: "") + outStr
-                        SshSessionProvider.postScreenUpdate("id_integration")
+                        val current = ConnectionStateRepository.mockTestTranscripts["id_integration"] ?: ""
+                        ConnectionStateRepository.mockTestTranscripts["id_integration"] = current + outStr
                     }
                 )
             } catch (e: Exception) {
@@ -113,7 +110,8 @@ class AppConnectionIntegrationTest {
         retries = 0
         var foundOutput = false
         while (retries < 150) { 
-            if (sessionData.mockTestTranscript?.contains("a\n") == true || sessionData.mockTestTranscript?.contains("Hello from mock sshd!") == true) {
+            val transcript = ConnectionStateRepository.mockTestTranscripts["id_integration"]
+            if (transcript?.contains("a\n") == true || transcript?.contains("Hello from mock sshd!") == true) {
                 foundOutput = true
                 break
             }
@@ -121,7 +119,7 @@ class AppConnectionIntegrationTest {
             retries++
         }
         
-        println("Transcript captured:\n${sessionData.mockTestTranscript}")
+        println("Transcript captured:\n${ConnectionStateRepository.mockTestTranscripts["id_integration"]}")
         assertTrue("Output should contain mock-server deterministic RESPONSE for a", foundOutput)
 
         try {
