@@ -8,9 +8,10 @@
 - Used a `TextButton` ("Show" / "Hide") as the `trailingIcon` to toggle visibility.
 
 ## Verification
-- Local compilation and test execution (`./gradlew assembleDebug test lint`) passed without regression.
+- Local compilation and test execution (`./gradlew assembleDebug test lint`) passed without regression. See `docs/qa/SSH-79.log`.
 - Paparazzi snapshot test `AddEditProfileScreenScreenshotTest.defaultScreenPasswordAuth` executed successfully and verified the screen layout with the new trailing icon button.
 
 ## Artifacts
-- Local UI test suite output.
-- Paparazzi snapshot available in `/app/build/reports/paparazzi/debug/images/`.
+- The actual execution output is captured in `docs/qa/SSH-79.log`.
+- Screenshot showing the new "Show" toggle button inside the password field:
+![Screenshot of Password Toggle](SSH-79.png)

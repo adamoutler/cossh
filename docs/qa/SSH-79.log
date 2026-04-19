@@ -1,0 +1,180 @@
+> Task :app:checkKotlinGradlePluginConfigurationErrors
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:compileDebugKotlin UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+> Task :app:bundleDebugClassesToRuntimeJar UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:packageDebugUnitTestForUnitTest UP-TO-DATE
+> Task :app:generateDebugUnitTestConfig UP-TO-DATE
+> Task :app:preparePaparazziDebugResources UP-TO-DATE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:bundleDebugClassesToCompileJar UP-TO-DATE
+> Task :app:compileDebugUnitTestKotlin UP-TO-DATE
+> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:transformDebugUnitTestClassesWithAsm UP-TO-DATE
+
+> Task :app:testDebugUnitTest
+⏱️ TEST-METRIC: com.adamoutler.ssh.ExceptionTest.testException took 23ms
+
+ExceptionTest > testException PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ReflectionTest.testMethods took 21ms
+
+ReflectionTest > testMethods PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ViewModelReflectionTest.testReflection took 22ms
+
+ViewModelReflectionTest > testReflection PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.backup.BackupCryptoManagerTest.testExportAndImportBackup took 822ms
+
+BackupCryptoManagerTest > testExportAndImportBackup PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLogicTest.testCtrlC_Encoding took 1ms
+
+TerminalModifierLogicTest > testCtrlC_Encoding PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLogicTest.testAltA_Encoding took 2ms
+
+TerminalModifierLogicTest > testAltA_Encoding PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLogicTest.testTerminalInputLockout took 5ms
+
+TerminalModifierLogicTest > testTerminalInputLockout PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SSHKeyGeneratorTest.testGenerateRSAKeyPair took 2996ms
+
+SSHKeyGeneratorTest > testGenerateRSAKeyPair PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SSHKeyGeneratorTest.testGenerateEd25519KeyPair took 151ms
+
+SSHKeyGeneratorTest > testGenerateEd25519KeyPair PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.CoSshApplicationTest.testBouncyCastleProviderIsRegistered took 7538ms
+
+CoSshApplicationTest > testBouncyCastleProviderIsRegistered PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.CoSshApplicationTest.testSecureCrashHandlerIsRegistered took 208ms
+
+CoSshApplicationTest > testSecureCrashHandlerIsRegistered PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testStrongBoxFallbackLogic took 7904ms
+
+SecurityStorageManagerTest > testStrongBoxFallbackLogic PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.CoSshApplicationTest.testSecureCrashHandlerRedactsAndWritesToDisk took 300ms
+
+CoSshApplicationTest > testSecureCrashHandlerRedactsAndWritesToDisk PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.base.BaseViewModelTest.testCoroutineExceptionIsCaughtAndEmitsUiEvent took 8140ms
+
+BaseViewModelTest > testCoroutineExceptionIsCaughtAndEmitsUiEvent PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testSaveAndRetrieveProfile took 537ms
+
+SecurityStorageManagerTest > testSaveAndRetrieveProfile PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileViewModelTest.test save and retrieve profile took 477ms
+
+AddEditProfileViewModelTest > test save and retrieve profile PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testDeleteProfile took 312ms
+
+SecurityStorageManagerTest > testDeleteProfile PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test service connection state transitions to error on failure took 8856ms
+
+SshServiceForegroundTest > test service connection state transitions to error on failure PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllProfiles took 220ms
+
+SecurityStorageManagerTest > testGetAllProfiles PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.starting service on API 34 calls startForeground with type took 199ms
+
+SshServiceForegroundTest > starting service on API 34 calls startForeground with type PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerIntegrationTest.testHeadlessPasswordConnectionAndPtyInteraction took 1901ms
+
+SshConnectionManagerIntegrationTest > testHeadlessPasswordConnectionAndPtyInteraction PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerIntegrationTest.testHeadlessPasswordConnectionFailsAndClearsMemory took 128ms
+
+SshConnectionManagerIntegrationTest > testHeadlessPasswordConnectionFailsAndClearsMemory PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalSessionPersistenceTest.testTerminalSessionIsPersistedInProvider took 143ms
+
+TerminalSessionPersistenceTest > testTerminalSessionIsPersistedInProvider PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenCopyTest.testTerminalCopyTextStripsTrailingSpaces took 7623ms
+
+TerminalScreenCopyTest > testTerminalCopyTextStripsTrailingSpaces PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.PlaceholderScreenScreenshotTest.defaultScreen took 11919ms
+
+PlaceholderScreenScreenshotTest > defaultScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.AppConnectionIntegrationTest.testInAppTerminalConnectionAndDataTransfer took 12005ms
+
+AppConnectionIntegrationTest > testInAppTerminalConnectionAndDataTransfer PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalExtraKeysScreenshotTest.page1_withModifiers took 12367ms
+
+TerminalExtraKeysScreenshotTest > page1_withModifiers PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalExtraKeysScreenshotTest.page1_noModifiers took 591ms
+
+TerminalExtraKeysScreenshotTest > page1_noModifiers PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.draggedConnectionItemScreen took 573ms
+
+ConnectionListScreenScreenshotTest > draggedConnectionItemScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListSessionSelectorScreenshotTest.sessionSelectorDialogScreen took 13124ms
+
+ConnectionListSessionSelectorScreenshotTest > sessionSelectorDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.AppLaunchTest.testAppLaunchesSuccessfully took 13962ms
+
+AppLaunchTest > testAppLaunchesSuccessfully PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelDragDropTest.testDragAndDropReordersItems took 3060ms
+
+ConnectionListViewModelDragDropTest > testDragAndDropReordersItems PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.activeConnectionBadgeScreen took 865ms
+
+ConnectionListScreenScreenshotTest > activeConnectionBadgeScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.menuExpandedScreen took 661ms
+
+ConnectionListScreenScreenshotTest > menuExpandedScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.defaultScreen took 274ms
+
+ConnectionListScreenScreenshotTest > defaultScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogScreenshotTest.sessionDisconnectedDialogScreen took 8232ms
+
+TerminalScreenDialogScreenshotTest > sessionDisconnectedDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogScreenshotTest.keepAliveDialogScreen took 494ms
+
+TerminalScreenDialogScreenshotTest > keepAliveDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.keys.KeyManagementScreenScreenshotTest.screenWithGeneratedKey took 8709ms
+
+KeyManagementScreenScreenshotTest > screenWithGeneratedKey PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogScreenshotTest.connectionFailedDialogScreen took 411ms
+
+TerminalScreenDialogScreenshotTest > connectionFailedDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.keys.KeyManagementScreenScreenshotTest.defaultScreen took 410ms
+
+KeyManagementScreenScreenshotTest > defaultScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenOverlayScreenshotTest.overlayButtonsVisible took 7349ms
+
+TerminalScreenOverlayScreenshotTest > overlayButtonsVisible PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.NotificationScreenshotTest.testForegroundNotification took 5539ms
+
+NotificationScreenshotTest > testForegroundNotification PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenResumeScreenshotTest.terminalShowsPersistedHistoryOnResume took 236ms
+
+TerminalScreenResumeScreenshotTest > terminalShowsPersistedHistoryOnResume PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.UserJourneyIntegrationTest.testUserJourney_AddProfileAndSeeInList took 9014ms
+
+UserJourneyIntegrationTest > testUserJourney_AddProfileAndSeeInList PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileScreenScreenshotTest.defaultScreenPasswordAuth took 357ms
+
+AddEditProfileScreenScreenshotTest > defaultScreenPasswordAuth PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileScreenScreenshotTest.defaultScreenKeyAuth took 179ms
+
+AddEditProfileScreenScreenshotTest > defaultScreenKeyAuth PASSED
+See the Paparazzi report at: file:///home/adamoutler/git/ssh/app/build/reports/paparazzi/debug/index.html
+
+BUILD SUCCESSFUL in 23s
+31 actionable tasks: 2 executed, 29 up-to-date
