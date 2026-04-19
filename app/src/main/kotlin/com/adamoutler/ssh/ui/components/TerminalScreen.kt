@@ -200,6 +200,8 @@ fun TerminalScreen(
 
     val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
 
+    val connectionStartTime = androidx.compose.runtime.remember { System.currentTimeMillis() }
+
     val sendToTerminal: (ByteArray) -> Unit = { bytes ->
         if (showDisconnectedOverlay) {
             Log.d("TerminalScreen", "Input locked: session disconnected.")
@@ -211,6 +213,13 @@ fun TerminalScreen(
                         finalBytes = byteArrayOf(0x1B) + finalBytes
                         altSticky.value = false
                     }
+                    
+                    // Prevent sending a newline immediately upon connection
+                    if (System.currentTimeMillis() - connectionStartTime < 500 && finalBytes.size == 1 && (finalBytes[0] == '\r'.code.toByte() || finalBytes[0] == '\n'.code.toByte())) {
+                        Log.d("TerminalScreen", "Blocked unintended newline sent at start of connection")
+                        return@launch
+                    }
+
                     activeSession.ptyOutputStream?.write(finalBytes)
                     activeSession.ptyOutputStream?.flush()
                 } catch (ex: Exception) {
