@@ -13,3 +13,7 @@ Modified `build.gradle.kts` and `gradle/libs.versions.toml` to enforce secure ve
 - `buildEnvironment` dependencies properly reflect secure versions.
 - Successfully built `clean test lint assembleDebug`.
 - 89 actionable tasks executed successfully in 1m 49s with all tests passing.
+
+## Update
+- Encountered a `ClassNotFoundException: org.bouncycastle.asn1.edec.EdECObjectIdentifiers` because `bcpkix` and `bcutil` were mismatched with `bcprov`. Fixed by forcing `bcpkix-jdk18on:1.84` and `bcutil-jdk18on:1.84` on the buildscript classpath as well.
+- CI pipeline PASS received on GitHub Actions.
