@@ -213,12 +213,6 @@ fun TerminalScreen(
                         finalBytes = byteArrayOf(0x1B) + finalBytes
                         altSticky.value = false
                     }
-                    
-                    // Prevent sending a newline immediately upon connection
-                    if (System.currentTimeMillis() - connectionStartTime < 500 && finalBytes.size == 1 && (finalBytes[0] == '\r'.code.toByte() || finalBytes[0] == '\n'.code.toByte())) {
-                        Log.d("TerminalScreen", "Blocked unintended newline sent at start of connection")
-                        return@launch
-                    }
 
                     activeSession.ptyOutputStream?.write(finalBytes)
                     activeSession.ptyOutputStream?.flush()
@@ -322,6 +316,12 @@ fun TerminalScreen(
                             
                             override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, s: TerminalSession?): Boolean {
                                 if (e?.action != android.view.KeyEvent.ACTION_DOWN) return false
+                                
+                                // Prevent bleed-through key events from previous screens (like hitting Enter to connect)
+                                if (e != null && e.downTime < connectionStartTime) {
+                                    Log.d("TerminalScreen", "Ignoring bleed-through key event: keyCode=$keyCode")
+                                    return true // Consume it so it doesn't propagate
+                                }
                                 
                                 if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP) {
                                     currentFontSize++
