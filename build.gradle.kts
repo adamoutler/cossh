@@ -12,6 +12,8 @@ buildscript {
         classpath("org.bouncycastle:bcprov-jdk18on:1.80")
         classpath("org.bouncycastle:bcpkix-jdk18on:1.80")
         classpath("org.bouncycastle:bcutil-jdk18on:1.80")
+        classpath("org.apache.commons:commons-compress:1.26.1")
+        classpath("org.apache.httpcomponents:httpclient:4.5.13")
     }
 }
 
