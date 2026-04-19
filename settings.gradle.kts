@@ -34,8 +34,9 @@ buildscript {
         classpath("org.jdom:jdom2:2.0.6.1")
         classpath("commons-io:commons-io:2.14.0")
         classpath("com.google.protobuf:protobuf-java:3.25.5")
+        classpath("com.google.guava:guava:33.2.0-jre")
     }
-    configurations.classpath {
+    configurations.all {
         resolutionStrategy {
             force("io.netty:netty-codec-http:4.1.132.Final")
             force("io.netty:netty-codec-http2:4.1.132.Final")
@@ -53,6 +54,7 @@ buildscript {
             force("org.jdom:jdom2:2.0.6.1")
             force("commons-io:commons-io:2.14.0")
             force("com.google.protobuf:protobuf-java:3.25.5")
+            force("com.google.guava:guava:33.2.0-jre")
             
             dependencySubstitution {
                 substitute(module("org.bouncycastle:bcprov-jdk15on")).using(module("org.bouncycastle:bcprov-jdk18on:1.84"))
