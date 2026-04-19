@@ -11,12 +11,7 @@ To prevent this reliably and deterministically, the `onKeyDown` override for `Te
 This fully eliminates the bug while ensuring that 100% of valid keystrokes originated after the connection are processed immediately, with no blind timeout windows.
 
 ## Verification Proof
-- Added `TerminalScreenNewlineBleedThroughTest.kt` unit test to `app/src/androidTest/kotlin/com/adamoutler/ssh/ui/components/` that verifies the `downTime` bleed-through logic natively.
-- Passed local unit tests (`./gradlew test lint`).
-
-```
-> Task :app:testDebugUnitTest
-...
-BUILD SUCCESSFUL in 1m 2s
-72 actionable tasks: 20 executed, 52 up-to-date
-```
+- Extracted the bleed-through detection logic into a standalone function `isBleedThroughEvent` in `TerminalScreen.kt`.
+- Added `TerminalScreenNewlineBleedThroughTest.kt` unit test to `app/src/test/kotlin/com/adamoutler/ssh/ui/components/` (`testDebugUnitTest`). This avoids the `ArithmeticException` with `TerminalView` on Robolectric by testing the pure logic directly with mocked `KeyEvent`s.
+- The logs are saved in `docs/qa/SSH-84.log` proving the test runs and passes successfully.
+- Ran local unit tests (`./gradlew test lint`).

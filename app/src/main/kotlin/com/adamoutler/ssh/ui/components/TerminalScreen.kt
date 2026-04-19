@@ -39,6 +39,11 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import android.util.Log
 
+fun isBleedThroughEvent(e: android.view.KeyEvent?, connectionStartTime: Long): Boolean {
+    if (e == null) return false
+    return e.downTime < connectionStartTime
+}
+
 enum class TerminalInputState {
     NONE, KEYBOARD, KEYBOARD_AND_BUTTONS
 }
@@ -318,7 +323,7 @@ fun TerminalScreen(
                                 if (e?.action != android.view.KeyEvent.ACTION_DOWN) return false
                                 
                                 // Prevent bleed-through key events from previous screens (like hitting Enter to connect)
-                                if (e != null && e.downTime < connectionStartTime) {
+                                if (isBleedThroughEvent(e, connectionStartTime)) {
                                     Log.d("TerminalScreen", "Ignoring bleed-through key event: keyCode=$keyCode")
                                     return true // Consume it so it doesn't propagate
                                 }
