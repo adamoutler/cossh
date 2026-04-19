@@ -159,6 +159,9 @@ except BlockingIOError:
         try_again_time = time.strftime('%H:%M:%S', time.localtime(time.time() + 300))
     deny(f"Another QA assessment is currently in progress. Please try again at {try_again_time}.")
 
+print("allowing time to settle before reality checker", file=sys.stderr)
+time.sleep(20)
+
 result = subprocess.run(["gemini", "-p", f" @reality-checker Please verify if the work item {ticket_id} is completed. Read the comments thoroughly. If the evidence is satisfactory, respond with READY. Otherwise, respond with a report, including keyword NEEDS WORK and what is expected to complete the ticket."], stdin=open(ticket_file, "r"), capture_output=True, text=True)
 
 try:
