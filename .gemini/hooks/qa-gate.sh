@@ -31,14 +31,21 @@ if not is_completing:
 
 # Removed TOCTOU rate limit
 
-# Pre-flight checks
-status_out = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True).stdout.strip()
-if status_out:
-    deny("please commit all project files and delete non-project files - if there are any uncommitted files.")
+# Bypass Flags (FOR TESTING ONLY)
+BYPASS_UNCOMMITTED = False
+BYPASS_PUSHED = False
+BYPASS_CI = False
 
-status_sb = subprocess.run(["git", "status", "-sb"], capture_output=True, text=True).stdout
-if "ahead" in status_sb:
-    deny("Git repository has unpushed commits. Please push changes before QA to ensure we match the main repo.")
+# Pre-flight checks
+if not BYPASS_UNCOMMITTED:
+    status_out = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True).stdout.strip()
+    if status_out:
+        deny("please commit all project files and delete non-project files - if there are any uncommitted files.")
+
+if not BYPASS_PUSHED:
+    status_sb = subprocess.run(["git", "status", "-sb"], capture_output=True, text=True).stdout
+    if "ahead" in status_sb:
+        deny("Git repository has unpushed commits. Please push changes before QA to ensure we match the main repo.")
 
 # Check CI
 repo_url = subprocess.run(["git", "config", "--get", "remote.origin.url"], capture_output=True, text=True).stdout.strip()
@@ -53,17 +60,18 @@ elif "git.adamoutler.com" in repo_url:
     if len(parts) >= 2:
         owner, repo = parts[0], parts[1]
 
-req = urllib.request.Request("https://dash.hackedyour.info/api/status")
-try:
-    with urllib.request.urlopen(req) as response:
-        statuses = json.loads(response.read().decode())
-    repo_status = next((s for s in statuses if s["owner"] == owner and s["repo"] == repo), None)
-    if not repo_status:
-        deny(f"No CI run found on dashboard for {owner}/{repo}. Please push your changes and wait for checks.")
-    if repo_status and repo_status.get("status") != "success":
-        deny(f"CI run did not succeed (status: {repo_status.get('status')}). Please fix the build before transitioning to Done.")
-except Exception as e:
-    print(f"WARNING: Failed to fetch or parse CI status: {e}. Bypassing CI check.", file=sys.stderr)
+if not BYPASS_CI:
+    req = urllib.request.Request("https://dash.hackedyour.info/api/status")
+    try:
+        with urllib.request.urlopen(req) as response:
+            statuses = json.loads(response.read().decode())
+        repo_status = next((s for s in statuses if s["owner"] == owner and s["repo"] == repo), None)
+        if not repo_status:
+            deny(f"No CI run found on dashboard for {owner}/{repo}. Please push your changes and wait for checks.")
+        if repo_status and repo_status.get("status") != "success":
+            deny(f"CI run did not succeed (status: {repo_status.get('status')}). Please fix the build before transitioning to Done.")
+    except Exception as e:
+        print(f"WARNING: Failed to fetch or parse CI status: {e}. Bypassing CI check.", file=sys.stderr)
 
 # Fetch logs
 try:
