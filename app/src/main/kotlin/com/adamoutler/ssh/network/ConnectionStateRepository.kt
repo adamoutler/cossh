@@ -2,6 +2,7 @@ package com.adamoutler.ssh.network
 
 import java.io.OutputStream
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +21,10 @@ data class ActiveSessionState(
     var ptyOutputStream: OutputStream? = null,
     var sshShell: Shell? = null,
     var firstSshOutputReceived: Boolean = false,
-    val connectedAt: Long = System.currentTimeMillis()
+    val connectedAt: Long = System.currentTimeMillis(),
+    var isUiAttached: Boolean = false,
+    val outputBuffer: ConcurrentLinkedQueue<ByteArray> = ConcurrentLinkedQueue(),
+    val bufferLock: Any = Any()
 )
 
 object ConnectionStateRepository {
@@ -80,6 +84,34 @@ object ConnectionStateRepository {
     }
 
     suspend fun emitOutput(profileId: String, data: ByteArray) {
-        _sessionOutput.emit(Pair(profileId, data))
+        val session = sessions[profileId]
+        if (session != null) {
+            var emitToFlow = false
+            synchronized(session.bufferLock) {
+                if (!session.isUiAttached) {
+                    session.outputBuffer.add(data)
+                } else {
+                    emitToFlow = true
+                }
+            }
+            if (emitToFlow) {
+                _sessionOutput.emit(Pair(profileId, data))
+            }
+        } else {
+            _sessionOutput.emit(Pair(profileId, data))
+        }
+    }
+
+    fun attachUiAndGetBuffer(profileId: String): List<ByteArray> {
+        val session = sessions[profileId] ?: return emptyList()
+        val buffer = mutableListOf<ByteArray>()
+        synchronized(session.bufferLock) {
+            session.isUiAttached = true
+            while (true) {
+                val bytes = session.outputBuffer.poll() ?: break
+                buffer.add(bytes)
+            }
+        }
+        return buffer
     }
 }

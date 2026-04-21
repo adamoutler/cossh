@@ -41,7 +41,7 @@ import android.util.Log
 
 fun isBleedThroughEvent(e: android.view.KeyEvent?, connectionStartTime: Long): Boolean {
     if (e == null) return false
-    return e.downTime < connectionStartTime
+    return e.downTime < connectionStartTime + 500
 }
 
 enum class TerminalInputState {
@@ -62,26 +62,39 @@ fun TerminalScreen(
     val activeSession = remember(profileId) { ConnectionStateRepository.getOrCreateSession(profileId) }
 
     androidx.compose.runtime.LaunchedEffect(profileId) {
-        ConnectionStateRepository.sessionOutput.collect { (id, bytes) ->
-            if (id == profileId) {
-                if (ConnectionStateRepository.isHeadlessTest) {
-                    val newText = String(bytes, Charsets.UTF_8)
-                    val current = ConnectionStateRepository.mockTestTranscripts[profileId] ?: ""
-                    ConnectionStateRepository.mockTestTranscripts[profileId] = current + newText
-                } else {
-                    val emulator = session.emulator
-                    if (emulator != null) {
-                        if (!activeSession.firstSshOutputReceived) {
-                            activeSession.firstSshOutputReceived = true
-                            emulator.screen.clearTranscript()
-                            val clearSeq = "\u001B[2J\u001B[H".toByteArray()
-                            emulator.append(clearSeq, clearSeq.size)
-                        }
-                        emulator.append(bytes, bytes.size)
-                        terminalViewRef?.onScreenUpdated()
+        val processBytes = { bytes: ByteArray ->
+            if (ConnectionStateRepository.isHeadlessTest) {
+                val newText = String(bytes, Charsets.UTF_8)
+                val current = ConnectionStateRepository.mockTestTranscripts[profileId] ?: ""
+                ConnectionStateRepository.mockTestTranscripts[profileId] = current + newText
+            } else {
+                val emulator = session.emulator
+                if (emulator != null) {
+                    if (!activeSession.firstSshOutputReceived) {
+                        activeSession.firstSshOutputReceived = true
+                        emulator.screen.clearTranscript()
+                        val clearSeq = "\u001B[2J\u001B[H".toByteArray()
+                        emulator.append(clearSeq, clearSeq.size)
                     }
+                    emulator.append(bytes, bytes.size)
+                    terminalViewRef?.onScreenUpdated()
                 }
             }
+        }
+
+        launch {
+            ConnectionStateRepository.sessionOutput.collect { (id, bytes) ->
+                if (id == profileId) {
+                    processBytes(bytes)
+                }
+            }
+        }
+
+        kotlinx.coroutines.yield()
+
+        val bufferedBytes = ConnectionStateRepository.attachUiAndGetBuffer(profileId)
+        for (bytes in bufferedBytes) {
+            processBytes(bytes)
         }
     }
 
@@ -205,7 +218,7 @@ fun TerminalScreen(
 
     val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
 
-    val connectionStartTime = androidx.compose.runtime.remember { System.currentTimeMillis() }
+    val connectionStartTime = androidx.compose.runtime.remember { android.os.SystemClock.uptimeMillis() }
 
     val sendToTerminal: (ByteArray) -> Unit = { bytes ->
         if (showDisconnectedOverlay) {
@@ -374,6 +387,10 @@ fun TerminalScreen(
                             override fun readShiftKey(): Boolean = false
                             override fun readFnKey(): Boolean = false
                             override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, s: TerminalSession?): Boolean {
+                                if (android.os.SystemClock.uptimeMillis() < connectionStartTime + 500) {
+                                    Log.d("TerminalScreen", "Ignoring bleed-through codePoint: $codePoint")
+                                    return true // Consume it so it doesn't propagate
+                                }
                                 try {
                                     var cp = codePoint
                                     if (ctrlSticky.value) {
