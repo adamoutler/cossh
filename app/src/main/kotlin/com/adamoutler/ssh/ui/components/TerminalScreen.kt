@@ -431,6 +431,7 @@ fun TerminalScreen(
                                     coroutineScope.launch(Dispatchers.IO) {
                                         try {
                                             activeSession.sshShell?.changeWindowDimensions(cols, rows, newWidth, newHeight)
+                                            Log.i("TerminalScreen", "SIGWINCH dispatched successfully: cols=$cols, rows=$rows, width=$newWidth, height=$newHeight")
                                         } catch (e: Exception) {
                                             Log.e("TerminalScreen", "Failed to send SIGWINCH", e)
                                         }

@@ -14,5 +14,8 @@
 - SSH connections seamlessly broadcast window dimension updates via SIGWINCH.
 
 ## Artifacts
+- Visual Proof: `docs/qa/SSH-63-before-keyboard.png` (Terminal before keyboard)
+- Visual Proof: `docs/qa/SSH-63-after-keyboard.png` (Terminal after keyboard)
+- Log Evidence: `docs/qa/SSH-63.log` (Contains `SIGWINCH dispatched successfully` showing height and rows updating)
 - CI build passed.
 - Local tests (`testDebugUnitTest` and `testReleaseUnitTest`) passed.

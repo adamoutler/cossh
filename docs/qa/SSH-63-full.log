@@ -1,0 +1,367 @@
+--------- beginning of main
+04-21 00:02:46.421  1126  5674 I WifiHAL : Creating message to get link statistics; iface = 47
+04-21 00:02:46.579  1126  5674 E libbinder.IPCThreadState: binder thread pool (1 threads) starved for 158 ms
+04-21 00:02:46.580  1126  1126 I WifiHAL : Getting cached scan results, iface handle = 0xb4000075c5edd690
+04-21 00:02:46.580  1126  1126 E WifiHAL : Creating message to get cached scan results
+04-21 00:02:46.591  1126  1126 I WifiHAL : In GetCachedScanResultsCommand::handleResponse
+04-21 00:02:46.658  1643  4139 D ConnectivityService: NetReassign [no changes] [c 2] [a 0] [i 5]
+04-21 00:02:46.885  1344  1344 D AOC     : A3:MSG: usf_vsc_log.cc, 69: VSC: [Auto Brightness] Retune sensor-0 (tout:1 drop:0): avg 0.000 -> 0.000 [wm:0.000]
+04-21 00:02:47.418  1344  1344 D AOC     : A3:MSG: usf_vsc_log.cc, 69: VSC: [Auto Brightness] Retune sensor-3 (tout:1 drop:0): avg 0.000 -> 0.000 [wm:0.000]
+04-21 00:02:47.518  1086  1144 D USF     : AP/AOC clock synced: AOC: 239137021090854 ns (5877030695700 tk), AP: 239126031616585 ns, diff = 10989474269 ns
+04-21 00:02:48.306  1070  1070 W TracingMuxer: type=1400 audit(0.0:17702): avc:  denied  { write } for  name="traced_producer" dev="tmpfs" ino=1380 scontext=u:r:hal_neuralnetworks_darwinn:s0 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0
+04-21 00:02:48.878 15746 14607 I NearbyMediums: Found Fast Ble Advertisements :
+04-21 00:02:48.878 15746 14607 I NearbyMediums: BleAdvertisement { version=2, socketVersion=2, isFast=true, serviceIdHash=null, data=[ 0x23 0x30 0x39 0x59 0x55 0x11 0x32 0x70 0x63 0x18 0x89 0x44 0xa9 0x57 0x71 0xc9 0x16 0x0c 0x4d 0x5d 0x27 0xd9 0xb9 ], deviceToken=[ 0xc4 0x05 ], rxAdvertisement=null } : 2 times.
+04-21 00:02:48.878 15746 14607 I NearbyMediums: Total 2 fast advertisements from 1 unique advertisers.
+04-21 00:02:48.879 15746 14607 I NearbyMediums: Current Tracked Scanning Clients are : {NearbyConnections.EnvironmentMonitor, NearbySharing, NearbyConnections.TxAdvertisement}
+04-21 00:02:48.882 15746 14630 I NearbyConnections: Processing lost BlePeripheral BlePeripheral{advertisement=BleAdvertisement { version=2, socketVersion=2, isFast=true, serviceIdHash=null, data=[ 0x23 0x47 0x52 0x45 0x32 0x11 0x32 0xd3 0xff 0xd4 0x3b 0xcf 0xac 0x87 0x9e 0x9a 0x16 0x16 0x07 0x8e 0x33 0xf5 0xce ], deviceToken=[ 0x50 0x5a ], rxAdvertisement=[ 0xa0 0x17 0x57 0x99 0x38 0x27 0x67 0x3e 0xeb 0x7d 0x0d 0x7d 0xcd 0x29 0x5b 0x43 0xd0 0x86 0xdf 0x88 0xc1 0x89 0xd6 0x7c 0x12 0x24 0x0f 0x3f 0xc0 0x2b 0xbc 0x97 0x74 0x4f 0x84 0x15 0x05 0x3f 0x00 0x00 0x84 0x15 0x06 0x21 0x00 0x00 0x84 0x15 0x04 0x7f 0xff 0x1f 0x84 0x15 0x07 0x21 0xff 0x1f 0x83 0x15 0x01 0x16 0x85 ] }, dctAdvertisement=null, address=null, psm=0, deviceToken=<ByteString@2c5361a size=2 contents="PZ">, isSecondProfile=false, rxInstantConnectionAdv=[-96, 23, 87, -103, 56, 39, 103, 62, -21, 125, 13, 125, -51, 41, 91, 67, -48, -122, -33, -120, -63, -119, -42, 124, 18, 36, 15, 63, -64, 43, -68, -105, 116, 79, -124, 21, 5, 63, 0, 0, -124, 21, 6, 33, 0, 0, -124, 21, 4, 127, -1, 31, -124, 21, 7, 33, -1, 31, -125, 21, 1, 22, -123]}.
+04-21 00:02:48.882 15746 14630 I NearbyConnections: Lost BleEndpoint for BlePeripheral BlePeripheral{advertisement=BleAdvertisement { version=2, socketVersion=2, isFast=true, serviceIdHash=null, data=[ 0x23 0x47 0x52 0x45 0x32 0x11 0x32 0xd3 0xff 0xd4 0x3b 0xcf 0xac 0x87 0x9e 0x9a 0x16 0x16 0x07 0x8e 0x33 0xf5 0xce ], deviceToken=[ 0x50 0x5a ], rxAdvertisement=[ 0xa0 0x17 0x57 0x99 0x38 0x27 0x67 0x3e 0xeb 0x7d 0x0d 0x7d 0xcd 0x29 0x5b 0x43 0xd0 0x86 0xdf 0x88 0xc1 0x89 0xd6 0x7c 0x12 0x24 0x0f 0x3f 0xc0 0x2b 0xbc 0x97 0x74 0x4f 0x84 0x15 0x05 0x3f 0x00 0x00 0x84 0x15 0x06 0x21 0x00 0x00 0x84 0x15 0x04 0x7f 0xff 0x1f 0x84 0x15 0x07 0x21 0xff 0x1f 0x83 0x15 0x01 0x16 0x85 ] }, dctAdvertisement=null, address=null, psm=0, deviceToken=<ByteString@2c5361a size=2 contents="PZ">, isSecondProfile=false, rxInstantConnectionAdv=[-96, 23, 87, -103, 56, 39, 103, 62, -21, 125, 13, 125, -51, 41, 91, 67, -48, -122, -33, -120, -63, -119, -42, 124, 18, 36, 15, 63, -64, 43, -68, -105, 116, 79, -124, 21, 5, 63, 0, 0, -124, 21, 6, 33, 0, 0, -124, 21, 4, 127, -1, 31, -124, 21, 7, 33, -1, 31, -125, 21, 1, 22, -123]} (with EndpointId GRE2 and EndpointInfo [ 0x32 0xd3 0xff 0xd4 0x3b 0xcf 0xac 0x87 0x9e 0x9a 0x16 0x16 0x07 0x8e 0x33 0xf5 0xce ]).
+04-21 00:02:48.882 15746 14630 I NearbyConnections: Unable to record lost endpoint due to null currentDiscoveryPhase
+04-21 00:02:48.883 15746 14630 I NearbyConnections: ClientProxy(89165107) reporting onEndpointLost(GRE2)
+04-21 00:02:48.885 15746 14607 I NearbySharing: NearbySharing Internal event EndpointLost(endpointId=GRE2)
+04-21 00:02:48.885 15746 14630 I NearbySharing: [NS_DISCOVERY] DiscoveryController reported Lost(endpointId=GRE2)
+04-21 00:02:49.025  1069  1069 I android.hardware.health-service.zumapro: Recording a sample at time 239127
+04-21 00:02:49.029 15746 15746 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+04-21 00:02:49.050  4233  4233 D DLObserver: onReceive(); android.intent.action.BATTERY_CHANGED
+04-21 00:02:49.051  4233  4233 D DLObserver: plugged=1
+04-21 00:02:49.051  4233  4233 D SystemEventDataSource: onReceive: intentAction
+04-21 00:02:49.052  4233  4233 I ReverseChargingControl: handleIntentForReverseCharging(): rtx=0 wlc=0 plgac=1 ac=1 acrtx=0 extra=1 this=com.google.android.systemui.reversecharging.ReverseChargingController@a015c23
+--------- beginning of system
+04-21 00:02:49.052  4233 15351 D PowerUI : can't show warning due to - plugged: true status unknown: false
+04-21 00:02:49.055  4233  4324 D GoogleBatteryDataSource: fetchDwellDefendStatus: CONNECTED
+04-21 00:02:49.057  4233  4324 D GoogleBatteryDataSource: fetchTempDefendStatus: t_sum=0, time_sum=0 t_avg=0 lst_v=0 lst_t=0 lst_u=0, dt=0, t=0 e=0
+04-21 00:02:49.057  4233  4324 D SystemEventDataSource: updatedEventData: SystemEventData(intentAction=android.intent.action.BATTERY_CHANGED, plugged=EventData(value=1), batteryScale=EventData(value=100), batteryLevel=EventData(value=80), chargingStatus=EventData(value=4), maxChargingCurrent=EventData(value=3000000), maxChargingVoltage=EventData(value=5000000), batteryStatus=EventData(value=2), halEventData=HalEventData(dockDefendStatus=EventData(value=-3), tempDefendEventData=EventData(value=false), dwellDefendEventData=EventData(value=false)), settingsEventData=SettingsEventData(dockDefenderBypass=EventData(value=0), chargingLimitSettings=EventData(value=1), dndState=EventData(value=true), airplaneState=EventData(value=false)), frameworkApiEventData=FrameworkApiEventData(batterySaverState=EventData(value=false), extremeBatterySaverState=EventData(value=false)))
+04-21 00:02:49.057  4233  4324 D DwellDefendBatteryModule: validate: false -> false
+04-21 00:02:49.057  4233  4324 D TempDefendBatteryModule: validate: false -> false
+04-21 00:02:49.061  4233  4233 D PowerNotificationWarningsGoogleImpl: onReceive: android.intent.action.BATTERY_CHANGED
+04-21 00:02:49.061  4233  4233 D PulsarController: dispatchIntent: android.intent.action.BATTERY_CHANGED
+04-21 00:02:49.061  4233  4233 D IncompatibleChargerNotification: dispatchIntent: android.intent.action.BATTERY_CHANGED
+04-21 00:02:49.389 15746 14638 I NearbySharing: [NS_CONTROL] DiscoveryStateManager emitted ReportLost(id=17).
+04-21 00:02:49.390 15746 14638 I NearbySharing: NearbySharing Internal event ReceiverLost(receiverId=17)
+04-21 00:02:49.391 15746 14607 I NearbySharing: SendManager event Lost(receiverId=17)
+04-21 00:02:49.396 15746 15746 I NearbySharing: ShortcutInfoManager removed shortcut Adam's Pixel 10 Pro Fold
+04-21 00:02:49.416  1643  1818 W NotificationHistory: Attempted to remove conversation for locked/gone/disabled user 0
+04-21 00:02:49.526 14629 14629 W libbinder.BackendUnifiedServiceManager: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+04-21 00:02:49.527 14629 14629 W libbinder.BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+04-21 00:02:49.527 14629 14629 W libbinder.ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+04-21 00:02:49.649  1126  1126 I WifiHAL : Creating message to get link statistics; iface = 47
+04-21 00:02:49.748  1126  5674 I WifiHAL : Getting cached scan results, iface handle = 0xb4000075c5edd690
+04-21 00:02:49.748  1126  5674 E WifiHAL : Creating message to get cached scan results
+04-21 00:02:49.759  1126  5674 I WifiHAL : In GetCachedScanResultsCommand::handleResponse
+04-21 00:02:49.819  1643  4139 D ConnectivityService: NetReassign [no changes] [c 1] [a 1] [i 4]
+04-21 00:02:49.862  1643  4189 D BackgroundInstallControlService: Package event received: 0
+04-21 00:02:49.872 15746 15746 I NearbyDiscovery: (REDACTED) DiscoveryService onStartCommand action: %s
+04-21 00:02:49.873 15746 27074 I NearbyDiscovery: FastPairApiHandler: trigger firmware update check [CONTEXT service_id=265 ]
+04-21 00:02:49.890 15746 14610 I NearbyDiscovery: (REDACTED) FastPairApiHandler: Send result, package=(%s), requestType=(%s), status=(%s)
+04-21 00:02:51.191 15746 15746 I NearbyDiscovery: (REDACTED) DiscoveryService onStartCommand action: %s
+04-21 00:02:51.196  1643  4189 D BackgroundInstallControlService: Package event received: 0
+04-21 00:02:51.200 15746 27074 I NearbyDiscovery: FastPairApiHandler: trigger firmware update check [CONTEXT service_id=265 ]
+04-21 00:02:51.217 15746 14608 I NearbyDiscovery: (REDACTED) FastPairApiHandler: Send result, package=(%s), requestType=(%s), status=(%s)
+04-21 00:02:51.249 15746 14507 I NearbyPresence: [NP_DEBUG] Using Java decoder [CONTEXT service_id=317 ]
+04-21 00:02:51.259 15746 14637 I NearbyPresence: (REDACTED) [NP_EVENT] %s
+04-21 00:02:51.259 15746 14637 I NearbyPresence: (REDACTED) [NP_CONTROL] %s
+04-21 00:02:51.262 15746 14637 I NearbyPresence: (REDACTED) [NP_CONTROL] %s
+04-21 00:02:51.262 15746 14637 I NearbyPresence: (REDACTED) [FppSensorFusionController] Update called with options: %s
+04-21 00:02:51.263 15746 14637 I fpp     : Ranging Results Update: DeviceId=2003818520 Distance=35.48133892335755 (m) Type=BLE
+04-21 00:02:51.506  1343  1343 W TracingMuxer: type=1400 audit(0.0:17703): avc:  denied  { write } for  name="traced_producer" dev="tmpfs" ino=1380 scontext=u:r:gxp_logging:s0 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: [MdnsAdvertiser.wlan0] ERROR Error parsing mDNS packet: Failed to read NSEC record from mDNS response.
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket$ParseException: Failed to read NSEC record from mDNS response.
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecord(MdnsPacket.java:212)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecords(MdnsPacket.java:125)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecordsSection(MdnsPacket.java:111)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parse(MdnsPacket.java:92)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsInterfaceAdvertiser.handlePacket(MdnsInterfaceAdvertiser.java:422)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MulticastPacketReader.handlePacket(MulticastPacketReader.java:107)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MulticastPacketReader.handlePacket(MulticastPacketReader.java:34)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader.handleInput(FdEventsReader.java:277)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader.lambda$createAndRegisterFd$0(FdEventsReader.java:233)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader.$r8$lambda$nOpviJ36K9yTVIlKPXopclWm250(FdEventsReader.java:0)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader$$ExternalSyntheticLambda0.onFileDescriptorEvents(R8$$SyntheticClass:0)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.dispatchEvents(MessageQueue.java:2403)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.nativePollOnce(Native Method)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.nextDeliQueue(MessageQueue.java:780)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.next(MessageQueue.java:760)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.os.Looper.loopOnce(Looper.java:196)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.os.Looper.loop(Looper.java:367)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.os.HandlerThread.run(HandlerThread.java:139)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: Caused by: java.io.IOException: Invalid bitmap length: 0
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsNsecRecord.readTypes(MdnsNsecRecord.java:82)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsNsecRecord.readData(MdnsNsecRecord.java:66)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsRecord.<init>(MdnsRecord.java:91)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsNsecRecord.<init>(MdnsNsecRecord.java:43)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecord(MdnsPacket.java:210)
+04-21 00:02:51.855  1643  4142 E serviceDiscovery: 	... 17 more
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: [MdnsMultinetworkSocketClient] ERROR Failed to read NSEC record from mDNS response.: Failed to read NSEC record from mDNS response.
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket$ParseException: Failed to read NSEC record from mDNS response.
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecord(MdnsPacket.java:212)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecords(MdnsPacket.java:125)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecordsSection(MdnsPacket.java:111)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsResponseDecoder.parseResponse(MdnsResponseDecoder.java:102)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsMultinetworkSocketClient.processResponsePacket(MdnsMultinetworkSocketClient.java:265)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsMultinetworkSocketClient.-$$Nest$mprocessResponsePacket(MdnsMultinetworkSocketClient.java:0)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsMultinetworkSocketClient$ReadPacketHandler.handlePacket(MdnsMultinetworkSocketClient.java:165)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MulticastPacketReader.handlePacket(MulticastPacketReader.java:107)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MulticastPacketReader.handlePacket(MulticastPacketReader.java:34)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader.handleInput(FdEventsReader.java:277)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader.lambda$createAndRegisterFd$0(FdEventsReader.java:233)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader.$r8$lambda$nOpviJ36K9yTVIlKPXopclWm250(FdEventsReader.java:0)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader$$ExternalSyntheticLambda0.onFileDescriptorEvents(R8$$SyntheticClass:0)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.dispatchEvents(MessageQueue.java:2403)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.nativePollOnce(Native Method)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.nextDeliQueue(MessageQueue.java:780)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.next(MessageQueue.java:760)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.os.Looper.loopOnce(Looper.java:196)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.os.Looper.loop(Looper.java:367)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.os.HandlerThread.run(HandlerThread.java:139)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: Caused by: java.io.IOException: Invalid bitmap length: 0
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsNsecRecord.readTypes(MdnsNsecRecord.java:82)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsNsecRecord.readData(MdnsNsecRecord.java:66)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsRecord.<init>(MdnsRecord.java:91)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsNsecRecord.<init>(MdnsNsecRecord.java:43)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecord(MdnsPacket.java:210)
+04-21 00:02:51.856  1643  4142 E serviceDiscovery: 	... 19 more
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: [MdnsAdvertiser.wlan0] ERROR Error parsing mDNS packet: Failed to read NSEC record from mDNS response.
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket$ParseException: Failed to read NSEC record from mDNS response.
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecord(MdnsPacket.java:212)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecords(MdnsPacket.java:125)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecordsSection(MdnsPacket.java:111)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parse(MdnsPacket.java:92)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsInterfaceAdvertiser.handlePacket(MdnsInterfaceAdvertiser.java:422)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MulticastPacketReader.handlePacket(MulticastPacketReader.java:107)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MulticastPacketReader.handlePacket(MulticastPacketReader.java:34)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader.handleInput(FdEventsReader.java:277)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader.lambda$createAndRegisterFd$0(FdEventsReader.java:233)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader.$r8$lambda$nOpviJ36K9yTVIlKPXopclWm250(FdEventsReader.java:0)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader$$ExternalSyntheticLambda0.onFileDescriptorEvents(R8$$SyntheticClass:0)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.dispatchEvents(MessageQueue.java:2403)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.nativePollOnce(Native Method)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.nextDeliQueue(MessageQueue.java:780)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.next(MessageQueue.java:760)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.os.Looper.loopOnce(Looper.java:196)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.os.Looper.loop(Looper.java:367)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.os.HandlerThread.run(HandlerThread.java:139)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: Caused by: java.io.IOException: Invalid bitmap length: 0
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsNsecRecord.readTypes(MdnsNsecRecord.java:82)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsNsecRecord.readData(MdnsNsecRecord.java:66)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsRecord.<init>(MdnsRecord.java:91)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsNsecRecord.<init>(MdnsNsecRecord.java:43)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecord(MdnsPacket.java:210)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	... 17 more
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: [MdnsMultinetworkSocketClient] ERROR Failed to read NSEC record from mDNS response.: Failed to read NSEC record from mDNS response.
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket$ParseException: Failed to read NSEC record from mDNS response.
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecord(MdnsPacket.java:212)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecords(MdnsPacket.java:125)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecordsSection(MdnsPacket.java:111)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsResponseDecoder.parseResponse(MdnsResponseDecoder.java:102)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsMultinetworkSocketClient.processResponsePacket(MdnsMultinetworkSocketClient.java:265)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsMultinetworkSocketClient.-$$Nest$mprocessResponsePacket(MdnsMultinetworkSocketClient.java:0)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsMultinetworkSocketClient$ReadPacketHandler.handlePacket(MdnsMultinetworkSocketClient.java:165)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MulticastPacketReader.handlePacket(MulticastPacketReader.java:107)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MulticastPacketReader.handlePacket(MulticastPacketReader.java:34)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader.handleInput(FdEventsReader.java:277)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader.lambda$createAndRegisterFd$0(FdEventsReader.java:233)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader.$r8$lambda$nOpviJ36K9yTVIlKPXopclWm250(FdEventsReader.java:0)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.net.module.util.FdEventsReader$$ExternalSyntheticLambda0.onFileDescriptorEvents(R8$$SyntheticClass:0)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.dispatchEvents(MessageQueue.java:2403)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.nativePollOnce(Native Method)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.nextDeliQueue(MessageQueue.java:780)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.os.MessageQueue.next(MessageQueue.java:760)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.os.Looper.loopOnce(Looper.java:196)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.os.Looper.loop(Looper.java:367)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.os.HandlerThread.run(HandlerThread.java:139)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: Caused by: java.io.IOException: Invalid bitmap length: 0
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsNsecRecord.readTypes(MdnsNsecRecord.java:82)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsNsecRecord.readData(MdnsNsecRecord.java:66)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsRecord.<init>(MdnsRecord.java:91)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsNsecRecord.<init>(MdnsNsecRecord.java:43)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	at android.net.connectivity.com.android.server.connectivity.mdns.MdnsPacket.parseRecord(MdnsPacket.java:210)
+04-21 00:02:51.957  1643  4142 E serviceDiscovery: 	... 19 more
+04-21 00:02:52.282  4433  4700 D TemperatureStateSource: sequence=23248 actualDelay=10002
+04-21 00:02:52.284  4433  4700 D TemperatureStateSource: Reading temperature: sequence=23249
+04-21 00:02:52.290 21077 21077 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [28656.00 30214.00 29235.00 28544.00 29546.00 28589.00 29702.00 28812.00 ]
+04-21 00:02:52.290 21077 21077 I native  : I0000 00:00:1776744172.290716   21077 thermal_tflite_wrapper.cc:261] ThermalTfliteInvoke
+04-21 00:02:52.291 21077 21077 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [28909.5 ]
+04-21 00:02:52.291 21077 21077 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [28909.5 ]
+04-21 00:02:52.291 21077 21077 I pixel-thermal: Power data LPM_ACTIVE_RAILS_TRANS is under collecting
+04-21 00:02:52.291 21077 21077 I pixel-thermal: ShutdownModePowerTrans data is under collecting
+04-21 00:02:52.291 21077 21077 I pixel-thermal: Thermal sensor ShutdownModePowerTrans is under collecting
+04-21 00:02:52.291 21077 21077 I pixel-thermal: Power data LPM_ACTIVE_RAILS_STEADY is under collecting
+04-21 00:02:52.291 21077 21077 I pixel-thermal: ShutdownModePowerSteady data is under collecting
+04-21 00:02:52.291 21077 21077 I pixel-thermal: Thermal sensor ShutdownModePowerSteady is under collecting
+04-21 00:02:52.291 21077 21077 I pixel-thermal: VIRTUAL-SKIN:28.9244 raw data: VIRTUAL-SKIN:28924.4 VIRTUAL-SKIN-LEGACY:28249.9 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:-659.584 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:28909.5 VIRTUAL-SKIN-MODEL-CLAMPED:28909.5 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:659.584 VIRTUAL-SKIN-MODEL-UPDATED:28924.4 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:28909.5 VIRTUAL-SKIN-SUB-0:24267.5 VIRTUAL-SKIN-SUB-1:26793 VIRTUAL-SKIN-SUB-2:28225.9 VIRTUAL-SKIN-SUB-3:28076 VIRTUAL-SKIN-SUB-4:25755.3 VIRTUAL-SKIN-SUB-5:28223.1 VIRTUAL-SKIN-SUB-6:28249.9 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 btmspkr_therm:28656 charging_therm:30214 disp_therm:29235 north_therm:28544 quiet_therm:29546 rfpa_therm:28589 soc_therm:29702 usb_pwr_therm:28812 
+04-21 00:02:52.292  4433  4700 D TemperatureStateSource: getDeviceTemperatures: sequence=23249 deviceTemperatureType=3 temperatureSource=0 temperatures=[28.924446]
+04-21 00:02:52.293  4433  4700 D BusinessScope: Enqueuing the block
+04-21 00:02:52.293  4433  4700 D TemperatureStateSource: sequence=23249 waitTime=10000
+04-21 00:02:52.293  4433  5633 D BusinessScope: Start running the #48633 block
+04-21 00:02:52.294  4433  5633 D BusinessScope: Enqueuing the block
+04-21 00:02:52.294  4433  5633 D ImpulseStateSource: Notify clients: 24313
+04-21 00:02:52.294  4433  5633 D BusinessScope: Finish running the #48633 block
+04-21 00:02:52.294  4433  5633 D BusinessScope: Start running the #48634 block
+04-21 00:02:52.294  4433  5633 D BusinessScope: Finish running the #48634 block
+04-21 00:02:52.615 15746 14608 I NearbyPresence: [NP_DEBUG] Using Java decoder [CONTEXT service_id=317 ]
+04-21 00:02:52.616 15746 14635 I fpp     : Ranging Results Update: DeviceId=2003818520 Distance=28.183829312644534 (m) Type=BLE
+04-21 00:02:52.617 15746 14635 I fpp     : Proximity state event detected: device=2003818520, distance(m)=28.18, state=LONG_RANGE, prevState=Unknown/Expired, distance history=[]
+04-21 00:02:52.669 15746 15746 I NearbyDiscovery: (REDACTED) DiscoveryService onStartCommand action: %s
+04-21 00:02:52.670 15746 27074 I NearbyDiscovery: FastPairApiHandler: trigger firmware update check [CONTEXT service_id=265 ]
+04-21 00:02:52.671  1643  4189 D BackgroundInstallControlService: Package event received: 0
+04-21 00:02:52.696 15746 14507 I NearbyDiscovery: (REDACTED) FastPairCacheManager: Item exists in cache for %s, returning %s
+04-21 00:02:52.708 15746 14507 I NearbyDiscovery: (REDACTED) FastPairApiHandler: Send result, package=(%s), requestType=(%s), status=(%s)
+04-21 00:02:52.813  1126  5674 I WifiHAL : Creating message to get link statistics; iface = 47
+04-21 00:02:52.969  1126  5674 E libbinder.IPCThreadState: binder thread pool (1 threads) starved for 156 ms
+04-21 00:02:52.969  1126  1126 I WifiHAL : Getting cached scan results, iface handle = 0xb4000075c5edd690
+04-21 00:02:52.969  1126  1126 E WifiHAL : Creating message to get cached scan results
+04-21 00:02:52.983  1126  1126 I WifiHAL : In GetCachedScanResultsCommand::handleResponse
+04-21 00:02:53.050  1643  4139 D ConnectivityService: NetReassign [no changes] [c 1] [a 1] [i 5]
+04-21 00:02:53.722 15746 15746 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+04-21 00:02:54.198 14649 14649 W libbinder.BackendUnifiedServiceManager: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+04-21 00:02:54.199 14649 14649 W libbinder.BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+04-21 00:02:54.199 14649 14649 W libbinder.ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+04-21 00:02:54.541  5707  6130 I AiAiPwm : Entity IDs specified for removal but none maps to a valid document ID.
+04-21 00:02:55.337  1643  2233 I UsageStatsService: User[0] Flushing usage stats to disk
+04-21 00:02:55.371 15746 14638 I NearbyMediums: This GATT advertisement BleAdvertisement { version=2, socketVersion=2, isFast=true, serviceIdHash=null, data=[ 0x23 0x35 0x56 0x34 0x5a 0x11 0x32 0xb3 0x9d 0xed 0x5f 0x04 0x18 0xf9 0x19 0x4f 0xb0 0x59 0x7f 0xc6 0x62 0x69 0x6e ], deviceToken=[ 0x50 0x5a ], rxAdvertisement=null } is a Fast Advertisement and matched UUID 0000fef3-0000-1000-8000-00805f9b34fb in fastAdvertisementServiceUuids map with serviceID NearbySharing
+04-21 00:02:55.372 15746 14637 I NearbyConnections: Found BleAdvertisement [ 0x23 0x35 0x56 0x34 0x5a 0x11 0x32 0xb3 0x9d 0xed 0x5f 0x04 0x18 0xf9 0x19 0x4f 0xb0 0x59 0x7f 0xc6 0x62 0x69 0x6e ] (with EndpointId 5V4Z and EndpointInfo [ 0x32 0xb3 0x9d 0xed 0x5f 0x04 0x18 0xf9 0x19 0x4f 0xb0 0x59 0x7f 0xc6 0x62 0x69 0x6e ])
+04-21 00:02:55.373 15746 14637 I NearbyConnections: Unable to record discovered endpoint due to null currentDiscoveryPhase
+04-21 00:02:55.373 15746 14637 I NearbyConnections: ClientProxy(89165107 0p:com.google.android.gms.nearby.sharing) reporting onEndpointFound(5V4Z)
+04-21 00:02:55.375 15746 14637 I NearbyConnections: ClientProxy(89165107) reporting onEndpointDistanceChanged(5V4Z, UNKNOWN)
+04-21 00:02:55.375 15746 14607 I NearbySharing: NearbySharing Internal event EndpointDiscovered(endpointId=5V4Z)
+04-21 00:02:55.384  1643  4189 D BackgroundInstallControlService: Package event received: 0
+04-21 00:02:55.403 15746 14637 I NearbySharing: [NS_DISCOVERY] DiscoveryController reported Discovered(endpointId=5V4Z, metadata=DeviceMetadata(version=1, deviceType=1, deviceName=Adam's Pixel 10 Pro Fold, displayName=Adam Outler, modelName=Pixel 10 Pro Fold, imageUri=content://com.google.android.gms.fileprovider/nearby_share_images/2062991643.jpg, isSelfShare=true, isKnown=true, bluetoothMacAddress=[100, -99, 56, -40, 112, 70], vendorId=0, matchesLocalQrCode=false), sharedCredential=SharedCredential(id=-491792556, publicKey=[48, 89, 48, 19, 6, 7, 42, -122, 72, -50, 61, 2, 1, 6, 8, 42, -122, 72, -50, 61, 3, 1, 7, 3, 66, 0, 4, 35, -109, -83, 106, -86, 64, -121, 9, 52, -36, 23, -62, -53, -93, 46, 113, 24, -26, -26, 75, -10, 25, 122, 87, -114, -57, -18, -122, -30, -5, 14, -90, 36, -11, -118, 13, -79, 16, -63, -96, -104, -26, -70, 28, -60, 39, 82, 50, -89, -89, 86, 103, 39, 112, 112, 13, -71, -39, -55, 20, 86, 50, -12, -14], authenticityKey=[-112, -73, -45, -90, -12, 104, -28, 29, 44, -100, 26, -122, -78, 63, 54, 98, -104, 102, 32, 45, -46, -24, 31, 34, -26, 71, 30, -74, 74, 3, 0, -98], certificateMetadata=CertificateMetadata(deviceName=Adam's Pixel 10 Pro Fold, fullName=Adam Outler, iconUrl=content://com.google.android.gms.fileprovider/nearby_share_images/2062991643.jpg, bluetoothMacAddress=[100, -99, 56, -40, 112, 70], accountName=adamoutler@gmail.com, modelName=Pixel 10 Pro Fold, vendorId=0), hasSharedAccount=true))
+04-21 00:02:55.403 15746 14637 I NearbySharing: [NS_DEBUG] Dedupped: same shared credential. endpoint ID GRE2 changed to 5V4Z
+04-21 00:02:55.403 15746 14637 I NearbySharing: {NS_DEBUG] previous receiver info ReceiverInfo(endpointId=GRE2, metadata=DeviceMetadata(version=1, deviceType=1, deviceName=Adam's Pixel 10 Pro Fold, displayName=Adam Outler, modelName=Pixel 10 Pro Fold, imageUri=content://com.google.android.gms.fileprovider/nearby_share_images/2062991643.jpg, isSelfShare=true, isKnown=true, bluetoothMacAddress=[100, -99, 56, -40, 112, 70], vendorId=0, matchesLocalQrCode=false), sharedCredential=SharedCredential(id=-491792556, publicKey=[48, 89, 48, 19, 6, 7, 42, -122, 72, -50, 61, 2, 1, 6, 8, 42, -122, 72, -50, 61, 3, 1, 7, 3, 66, 0, 4, 35, -109, -83, 106, -86, 64, -121, 9, 52, -36, 23, -62, -53, -93, 46, 113, 24, -26, -26, 75, -10, 25, 122, 87, -114, -57, -18, -122, -30, -5, 14, -90, 36, -11, -118, 13, -79, 16, -63, -96, -104, -26, -70, 28, -60, 39, 82, 50, -89, -89, 86, 103, 39, 112, 112, 13, -71, -39, -55, 20, 86, 50, -12, -14], authenticityKey=[-112, -73, -45, -90, -12, 104, -28, 29, 44, -100, 26, -122, -78, 63, 54, 98, -104, 102, 32, 45, -46, -24, 31, 34, -26, 71, 30, -74, 74, 3, 0, -98], certificateMetadata=CertificateMetadata(deviceName=Adam's Pixel 10 Pro Fold, fullName=Adam Outler, iconUrl=content://com.google.android.gms.fileprovider/nearby_share_images/2062991643.jpg, bluetoothMacAddress=[100, -99, 56, -40, 112, 70], accountName=adamoutler@gmail.com, modelName=Pixel 10 Pro Fold, vendorId=0), hasSharedAccount=true), state=Tomb(delayedStateChangeJob=ijeo{Active}@d64f6e2))
+04-21 00:02:55.403 15746 14637 I NearbySharing: NearbySharing Internal event ReceiverEndpointMapping(endpointId=5V4Z, receiverId=17)
+04-21 00:02:55.405 15746 14630 I NearbySharing: [NS_CONTROL] DiscoveryStateManager emitted ReportDiscovered(id=17, metadata=DeviceMetadata(version=1, deviceType=1, deviceName=Adam's Pixel 10 Pro Fold, displayName=Adam Outler, modelName=Pixel 10 Pro Fold, imageUri=content://com.google.android.gms.fileprovider/nearby_share_images/2062991643.jpg, isSelfShare=true, isKnown=true, bluetoothMacAddress=[100, -99, 56, -40, 112, 70], vendorId=0, matchesLocalQrCode=false)).
+04-21 00:02:55.405 15746 14630 I NearbySharing: NearbySharing Internal event ReceiverDiscovered(receiverId=17, deviceName=Adam's Pixel 10 Pro Fold, isKnown=true, isSelfShare=true, deviceType=1, hasMatchingQrCode=false, isExternal=false, providerName=null, providerId=null, cloudReceiverSessionId=null)
+04-21 00:02:55.405 15746 14607 I NearbySharing: SendManager event Discovered(receiverId=17, receiverMetadata=DeviceMetadata(version=1, deviceType=1, deviceName=Adam's Pixel 10 Pro Fold, displayName=Adam Outler, modelName=Pixel 10 Pro Fold, imageUri=content://com.google.android.gms.fileprovider/nearby_share_images/2062991643.jpg, isSelfShare=true, isKnown=true, bluetoothMacAddress=[100, -99, 56, -40, 112, 70], vendorId=0, matchesLocalQrCode=false))
+04-21 00:02:55.405 15746 14607 I NearbySharing: SendManager event DistanceChanged(receiverId=17, distance=1, rangingData=null)
+04-21 00:02:55.435 15746 15746 I NearbySharing: ShortcutInfoManager added shortcut Adam's Pixel 10 Pro Fold
+04-21 00:02:55.436  1643  4189 D BackgroundInstallControlService: Package event received: 0
+04-21 00:02:55.472 15746 14637 I NearbyMediums: Replace Fast Advertisement Rx Info for service id : NearbySharing on deviceToken : [ 0x50 0x5a ]
+04-21 00:02:55.473 15746 14638 I NearbyConnections: Found BleAdvertisement [ 0x23 0x35 0x56 0x34 0x5a 0x11 0x32 0xb3 0x9d 0xed 0x5f 0x04 0x18 0xf9 0x19 0x4f 0xb0 0x59 0x7f 0xc6 0x62 0x69 0x6e ] (with EndpointId 5V4Z and EndpointInfo [ 0x32 0xb3 0x9d 0xed 0x5f 0x04 0x18 0xf9 0x19 0x4f 0xb0 0x59 0x7f 0xc6 0x62 0x69 0x6e ])
+04-21 00:02:55.473 15746 14638 I NearbyConnections: ClientProxy(89165107) ignoring onEndpointDistanceChanged(5V4Z, UNKNOWN), because this distance has already been reported
+04-21 00:02:56.044  1126  1126 I WifiHAL : Creating message to get link statistics; iface = 47
+04-21 00:02:56.155  1126  1126 E libbinder.IPCThreadState: binder thread pool (1 threads) starved for 110 ms
+04-21 00:02:56.155  1126  5674 I WifiHAL : Getting cached scan results, iface handle = 0xb4000075c5edd690
+04-21 00:02:56.155  1126  5674 E WifiHAL : Creating message to get cached scan results
+04-21 00:02:56.169  1126  5674 I WifiHAL : In GetCachedScanResultsCommand::handleResponse
+04-21 00:02:56.235  1643  4139 D ConnectivityService: NetReassign [no changes] [c 2] [a 0] [i 5]
+04-21 00:02:56.718  4936  4936 I SconeConfigReceiver: Received: com.google.android.apps.scone.modem.ATTEMPT_MODEM_RESET from sender null
+04-21 00:02:56.719  4936  4936 W JobInfo : Job 'com.google.android.apps.scone/.modem.ConfigService#100' has a deadline with no functional constraints. The deadline won't improve job execution latency. Consider removing the deadline.
+04-21 00:02:56.720  1643  1915 W JobInfo : Job 'com.google.android.apps.scone/.modem.ConfigService#100' has a deadline with no functional constraints. The deadline won't improve job execution latency. Consider removing the deadline.
+04-21 00:02:56.744  4936 14551 I SconeConfigService: onHandleWork - com.google.android.apps.scone.modem.ATTEMPT_MODEM_RESET
+04-21 00:02:56.744  4936 14551 D ConfigService: onHandleAttemptModemReset
+04-21 00:02:56.746  4936 14551 D ModemUtil: Screen is on, defer actions
+04-21 00:02:56.746  4936 14551 D ConfigService: Preconditions not met, retrying after 60 seconds
+04-21 00:02:56.749  4936 14551 D ConfigService: Attempt to retry after: 60 seconds
+04-21 00:02:56.792  1643  2242 D ActivityManager: freezing 4678 com.google.android.gms.unstable
+04-21 00:02:58.883 15746 14638 I NearbyMediums: Found Fast Ble Advertisements :
+04-21 00:02:58.883 15746 14638 I NearbyMediums: BleAdvertisement { version=2, socketVersion=2, isFast=true, serviceIdHash=null, data=[ 0x23 0x35 0x56 0x34 0x5a 0x11 0x32 0xb3 0x9d 0xed 0x5f 0x04 0x18 0xf9 0x19 0x4f 0xb0 0x59 0x7f 0xc6 0x62 0x69 0x6e ], deviceToken=[ 0x50 0x5a ], rxAdvertisement=null } : 1 times.
+04-21 00:02:58.883 15746 14638 I NearbyMediums: BleAdvertisement { version=2, socketVersion=2, isFast=true, serviceIdHash=null, data=[ 0x23 0x30 0x39 0x59 0x55 0x11 0x32 0x70 0x63 0x18 0x89 0x44 0xa9 0x57 0x71 0xc9 0x16 0x0c 0x4d 0x5d 0x27 0xd9 0xb9 ], deviceToken=[ 0xc4 0x05 ], rxAdvertisement=null } : 6 times.
+04-21 00:02:58.883 15746 14638 I NearbyMediums: Total 7 fast advertisements from 2 unique advertisers.
+04-21 00:02:58.884 15746 14638 I NearbyMediums: Current Tracked Scanning Clients are : {NearbyConnections.EnvironmentMonitor, NearbySharing, NearbyConnections.TxAdvertisement}
+04-21 00:02:59.229  1126  5674 I WifiHAL : Creating message to get link statistics; iface = 47
+04-21 00:02:59.340  1126  5674 E libbinder.IPCThreadState: binder thread pool (1 threads) starved for 111 ms
+04-21 00:02:59.341  1126  1126 I WifiHAL : Getting cached scan results, iface handle = 0xb4000075c5edd690
+04-21 00:02:59.341  1126  1126 E WifiHAL : Creating message to get cached scan results
+04-21 00:02:59.353  1126  1126 I WifiHAL : In GetCachedScanResultsCommand::handleResponse
+04-21 00:02:59.419  1643  4139 D ConnectivityService: NetReassign [no changes] [c 2] [a 0] [i 6]
+04-21 00:02:59.626 15746 15746 I NearbyDiscovery: (REDACTED) DiscoveryService onStartCommand action: %s
+04-21 00:02:59.627 15746 27074 I NearbyDiscovery: FastPairApiHandler: trigger firmware update check [CONTEXT service_id=265 ]
+04-21 00:02:59.629  1643  4189 D BackgroundInstallControlService: Package event received: 0
+04-21 00:02:59.653 15746 14507 I NearbyDiscovery: (REDACTED) FastPairCacheManager: Item exists in cache for %s, returning %s
+04-21 00:02:59.662 15746 14507 I NearbyDiscovery: (REDACTED) FastPairApiHandler: Send result, package=(%s), requestType=(%s), status=(%s)
+04-21 00:03:00.046   618   618 D SurfaceFlinger: setDesiredMode 4619827359057144832 {mode={fps=60.00 Hz, modePtr={id=3, vsyncRate=120.00 Hz, peakRefreshRate=120.00 Hz}}, emitEvent=false, force=false}
+04-21 00:03:00.047  1643  1720 I DisplayDeviceRepository: Display device changed render timings: "Built-in Screen", renderFrameRate=60.000004, presentationDeadlineNanos=11500000, appVsyncOffsetNanos=6233332, frameRateOverrides=[{uid=10258 frameRateHz=60.000004}]
+04-21 00:03:00.048  1643  1711 D WindowManager: DeferredDisplayUpdater: partially applying DisplayInfo(960 x 2142) immediately
+04-21 00:03:00.052  1127  1203 D DeviceHalAidl: [default] setParameters: parameters: "screen_state=on"
+04-21 00:03:00.052  1057  1785 D ASvc::Module: updateScreenState: 1
+04-21 00:03:00.053  1127  1203 D DeviceHalAidl: [r_submix] setParameters: parameters: "screen_state=on"
+04-21 00:03:00.053  1057  1176 D AHAL_Module: updateScreenState: r_submix: 1
+04-21 00:03:00.053  1127  1203 D DeviceHalAidl: [bluetooth] setParameters: parameters: "screen_state=on"
+04-21 00:03:00.053  1057  1785 D AHAL_Module: updateScreenState: bluetooth: 1
+04-21 00:03:00.055   621   621 E hwc-display: updateIdleStats We should not have non-present refresh when the minimum refresh rate is set, as it should use auto mode.
+04-21 00:03:00.113   621   750 E hwc-display: updateIdleStats We should not have non-present refresh when the minimum refresh rate is set, as it should use auto mode.
+04-21 00:03:00.149   621   750 E hwc-display: updateIdleStats We should not have non-present refresh when the minimum refresh rate is set, as it should use auto mode.
+04-21 00:03:00.182   621   750 E hwc-display: updateIdleStats We should not have non-present refresh when the minimum refresh rate is set, as it should use auto mode.
+04-21 00:03:00.215   621   750 E hwc-display: updateIdleStats We should not have non-present refresh when the minimum refresh rate is set, as it should use auto mode.
+04-21 00:03:00.316   621   750 E hwc-display: updateIdleStats We should not have non-present refresh when the minimum refresh rate is set, as it should use auto mode.
+04-21 00:03:00.416   621   750 E hwc-display: updateIdleStats We should not have non-present refresh when the minimum refresh rate is set, as it should use auto mode.
+04-21 00:03:00.516   621   750 E hwc-display: updateIdleStats We should not have non-present refresh when the minimum refresh rate is set, as it should use auto mode.
+04-21 00:03:00.616   621   750 E hwc-display: updateIdleStats We should not have non-present refresh when the minimum refresh rate is set, as it should use auto mode.
+04-21 00:03:00.799  1643  1720 I DisplayDeviceRepository: Display device changed render timings: "Built-in Screen", renderFrameRate=60.000004, presentationDeadlineNanos=11500000, appVsyncOffsetNanos=6233332, frameRateOverrides=[]
+04-21 00:03:02.295  4433  5633 D TemperatureStateSource: sequence=23249 actualDelay=10001
+04-21 00:03:02.297  4433  5633 D TemperatureStateSource: Reading temperature: sequence=23250
+04-21 00:03:02.303 21077 21077 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [28656.00 30214.00 29235.00 28544.00 29546.00 28589.00 29702.00 28812.00 ]
+04-21 00:03:02.303 21077 21077 I native  : I0000 00:00:1776744182.303238   21077 thermal_tflite_wrapper.cc:261] ThermalTfliteInvoke
+04-21 00:03:02.303 21077 21077 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [28940.6 ]
+04-21 00:03:02.303 21077 21077 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [28940.6 ]
+04-21 00:03:02.303 21077 21077 I pixel-thermal: Power data LPM_ACTIVE_RAILS_TRANS is under collecting
+04-21 00:03:02.303 21077 21077 I pixel-thermal: ShutdownModePowerTrans data is under collecting
+04-21 00:03:02.303 21077 21077 I pixel-thermal: Thermal sensor ShutdownModePowerTrans is under collecting
+04-21 00:03:02.303 21077 21077 I pixel-thermal: Power data LPM_ACTIVE_RAILS_STEADY is under collecting
+04-21 00:03:02.303 21077 21077 I pixel-thermal: ShutdownModePowerSteady data is under collecting
+04-21 00:03:02.303 21077 21077 I pixel-thermal: Thermal sensor ShutdownModePowerSteady is under collecting
+04-21 00:03:02.304 21077 21077 I pixel-thermal: VIRTUAL-SKIN:28.9309 raw data: VIRTUAL-SKIN:28930.9 VIRTUAL-SKIN-LEGACY:28249.9 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:-690.725 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:28940.6 VIRTUAL-SKIN-MODEL-CLAMPED:28940.6 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:690.725 VIRTUAL-SKIN-MODEL-UPDATED:28930.9 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:28940.6 VIRTUAL-SKIN-SUB-0:24267.5 VIRTUAL-SKIN-SUB-1:26793 VIRTUAL-SKIN-SUB-2:28225.9 VIRTUAL-SKIN-SUB-3:28076 VIRTUAL-SKIN-SUB-4:25755.3 VIRTUAL-SKIN-SUB-5:28223.1 VIRTUAL-SKIN-SUB-6:28249.9 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 btmspkr_therm:28656 charging_therm:30214 disp_therm:29235 north_therm:28544 quiet_therm:29546 rfpa_therm:28589 soc_therm:29702 usb_pwr_therm:28812 
+04-21 00:03:02.304  4433  5633 D TemperatureStateSource: getDeviceTemperatures: sequence=23250 deviceTemperatureType=3 temperatureSource=0 temperatures=[28.930908]
+04-21 00:03:02.304  4433  5633 D BusinessScope: Enqueuing the block
+04-21 00:03:02.305  4433  5633 D TemperatureStateSource: sequence=23250 waitTime=10000
+04-21 00:03:02.305  4433  5633 D BusinessScope: Start running the #48635 block
+04-21 00:03:02.305  4433  5633 D BusinessScope: Enqueuing the block
+04-21 00:03:02.305  4433  5633 D ImpulseStateSource: Notify clients: 24314
+04-21 00:03:02.305  4433  5633 D BusinessScope: Finish running the #48635 block
+04-21 00:03:02.305  4433  5633 D BusinessScope: Start running the #48636 block
+04-21 00:03:02.306  4433  5633 D BusinessScope: Finish running the #48636 block
+04-21 00:03:02.393 15746 14607 I fpp     : Ranging Results Update: DeviceId=2003818520 Distance=50.11872336272722 (m) Type=BLE
+04-21 00:03:02.412  1126  1126 I WifiHAL : Creating message to get link statistics; iface = 47
+04-21 00:03:02.522  1126  1126 E libbinder.IPCThreadState: binder thread pool (1 threads) starved for 110 ms
+04-21 00:03:02.523  1126  5674 I WifiHAL : Getting cached scan results, iface handle = 0xb4000075c5edd690
+04-21 00:03:02.523  1126  5674 E WifiHAL : Creating message to get cached scan results
+04-21 00:03:02.536  1126  5674 I WifiHAL : In GetCachedScanResultsCommand::handleResponse
+04-21 00:03:02.602  1643  4139 D ConnectivityService: NetReassign [no changes] [c 1] [a 1] [i 4]
+04-21 00:03:03.410  5707  6130 I AiAiPwm : Entity IDs specified for removal but none maps to a valid document ID.
+04-21 00:03:05.137 15746 14607 I fpp     : Ranging Results Update: DeviceId=2003818520 Distance=44.6683592150963 (m) Type=BLE
+04-21 00:03:05.138 15746 14607 I fpp     : Proximity state event detected: device=2003818520, distance(m)=44.67, state=LONG_RANGE, prevState=Unknown/Expired, distance history=[]
+04-21 00:03:05.597  1126  5674 I WifiHAL : Creating message to get link statistics; iface = 47
+04-21 00:03:05.709  1126  5674 E libbinder.IPCThreadState: binder thread pool (1 threads) starved for 112 ms
+04-21 00:03:05.711  1126  1126 I WifiHAL : Getting cached scan results, iface handle = 0xb4000075c5edd690
+04-21 00:03:05.711  1126  1126 E WifiHAL : Creating message to get cached scan results
+04-21 00:03:05.725  1126  1126 I WifiHAL : In GetCachedScanResultsCommand::handleResponse
+04-21 00:03:05.794  1643  4139 D ConnectivityService: NetReassign [no changes] [c 2] [a 1] [i 4]
+04-21 00:03:08.054 15746 14507 I NearbyPresence: [NP_DEBUG] Using Java decoder [CONTEXT service_id=317 ]
+04-21 00:03:08.785  1126  1126 I WifiHAL : Creating message to get link statistics; iface = 47
+04-21 00:03:08.841  1126  5674 I WifiHAL : Getting cached scan results, iface handle = 0xb4000075c5edd690
+04-21 00:03:08.841  1126  5674 E WifiHAL : Creating message to get cached scan results
+04-21 00:03:08.853  1126  5674 I WifiHAL : In GetCachedScanResultsCommand::handleResponse
+04-21 00:03:08.886 15746 14607 I NearbyMediums: Found Fast Ble Advertisements :
+04-21 00:03:08.886 15746 14607 I NearbyMediums: BleAdvertisement { version=2, socketVersion=2, isFast=true, serviceIdHash=null, data=[ 0x23 0x35 0x56 0x34 0x5a 0x11 0x32 0xb3 0x9d 0xed 0x5f 0x04 0x18 0xf9 0x19 0x4f 0xb0 0x59 0x7f 0xc6 0x62 0x69 0x6e ], deviceToken=[ 0x50 0x5a ], rxAdvertisement=null } : 2 times.
+04-21 00:03:08.886 15746 14607 I NearbyMediums: BleAdvertisement { version=2, socketVersion=2, isFast=true, serviceIdHash=null, data=[ 0x23 0x30 0x39 0x59 0x55 0x11 0x32 0x70 0x63 0x18 0x89 0x44 0xa9 0x57 0x71 0xc9 0x16 0x0c 0x4d 0x5d 0x27 0xd9 0xb9 ], deviceToken=[ 0xc4 0x05 ], rxAdvertisement=null } : 7 times.
+04-21 00:03:08.886 15746 14607 I NearbyMediums: Total 9 fast advertisements from 2 unique advertisers.
+04-21 00:03:08.887 15746 14607 I NearbyMediums: Current Tracked Scanning Clients are : {NearbyConnections.EnvironmentMonitor, NearbySharing, NearbyConnections.TxAdvertisement}
+04-21 00:03:08.893  1643  4139 D ConnectivityService: NetReassign [no changes] [c 2] [a 1] [i 4]
+04-21 00:03:09.371 15746 14607 I fpp     : Ranging Results Update: DeviceId=2003818520 Distance=35.48133892335755 (m) Type=BLE
+04-21 00:03:11.885  1126  5674 I WifiHAL : Creating message to get link statistics; iface = 47
+04-21 00:03:11.997  1126  5674 E libbinder.IPCThreadState: binder thread pool (1 threads) starved for 111 ms
+04-21 00:03:11.997  1126  1126 I WifiHAL : Getting cached scan results, iface handle = 0xb4000075c5edd690
+04-21 00:03:11.997  1126  1126 E WifiHAL : Creating message to get cached scan results
+04-21 00:03:12.011  1126  1126 I WifiHAL : In GetCachedScanResultsCommand::handleResponse
+04-21 00:03:12.078  1643  4139 D ConnectivityService: NetReassign [no changes] [c 2] [a 1] [i 4]
+04-21 00:03:12.306  4433  4755 D TemperatureStateSource: sequence=23250 actualDelay=10001
+04-21 00:03:12.307  4433  4755 D TemperatureStateSource: Reading temperature: sequence=23251
+04-21 00:03:12.312 21077 21077 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [28656.00 30214.00 29235.00 28544.00 29546.00 28589.00 29702.00 28812.00 ]
+04-21 00:03:12.313 21077 21077 I native  : I0000 00:00:1776744192.312809   21077 thermal_tflite_wrapper.cc:261] ThermalTfliteInvoke
+04-21 00:03:12.313 21077 21077 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [28966.8 ]
+04-21 00:03:12.313 21077 21077 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [28966.8 ]
+04-21 00:03:12.313 21077 21077 I pixel-thermal: Power data LPM_ACTIVE_RAILS_TRANS is under collecting
+04-21 00:03:12.313 21077 21077 I pixel-thermal: ShutdownModePowerTrans data is under collecting
+04-21 00:03:12.313 21077 21077 I pixel-thermal: Thermal sensor ShutdownModePowerTrans is under collecting
+04-21 00:03:12.313 21077 21077 I pixel-thermal: Power data LPM_ACTIVE_RAILS_STEADY is under collecting
+04-21 00:03:12.313 21077 21077 I pixel-thermal: ShutdownModePowerSteady data is under collecting
+04-21 00:03:12.313 21077 21077 I pixel-thermal: Thermal sensor ShutdownModePowerSteady is under collecting
+04-21 00:03:12.313 21077 21077 I pixel-thermal: VIRTUAL-SKIN:28.9453 raw data: VIRTUAL-SKIN:28945.3 VIRTUAL-SKIN-LEGACY:28249.9 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:-716.977 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:28966.8 VIRTUAL-SKIN-MODEL-CLAMPED:28966.8 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:716.977 VIRTUAL-SKIN-MODEL-UPDATED:28945.3 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:28966.8 VIRTUAL-SKIN-SUB-0:24267.5 VIRTUAL-SKIN-SUB-1:26793 VIRTUAL-SKIN-SUB-2:28225.9 VIRTUAL-SKIN-SUB-3:28076 VIRTUAL-SKIN-SUB-4:25755.3 VIRTUAL-SKIN-SUB-5:28223.1 VIRTUAL-SKIN-SUB-6:28249.9 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 btmspkr_therm:28656 charging_therm:30214 disp_therm:29235 north_therm:28544 quiet_therm:29546 rfpa_therm:28589 soc_therm:29702 usb_pwr_therm:28812 
+04-21 00:03:12.314  4433  4755 D TemperatureStateSource: getDeviceTemperatures: sequence=23251 deviceTemperatureType=3 temperatureSource=0 temperatures=[28.945282]
+04-21 00:03:12.314  4433  4755 D BusinessScope: Enqueuing the block
+04-21 00:03:12.314  4433  4755 D TemperatureStateSource: sequence=23251 waitTime=10000
+04-21 00:03:12.315  4433  4755 D BusinessScope: Start running the #48637 block
+04-21 00:03:12.315  4433  4755 D BusinessScope: Enqueuing the block
+04-21 00:03:12.315  4433  4755 D ImpulseStateSource: Notify clients: 24315
+04-21 00:03:12.315  4433  4755 D BusinessScope: Finish running the #48637 block
+04-21 00:03:12.315  4433  4755 D BusinessScope: Start running the #48638 block
+04-21 00:03:12.316  4433  4755 D BusinessScope: Finish running the #48638 block
