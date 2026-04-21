@@ -17,6 +17,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        if (!project.hasProperty("fullTestRun")) {
+            testInstrumentationRunnerArguments["notAnnotation"] = "com.adamoutler.ssh.annotations.FullTest"
+        }
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -150,6 +153,15 @@ tasks.withType<Test> {
             val duration = result.endTime - result.startTime
             println("⏱️ TEST-METRIC: ${testDescriptor.className}.${testDescriptor.name} took ${duration}ms")
         }
-        override fun afterSuite(suite: org.gradle.api.tasks.testing.TestDescriptor, result: org.gradle.api.tasks.testing.TestResult) {}
+        override fun afterSuite(suite: org.gradle.api.tasks.testing.TestDescriptor, result: org.gradle.api.tasks.testing.TestResult) {
+            if (suite.parent == null) {
+                if (!project.hasProperty("fullTestRun")) {
+                    println("ℹ️  Standard test suite completed. Note: Long-running @FullTest tests were SKIPPED.")
+                    println("ℹ️  Recommendation: Run './gradlew test connectedAndroidTest -PfullTestRun' for a complete overview.")
+                } else {
+                    println("✅ FULL TEST SUITE EXECUTED.")
+                }
+            }
+        }
     })
 }

@@ -22,7 +22,7 @@ import java.security.MessageDigest
 import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
-@LargeTest
+@FullTest
 class OcrVerificationTest {
 
     @get:Rule
@@ -164,5 +164,8 @@ class OcrVerificationTest {
             context.startService(stopIntent)
             scenario.close()
         }
+    }
+}
+
     }
 }

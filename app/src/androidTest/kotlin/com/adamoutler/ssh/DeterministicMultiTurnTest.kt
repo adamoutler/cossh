@@ -97,7 +97,7 @@ import java.security.MessageDigest
  * It is NOT suitable for GitHub Actions (no route to 192.168.1.115).
  */
 @RunWith(AndroidJUnit4::class)
-@LargeTest
+@FullTest
 class DeterministicMultiTurnTest {
 
     companion object {
@@ -468,5 +468,8 @@ class DeterministicMultiTurnTest {
             device.pressBack()
             device.waitForIdle()
         }
+    }
+}
+
     }
 }

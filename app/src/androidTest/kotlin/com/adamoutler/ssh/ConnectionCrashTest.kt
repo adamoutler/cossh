@@ -22,7 +22,7 @@ import kotlinx.coroutines.runBlocking
 import androidx.test.core.app.ActivityScenario
 
 @RunWith(AndroidJUnit4::class)
-@LargeTest
+@FullTest
 class ConnectionCrashTest {
 
     @get:Rule
@@ -164,5 +164,7 @@ class ConnectionCrashTest {
             context.startService(stopIntent)
             scenario.close()
         }
+    }
+}}
     }
 }

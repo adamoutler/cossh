@@ -8,7 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
+import com.adamoutler.ssh.annotations.FullTest
 import androidx.test.rule.GrantPermissionRule
 import com.adamoutler.ssh.MainActivity
 import org.junit.Assert.assertNotNull

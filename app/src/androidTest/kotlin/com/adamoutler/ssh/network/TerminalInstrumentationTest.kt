@@ -9,7 +9,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@LargeTest
+@FullTest
 class TerminalInstrumentationTest {
 
     @Test(timeout = 300000L)
@@ -24,5 +24,8 @@ class TerminalInstrumentationTest {
         assertNotNull("Activity scenario should be valid and UI should have loaded.", scenario)
         
         scenario.close()
+    }
+}
+
     }
 }

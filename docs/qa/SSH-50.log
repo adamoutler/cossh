@@ -1,0 +1,5 @@
+    Starting mock_sshd from: /home/adamoutler/git/ssh/app/../mock_sshd.py
+    Generated 50kb ASCII data. Local SHA256: a428dddbd802caac4912820b50a95dfd1f48d195f23ba5d45911a1315c19aa40
+    Data transmitted through terminal.
+    Data received and written to /home/adamoutler/git/ssh/app/docs/qa/SSH-50-output.txt. Remote SHA256: a428dddbd802caac4912820b50a95dfd1f48d195f23ba5d45911a1315c19aa40
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.FiftyKbIntegrityTest.test50KbDataIntegrity took 7377ms

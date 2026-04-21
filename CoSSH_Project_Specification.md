@@ -27,3 +27,15 @@
 * **Architecture:** MVVM utilizing Kotlin Coroutines and StateFlow for reactive UI states.
 * **Backgrounding:** Android Foreground Services (with strict API 34+ typing) for SSH session lifecycle management to prevent connection drops by aggressive OS task killers.
 * **SSH Protocol:** Headless JVM SSH library (e.g., sshj) executing on Coroutine I/O Dispatchers.
+
+## Automated Testing & CI/CD Pipeline
+
+The project relies on unit tests (`app/src/test`) and instrumented UI/E2E tests (`app/src/androidTest`).
+
+### Full Test Run Mode
+Long-running tests that are impractical for the standard fast CI/CD pipeline (e.g. End-to-End network connection tests) are annotated with `@FullTest`.
+- By default, these tests are skipped in normal `./gradlew test` or `./gradlew connectedAndroidTest` runs.
+- To execute the Full Test suite (recommended before major releases), supply the `fullTestRun` project property:
+  ```bash
+  ./gradlew connectedAndroidTest -PfullTestRun
+  ```
