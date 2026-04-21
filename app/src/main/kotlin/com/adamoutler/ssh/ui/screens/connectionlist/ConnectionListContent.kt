@@ -8,28 +8,32 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.ui.screens.connectionlist.components.ConnectionListTopBar
-import com.adamoutler.ssh.ui.screens.connectionlist.components.DraggableConnectionList
+import com.adamoutler.ssh.ui.screens.connectionlist.components.GroupedConnectionList
 import com.adamoutler.ssh.ui.screens.connectionlist.components.SearchBar
+import com.adamoutler.ssh.ui.screens.connectionlist.components.MoveToFolderBottomSheet
 
 @Composable
 fun ConnectionListContent(
-    profiles: List<ConnectionProfile>,
+    groupedProfiles: Map<String?, List<ConnectionProfile>>,
     searchQuery: String,
     activeConnections: Set<String> = emptySet(),
     onSearchQueryChange: (String) -> Unit,
     onAddConnection: () -> Unit,
     onEditConnection: (String) -> Unit,
+    onDeleteConnection: (String) -> Unit,
     onConnect: (String) -> Unit,
-    onMoveProfile: (Int, Int) -> Unit = { _, _ -> },
+    onMoveToFolder: (String, String?) -> Unit = { _, _ -> },
     onExportRequested: () -> Unit = {},
     onImportRequested: () -> Unit = {},
     initialMenuExpanded: Boolean = false
 ) {
+    var profileIdMovingToFolder by remember { mutableStateOf<String?>(null) }
+
     Scaffold(
         topBar = {
             ConnectionListTopBar(
@@ -55,13 +59,26 @@ fun ConnectionListContent(
                 modifier = Modifier.padding(16.dp)
             )
 
-            DraggableConnectionList(
-                profiles = profiles,
+            GroupedConnectionList(
+                groupedProfiles = groupedProfiles,
                 activeConnections = activeConnections,
-                onMoveProfile = onMoveProfile,
                 onConnect = onConnect,
-                onEditConnection = onEditConnection
+                onEditConnection = onEditConnection,
+                onDeleteConnection = onDeleteConnection,
+                onMoveToFolder = { profileIdMovingToFolder = it }
             )
         }
+    }
+
+    if (profileIdMovingToFolder != null) {
+        val folders = (groupedProfiles.keys.toList() + null).distinct()
+        MoveToFolderBottomSheet(
+            folders = folders,
+            onFolderSelected = { folderId ->
+                onMoveToFolder(profileIdMovingToFolder!!, folderId)
+                profileIdMovingToFolder = null
+            },
+            onDismiss = { profileIdMovingToFolder = null }
+        )
     }
 }

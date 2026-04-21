@@ -55,13 +55,13 @@ fun TerminalScreen(
     terminalViewModel: TerminalViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     onNavigateBack: () -> Unit = {}
 ) {
-    var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
     val context = androidx.compose.ui.platform.LocalContext.current
-
     val session = remember(profileId) { terminalViewModel.getOrCreateSession(profileId, context) }
     val activeSession = remember(profileId) { ConnectionStateRepository.getOrCreateSession(profileId) }
+    val currentFontSize by terminalViewModel.fontSizeFlow.collectAsState()
 
     androidx.compose.runtime.LaunchedEffect(profileId) {
+        terminalViewModel.initFontSize(profileId)
         val processBytes = { bytes: ByteArray ->
             if (ConnectionStateRepository.isHeadlessTest) {
                 val newText = String(bytes, Charsets.UTF_8)
@@ -77,7 +77,6 @@ fun TerminalScreen(
                         emulator.append(clearSeq, clearSeq.size)
                     }
                     emulator.append(bytes, bytes.size)
-                    terminalViewRef?.onScreenUpdated()
                 }
             }
         }
@@ -98,6 +97,41 @@ fun TerminalScreen(
         }
     }
 
+    val activeConnections by ConnectionStateRepository.activeConnections.collectAsState()
+    val connectionStates by ConnectionStateRepository.connectionStates.collectAsState()
+    val errorStateEntry = connectionStates.entries.firstOrNull { it.value is com.adamoutler.ssh.network.ConnectionState.Error }
+    val errorMessage = (errorStateEntry?.value as? com.adamoutler.ssh.network.ConnectionState.Error)?.message
+
+    TerminalScreenContent(
+        profileId = profileId,
+        session = session,
+        activeSession = activeSession,
+        currentFontSize = currentFontSize,
+        activeConnections = activeConnections,
+        errorMessage = errorMessage,
+        onUpdateFontSize = { terminalViewModel.updateFontSize(it) },
+        onNavigateBack = onNavigateBack,
+        onClearError = { errorStateEntry?.key?.let { ConnectionStateRepository.clearConnectionState(it) } },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun TerminalScreenContent(
+    profileId: String,
+    session: TerminalSession,
+    activeSession: com.adamoutler.ssh.network.ActiveSessionState,
+    currentFontSize: Int,
+    activeConnections: Set<String>,
+    errorMessage: String?,
+    onUpdateFontSize: (Int) -> Unit,
+    onNavigateBack: () -> Unit,
+    onClearError: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    
     var terminalInputState by remember { mutableStateOf(0) }
     var showOverlayButtons by remember { mutableStateOf(false) }
     val ctrlSticky = remember { mutableStateOf(false) }
@@ -113,27 +147,21 @@ fun TerminalScreen(
     }
 
     var showKeepAliveDialog by remember { mutableStateOf(false) }
-    val activeConnections by ConnectionStateRepository.activeConnections.collectAsState()
     val isConnectionActive = activeConnections.isNotEmpty()
     var wasActive by remember { mutableStateOf(false) }
     var showDisconnectedOverlay by remember { mutableStateOf(false) }
 
-    val connectionStates by ConnectionStateRepository.connectionStates.collectAsState()
-    val errorStateEntry = connectionStates.entries.firstOrNull { it.value is com.adamoutler.ssh.network.ConnectionState.Error }
-    val errorProfileId = errorStateEntry?.key
-    val errorMessage = (errorStateEntry?.value as? com.adamoutler.ssh.network.ConnectionState.Error)?.message
-
-    if (errorProfileId != null && errorMessage != null) {
+    if (errorMessage != null) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { 
-                ConnectionStateRepository.clearConnectionState(errorProfileId)
+                onClearError()
                 onNavigateBack()
             },
             title = { Text("Connection Failed") },
             text = { Text("Error: $errorMessage") },
             confirmButton = {
                 androidx.compose.material3.TextButton(onClick = {
-                    ConnectionStateRepository.clearConnectionState(errorProfileId)
+                    onClearError()
                     onNavigateBack()
                 }) { Text("OK") }
             }
@@ -217,7 +245,6 @@ fun TerminalScreen(
     }
 
     val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
-
     val connectionStartTime = androidx.compose.runtime.remember { android.os.SystemClock.uptimeMillis() }
 
     val sendToTerminal: (ByteArray) -> Unit = { bytes ->
@@ -241,8 +268,6 @@ fun TerminalScreen(
         }
     }
 
-    var currentFontSize by remember { mutableStateOf(14) }
-
     androidx.compose.foundation.layout.Column(
         modifier = modifier
             .fillMaxSize()
@@ -264,15 +289,11 @@ fun TerminalScreen(
                         if (keyEvent.type == KeyEventType.KeyDown) {
                             when (keyEvent.key) {
                                 Key.VolumeUp -> {
-                                    currentFontSize++
-                                    terminalViewRef?.setTextSize(currentFontSize)
+                                    onUpdateFontSize(currentFontSize + 1)
                                     true
                                 }
                                 Key.VolumeDown -> {
-                                    if (currentFontSize > 6) {
-                                        currentFontSize--
-                                        terminalViewRef?.setTextSize(currentFontSize)
-                                    }
+                                    onUpdateFontSize(currentFontSize - 1)
                                     true
                                 }
                                 else -> false
@@ -342,15 +363,11 @@ fun TerminalScreen(
                                 }
                                 
                                 if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP) {
-                                    currentFontSize++
-                                    terminalView.setTextSize(currentFontSize)
+                                    onUpdateFontSize(currentFontSize + 1)
                                     return true
                                 }
                                 if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_DOWN) {
-                                    if (currentFontSize > 6) {
-                                        currentFontSize--
-                                        terminalView.setTextSize(currentFontSize)
-                                    }
+                                    onUpdateFontSize(currentFontSize - 1)
                                     return true
                                 }
 
@@ -460,6 +477,9 @@ fun TerminalScreen(
                         terminalView.attachSession(session)
                         terminalViewRef = terminalView
                         terminalView
+                    },
+                    update = { view ->
+                        view.setTextSize(currentFontSize)
                     }
                 )
             }

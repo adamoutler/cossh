@@ -1,14 +1,63 @@
 package com.adamoutler.ssh.ui.screens
 
+import android.app.Application
 import android.content.Context
-import androidx.lifecycle.ViewModel
-import com.adamoutler.ssh.network.ConnectionStateRepository
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.adamoutler.ssh.crypto.SecurityStorageManager
+import com.adamoutler.ssh.crypto.SettingsManager
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
-class TerminalViewModel : ViewModel(), TerminalSessionClient {
+@OptIn(FlowPreview::class)
+class TerminalViewModel(application: Application) : AndroidViewModel(application), TerminalSessionClient {
     private val sessions = mutableMapOf<String, TerminalSession>()
     var getContext: (() -> Context)? = null
+
+    private val storageManager = SecurityStorageManager(application)
+    private val settingsManager = SettingsManager(application)
+
+    private val _fontSizeFlow = MutableStateFlow(14)
+    val fontSizeFlow = _fontSizeFlow.asStateFlow()
+
+    private var activeProfileId: String? = null
+
+    init {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            _fontSizeFlow
+                .debounce(500)
+                .distinctUntilChanged()
+                .collect { newSize ->
+                    saveFontSize(newSize)
+                }
+        }
+    }
+
+    fun initFontSize(profileId: String) {
+        activeProfileId = profileId
+        val profile = storageManager.getProfile(profileId)
+        _fontSizeFlow.value = profile?.fontSize ?: settingsManager.globalFontSize
+    }
+
+    private fun saveFontSize(size: Int) {
+        activeProfileId?.let { profileId ->
+            val profile = storageManager.getProfile(profileId)
+            if (profile != null) {
+                storageManager.saveProfile(profile.copy(fontSize = size))
+            }
+        }
+        settingsManager.globalFontSize = size
+    }
+
+    fun updateFontSize(newSize: Int) {
+        _fontSizeFlow.value = newSize.coerceIn(4, 40)
+    }
 
     fun getOrCreateSession(profileId: String, context: Context): TerminalSession {
         getContext = { context }

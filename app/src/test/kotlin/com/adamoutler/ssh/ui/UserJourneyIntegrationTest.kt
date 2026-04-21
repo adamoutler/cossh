@@ -1,90 +1,52 @@
 package com.adamoutler.ssh.ui
 
-import android.graphics.Bitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.hasSetTextAction
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
-import com.adamoutler.ssh.MainActivity
+import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.createComposeRule
+import com.adamoutler.ssh.network.ConnectionStateRepository
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
-import org.robolectric.shadows.ShadowLooper
-import java.io.File
-import java.io.FileOutputStream
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [33], instrumentedPackages = ["androidx.loader.content"])
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [34], manifest = Config.NONE)
 class UserJourneyIntegrationTest {
 
     @get:Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
+    val composeTestRule = createComposeRule()
 
-    private fun settleUI() {
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        composeTestRule.mainClock.advanceTimeBy(1000)
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+    @Before
+    fun setup() {
+        ConnectionStateRepository.isHeadlessTest = true
     }
 
-    private fun saveScreenshot(filename: String) {
-        try {
-            settleUI()
-            val view = (composeTestRule.onRoot().fetchSemanticsNode().root as androidx.compose.ui.platform.ViewRootForTest).view
-            view.measure(
-                android.view.View.MeasureSpec.makeMeasureSpec(1080, android.view.View.MeasureSpec.EXACTLY),
-                android.view.View.MeasureSpec.makeMeasureSpec(1920, android.view.View.MeasureSpec.EXACTLY)
-            )
-            view.layout(0, 0, view.measuredWidth, view.measuredHeight)
-
-            val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-            val canvas = android.graphics.Canvas(bitmap)
-            canvas.drawColor(android.graphics.Color.WHITE)
-            view.draw(canvas)
-            
-            val file = File("src/test/snapshots/images/$filename")
-            file.parentFile?.mkdirs()
-            FileOutputStream(file).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-            }
-        } catch (e: Exception) {
-            println("Failed to capture screenshot: ${e.message}")
-        }
+    private fun settleUI() {
+        // Use manual delay instead of waitForIdle to avoid timeout issues in Robolectric
+        Thread.sleep(1000)
     }
 
     @Test
     fun testUserJourney_AddProfileAndSeeInList() {
-        composeTestRule.mainClock.autoAdvance = false
+        // 1. App starts on Connection List (empty initially)
+        composeTestRule.setContent {
+            com.adamoutler.ssh.ui.navigation.AppNavigation()
+        }
 
         settleUI()
 
-        // Capture State 1: Initial Empty Form
-        saveScreenshot("com.adamoutler.ssh.ui_UserJourneyIntegrationTest_step1_InitialEmptyForm_1_initialemptyform.png")
-
-        // 1. Click Add Connection FAB
+        // 2. Click Add button and fill form
         composeTestRule.onNodeWithContentDescription("Add Connection").performClick()
         
         settleUI()
 
-        // 2. Fill out the form
-        composeTestRule.onNodeWithText("Nickname").performTextInput("My Test Server")
-        composeTestRule.onNodeWithText("Host (IP or Domain)").performTextInput("10.0.0.1")
-        composeTestRule.onNodeWithText("Username").performTextInput("root")
-        composeTestRule.onNode(hasText("Password").and(hasSetTextAction())).performTextInput("secret123")
+        composeTestRule.onNodeWithTag("NicknameInput").performTextInput("My Test Server")
+        composeTestRule.onNodeWithTag("HostInput").performTextInput("10.0.0.1")
+        composeTestRule.onNodeWithTag("UsernameInput").performTextInput("root")
+        composeTestRule.onNodeWithTag("PasswordInput").performTextInput("secret123")
 
         settleUI()
-
-        // Capture State 2: Form Filled Out
-        saveScreenshot("com.adamoutler.ssh.ui_UserJourneyIntegrationTest_step2_FormFilledOut_2_formfilledout.png")
 
         // 3. Save the profile
         composeTestRule.onNodeWithContentDescription("Save Profile").performClick()
@@ -92,10 +54,8 @@ class UserJourneyIntegrationTest {
         settleUI()
 
         // 4. Verify we are back on the Connection List and the profile exists
-        composeTestRule.onNodeWithText("My Test Server").assertExists()
-        composeTestRule.onNodeWithText("root@10.0.0.1:22").assertExists()
-
-        // Capture State 3: Connection List with new connection
-        saveScreenshot("com.adamoutler.ssh.ui_UserJourneyIntegrationTest_step3_ConnectionListWithNewConnection_3_connectionlistwithnewconnection.png")
+        // Use useUnmergedTree = true because the item is inside a SwipeToDismissBox
+        composeTestRule.onNodeWithText("My Test Server", useUnmergedTree = true).assertExists()
+        composeTestRule.onNodeWithText("root@10.0.0.1:22", useUnmergedTree = true).assertExists()
     }
 }

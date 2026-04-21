@@ -1,0 +1,135 @@
+package com.adamoutler.ssh.ui.screens.connectionlist.components
+
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.network.SshService
+
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun GroupedConnectionList(
+    groupedProfiles: Map<String?, List<ConnectionProfile>>,
+    activeConnections: Set<String>,
+    onConnect: (String) -> Unit,
+    onEditConnection: (String) -> Unit,
+    onDeleteConnection: (String) -> Unit,
+    onMoveToFolder: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        val showHeaders = groupedProfiles.size > 1 || groupedProfiles.keys.firstOrNull() != null
+        
+        groupedProfiles.forEach { (folderId, profiles) ->
+            if (showHeaders) {
+                stickyHeader {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = folderId ?: "Uncategorized",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            items(profiles, key = { it.id }) { profile ->
+                if (com.adamoutler.ssh.network.ConnectionStateRepository.isHeadlessTest) {
+                    ConnectionItem(
+                        profile = profile,
+                        isActive = activeConnections.contains(profile.id),
+                        onClick = { onConnect(profile.id) },
+                        onEdit = { onEditConnection(profile.id) }
+                    )
+                } else {
+                    val dismissState = rememberSwipeToDismissBoxState()
+                    
+                    LaunchedEffect(dismissState.currentValue) {
+                        if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+                            onDeleteConnection(profile.id)
+                            dismissState.reset()
+                        } else if (dismissState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
+                            onMoveToFolder(profile.id)
+                            dismissState.reset()
+                        }
+                    }
+
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        backgroundContent = {
+                            val color = when (dismissState.dismissDirection) {
+                                SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.primary
+                                SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
+                                else -> Color.Transparent
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .background(color, shape = MaterialTheme.shapes.medium),
+                                contentAlignment = if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) Alignment.CenterStart else Alignment.CenterEnd
+                            ) {
+                                if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
+                                    Icon(
+                                        Icons.Default.ArrowForward,
+                                        contentDescription = "Move",
+                                        modifier = Modifier.padding(start = 16.dp),
+                                        tint = Color.White
+                                    )
+                                } else {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = "Delete",
+                                        modifier = Modifier.padding(end = 16.dp),
+                                        tint = Color.White
+                                    )
+                                }
+                            }
+                        },
+                        content = {
+                            ConnectionItem(
+                                profile = profile,
+                                isActive = activeConnections.contains(profile.id),
+                                onClick = {
+                                    val intent = android.content.Intent(context, SshService::class.java).apply {
+                                        action = SshService.ACTION_START
+                                        putExtra(SshService.EXTRA_PROFILE_ID, profile.id)
+                                    }
+                                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                        context.startForegroundService(intent)
+                                    } else {
+                                        context.startService(intent)
+                                    }
+                                    onConnect(profile.id)
+                                },
+                                onEdit = { onEditConnection(profile.id) }
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+}

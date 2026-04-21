@@ -53,13 +53,15 @@ class ConnectionListScreenScreenshotTest {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     ConnectionListContent(
-                        profiles = mockProfiles,
+                        groupedProfiles = mockProfiles.groupBy { it.folderId },
                         searchQuery = "",
                         onSearchQueryChange = {},
                         onAddConnection = {},
                         onEditConnection = {},
+                        onDeleteConnection = {},
                         onConnect = {}
-                        )                }
+                    )
+                }
             }
         }
     }
@@ -84,11 +86,12 @@ class ConnectionListScreenScreenshotTest {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     ConnectionListContent(
-                        profiles = mockProfiles,
+                        groupedProfiles = mockProfiles.groupBy { it.folderId },
                         searchQuery = "",
                         onSearchQueryChange = {},
                         onAddConnection = {},
                         onEditConnection = {},
+                        onDeleteConnection = {},
                         onConnect = {},
                         initialMenuExpanded = true
                     )
@@ -147,12 +150,13 @@ class ConnectionListScreenScreenshotTest {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     ConnectionListContent(
-                        profiles = mockProfiles,
+                        groupedProfiles = mockProfiles.groupBy { it.folderId },
                         searchQuery = "",
                         activeConnections = setOf("1"),
                         onSearchQueryChange = {},
                         onAddConnection = {},
                         onEditConnection = {},
+                        onDeleteConnection = {},
                         onConnect = {}
                     )
                 }

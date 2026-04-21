@@ -44,12 +44,13 @@ class ConnectionListSessionSelectorScreenshotTest {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     ConnectionListContent(
-                        profiles = profiles,
+                        groupedProfiles = profiles.groupBy { it.folderId },
                         searchQuery = "",
                         activeConnections = setOf("1", "2"),
                         onSearchQueryChange = {},
                         onAddConnection = {},
                         onEditConnection = {},
+                        onDeleteConnection = {},
                         onConnect = {}
                     )
                     // Triggering the dialog directly by mocking the state

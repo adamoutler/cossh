@@ -28,6 +28,9 @@ class ConnectionListViewModel(
     private val _profiles = MutableStateFlow<List<ConnectionProfile>>(emptyList())
     val profiles: StateFlow<List<ConnectionProfile>> = _profiles.asStateFlow()
 
+    private val _groupedProfiles = MutableStateFlow<Map<String?, List<ConnectionProfile>>>(emptyMap())
+    val groupedProfiles: StateFlow<Map<String?, List<ConnectionProfile>>> = _groupedProfiles.asStateFlow()
+
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
@@ -54,20 +57,39 @@ class ConnectionListViewModel(
             
             val all = storageManager.getAllProfiles().sortedBy { it.sortOrder }
             val query = _searchQuery.value
-            if (query.isBlank()) {
-                _profiles.value = all
+            val filtered = if (query.isBlank()) {
+                all
             } else {
-                _profiles.value = all.filter {
+                all.filter {
                     it.nickname.contains(query, ignoreCase = true) ||
                     it.host.contains(query, ignoreCase = true)
                 }
             }
+            _profiles.value = filtered
+            _groupedProfiles.value = filtered.groupBy { it.folderId }
         }
     }
 
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
         loadProfiles()
+    }
+
+    fun moveToFolder(profileId: String, folderId: String?) {
+        launchWithHandler {
+            val profile = storageManager.getProfile(profileId)
+            if (profile != null) {
+                storageManager.saveProfile(profile.copy(folderId = folderId))
+                loadProfiles()
+            }
+        }
+    }
+
+    fun deleteProfile(profileId: String) {
+        launchWithHandler {
+            storageManager.deleteProfile(profileId)
+            loadProfiles()
+        }
     }
 
     fun moveProfile(fromIndex: Int, toIndex: Int) {

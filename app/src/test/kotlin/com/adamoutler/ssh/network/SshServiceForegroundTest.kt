@@ -33,6 +33,8 @@ class SshServiceForegroundTest {
         // Start the service
         val serviceController = Robolectric.buildService(SshService::class.java, intent)
         serviceController.create().startCommand(0, 1)
+        
+        org.robolectric.shadows.ShadowLooper.idleMainLooper()
 
         val service = serviceController.get()
         val shadowService = shadowOf(service)

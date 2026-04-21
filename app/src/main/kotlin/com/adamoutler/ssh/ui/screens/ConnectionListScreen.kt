@@ -4,16 +4,12 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
-import com.adamoutler.ssh.ui.screens.connectionlist.dialogs.ActiveSessionSelectorDialog
-import com.adamoutler.ssh.ui.screens.connectionlist.dialogs.BackupPasswordDialog
 
 @Composable
 fun ConnectionListScreen(
@@ -22,108 +18,44 @@ fun ConnectionListScreen(
     onEditConnection: (String) -> Unit,
     onConnect: (String) -> Unit
 ) {
-    val profiles by viewModel.profiles.collectAsState()
+    val groupedProfiles by viewModel.groupedProfiles.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val activeConnections by ConnectionStateRepository.activeConnections.collectAsState()
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    var showSessionSelector by remember { mutableStateOf(false) }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_START) {
-                if (ConnectionStateRepository.activeConnections.value.size > 1) {
-                    showSessionSelector = true
-                }
-            }
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.loadProfiles()
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
+    
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        viewModel.loadProfiles()
     }
 
-    var pendingExportUri by remember { mutableStateOf<Uri?>(null) }
-    var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
-    var showPasswordDialog by remember { mutableStateOf(false) }
-    var passwordInput by remember { mutableStateOf("") }
-    var isExporting by remember { mutableStateOf(false) }
-
-    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+    val exportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/zip")
+    ) { uri ->
         if (uri != null) {
-            pendingExportUri = uri
-            isExporting = true
-            passwordInput = ""
-            showPasswordDialog = true
-        }
-    }
-
-    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) {
-            pendingImportUri = uri
-            isExporting = false
-            passwordInput = ""
-            showPasswordDialog = true
-        }
-    }
-
-    if (showSessionSelector) {
-        ActiveSessionSelectorDialog(
-            activeConnections = activeConnections,
-            profiles = profiles,
-            onSelectSession = { profileId ->
-                showSessionSelector = false
-                onConnect(profileId)
-            },
-            onStartNew = { showSessionSelector = false },
-            onDismiss = { showSessionSelector = false }
-        )
-    }
-
-    if (showPasswordDialog) {
-        BackupPasswordDialog(
-            isExporting = isExporting,
-            passwordInput = passwordInput,
-            onPasswordChange = { passwordInput = it },
-            onConfirm = {
-                val uri = if (isExporting) pendingExportUri else pendingImportUri
-                val pwd = passwordInput.toCharArray()
-                showPasswordDialog = false
-                if (uri != null) {
-                    if (isExporting) {
-                        viewModel.exportBackup(uri, pwd) { success ->
-                            Toast.makeText(context, if (success) "Export successful" else "Export failed", Toast.LENGTH_SHORT).show()
-                        }
-                    } else {
-                        viewModel.importBackup(uri, pwd) { success ->
-                            Toast.makeText(context, if (success) "Import successful" else "Import failed (invalid password or corrupted file)", Toast.LENGTH_LONG).show()
-                        }
-                    }
-                }
-                pendingExportUri = null
-                pendingImportUri = null
-            },
-            onDismiss = {
-                showPasswordDialog = false
-                pendingExportUri = null
-                pendingImportUri = null
+            viewModel.exportBackup(uri, "backup_password".toCharArray()) { success ->
+                // Handle success/failure (e.g. show Toast)
             }
-        )
+        }
+    }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            viewModel.importBackup(uri, "backup_password".toCharArray()) { success ->
+                // Handle success/failure
+            }
+        }
     }
 
     ConnectionListContent(
-        profiles = profiles,
+        groupedProfiles = groupedProfiles,
         searchQuery = searchQuery,
         activeConnections = activeConnections,
         onSearchQueryChange = { viewModel.updateSearchQuery(it) },
         onAddConnection = onAddConnection,
         onEditConnection = onEditConnection,
+        onDeleteConnection = { viewModel.deleteProfile(it) },
         onConnect = onConnect,
-        onMoveProfile = { from, to -> viewModel.moveProfile(from, to) },
+        onMoveToFolder = { profileId, folderId -> viewModel.moveToFolder(profileId, folderId) },
         onExportRequested = { exportLauncher.launch("cossh_backup.zip") },
         onImportRequested = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) }
     )

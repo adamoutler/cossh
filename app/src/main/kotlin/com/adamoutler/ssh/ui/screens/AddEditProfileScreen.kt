@@ -8,13 +8,13 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.data.AuthType
-
 import com.adamoutler.ssh.data.IdentityProfile
 
 @Composable
@@ -159,14 +159,14 @@ fun AddEditProfileScreenContent(
                 value = nickname,
                 onValueChange = onNicknameChange,
                 label = { Text("Nickname") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().testTag("NicknameInput")
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = host,
                 onValueChange = onHostChange,
                 label = { Text("Host (IP or Domain)") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().testTag("HostInput")
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
@@ -174,11 +174,11 @@ fun AddEditProfileScreenContent(
                 onValueChange = onPortChange,
                 label = { Text("Port") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().testTag("PortInput")
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            Divider()
+            HorizontalDivider()
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Authentication", style = MaterialTheme.typography.titleMedium)
@@ -194,7 +194,7 @@ fun AddEditProfileScreenContent(
                     readOnly = true,
                     label = { Text("Use Identity") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isIdentityDropdownExpanded) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                    modifier = Modifier.menuAnchor().fillMaxWidth().testTag("IdentityDropdown")
                 )
                 ExposedDropdownMenu(
                     expanded = isIdentityDropdownExpanded,
@@ -216,7 +216,7 @@ fun AddEditProfileScreenContent(
                             }
                         )
                     }
-                    Divider()
+                    HorizontalDivider()
                     DropdownMenuItem(
                         text = { Text("Manage Identities...") },
                         onClick = {
@@ -233,7 +233,7 @@ fun AddEditProfileScreenContent(
                     value = username,
                     onValueChange = onUsernameChange,
                     label = { Text("Username") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().testTag("UsernameInput")
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -241,12 +241,14 @@ fun AddEditProfileScreenContent(
                     FilterChip(
                         selected = authType == AuthType.PASSWORD,
                         onClick = { onAuthTypeChange(AuthType.PASSWORD) },
-                        label = { Text("Password") }
+                        label = { Text("Password") },
+                        modifier = Modifier.testTag("AuthTypePassword")
                     )
                     FilterChip(
                         selected = authType == AuthType.KEY,
                         onClick = { onAuthTypeChange(AuthType.KEY) },
-                        label = { Text("SSH Key") }
+                        label = { Text("SSH Key") },
+                        modifier = Modifier.testTag("AuthTypeKey")
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -262,7 +264,7 @@ fun AddEditProfileScreenContent(
                                 Text(text = if (passwordVisible) "Hide" else "Show")
                             }
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().testTag("PasswordInput")
                     )
                 } else {
                     ExposedDropdownMenuBox(
@@ -275,7 +277,7 @@ fun AddEditProfileScreenContent(
                             readOnly = true,
                             label = { Text("SSH Key") },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isKeyDropdownExpanded) },
-                            modifier = Modifier.menuAnchor().fillMaxWidth()
+                            modifier = Modifier.menuAnchor().fillMaxWidth().testTag("KeyDropdown")
                         )
                         ExposedDropdownMenu(
                             expanded = isKeyDropdownExpanded,
@@ -308,7 +310,8 @@ fun AddEditProfileScreenContent(
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                    ),
+                    modifier = Modifier.testTag("SelectedIdentityCard")
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("Using credentials from identity:", style = MaterialTheme.typography.labelSmall)

@@ -33,7 +33,9 @@ data class ConnectionProfile(
     @kotlinx.serialization.Transient
     var password: ByteArray? = null,
     val sshKeyPasswordReferenceId: String? = null,
-    val identityId: String? = null
+    val identityId: String? = null,
+    val fontSize: Int? = null,
+    val folderId: String? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -54,6 +56,8 @@ data class ConnectionProfile(
         } else if (other.password != null) return false
         if (sshKeyPasswordReferenceId != other.sshKeyPasswordReferenceId) return false
         if (identityId != other.identityId) return false
+        if (fontSize != other.fontSize) return false
+        if (folderId != other.folderId) return false
 
         return true
     }
@@ -69,6 +73,8 @@ data class ConnectionProfile(
         result = 31 * result + (password?.contentHashCode() ?: 0)
         result = 31 * result + (sshKeyPasswordReferenceId?.hashCode() ?: 0)
         result = 31 * result + (identityId?.hashCode() ?: 0)
+        result = 31 * result + (fontSize ?: 0)
+        result = 31 * result + (folderId?.hashCode() ?: 0)
         return result
     }
 

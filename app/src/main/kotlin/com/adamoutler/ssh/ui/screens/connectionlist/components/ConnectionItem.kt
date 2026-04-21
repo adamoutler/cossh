@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.adamoutler.ssh.data.ConnectionProfile
@@ -24,6 +25,7 @@ fun ConnectionItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
+            .testTag("ConnectionItem_${profile.id}")
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onEdit

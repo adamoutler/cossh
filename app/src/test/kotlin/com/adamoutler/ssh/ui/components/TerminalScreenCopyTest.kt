@@ -19,7 +19,8 @@ class TerminalScreenCopyTest {
     @Test
     fun testTerminalCopyTextStripsTrailingSpaces() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val viewModel = TerminalViewModel()
+        val app = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.app.Application>()
+        val viewModel = TerminalViewModel(app)
         
         val dummySession = viewModel.getOrCreateSession("test", context)
         

@@ -18,8 +18,9 @@ class TerminalSessionPersistenceTest {
 
     @Test
     fun testTerminalSessionIsPersistedInProvider() {
+        val app = ApplicationProvider.getApplicationContext<android.app.Application>()
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val viewModel = TerminalViewModel()
+        val viewModel = TerminalViewModel(app)
         
         val session1 = viewModel.getOrCreateSession("test", context)
         assertNotNull(session1)
