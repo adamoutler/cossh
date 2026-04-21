@@ -12,6 +12,7 @@ import com.adamoutler.ssh.data.ConnectionProfile
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
 import org.junit.Assert.assertTrue
 
 @RunWith(androidx.test.ext.junit.runners.AndroidJUnit4::class)
@@ -34,7 +35,7 @@ class ConnectionListScreenInstrumentedTest {
         )
 
         composeTestRule.setContent {
-            ConnectionListScreenContent(
+            ConnectionListContent(
                 profiles = listOf(mockProfile),
                 searchQuery = "",
                 onSearchQueryChange = {},
@@ -88,7 +89,7 @@ class ConnectionListScreenInstrumentedTest {
             androidx.compose.runtime.CompositionLocalProvider(
                 androidx.compose.ui.platform.LocalContext provides contextWrapper
             ) {
-                ConnectionListScreenContent(
+                ConnectionListContent(
                     profiles = listOf(mockProfile),
                     searchQuery = "",
                     onSearchQueryChange = {},
@@ -126,7 +127,7 @@ class ConnectionListScreenInstrumentedTest {
             password = "password".toByteArray()
         )
         composeTestRule.setContent {
-            ConnectionListScreenContent(
+            ConnectionListContent(
                 profiles = listOf(mockProfile),
                 searchQuery = "",
                 activeConnections = setOf("1"),

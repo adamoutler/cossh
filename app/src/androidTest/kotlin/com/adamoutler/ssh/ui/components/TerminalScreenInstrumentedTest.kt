@@ -35,6 +35,7 @@ class TerminalScreenInstrumentedTest {
         composeTestRule.activity.runOnUiThread {
             composeTestRule.activity.setContent {
                 TerminalScreen(
+                    profileId = "test-id",
                     onNavigateBack = {
                         backNavigationCalled = true
                         latch.countDown()
@@ -69,6 +70,7 @@ class TerminalScreenInstrumentedTest {
 
         composeTestRule.setContent {
             TerminalScreen(
+                profileId = "test-id",
                 onNavigateBack = {
                     backNavigationCalled = true
                 }
@@ -113,6 +115,7 @@ class TerminalScreenInstrumentedTest {
 
         composeTestRule.setContent {
             TerminalScreen(
+                profileId = "test-id",
                 onNavigateBack = {
                     backNavigationCalled = true
                 }
@@ -136,11 +139,28 @@ class TerminalScreenInstrumentedTest {
     }
 
     @Test(timeout = 300000L)
+    fun testKeyboardToggleTriggersSigwinch() {
+        var backNavigationCalled = false
+
+        composeTestRule.setContent {
+            TerminalScreen(
+                profileId = "testProfileSigwinch",
+                onNavigateBack = {
+                    backNavigationCalled = true
+                }
+            )
+        }
+        composeTestRule.waitForIdle()
+        Thread.sleep(15000) // Wait for bash script to tap and trigger SIGWINCH
+    }
+
+    @Test(timeout = 300000L)
     fun testFloatingOverlayButtons() {
         var backNavigationCalled = false
 
         composeTestRule.setContent {
             TerminalScreen(
+                profileId = "test-id",
                 onNavigateBack = {
                     backNavigationCalled = true
                 }
