@@ -17,7 +17,8 @@ class AddEditProfileViewModelTest {
         val app = ApplicationProvider.getApplicationContext<Application>()
         val prefs = app.getSharedPreferences("test_prefs", android.content.Context.MODE_PRIVATE)
         val storageManager = com.adamoutler.ssh.crypto.SecurityStorageManager(app, prefs)
-        val viewModel = AddEditProfileViewModel(app, storageManager)
+        val identityStorageManager = com.adamoutler.ssh.crypto.IdentityStorageManager(app, prefs)
+        val viewModel = AddEditProfileViewModel(app, storageManager, identityStorageManager)
 
         viewModel.saveProfile(
             id = "test-id-123",
@@ -37,6 +38,6 @@ class AddEditProfileViewModelTest {
         assertEquals(2222, profile?.port)
         assertEquals("root", profile?.username)
         assertEquals(AuthType.PASSWORD, profile?.authType)
-        assertEquals("testpassword", profile?.password?.let { String(it) })
+        assertEquals("testpassword", profile?.password?.decodeToString())
     }
 }

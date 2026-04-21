@@ -1,8 +1,10 @@
 package com.adamoutler.ssh.crypto
 
+import java.nio.ByteBuffer
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
+import java.security.interfaces.RSAPublicKey
 import java.security.spec.RSAKeyGenParameterSpec
 import java.util.Base64
 
@@ -22,7 +24,6 @@ object SSHKeyGenerator {
      */
     fun generateRSAKeyPair(): KeyPair {
         val keyPairGenerator = KeyPairGenerator.getInstance("RSA")
-        // F4 is the standard public exponent (65537)
         val spec = RSAKeyGenParameterSpec(4096, RSAKeyGenParameterSpec.F4)
         val secureRandom = SecureRandom()
         
@@ -31,12 +32,63 @@ object SSHKeyGenerator {
     }
 
     /**
-     * Converts a PublicKey to a Base64 string for OpenSSH compatibility.
-     * Note: This is a simplified representation. A true OpenSSH format export
-     * typically involves specific byte framing, but for this milestone we verify
-     * the base java.security keys can be serialized.
+     * Encodes a public key into OpenSSH format (e.g., "ssh-ed25519 AAAA...").
      */
     fun encodePublicKey(keyPair: KeyPair): String {
-        return Base64.getEncoder().encodeToString(keyPair.public.encoded)
+        val publicKey = keyPair.public
+        return when (publicKey.algorithm) {
+            "Ed25519" -> {
+                val keyBytes = publicKey.encoded
+                // Java Ed25519 encoded format is DER. We need the raw 32 bytes at the end.
+                // For simplicity in this implementation, we use a standard way to get the raw bytes
+                // if it were a direct byte array, but here we'll do a basic slice.
+                // A more robust implementation would use BouncyCastle's SubjectPublicKeyInfo.
+                val rawBytes = keyBytes.sliceArray(keyBytes.size - 32 until keyBytes.size)
+                val type = "ssh-ed25519"
+                val encoded = Base64.getEncoder().encodeToString(writeSshBytes(type, rawBytes))
+                "$type $encoded"
+            }
+            "RSA" -> {
+                val rsaPubKey = publicKey as RSAPublicKey
+                val type = "ssh-rsa"
+                val encoded = Base64.getEncoder().encodeToString(
+                    writeSshBytes(type, rsaPubKey.publicExponent.toByteArray(), rsaPubKey.modulus.toByteArray())
+                )
+                "$type $encoded"
+            }
+            else -> throw IllegalArgumentException("Unsupported algorithm: ${publicKey.algorithm}")
+        }
+    }
+
+    private fun writeSshBytes(vararg parts: Any): ByteArray {
+        val buffers = parts.map { part ->
+            when (part) {
+                is String -> {
+                    val bytes = part.toByteArray(Charsets.UTF_8)
+                    ByteBuffer.allocate(4 + bytes.size).putInt(bytes.size).put(bytes).array()
+                }
+                is ByteArray -> {
+                    // For big integers, we might need to handle the sign bit for OpenSSH
+                    val bytes = if (part.isNotEmpty() && part[0].toInt() and 0x80 != 0) {
+                        byteArrayOf(0) + part
+                    } else {
+                        part
+                    }
+                    ByteBuffer.allocate(4 + bytes.size).putInt(bytes.size).put(bytes).array()
+                }
+                else -> throw IllegalArgumentException("Unsupported part type")
+            }
+        }
+        val totalSize = buffers.sumOf { it.size }
+        val finalBuffer = ByteBuffer.allocate(totalSize)
+        buffers.forEach { finalBuffer.put(it) }
+        return finalBuffer.array()
+    }
+
+    /**
+     * Encodes a private key to PKCS8 format.
+     */
+    fun encodePrivateKey(keyPair: KeyPair): ByteArray {
+        return keyPair.private.encoded
     }
 }

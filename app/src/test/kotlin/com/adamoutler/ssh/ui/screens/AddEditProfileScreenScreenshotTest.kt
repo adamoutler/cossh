@@ -44,6 +44,10 @@ class AddEditProfileScreenScreenshotTest {
                         availableKeys = emptyList(),
                         keyReference = "",
                         onKeyReferenceChange = {},
+                        identities = emptyList(),
+                        identityId = null,
+                        onIdentityChange = {},
+                        onManageIdentities = {},
                         onSave = {},
                         onNavigateBack = {}
                     )
@@ -77,6 +81,10 @@ class AddEditProfileScreenScreenshotTest {
                         availableKeys = listOf("mock-key-1", "mock-key-2"),
                         keyReference = "mock-key-1",
                         onKeyReferenceChange = {},
+                        identities = emptyList(),
+                        identityId = null,
+                        onIdentityChange = {},
+                        onManageIdentities = {},
                         onSave = {},
                         onNavigateBack = {}
                     )
@@ -110,6 +118,10 @@ class AddEditProfileScreenScreenshotTest {
                         availableKeys = emptyList(),
                         keyReference = "",
                         onKeyReferenceChange = {},
+                        identities = emptyList(),
+                        identityId = null,
+                        onIdentityChange = {},
+                        onManageIdentities = {},
                         onSave = {},
                         onNavigateBack = {},
                         defaultPasswordVisible = true

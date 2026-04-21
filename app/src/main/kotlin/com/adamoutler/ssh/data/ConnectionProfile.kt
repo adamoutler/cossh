@@ -27,12 +27,13 @@ data class ConnectionProfile(
     val nickname: String,
     val host: String,
     val port: Int = 22,
-    val username: String,
-    val authType: AuthType,
+    val username: String = "",
+    val authType: AuthType = AuthType.PASSWORD,
     var sortOrder: Int = 0,
     @kotlinx.serialization.Transient
     var password: ByteArray? = null,
-    val sshKeyPasswordReferenceId: String? = null
+    val sshKeyPasswordReferenceId: String? = null,
+    val identityId: String? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -46,11 +47,13 @@ data class ConnectionProfile(
         if (port != other.port) return false
         if (username != other.username) return false
         if (authType != other.authType) return false
+        if (sortOrder != other.sortOrder) return false
         if (password != null) {
             if (other.password == null) return false
             if (!password.contentEquals(other.password)) return false
         } else if (other.password != null) return false
         if (sshKeyPasswordReferenceId != other.sshKeyPasswordReferenceId) return false
+        if (identityId != other.identityId) return false
 
         return true
     }
@@ -65,6 +68,7 @@ data class ConnectionProfile(
         result = 31 * result + sortOrder
         result = 31 * result + (password?.contentHashCode() ?: 0)
         result = 31 * result + (sshKeyPasswordReferenceId?.hashCode() ?: 0)
+        result = 31 * result + (identityId?.hashCode() ?: 0)
         return result
     }
 

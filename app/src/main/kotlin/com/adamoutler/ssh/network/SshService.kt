@@ -12,6 +12,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.adamoutler.ssh.MainActivity
+import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -86,11 +87,12 @@ class SshService : Service() {
         serviceScope.launch(job) {
             try {
                 val storageManager = SecurityStorageManager(applicationContext)
+                val identityStorageManager = IdentityStorageManager(applicationContext)
                 val profile = storageManager.getProfile(profileId)
                 if (profile != null) {
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Connecting)
                     updateSessionNotification(profileId, profile.nickname, "Connecting...")
-                    val manager = SshConnectionManager()
+                    val manager = SshConnectionManager(identityStorageManager = identityStorageManager)
                     sshManagers[profileId] = manager
                     
                     manager.connectPty(

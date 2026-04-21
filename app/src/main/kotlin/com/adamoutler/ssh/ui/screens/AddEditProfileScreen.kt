@@ -15,11 +15,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.data.AuthType
 
+import com.adamoutler.ssh.data.IdentityProfile
+
 @Composable
 fun AddEditProfileScreen(
     profileId: String? = null,
     viewModel: AddEditProfileViewModel = viewModel(),
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onManageIdentities: () -> Unit
 ) {
     var nickname by remember { mutableStateOf("") }
     var host by remember { mutableStateOf("") }
@@ -28,7 +31,10 @@ fun AddEditProfileScreen(
     var password by remember { mutableStateOf("") }
     var authType by remember { mutableStateOf(AuthType.PASSWORD) }
     var keyReference by remember { mutableStateOf("") }
+    var identityId by remember { mutableStateOf<String?>(null) }
+
     val availableKeys = viewModel.getAvailableKeys()
+    val identities = viewModel.getIdentities()
 
     LaunchedEffect(profileId) {
         if (profileId != null) {
@@ -40,6 +46,7 @@ fun AddEditProfileScreen(
                 authType = profile.authType
                 password = profile.password?.toString(Charsets.UTF_8) ?: ""
                 keyReference = profile.sshKeyPasswordReferenceId ?: ""
+                identityId = profile.identityId
             }
         }
     }
@@ -61,6 +68,10 @@ fun AddEditProfileScreen(
         availableKeys = availableKeys,
         keyReference = keyReference,
         onKeyReferenceChange = { keyReference = it },
+        identities = identities,
+        identityId = identityId,
+        onIdentityChange = { identityId = it },
+        onManageIdentities = onManageIdentities,
         onSave = {
             val passBytes = if (authType == AuthType.PASSWORD && password.isNotEmpty()) {
                 password.toByteArray(Charsets.UTF_8)
@@ -75,7 +86,8 @@ fun AddEditProfileScreen(
                 username = username,
                 authType = authType,
                 password = passBytes,
-                keyReference = keyRef
+                keyReference = keyRef,
+                identityId = identityId
             )
             onNavigateBack()
         },
@@ -101,13 +113,20 @@ fun AddEditProfileScreenContent(
     onAuthTypeChange: (AuthType) -> Unit,
     availableKeys: List<String>,
     keyReference: String,
-    @Suppress("UNUSED_PARAMETER") onKeyReferenceChange: (String) -> Unit,
+    onKeyReferenceChange: (String) -> Unit,
+    identities: List<IdentityProfile>,
+    identityId: String?,
+    onIdentityChange: (String?) -> Unit,
+    onManageIdentities: () -> Unit,
     onSave: () -> Unit,
     onNavigateBack: () -> Unit,
     defaultPasswordVisible: Boolean = false
 ) {
-    var isDropdownExpanded by remember { mutableStateOf(false) }
+    var isKeyDropdownExpanded by remember { mutableStateOf(false) }
+    var isIdentityDropdownExpanded by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(defaultPasswordVisible) }
+
+    val selectedIdentity = identities.find { it.id == identityId }
 
     Scaffold(
         topBar = {
@@ -157,78 +176,145 @@ fun AddEditProfileScreenContent(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = username,
-                onValueChange = onUsernameChange,
-                label = { Text("Username") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = authType == AuthType.PASSWORD,
-                    onClick = { onAuthTypeChange(AuthType.PASSWORD) },
-                    label = { Text("Password") }
-                )
-                FilterChip(
-                    selected = authType == AuthType.KEY,
-                    onClick = { onAuthTypeChange(AuthType.KEY) },
-                    label = { Text("SSH Key") }
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            Divider()
+            Spacer(modifier = Modifier.height(16.dp))
 
-            if (authType == AuthType.PASSWORD) {
+            Text("Authentication", style = MaterialTheme.typography.titleMedium)
+
+            ExposedDropdownMenuBox(
+                expanded = isIdentityDropdownExpanded,
+                onExpandedChange = { isIdentityDropdownExpanded = !isIdentityDropdownExpanded },
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = onPasswordChange,
-                    label = { Text("Password") },
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        TextButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Text(text = if (passwordVisible) "Hide" else "Show")
+                    value = selectedIdentity?.name ?: "None (Use Inline Credentials)",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Use Identity") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isIdentityDropdownExpanded) },
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                )
+                ExposedDropdownMenu(
+                    expanded = isIdentityDropdownExpanded,
+                    onDismissRequest = { isIdentityDropdownExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("None (Use Inline Credentials)") },
+                        onClick = {
+                            onIdentityChange(null)
+                            isIdentityDropdownExpanded = false
                         }
-                    },
+                    )
+                    identities.forEach { identity ->
+                        DropdownMenuItem(
+                            text = { Text(identity.name) },
+                            onClick = {
+                                onIdentityChange(identity.id)
+                                isIdentityDropdownExpanded = false
+                            }
+                        )
+                    }
+                    Divider()
+                    DropdownMenuItem(
+                        text = { Text("Manage Identities...") },
+                        onClick = {
+                            onManageIdentities()
+                            isIdentityDropdownExpanded = false
+                        }
+                    )
+                }
+            }
+
+            if (identityId == null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = onUsernameChange,
+                    label = { Text("Username") },
                     modifier = Modifier.fillMaxWidth()
                 )
-            } else {
-                ExposedDropdownMenuBox(
-                    expanded = isDropdownExpanded,
-                    onExpandedChange = { isDropdownExpanded = !isDropdownExpanded }
-                ) {
-                    OutlinedTextField(
-                        value = keyReference.ifEmpty { "Select SSH Key" },
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("SSH Key") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isDropdownExpanded) },
-                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(
+                        selected = authType == AuthType.PASSWORD,
+                        onClick = { onAuthTypeChange(AuthType.PASSWORD) },
+                        label = { Text("Password") }
                     )
-                    ExposedDropdownMenu(
-                        expanded = isDropdownExpanded,
-                        onDismissRequest = { isDropdownExpanded = false }
+                    FilterChip(
+                        selected = authType == AuthType.KEY,
+                        onClick = { onAuthTypeChange(AuthType.KEY) },
+                        label = { Text("SSH Key") }
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (authType == AuthType.PASSWORD) {
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = onPasswordChange,
+                        label = { Text("Password") },
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            TextButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Text(text = if (passwordVisible) "Hide" else "Show")
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                } else {
+                    ExposedDropdownMenuBox(
+                        expanded = isKeyDropdownExpanded,
+                        onExpandedChange = { isKeyDropdownExpanded = !isKeyDropdownExpanded }
                     ) {
-                        if (availableKeys.isEmpty()) {
-                            DropdownMenuItem(
-                                text = { Text("No keys available") },
-                                onClick = {
-                                    isDropdownExpanded = false
-                                },
-                                enabled = false
-                            )
-                        } else {
-                            availableKeys.forEach { key ->
+                        OutlinedTextField(
+                            value = keyReference.ifEmpty { "Select SSH Key" },
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("SSH Key") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isKeyDropdownExpanded) },
+                            modifier = Modifier.menuAnchor().fillMaxWidth()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = isKeyDropdownExpanded,
+                            onDismissRequest = { isKeyDropdownExpanded = false }
+                        ) {
+                            if (availableKeys.isEmpty()) {
                                 DropdownMenuItem(
-                                    text = { Text(key) },
+                                    text = { Text("No keys available") },
                                     onClick = {
-                                        onKeyReferenceChange(key)
-                                        isDropdownExpanded = false
-                                    }
+                                        isKeyDropdownExpanded = false
+                                    },
+                                    enabled = false
                                 )
+                            } else {
+                                availableKeys.forEach { key ->
+                                    DropdownMenuItem(
+                                        text = { Text(key) },
+                                        onClick = {
+                                            onKeyReferenceChange(key)
+                                            isKeyDropdownExpanded = false
+                                        }
+                                    )
+                                }
                             }
                         }
+                    }
+                }
+            } else {
+                Spacer(modifier = Modifier.height(16.dp))
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Using credentials from identity:", style = MaterialTheme.typography.labelSmall)
+                        Text(selectedIdentity?.name ?: "", style = MaterialTheme.typography.titleMedium)
+                        Text("Username: ${selectedIdentity?.username}", style = MaterialTheme.typography.bodySmall)
+                        Text("Auth Method: ${selectedIdentity?.authType}", style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }

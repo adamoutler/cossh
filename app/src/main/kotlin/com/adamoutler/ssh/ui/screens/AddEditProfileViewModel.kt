@@ -1,20 +1,24 @@
 package com.adamoutler.ssh.ui.screens
 
 import android.app.Application
+import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.data.IdentityProfile
 import com.adamoutler.ssh.ui.base.BaseAndroidViewModel
 import java.util.UUID
 
 class AddEditProfileViewModel(
     application: Application,
-    private val storageManager: SecurityStorageManager
+    private val storageManager: SecurityStorageManager,
+    private val identityStorageManager: IdentityStorageManager
 ) : BaseAndroidViewModel(application) {
 
     constructor(application: Application) : this(
         application,
-        SecurityStorageManager(application)
+        SecurityStorageManager(application),
+        IdentityStorageManager(application)
     )
 
     fun saveProfile(
@@ -25,7 +29,8 @@ class AddEditProfileViewModel(
         username: String,
         authType: AuthType,
         password: ByteArray?,
-        keyReference: String?
+        keyReference: String?,
+        identityId: String? = null
     ) {
         val profileId = id ?: UUID.randomUUID().toString()
         val profile = ConnectionProfile(
@@ -36,7 +41,8 @@ class AddEditProfileViewModel(
             username = username,
             authType = authType,
             password = password,
-            sshKeyPasswordReferenceId = keyReference
+            sshKeyPasswordReferenceId = keyReference,
+            identityId = identityId
         )
         storageManager.saveProfile(profile)
     }
@@ -46,9 +52,10 @@ class AddEditProfileViewModel(
     }
 
     fun getAvailableKeys(): List<String> {
-        // Retrieve the dynamic list of available SSH keys from storage.
-        // Currently, key persistence is basic/not fully implemented, 
-        // so we filter SharedPreferences or return keys if available.
         return storageManager.getAllKeys()
+    }
+
+    fun getIdentities(): List<IdentityProfile> {
+        return identityStorageManager.getAllIdentities()
     }
 }
