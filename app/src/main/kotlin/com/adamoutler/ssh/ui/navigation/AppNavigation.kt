@@ -1,6 +1,8 @@
 package com.adamoutler.ssh.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,16 +14,31 @@ import com.adamoutler.ssh.ui.keys.KeyManagementScreen
 import com.adamoutler.ssh.ui.components.TerminalScreen
 import com.adamoutler.ssh.ui.screens.identity.IdentityListScreen
 import com.adamoutler.ssh.ui.screens.identity.AddEditIdentityScreen
+import com.adamoutler.ssh.billing.BillingManager
+import com.adamoutler.ssh.sync.DriveSyncManager
+import com.adamoutler.ssh.ui.screens.SettingsScreen
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
+    val billingManager = remember { BillingManager(context) }
+    val driveSyncManager = remember { DriveSyncManager(context) }
+
     NavHost(navController = navController, startDestination = "connectionList") {
         composable("connectionList") {
             ConnectionListScreen(
                 onAddConnection = { navController.navigate("addEditProfile") },
                 onEditConnection = { profileId -> navController.navigate("addEditProfile?profileId=$profileId") },
-                onConnect = { profileId -> navController.navigate("terminal?profileId=$profileId") }
+                onConnect = { profileId -> navController.navigate("terminal?profileId=$profileId") },
+                onSettingsRequested = { navController.navigate("settings") }
+            )
+        }
+        composable("settings") {
+            SettingsScreen(
+                billingManager = billingManager,
+                driveSyncManager = driveSyncManager,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
         composable(

@@ -30,6 +30,7 @@ fun ConnectionListContent(
     onMoveToFolder: (String, String?) -> Unit = { _, _ -> },
     onExportRequested: () -> Unit = {},
     onImportRequested: () -> Unit = {},
+    onSettingsRequested: () -> Unit = {},
     initialMenuExpanded: Boolean = false
 ) {
     var profileIdMovingToFolder by remember { mutableStateOf<String?>(null) }
@@ -39,6 +40,7 @@ fun ConnectionListContent(
             ConnectionListTopBar(
                 onExportRequested = onExportRequested,
                 onImportRequested = onImportRequested,
+                onSettingsRequested = onSettingsRequested,
                 initialMenuExpanded = initialMenuExpanded
             )
         },

@@ -62,39 +62,6 @@ fun TerminalScreen(
 
     androidx.compose.runtime.LaunchedEffect(profileId) {
         terminalViewModel.initFontSize(profileId)
-        val processBytes = { bytes: ByteArray ->
-            if (ConnectionStateRepository.isHeadlessTest) {
-                val newText = String(bytes, Charsets.UTF_8)
-                val current = ConnectionStateRepository.mockTestTranscripts[profileId] ?: ""
-                ConnectionStateRepository.mockTestTranscripts[profileId] = current + newText
-            } else {
-                val emulator = session.emulator
-                if (emulator != null) {
-                    if (!activeSession.firstSshOutputReceived) {
-                        activeSession.firstSshOutputReceived = true
-                        emulator.screen.clearTranscript()
-                        val clearSeq = "\u001B[2J\u001B[H".toByteArray()
-                        emulator.append(clearSeq, clearSeq.size)
-                    }
-                    emulator.append(bytes, bytes.size)
-                }
-            }
-        }
-
-        launch {
-            ConnectionStateRepository.sessionOutput.collect { (id, bytes) ->
-                if (id == profileId) {
-                    processBytes(bytes)
-                }
-            }
-        }
-
-        kotlinx.coroutines.yield()
-
-        val bufferedBytes = ConnectionStateRepository.attachUiAndGetBuffer(profileId)
-        for (bytes in bufferedBytes) {
-            processBytes(bytes)
-        }
     }
 
     val activeConnections by ConnectionStateRepository.activeConnections.collectAsState()
@@ -132,6 +99,43 @@ fun TerminalScreenContent(
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
     val context = androidx.compose.ui.platform.LocalContext.current
     
+    androidx.compose.runtime.LaunchedEffect(profileId) {
+        val processBytes = { bytes: ByteArray ->
+            if (ConnectionStateRepository.isHeadlessTest) {
+                val newText = String(bytes, Charsets.UTF_8)
+                val current = ConnectionStateRepository.mockTestTranscripts[profileId] ?: ""
+                ConnectionStateRepository.mockTestTranscripts[profileId] = current + newText
+            } else {
+                val emulator = session.emulator
+                if (emulator != null) {
+                    if (!activeSession.firstSshOutputReceived) {
+                        activeSession.firstSshOutputReceived = true
+                        emulator.screen.clearTranscript()
+                        val clearSeq = "\u001B[2J\u001B[H".toByteArray()
+                        emulator.append(clearSeq, clearSeq.size)
+                    }
+                    emulator.append(bytes, bytes.size)
+                    terminalViewRef?.onScreenUpdated()
+                }
+            }
+        }
+
+        launch {
+            ConnectionStateRepository.sessionOutput.collect { (id, bytes) ->
+                if (id == profileId) {
+                    processBytes(bytes)
+                }
+            }
+        }
+
+        kotlinx.coroutines.yield()
+
+        val bufferedBytes = ConnectionStateRepository.attachUiAndGetBuffer(profileId)
+        for (bytes in bufferedBytes) {
+            processBytes(bytes)
+        }
+    }
+
     var terminalInputState by remember { mutableStateOf(0) }
     var showOverlayButtons by remember { mutableStateOf(false) }
     val ctrlSticky = remember { mutableStateOf(false) }

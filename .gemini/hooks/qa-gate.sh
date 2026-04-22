@@ -1,198 +1,200 @@
-#!/usr/bin/env python3
-import sys, json, os, urllib.request, time, subprocess
+#!/bin/bash
+# =============================================================================
+# QA Gate Bypass Flags (FOR TESTING ONLY)
+# =============================================================================
+BYPASS_UNCOMMITTED=false # If true, allows closing tickets even with uncommitted changes.
+BYPASS_PUSHED=false      # If true, allows closing tickets even if local branch is ahead of origin.
+BYPASS_CI=false          # If true, skips the GitHub Actions build status verification.
+# =============================================================================
 
-def allow():
-    print('{"decision": "allow"}')
-    sys.exit(0)
+SERVER="https://kanban.hackedyour.info"
+PROJECT=ssh  # ADJUSTED FOR PROJECT
 
-def deny(reason):
-    print(json.dumps({"decision": "deny", "reason": reason}))
-    sys.exit(0)
+if [[ -z "${KANBAN_API_KEY:-}" ]]; then
+    jq -c -n --arg reason "GATE DENIED: KANBAN_API_KEY is not set in the environment." '{"decision": "deny", "reason": $reason}'
+    exit 0
+fi
 
-try:
-    payload = json.loads(sys.stdin.read())
-except:
-    allow()
+PAYLOAD=$(cat -)
+STATE=$(echo "$PAYLOAD" | jq -r '.tool_input.state // .tool_input.state_name // empty')
+WORK_ITEM_ID=$(echo "$PAYLOAD" | jq -r '.tool_input.work_item_id // empty')
+TICKET_ID=$(echo "$PAYLOAD" | jq -r '.tool_input.ticket_id // empty')
+TOOL_NAME=$(echo "$PAYLOAD" | jq -r '.tool_name')
 
-tool_name = payload.get("tool_name", "")
-tool_input = payload.get("tool_input", {})
+if [[ -z "$TICKET_ID" ]]; then
+    echo '{"decision": "allow"}'
+    exit 0
+fi
 
-ticket_id = tool_input.get("ticket_id")
-state_name = tool_input.get("state_name")
+PREFIX="${TICKET_ID%%-*}"
+NUMBER="${TICKET_ID##*-}"
 
-is_completing = False
-if tool_name in ["mcp_kanban_complete_work", "complete_work"] and ticket_id:
-    is_completing = True
-elif tool_name in ["mcp_kanban_transition_ticket", "transition_ticket"] and ticket_id and state_name in ["Done", "Completed"]:
-    is_completing = True
+if [[ -z "$PREFIX" || -z "$NUMBER" || "$PREFIX" == "$NUMBER" ]]; then
+    jq -c -n --arg reason "GATE DENIED: Invalid ticket ID format. Expected PREFIX-NUMBER (e.g., SSH-123)" '{"decision": "deny", "reason": $reason}'
+    exit 0
+fi
 
-if not is_completing:
-    allow()
+# Validate NUMBER is numeric
+if ! [[ "$NUMBER" =~ ^[0-9]+$ ]]; then
+    jq -c -n --arg reason "GATE DENIED: Invalid ticket number '$NUMBER'. Must be numeric." '{"decision": "deny", "reason": $reason}'
+    exit 0
+fi
 
-# Removed TOCTOU rate limit
+PROJECT_ID=$(curl -s --max-time 30 -X GET "${SERVER}/api/v1/workspaces/${PROJECT}/projects/" \
+    -H "x-api-key: $KANBAN_API_KEY" \
+    -H "Content-Type: application/json" \
+    | jq -r ".results[] | select(.identifier == \"$PREFIX\") | .id")
 
-# Bypass Flags (FOR TESTING ONLY)
-BYPASS_UNCOMMITTED = False
-BYPASS_PUSHED = False
-BYPASS_CI = False
+if [[ -z "$PROJECT_ID" || "$PROJECT_ID" == "null" ]]; then
+    jq -c -n --arg reason "GATE DENIED: Could not find project with identifier '$PREFIX'" '{"decision": "deny", "reason": $reason}'
+    exit 0
+fi
 
-# Pre-flight checks
-if not BYPASS_UNCOMMITTED:
-    status_out = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True).stdout.strip()
-    if status_out:
-        deny("please commit all project files and delete non-project files - if there are any uncommitted files.")
+if [[ -z "$WORK_ITEM_ID" ]]; then
+    TICKET_INFO=$(curl -s -X GET "${SERVER}/api/v1/workspaces/${PROJECT}/projects/${PROJECT_ID}/issues/?search=$TICKET_ID" \
+      -H "x-api-key: $KANBAN_API_KEY")
+    SEQ=$(echo "$TICKET_ID" | cut -d'-' -f2)
+    WORK_ITEM_ID=$(echo "$TICKET_INFO" | jq -r ".results[] | select(.sequence_id == $SEQ) | .id")
+fi
 
-if not BYPASS_PUSHED:
-    status_sb = subprocess.run(["git", "status", "-sb"], capture_output=True, text=True).stdout
-    if "ahead" in status_sb:
-        deny("Git repository has unpushed commits. Please push changes before QA to ensure we match the main repo.")
+if [[ -z "$WORK_ITEM_ID" || "$WORK_ITEM_ID" == "null" ]]; then
+    jq -c -n --arg reason "GATE DENIED: Could not find issue ${TICKET_ID} in project ${PREFIX}" '{"decision": "deny", "reason": $reason}'
+    exit 0
+fi
 
-# Check CI
-repo_url = subprocess.run(["git", "config", "--get", "remote.origin.url"], capture_output=True, text=True).stdout.strip()
-provider, owner, repo = "github", "adamoutler", "cossh"
-if "github.com" in repo_url:
-    parts = repo_url.split("github.com")[1].strip(":/").replace(".git", "").split("/")
-    if len(parts) >= 2:
-        owner, repo = parts[0], parts[1]
-elif "git.adamoutler.com" in repo_url:
-    provider = "forgejo"
-    parts = repo_url.split("git.adamoutler.com")[1].strip(":/").replace(".git", "").split("/")
-    if len(parts) >= 2:
-        owner, repo = parts[0], parts[1]
+# Atomic lock to prevent concurrent QA evaluations and rate limit errors
+exec 200>"/tmp/qa-gate.lock"
+if ! flock -n 200; then
+    if [ -s "/tmp/qa-gate.lock" ]; then
+        LOCK_TIME=$(cat /tmp/qa-gate.lock)
+        TRY_AGAIN=$(date -d " @$((LOCK_TIME + 300))" +"%H:%M:%S" 2>/dev/null || date -d "+5 minutes" +"%H:%M:%S" 2>/dev/null || echo "in 5 minutes")
+    else
+        TRY_AGAIN=$(date -d "+5 minutes" +"%H:%M:%S" 2>/dev/null || echo "in 5 minutes")
+    fi
+    jq -c -n --arg reason "Another QA assessment is currently in progress. Please try again at $TRY_AGAIN." '{"decision": "deny", "reason": $reason}'
+    exit 0
+fi
+date +%s >&200
 
-if not BYPASS_CI:
-    req = urllib.request.Request("https://dash.hackedyour.info/api/status")
-    try:
-        with urllib.request.urlopen(req) as response:
-            statuses = json.loads(response.read().decode())
-        repo_status = next((s for s in statuses if s["owner"] == owner and s["repo"] == repo), None)
-        if not repo_status:
-            deny(f"No CI run found on dashboard for {owner}/{repo}. Please push your changes and wait for checks.")
-        if repo_status and repo_status.get("status") != "success":
-            deny(f"CI run did not succeed (status: {repo_status.get('status')}). Please fix the build before transitioning to Done.")
-    except Exception as e:
-        print(f"WARNING: Failed to fetch or parse CI status: {e}. Bypassing CI check.", file=sys.stderr)
+# Look up the state dynamically to avoid hardcoding the UUID
+DONE_STATE_ID=$(curl -s -X GET "${SERVER}/api/v1/workspaces/${PROJECT}/projects/$PROJECT_ID/states/" \
+  -H "x-api-key: $KANBAN_API_KEY" \
+  -H "Content-Type: application/json" | jq -r '.results[] | select(.name == "Done") | .id')
 
-# Fetch logs
-try:
-    req_logs = urllib.request.Request(f"https://dash.hackedyour.info/api/logs?provider={provider}&owner={owner}&repo={repo}")
-    with urllib.request.urlopen(req_logs) as response:
-        logs_data = json.loads(response.read().decode())
-        ci_receipt = logs_data.get("log", "")
-except Exception as e:
-    ci_receipt = str(e)
+if [[ "$STATE" == "$DONE_STATE_ID" || "$STATE" == "Done" || "$TOOL_NAME" == *"complete_work"* ]]; then
 
-current_commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+  # Pre-flight QA checks
+  
+  # 1. Uncommitted Changes Check
+  if [[ "$BYPASS_UNCOMMITTED" != "true" ]]; then
+    if [[ -n $(git status --porcelain) ]]; then
+      jq -c -n --arg reason "please commit all project files and delete non-project files - if there are any uncommitted files." '{"decision": "deny", "reason": $reason}'
+      exit 0
+    fi
+  fi
 
-# Plane API Fetch
-api_key = os.environ.get("KANBAN_API_KEY", "")
-headers = {"x-api-key": api_key, "Content-Type": "application/json"}
+  # 2. Unpushed Commits Check
+  if [[ "$BYPASS_PUSHED" != "true" ]]; then
+    if git status -sb | grep -q 'ahead'; then
+      jq -c -n --arg reason "Git repository has unpushed commits. Please push changes before QA to ensure we match the main repo." '{"decision": "deny", "reason": $reason}'
+      exit 0
+    fi
+  fi
 
-# 1. Get Project ID
-try:
-    req_proj = urllib.request.Request("https://kanban.hackedyour.info/api/v1/workspaces/ssh/projects/", headers=headers)
-    with urllib.request.urlopen(req_proj) as response:
-        projects = json.loads(response.read().decode()).get("results", [])
-    project_id = next((p["id"] for p in projects if p["identifier"] == "SSH"), None)
-    if not project_id:
-        deny("Could not find Project 'SSH' in workspace 'ssh'.")
-except Exception as e:
-    deny(f"Failed to fetch projects: {e}")
+  # 3. CI/CD Success Check
+  if [[ "$BYPASS_CI" != "true" ]]; then
+    CURRENT_COMMIT=$(git rev-parse HEAD)
+    RUN_JSON=$(gh run list --commit "$CURRENT_COMMIT" --json databaseId,conclusion -q '.[0]')
+    RUN_ID=$(echo "$RUN_JSON" | jq -r '.databaseId // empty')
+    CONCLUSION=$(echo "$RUN_JSON" | jq -r '.conclusion // empty')
 
-# 2. Get Issue ID
-seq_id = ticket_id.split("-")[-1]
-try:
-    req_issues = urllib.request.Request(f"https://kanban.hackedyour.info/api/v1/workspaces/ssh/projects/{project_id}/issues/?sequence_id={seq_id}", headers=headers)
-    with urllib.request.urlopen(req_issues) as response:
-        issues = json.loads(response.read().decode()).get("results", [])
-    issue = next((i for i in issues if str(i["sequence_id"]) == seq_id), None)
-    if not issue:
-        deny(f"Could not find issue {ticket_id}.")
-    issue_id = issue["id"]
-    ticket_name = issue.get("name", "Unknown Ticket")
-except Exception as e:
-    deny(f"Failed to fetch issue {ticket_id}: {e}")
+    if [[ -z "$RUN_ID" || "$RUN_ID" == "null" ]]; then
+      jq -c -n --arg reason "No GitHub Actions run found for the current commit $CURRENT_COMMIT. Please push your changes and wait for checks to pass." '{"decision": "deny", "reason": $reason}'
+      exit 0
+    fi
 
-# 3. Get Comments
-try:
-    req_comments = urllib.request.Request(f"https://kanban.hackedyour.info/api/v1/workspaces/ssh/projects/{project_id}/issues/{issue_id}/comments/", headers=headers)
-    with urllib.request.urlopen(req_comments) as response:
-        comments_data = json.loads(response.read().decode()).get("results", [])
-    
-    comments_text = ""
-    for c in comments_data:
-        comments_text += f"User Id: {c.get('created_by')}\n"
-        comments_text += f"Last Updated: {c.get('updated_at') or c.get('created_at')}\n"
-        comments_text += f"{c.get('comment_html')}\n"
-        comments_text += f"Attachments: {json.dumps(c.get('attachments', []))}\n---\n"
-except Exception as e:
-    deny(f"Failed to fetch comments: {e}")
+    if [[ "$CONCLUSION" != "success" ]]; then
+      jq -c -n --arg reason "GitHub Actions run $RUN_ID did not succeed (status: $CONCLUSION). Please fix the build before transitioning to Done." '{"decision": "deny", "reason": $reason}'
+      exit 0
+    fi
+  fi
+  
+  CURRENT_COMMIT=$(git rev-parse HEAD)
+  RUN_JSON=$(gh run list --commit "$CURRENT_COMMIT" --json databaseId,conclusion -q '.[0]')
+  RUN_ID=$(echo "$RUN_JSON" | jq -r '.databaseId // empty')
+  GH_RUN_VIEW=$(gh run view "$RUN_ID" 2>/dev/null || echo "No build details available (CI check bypassed or run missing).")
 
-# Create Ticket File
-ticket_file = f"/tmp/ticket_{issue_id}.md"
-with open(ticket_file, "w") as f:
-    f.write(f"---\nname: {ticket_name}\ndescription: The kanban ticket to be closed. This should be evaluated as the reference source for ticket completion and the criteria for evaluation.\n---\n")
-    f.write(json.dumps(issue, indent=2) + "\n\n")
-    f.write(f"---\nname: Kanban Ticket Comments\ndescription: The discussion and history on the ticket including any attachments.\n---\n{comments_text}\n\n")
-    f.write(f"---\nname: CI Dashboard Build Receipt\ndescription: The build results from the CI Dashboard for commit {current_commit}\n---\n{ci_receipt}\n")
+  # Retrieve the ticket
+  TICKET_JSON=$(curl -s -X GET "${SERVER}/api/v1/workspaces/${PROJECT}/projects/$PROJECT_ID/issues/$WORK_ITEM_ID/" \
+    -H "x-api-key: $KANBAN_API_KEY" \
+    -H "Content-Type: application/json")
 
-# Run Gemini
-import fcntl
+  # Retrieve the ticket comments and format them to reduce context size
+  TICKET_COMMENTS=$(curl -s -X GET "${SERVER}/api/v1/workspaces/${PROJECT}/projects/$PROJECT_ID/issues/$WORK_ITEM_ID/comments/" \
+    -H "x-api-key: $KANBAN_API_KEY" \
+    -H "Content-Type: application/json" | jq -r '
+      .results[] | "User Id: \(.created_by)\nLast Updated: \(.updated_at // .created_at)\n\(.comment_html)\nAttachments: \(.attachments | tojson)\n---"
+    ')
 
-lock_file_path = "/tmp/qa-gate.lock"
-if not os.path.exists(lock_file_path):
-    open(lock_file_path, "a").close()
+  TICKET_NAME=$(echo "$TICKET_JSON" | jq -r '.name // "Unknown Ticket"')
+  TICKET_FILE="/tmp/ticket_${WORK_ITEM_ID}.md"
 
-lock_fd = open(lock_file_path, "r+")
-try:
-    fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    lock_fd.seek(0)
-    lock_fd.truncate()
-    lock_fd.write(str(time.time()))
-    lock_fd.flush()
-except BlockingIOError:
-    lock_fd.seek(0)
-    try:
-        lock_time = float(lock_fd.read().strip())
-        try_again_time = time.strftime('%H:%M:%S', time.localtime(lock_time + 300))
-    except:
-        try_again_time = time.strftime('%H:%M:%S', time.localtime(time.time() + 300))
-    deny(f"Another QA assessment is currently in progress. Please try again at {try_again_time}.")
+  cat <<EOF > "$TICKET_FILE"
+---
+name: $TICKET_NAME
+description: The kanban ticket to be closed. This should be evaluated as the reference source for ticket completion and the criteria for evaluation.
+---
+$TICKET_JSON
 
-print("allowing time to settle before reality checker", file=sys.stderr)
-time.sleep(20)
+---
+name: Kanban Ticket Comments
+description: The discussion and history on the ticket including any attachments.
+---
+${TICKET_COMMENTS}
 
-result = subprocess.run(["gemini", "-p", f" @reality-checker Please verify if the work item {ticket_id} is completed. Read the comments thoroughly. If the evidence is satisfactory, respond with READY. Otherwise, respond with a report, including keyword NEEDS WORK and what is expected to complete the ticket."], stdin=open(ticket_file, "r"), capture_output=True, text=True)
+---
+name: GitHub Actions Build Receipt
+description: The build results from GitHub Actions for commit $CURRENT_COMMIT
+---
+$GH_RUN_VIEW
+EOF
 
-try:
-    fcntl.flock(lock_fd, fcntl.LOCK_UN)
-    lock_fd.close()
-except:
-    pass
+  echo "allowing time to settle before reality checker" >&2
+  sleep 20
 
-output_text = (result.stdout or "") + "\n" + (result.stderr or "")
-if "429" in output_text and "too many requests" in output_text.lower():
-    deny(f"Detected problem with gemini cli: 429 Too Many Requests. Please implement an exponential backoff using sleep and try again. Output: {output_text}")
-elif result.returncode != 0:
-    deny(f"No quality control available. Gemini command exited with {result.returncode}. This appears to be a mundane error, please try again. Output: {output_text}")
+  PROMPT="You are invoked as clean-room ticket-completeness evaluation agent. Please relay the provided context to subagent @reality-checker and provde the complete response. The expectation is reality-checker will provide NEEDS WORK if not ready or READY if ready. The system is monitoring for keyword 'NEEDS WORK'. The full response will be recorded on the kanban ticket and relayed to the agent as feedback."
 
-# Post comment
-try:
-    payload = {
-        "comment_html": f"### ═══ REALITY CHECKER ═══\n\n{result.stdout}",
-        "external_id": current_commit,
-        "external_source": "github"
-    }
-    post_data = json.dumps(payload).encode("utf-8")
-    req_post = urllib.request.Request(f"https://kanban.hackedyour.info/api/v1/workspaces/ssh/projects/{project_id}/work-items/{issue_id}/comments/", data=post_data, headers=headers, method="POST")
-    with urllib.request.urlopen(req_post) as response:
-        pass
-except Exception as e:
-    print(f"WARNING: Failed to post reality-checker comment to ticket: {e}", file=sys.stderr)
-    if hasattr(e, "read"):
-        print(f"Response: {e.read().decode()}", file=sys.stderr)
+  OUTPUT_FILE=$(mktemp)
+  cat "$TICKET_FILE" | gemini -y -p "$PROMPT" --output-format=json > "$OUTPUT_FILE" 2>/dev/null
+  GEMINI_EXIT_CODE=$?
 
-if "NEEDS WORK" in result.stdout:
-    deny("Reality checker blocked the transition to Done. Please review the ticket comments for details.")
+  exec 200>&-
 
-allow()
+  if [ $GEMINI_EXIT_CODE -ne 0 ]; then
+    jq -c -n --arg reason "No quality control available. Gemini command exited with $GEMINI_EXIT_CODE. Find the full transaction at $OUTPUT_FILE for troubleshooting purposes." '{"decision": "deny", "reason": $reason}'
+    exit 0
+  fi
+
+  RESULT=$(jq -r '.response // empty' "$OUTPUT_FILE")
+
+  if [[ ${#RESULT} -lt 200 ]]; then
+    jq -c -n --arg res "$RESULT" --arg reason "Reality Checker response too short (${#RESULT} chars). Expected verbose report (>200 chars). Find the full transaction at $OUTPUT_FILE for troubleshooting purposes." '{"decision": "deny", "reason": $reason}'
+    exit 0
+  fi
+
+  COMMENT_PAYLOAD=$(jq -n --arg html "$RESULT" '{"comment_html": $html}')
+  curl -s -X POST "${SERVER}/api/v1/workspaces/${PROJECT}/projects/$PROJECT_ID/issues/$WORK_ITEM_ID/comments/" \
+    -H "x-api-key: $KANBAN_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d "$COMMENT_PAYLOAD" > /dev/null
+
+  if grep -q "READY" <<< "$RESULT"; then
+    echo '{"decision": "allow"}'
+    exit 0
+  else
+    jq -c -n --arg reason "Reality Checker determined the work is not ready. Feedback: $RESULT" '{"decision": "deny", "reason": $reason}'
+    exit 0
+  fi
+fi
+
+echo '{"decision": "allow"}'

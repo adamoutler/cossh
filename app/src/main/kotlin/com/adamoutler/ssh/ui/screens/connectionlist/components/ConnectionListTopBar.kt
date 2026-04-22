@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 fun ConnectionListTopBar(
     onExportRequested: () -> Unit,
     onImportRequested: () -> Unit,
+    onSettingsRequested: () -> Unit,
     modifier: Modifier = Modifier,
     initialMenuExpanded: Boolean = false
 ) {
@@ -38,6 +39,13 @@ fun ConnectionListTopBar(
                     onClick = {
                         menuExpanded = false
                         onImportRequested()
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Settings") },
+                    onClick = {
+                        menuExpanded = false
+                        onSettingsRequested()
                     }
                 )
             }

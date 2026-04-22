@@ -1,17 +1,18 @@
 package com.adamoutler.ssh
 
+import com.termux.terminal.TerminalSession
+import com.termux.terminal.TerminalEmulator
 import org.junit.Test
-import com.termux.view.TerminalViewClient
-import java.io.File
 
 class ReflectionTest {
     @Test
-    fun testMethods() {
-        val sb = java.lang.StringBuilder()
-        sb.append("TerminalViewClient Methods:\n")
-        TerminalViewClient::class.java.methods.forEach { 
-            sb.append(it.name).append(" | ").append(it.toGenericString()).append("\n")
+    fun dumpMethods() {
+        val f = java.io.File("app/reflect-methods.txt")
+        f.printWriter().use { out ->
+            out.println("TerminalSession:")
+            TerminalSession::class.java.methods.forEach { out.println(it.name) }
+            out.println("TerminalEmulator:")
+            TerminalEmulator::class.java.methods.forEach { out.println(it.name) }
         }
-        File("reflect-methods.txt").writeText(sb.toString())
     }
 }

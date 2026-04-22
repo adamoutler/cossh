@@ -10,7 +10,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.adamoutler.ssh"
+        applicationId = "com.adamoutler.cobaltssh"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -25,9 +25,19 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(System.getProperty("user.home") + "/.android/release.keystore")
+            storePassword = "android"
+            keyAlias = "cossh_release"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -116,6 +126,17 @@ dependencies {
     implementation(libs.termux.terminal.view)
     implementation(libs.termux.shared)
     implementation(libs.bouncycastle.prov)
+    
+    implementation(libs.billing.client)
+    implementation(libs.credential.manager)
+    implementation(libs.credential.manager.play.services.auth)
+    implementation(libs.google.api.services.drive) {
+        exclude(group = "org.apache.httpcomponents")
+    }
+    implementation(libs.google.api.client.android)
+    implementation(libs.google.auth.library.oauth2.http)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
     
     testImplementation(libs.junit)
     testImplementation(libs.sshd.core)

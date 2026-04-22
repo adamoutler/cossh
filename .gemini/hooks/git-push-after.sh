@@ -1,73 +1,28 @@
-#!/bin/bash
-# Read input from Gemini CLI
-INPUT=$(cat)
+#!/usr/bin/bash
+input=$(cat)
+command=$(echo "$input" | jq -r '.tool_input.command // empty')
+echo  "${input}">> /tmp/input.json
 
-tool_name=$(echo "$INPUT" | jq -r '.tool_name')
+if [[ "$command" =~ (^|[[:space:]\;\&\|])git[[:space:]]+push([[:space:]]|$) ]]; then
+    OWNER="adamoutler"
+    REPO="cossh"
+    sleep 10
 
-if [[ "$tool_name" =~ run_shell_command|Bash|shell ]]; then
-    command=$(echo "$INPUT" | jq -r '.tool_input.command')
+    # Use the wait endpoint to ensure we have waited for current build.
+    curl -N -s "https://dash.hackedyour.info/api/wait?provider=github&owner=${OWNER}&repo=${REPO}" 2>/dev/null | tail -n 1 
+    # get the actual status.
+    CI_STATUS=$(curl -s https://dash.hackedyour.info/api/status 2>/dev/null | jq -r '.[] | select(.provider == "github" and .owner == "adamoutler" and .repo == "cossh") | .status')
 
-    if [[ "$command" =~ git[[:space:]]+push ]]; then
-        echo "Waiting 5 seconds for CI to register the build..." >&2
-        sleep 5
-        
-        REPO_URL=$(git config --get remote.origin.url)
-        PROVIDER="github"
-        OWNER="adamoutler"
-        REPO="cossh"
-        if [[ "$REPO_URL" =~ github\.com[:/]([^/]+)/([^/.]+)(\.git)? ]]; then
-            OWNER="${BASH_REMATCH[1]}"
-            REPO="${BASH_REMATCH[2]}"
-        elif [[ "$REPO_URL" =~ git\.adamoutler\.com[:/]([^/]+)/([^/.]+)(\.git)? ]]; then
-            PROVIDER="forgejo"
-            OWNER="${BASH_REMATCH[1]}"
-            REPO="${BASH_REMATCH[2]}"
-        fi
-
-        echo "Watching for CI completion via Dashboard API for $OWNER/$REPO on $PROVIDER..." >&2
-        
-        FINAL_STATUS_JSON=$(curl -N -s "https://dash.hackedyour.info/api/wait?provider=$PROVIDER&owner=$OWNER&repo=$REPO" | grep '{' | tail -n 1)
-        STATUS=$(echo "$FINAL_STATUS_JSON" | jq -r '.status // empty')
-        ACTION_URL=$(echo "$FINAL_STATUS_JSON" | jq -r '.url // empty')
-        
-        LOG_URL="https://dash.hackedyour.info/api/logs?provider=$PROVIDER&owner=$OWNER&repo=$REPO"
-        
-        if [ "$STATUS" = "failure" ] || [ "$STATUS" = "error" ]; then
-            LOG_FILE="/tmp/${PROVIDER}_${REPO}_failed.log"
-            curl -s "$LOG_URL" | jq -r '.log' > "$LOG_FILE"
-            LOG_SIZE=$(wc -c < "$LOG_FILE" 2>/dev/null || echo 0)
-            LAST_LINES=$(tail -n 30 "$LOG_FILE" 2>/dev/null || echo "No logs found.")
-            
-            FULL_MESSAGE="CI PIPELINE STATUS: FAIL ❌
-View Logs: $ACTION_URL
-API Logs Endpoint: $LOG_URL
-WARNING: Log size is $LOG_SIZE bytes. Consuming the full log will heavily impact your AI context window!
-
-Last 30 lines:
-$LAST_LINES"
-
-            jq -n -c --arg result "$FULL_MESSAGE" \
-              '{"decision": "allow", "systemMessage": $result, "hookSpecificOutput": {"additionalContext": $result}}'
-            
-        elif [ -n "$STATUS" ] && [ "$STATUS" != "null" ]; then
-            LOG_FILE="/tmp/${PROVIDER}_${REPO}_success.log"
-            curl -s "$LOG_URL" | jq -r '.log' > "$LOG_FILE"
-            LOG_SIZE=$(wc -c < "$LOG_FILE" 2>/dev/null || echo 0)
-            
-            FULL_MESSAGE="CI PIPELINE STATUS: PASS ✅
-View Logs: $ACTION_URL
-API Logs Endpoint: $LOG_URL
-WARNING: Log size is $LOG_SIZE bytes. Consuming the full log will heavily impact your AI context window!"
-
-            jq -n -c --arg result "$FULL_MESSAGE" \
-              '{"decision": "allow", "systemMessage": $result, "hookSpecificOutput": {"additionalContext": $result}}'
-        else
-            MSG="CI PIPELINE STATUS: UNKNOWN ❓\nCould not determine CI status from dashboard."
-            jq -n -c --arg result "$MSG" \
-              '{"decision": "allow", "systemMessage": $result, "hookSpecificOutput": {"additionalContext": $result}}'
-        fi
-        exit 0
+    if [ "$CI_STATUS" = "failed" ]; then
+        CI_LOGS=$(curl -s "https://dash.hackedyour.info/api/logs?provider=github&owner=${OWNER}&repo=${REPO}" 2>/dev/null)
+        LAST_LINES=$(echo "$CI_LOGS" | jq -r '.log // empty' | tail -n 30)
+        jq -n -c --arg status "$CI_STATUS" --arg logs "$LAST_LINES" \
+          '{"decision": "deny", "reason":"❌ CI/CD FAILURE", "hookSpecificOutput": {"hookEventName": "AfterTool", "additionalContext": "GitHub Actions workflow failed!\nLast 30 lines of log:\n\($logs)\n❌ CI results: \($status)\nYou must not leave the build broken."}}'
+    else
+        jq -n -c --arg status "$CI_STATUS" \
+          '{"decision": "allow", "hookSpecificOutput": {"hookEventName": "AfterTool", "additionalContext": "CI results: \($status)"}}'
     fi
+    exit 0
 fi
-
+# Proceed normally
 echo '{"decision": "allow"}'
