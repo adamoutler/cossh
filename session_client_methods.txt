@@ -1,5 +1,6 @@
 TerminalSessionClient:
 onBell
+onTextChanged
 onTitleChanged
 onSessionFinished
 onCopyTextToClipboard
@@ -14,4 +15,3 @@ logVerbose
 logStackTraceWithMessage
 logStackTrace
 onTerminalCursorStateChange
-onTextChanged

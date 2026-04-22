@@ -13,8 +13,8 @@ finishIfRunning
 titleChanged
 getExitStatus
 onCopyTextToClipboard
-onBell
 onPasteTextFromClipboard
+onBell
 onColorsChanged
 getCwd
 write

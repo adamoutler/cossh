@@ -64,7 +64,7 @@ class SshConnectionManagerInjectionTest {
             id = "test",
             nickname = "test",
             host = "127.0.0.1",
-            port = 2224,
+            port = testPort,
             username = "user",
             authType = AuthType.PASSWORD,
             password = "password".toByteArray()
@@ -85,7 +85,7 @@ class SshConnectionManagerInjectionTest {
             id = "test_pass",
             nickname = "test_pass",
             host = "127.0.0.1",
-            port = 2224,
+            port = testPort,
             username = "user",
             authType = AuthType.PASSWORD,
             password = "password".toByteArray()
@@ -105,7 +105,7 @@ class SshConnectionManagerInjectionTest {
             id = "test_key",
             nickname = "test_key",
             host = "127.0.0.1",
-            port = 2224,
+            port = testPort,
             username = "user",
             authType = AuthType.KEY
         )
@@ -121,5 +121,8 @@ class SshConnectionManagerInjectionTest {
         }
     }
 }
+h (e: Exception) {
+            assertFalse("Authentication with injected key failed: ${e.message}", true)
+        }
     }
 }
