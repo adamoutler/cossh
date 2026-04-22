@@ -165,7 +165,7 @@ EOF
   PROMPT="You are invoked as clean-room ticket-completeness evaluation agent. Please relay the provided context to subagent @reality-checker and provde the complete response. The expectation is reality-checker will provide NEEDS WORK if not ready or READY if ready. The system is monitoring for keyword 'NEEDS WORK'. The full response will be recorded on the kanban ticket and relayed to the agent as feedback."
 
   OUTPUT_FILE=$(mktemp)
-  cat "$TICKET_FILE" | gemini -y -p "$PROMPT" --output-format=json > "$OUTPUT_FILE" 2>/dev/null
+  cat "$TICKET_FILE" | gemini -y -p "$PROMPT" --output-format=json > "$OUTPUT_FILE" 2>/dev/null 200>&-
   GEMINI_EXIT_CODE=$?
 
   exec 200>&-
