@@ -152,7 +152,7 @@ class ConnectionListScreenScreenshotTest {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
                         searchQuery = "",
-                        activeConnectionCounts = mapOf("1" to 1),
+                        activeConnectionCounts = mapOf("1" to 3),
                         onSearchQueryChange = {},
                         onAddConnection = {},
                         onEditConnection = {},

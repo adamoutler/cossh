@@ -142,6 +142,6 @@ class ConnectionListScreenInstrumentedTest {
                 onConnect = {}
             )
         }
-        composeTestRule.onNodeWithText("1").assertExists()
+        composeTestRule.onNodeWithText("3").assertExists()
     }
 }
