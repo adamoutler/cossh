@@ -74,7 +74,7 @@ if ! flock -n 200; then
     jq -c -n --arg reason "Another QA assessment is currently in progress. Please try again at $TRY_AGAIN." '{"decision": "deny", "reason": $reason}'
     exit 0
 fi
-date +%s >&200
+date +%s > "/tmp/qa-gate.lock"
 
 # Look up the state dynamically to avoid hardcoding the UUID
 DONE_STATE_ID=$(curl -s -X GET "${SERVER}/api/v1/workspaces/${PROJECT}/projects/$PROJECT_ID/states/" \
@@ -198,3 +198,4 @@ EOF
 fi
 
 echo '{"decision": "allow"}'
+ "allow"}'
