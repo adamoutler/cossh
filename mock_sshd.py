@@ -1,19 +1,60 @@
 import socket
 import paramiko
 import threading
+import re
+
+injected_keys = set()
 
 class Server(paramiko.ServerInterface):
+    def get_allowed_auths(self, username):
+        return 'password,publickey'
+
     def check_auth_password(self, username, password):
         if username == 'user' and password == 'password':
             return paramiko.AUTH_SUCCESSFUL
         return paramiko.AUTH_FAILED
+
+    def check_auth_publickey(self, username, key):
+        # Convert the received key to OpenSSH format
+        key_b64 = key.get_base64()
+        key_type = key.get_name()
+        ssh_rsa_str = f"{key_type} {key_b64}"
+        
+        # Check if it was injected
+        for injected in injected_keys:
+            if ssh_rsa_str in injected:
+                return paramiko.AUTH_SUCCESSFUL
+        return paramiko.AUTH_FAILED
+
     def check_channel_request(self, kind, chanid):
         if kind == 'session':
             return paramiko.OPEN_SUCCEEDED
         return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
+
     def check_channel_pty_request(self, channel, term, width, height, pixelwidth, pixelheight, modes):
         return True
+
     def check_channel_shell_request(self, channel):
+        return True
+
+    def check_channel_exec_request(self, channel, command):
+        cmd = command.decode('utf-8') if isinstance(command, bytes) else command
+        # Extract the key from echo "key" >> authorized_keys
+        match = re.search(r'echo\s+"([^"]+)"\s*>>', cmd)
+        if match:
+            injected_keys.add(match.group(1))
+        
+        def finish_channel():
+            import time
+            time.sleep(0.1)
+            try:
+                channel.send_exit_status(0)
+                channel.send("done\n")
+                channel.close()
+            except Exception as e:
+                print("Error in finish_channel: ", e)
+
+        threading.Thread(target=finish_channel).start()
         return True
 
 host_key = paramiko.RSAKey.generate(1024)
