@@ -21,10 +21,16 @@ import java.io.File
 @Config(sdk = [34])
 class SshConnectionManagerInjectionTest {
 
+    companion object {
+        var currentPort = 2224
+    }
+
     private var mockSshdProcess: Process? = null
+    private var testPort = 0
 
     @Before
     fun setUp() {
+        testPort = currentPort++
         var mockScript = File("mock_sshd.py")
         if (!mockScript.exists()) {
              mockScript = File("../../mock_sshd.py")
@@ -33,9 +39,9 @@ class SshConnectionManagerInjectionTest {
              mockScript = File("../mock_sshd.py")
         }
         
-        println("Starting mock_sshd from: ${mockScript.absolutePath}")
+        println("Starting mock_sshd from: ${mockScript.absolutePath} on port $testPort")
         try {
-            val pb = ProcessBuilder("python3", mockScript.absolutePath)
+            val pb = ProcessBuilder("python3", mockScript.absolutePath, testPort.toString())
             pb.redirectErrorStream(true)
             mockSshdProcess = pb.start()
             Thread {
@@ -117,11 +123,6 @@ class SshConnectionManagerInjectionTest {
             // If we reach here, authentication succeeded!
             assertTrue(true)
         } catch (e: Exception) {
-            assertFalse("Authentication with injected key failed: ${e.message}", true)
-        }
-    }
-}
-h (e: Exception) {
             assertFalse("Authentication with injected key failed: ${e.message}", true)
         }
     }
