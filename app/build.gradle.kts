@@ -35,6 +35,9 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+        }
         release {
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("release")
@@ -185,4 +188,19 @@ tasks.withType<Test> {
             }
         }
     })
+}
+
+afterEvaluate {
+    tasks.named("installDebug") {
+        doFirst {
+            val deviceIp = project.findProperty("deviceIp") as? String ?: "192.168.1.39:42513"
+            val userHome = System.getProperty("user.home")
+            println("🔌 Automatically connecting to device $deviceIp before install...")
+            exec {
+                environment("ADB_VENDOR_KEYS", "$userHome/.android")
+                commandLine("adb", "connect", deviceIp)
+                isIgnoreExitValue = true
+            }
+        }
+    }
 }
