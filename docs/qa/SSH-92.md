@@ -1,13 +1,24 @@
-# Verification Proof for SSH-92
+# SSH-92 QA Proof
 
-## CI/CD Validation
-The GitHub Actions CI pipeline executed flawlessly upon push, confirming structural integrity and test passing.
-Status: ✅ Pass
+**1. System Tray Notifications:**
+![Notifications](SSH-92-notifications-final.png)
 
-## Functionality Confirmed
-1. The `SshService` now manages active sessions mapped by unique `sessionId`.
-2. The background notifications accurately show multiple active connections under a single `CoSSH` group summary.
-3. The `ConnectionItem` accurately retrieves the correct number of active sessions for each `profileId`.
-4. The "Resume or Start New" dialog now effectively routes navigation to the correct existing session or starts a new foreground service intent.
+**2. Resume or Start New Dialogue:**
+![Resume Dialogue](SSH-92-resume-dialog-final.png)
 
-*Proof verified by the successful execution of `ConnectionStateRepositoryTest` and `SshConnectionManagerIntegrationTest` alongside the completed refactoring.*
+**3. Active Connection Badge (Showing 3 connections):**
+![Badge](SSH-93-badge-final.png)
+
+**4. E2E 19-Step Workflow Test:**
+See full workflow in `../../user_stories/connection-resume.md`.
+The test output proves the workflow succeeded without state loss:
+```text
+> Task :app:testDebugUnitTest
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.UserJourneyIntegrationTest.testUserJourney_ConnectionResumeAndConcurrentSessions took 11510ms
+
+UserJourneyIntegrationTest > testUserJourney_ConnectionResumeAndConcurrentSessions PASSED
+```
+See the complete log in `SSH-92-workflow-final.log`.
+
+**5. Gradle Test Execution:**
+A successful full suite run was logged in `SSH-92-test.log` previously.
