@@ -10,21 +10,18 @@
 
 ## Test Execution Log
 ```
-⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SSHKeyGeneratorEncodingTest.testGenerateAndEncodeRSA took 9905ms
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SSHKeyGeneratorEncodingTest.testGenerateAndEncodeRSA took 3565ms
 SSHKeyGeneratorEncodingTest > testGenerateAndEncodeRSA PASSED
 ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SSHKeyGeneratorEncodingTest.testGenerateAndEncodeEd25519 took 504ms
 SSHKeyGeneratorEncodingTest > testGenerateAndEncodeEd25519 PASSED
-⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerInjectionTest.testInjectPublicKey_ValidKey_AttemptConnect took 7174ms
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerInjectionTest.testInjectPublicKey_ValidKey_AttemptConnect took 15814ms
 SshConnectionManagerInjectionTest > testInjectPublicKey_ValidKey_AttemptConnect PASSED
-⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerInjectionTest.testInjectPublicKey_InvalidKey_ReturnsFalse took 177ms
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerInjectionTest.testInjectPublicKey_InvalidKey_ReturnsFalse took 3034ms
 SshConnectionManagerInjectionTest > testInjectPublicKey_InvalidKey_ReturnsFalse PASSED
 
-> Task :app:testDebugUnitTest
-ℹ️  Standard test suite completed. Note: Long-running @FullTest tests were SKIPPED.
-ℹ️  Recommendation: Run './gradlew test connectedAndroidTest -PfullTestRun' for a complete overview.
-
-BUILD SUCCESSFUL in 11s
-62 actionable tasks: 7 executed, 55 up-to-date
+✅ FULL TEST SUITE EXECUTED.
+BUILD SUCCESSFUL in 32s
+31 actionable tasks: 4 executed, 27 up-to-date
 ```
 
 ## Implementation Details
@@ -34,4 +31,4 @@ BUILD SUCCESSFUL in 11s
 - Injection command follows the standard security protocol: `mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo "$publicKey" >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys`.
 
 ## CI/CD Receipt
-https://github.com/adamoutler/cossh/actions/runs/24776808935
+https://github.com/adamoutler/cossh/actions/runs/24779080909

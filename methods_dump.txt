@@ -11,10 +11,10 @@ writeCodePoint
 getEmulator
 finishIfRunning
 titleChanged
+onBell
 getExitStatus
 onCopyTextToClipboard
 onPasteTextFromClipboard
-onBell
 onColorsChanged
 getCwd
 write
