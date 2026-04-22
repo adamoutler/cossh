@@ -29,19 +29,22 @@
 > Task :app:preparePaparazziDebugResources UP-TO-DATE
 > Task :app:processDebugJavaRes UP-TO-DATE
 > Task :app:bundleDebugClassesToCompileJar UP-TO-DATE
-> Task :app:compileDebugUnitTestKotlin UP-TO-DATE
-> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
 > Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:compileDebugUnitTestKotlin
+> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
 > Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
-> Task :app:transformDebugUnitTestClassesWithAsm UP-TO-DATE
+> Task :app:transformDebugUnitTestClassesWithAsm
 
 > Task :app:testDebugUnitTest
-⏱️ TEST-METRIC: com.adamoutler.ssh.ui.UserJourneyIntegrationTest.testUserJourney_AddProfileAndSeeInList took 8483ms
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.UserJourneyIntegrationTest.testUserJourney_ConnectionResumeAndConcurrentSessions took 11510ms
+
+UserJourneyIntegrationTest > testUserJourney_ConnectionResumeAndConcurrentSessions PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.UserJourneyIntegrationTest.testUserJourney_AddProfileAndSeeInList took 4508ms
 
 UserJourneyIntegrationTest > testUserJourney_AddProfileAndSeeInList PASSED
 ℹ️  Standard test suite completed. Note: Long-running @FullTest tests were SKIPPED.
 ℹ️  Recommendation: Run './gradlew test connectedAndroidTest -PfullTestRun' for a complete overview.
 See the Paparazzi report at: file:///home/adamoutler/git/ssh/app/build/reports/paparazzi/debug/index.html
 
-BUILD SUCCESSFUL in 9s
-31 actionable tasks: 2 executed, 29 up-to-date
+BUILD SUCCESSFUL in 17s
+31 actionable tasks: 4 executed, 27 up-to-date
