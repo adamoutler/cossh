@@ -64,7 +64,7 @@ class SshConnectionManagerInjectionTest {
             id = "test",
             nickname = "test",
             host = "127.0.0.1",
-            port = 2222,
+            port = 2224,
             username = "user",
             authType = AuthType.PASSWORD,
             password = "password".toByteArray()
@@ -85,14 +85,14 @@ class SshConnectionManagerInjectionTest {
             id = "test_pass",
             nickname = "test_pass",
             host = "127.0.0.1",
-            port = 2222,
+            port = 2224,
             username = "user",
             authType = AuthType.PASSWORD,
             password = "password".toByteArray()
         )
         
         // Generate a new key
-        val keyPair = SSHKeyGenerator.generateEd25519KeyPair()
+        val keyPair = SSHKeyGenerator.generateRSAKeyPair()
         val publicKeyString = SSHKeyGenerator.encodePublicKey(keyPair)
         
         // 1. Inject the key using password authentication
@@ -105,7 +105,7 @@ class SshConnectionManagerInjectionTest {
             id = "test_key",
             nickname = "test_key",
             host = "127.0.0.1",
-            port = 2222,
+            port = 2224,
             username = "user",
             authType = AuthType.KEY
         )
@@ -119,5 +119,7 @@ class SshConnectionManagerInjectionTest {
         } catch (e: Exception) {
             assertFalse("Authentication with injected key failed: ${e.message}", true)
         }
+    }
+}
     }
 }

@@ -19,6 +19,8 @@ class Server(paramiko.ServerInterface):
         key_b64 = key.get_base64()
         key_type = key.get_name()
         ssh_rsa_str = f"{key_type} {key_b64}"
+        print(f"Auth publickey requested: {ssh_rsa_str}")
+        print(f"Currently injected keys: {injected_keys}")
         
         # Check if it was injected
         for injected in injected_keys:
@@ -85,11 +87,14 @@ def handle_client(client_socket):
             break
     channel.close()
 
+import sys
+port = int(sys.argv[1]) if len(sys.argv) > 1 else 2222
+
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server_socket.bind(('127.0.0.1', 2222))
+server_socket.bind(('127.0.0.1', port))
 server_socket.listen(100)
-print("Mock SSHD listening on 2222")
+print(f"Mock SSHD listening on {port}")
 
 def serve():
     while True:

@@ -1,24 +1,65 @@
-TerminalViewClient Methods:
-shouldEnforceCharBasedInput | public abstract boolean com.termux.view.TerminalViewClient.shouldEnforceCharBasedInput()
-shouldUseCtrlSpaceWorkaround | public abstract boolean com.termux.view.TerminalViewClient.shouldUseCtrlSpaceWorkaround()
-isTerminalViewSelected | public abstract boolean com.termux.view.TerminalViewClient.isTerminalViewSelected()
-onKeyUp | public abstract boolean com.termux.view.TerminalViewClient.onKeyUp(int,android.view.KeyEvent)
-onLongPress | public abstract boolean com.termux.view.TerminalViewClient.onLongPress(android.view.MotionEvent)
-readAltKey | public abstract boolean com.termux.view.TerminalViewClient.readAltKey()
-logStackTrace | public abstract void com.termux.view.TerminalViewClient.logStackTrace(java.lang.String,java.lang.Exception)
-onKeyDown | public abstract boolean com.termux.view.TerminalViewClient.onKeyDown(int,android.view.KeyEvent,com.termux.terminal.TerminalSession)
-readControlKey | public abstract boolean com.termux.view.TerminalViewClient.readControlKey()
-readShiftKey | public abstract boolean com.termux.view.TerminalViewClient.readShiftKey()
-readFnKey | public abstract boolean com.termux.view.TerminalViewClient.readFnKey()
-onCodePoint | public abstract boolean com.termux.view.TerminalViewClient.onCodePoint(int,boolean,com.termux.terminal.TerminalSession)
-onEmulatorSet | public abstract void com.termux.view.TerminalViewClient.onEmulatorSet()
-logError | public abstract void com.termux.view.TerminalViewClient.logError(java.lang.String,java.lang.String)
-logWarn | public abstract void com.termux.view.TerminalViewClient.logWarn(java.lang.String,java.lang.String)
-logInfo | public abstract void com.termux.view.TerminalViewClient.logInfo(java.lang.String,java.lang.String)
-logDebug | public abstract void com.termux.view.TerminalViewClient.logDebug(java.lang.String,java.lang.String)
-logVerbose | public abstract void com.termux.view.TerminalViewClient.logVerbose(java.lang.String,java.lang.String)
-logStackTraceWithMessage | public abstract void com.termux.view.TerminalViewClient.logStackTraceWithMessage(java.lang.String,java.lang.String,java.lang.Exception)
-shouldBackButtonBeMappedToEscape | public abstract boolean com.termux.view.TerminalViewClient.shouldBackButtonBeMappedToEscape()
-onScale | public abstract float com.termux.view.TerminalViewClient.onScale(float)
-copyModeChanged | public abstract void com.termux.view.TerminalViewClient.copyModeChanged(boolean)
-onSingleTapUp | public abstract void com.termux.view.TerminalViewClient.onSingleTapUp(android.view.MotionEvent)
+TerminalSession:
+isRunning
+reset
+write
+getPid
+updateTerminalSessionClient
+updateSize
+getTitle
+initializeEmulator
+writeCodePoint
+getEmulator
+finishIfRunning
+titleChanged
+getExitStatus
+onCopyTextToClipboard
+onBell
+onPasteTextFromClipboard
+onColorsChanged
+getCwd
+write
+equals
+toString
+hashCode
+getClass
+notify
+notifyAll
+wait
+wait
+wait
+TerminalEmulator:
+reset
+toString
+append
+resize
+updateTerminalSessionClient
+getTitle
+getScreen
+isAlternateBufferActive
+sendMouseEvent
+getCursorRow
+getCursorCol
+getCursorStyle
+setCursorStyle
+isReverseVideo
+isCursorEnabled
+shouldCursorBeVisible
+setCursorBlinkingEnabled
+setCursorBlinkState
+isKeypadApplicationMode
+isCursorKeysApplicationMode
+isMouseTrackingActive
+processCodePoint
+doDecSetOrReset
+getScrollCounter
+clearScrollCounter
+getSelectedText
+paste
+equals
+hashCode
+getClass
+notify
+notifyAll
+wait
+wait
+wait

@@ -1,8 +1,5 @@
 TerminalSessionClient:
-logStackTraceWithMessage
-logStackTrace
 onBell
-onTextChanged
 onTitleChanged
 onSessionFinished
 onCopyTextToClipboard
@@ -14,4 +11,7 @@ logWarn
 logInfo
 logDebug
 logVerbose
+logStackTraceWithMessage
+logStackTrace
 onTerminalCursorStateChange
+onTextChanged
