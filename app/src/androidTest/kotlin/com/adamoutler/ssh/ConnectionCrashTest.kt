@@ -20,6 +20,7 @@ import org.junit.Assert.assertTrue
 import org.junit.runner.RunWith
 import kotlinx.coroutines.runBlocking
 import androidx.test.core.app.ActivityScenario
+import com.adamoutler.ssh.annotations.FullTest
 
 @RunWith(AndroidJUnit4::class)
 @FullTest
@@ -164,7 +165,5 @@ class ConnectionCrashTest {
             context.startService(stopIntent)
             scenario.close()
         }
-    }
-}}
     }
 }

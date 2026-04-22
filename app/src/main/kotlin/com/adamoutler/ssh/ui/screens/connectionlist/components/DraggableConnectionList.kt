@@ -20,7 +20,7 @@ import com.adamoutler.ssh.network.SshService
 @Composable
 fun DraggableConnectionList(
     profiles: List<ConnectionProfile>,
-    activeConnections: Set<String>,
+    activeConnectionCounts: Map<String, Int>,
     onMoveProfile: (Int, Int) -> Unit,
     onConnect: (String) -> Unit,
     onEditConnection: (String) -> Unit,
@@ -88,7 +88,7 @@ fun DraggableConnectionList(
             ) {
                 ConnectionItem(
                     profile = profile,
-                    isActive = activeConnections.contains(profile.id),
+                    activeCount = activeConnectionCounts[profile.id] ?: 0,
                     elevation = if (isDragging) 8.dp else 2.dp,
                     onClick = {
                         Log.d("ConnectionListScreen", "Connecting to \${profile.nickname} (\${profile.host})")

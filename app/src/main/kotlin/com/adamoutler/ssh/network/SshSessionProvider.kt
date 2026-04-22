@@ -9,8 +9,8 @@ object SshSessionProvider {
         get() = ConnectionStateRepository.isHeadlessTest
         set(value) { ConnectionStateRepository.isHeadlessTest = value }
 
-    val activeConnections: kotlinx.coroutines.flow.StateFlow<Set<String>>
-        get() = ConnectionStateRepository.activeConnections
+    val activeConnectionCounts: kotlinx.coroutines.flow.StateFlow<Map<String, Int>>
+        get() = ConnectionStateRepository.activeConnectionCounts
 
     fun addConnection(id: String) {
         ConnectionStateRepository.addConnection(id)

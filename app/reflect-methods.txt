@@ -3,7 +3,6 @@ isRunning
 reset
 write
 getPid
-updateTerminalSessionClient
 updateSize
 getTitle
 initializeEmulator
@@ -14,6 +13,7 @@ titleChanged
 getExitStatus
 onCopyTextToClipboard
 onPasteTextFromClipboard
+updateTerminalSessionClient
 onBell
 onColorsChanged
 getCwd
@@ -32,8 +32,8 @@ reset
 toString
 append
 resize
-updateTerminalSessionClient
 getTitle
+updateTerminalSessionClient
 getScreen
 isAlternateBufferActive
 sendMouseEvent

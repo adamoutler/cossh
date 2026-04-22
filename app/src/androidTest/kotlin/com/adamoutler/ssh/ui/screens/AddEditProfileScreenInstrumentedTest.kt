@@ -40,6 +40,10 @@ class AddEditProfileScreenInstrumentedTest {
                 availableKeys = emptyList(),
                 keyReference = "",
                 onKeyReferenceChange = {},
+                identities = emptyList(),
+                identityId = null,
+                onIdentityChange = {},
+                onManageIdentities = {},
                 onSave = {
                     onSaveCalled = true
                 },

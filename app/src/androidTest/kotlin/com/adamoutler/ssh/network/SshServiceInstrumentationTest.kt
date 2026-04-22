@@ -16,6 +16,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import androidx.test.filters.LargeTest
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest

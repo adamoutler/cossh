@@ -17,6 +17,7 @@ sealed interface ConnectionState {
 }
 
 data class ActiveSessionState(
+    val sessionId: String = java.util.UUID.randomUUID().toString(),
     val profileId: String,
     var ptyOutputStream: OutputStream? = null,
     var sshShell: Shell? = null,
@@ -36,8 +37,8 @@ object ConnectionStateRepository {
     private val _connectionStates = MutableStateFlow<Map<String, ConnectionState>>(emptyMap())
     val connectionStates: StateFlow<Map<String, ConnectionState>> = _connectionStates.asStateFlow()
 
-    private val _activeConnections = MutableStateFlow<Set<String>>(emptySet())
-    val activeConnections: StateFlow<Set<String>> = _activeConnections.asStateFlow()
+    private val _activeConnectionCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
+    val activeConnectionCounts: StateFlow<Map<String, Int>> = _activeConnectionCounts.asStateFlow()
 
     private val _sessionOutput = MutableSharedFlow<Pair<String, ByteArray>>(extraBufferCapacity = 1000)
     val sessionOutput = _sessionOutput.asSharedFlow()
@@ -46,12 +47,6 @@ object ConnectionStateRepository {
         val newMap = _connectionStates.value.toMutableMap()
         newMap[profileId] = state
         _connectionStates.value = newMap
-        
-        if (state == ConnectionState.Connected) {
-            _activeConnections.value = _activeConnections.value + profileId
-        } else {
-            _activeConnections.value = _activeConnections.value - profileId
-        }
     }
 
     fun clearConnectionState(profileId: String) {
@@ -61,30 +56,46 @@ object ConnectionStateRepository {
     }
 
     fun addConnection(profileId: String) {
-        _activeConnections.value = _activeConnections.value + profileId
+        val currentCount = _activeConnectionCounts.value[profileId] ?: 0
+        val newMap = _activeConnectionCounts.value.toMutableMap()
+        newMap[profileId] = currentCount + 1
+        _activeConnectionCounts.value = newMap
     }
 
     fun removeConnection(profileId: String) {
-        _activeConnections.value = _activeConnections.value - profileId
-    }
-
-    fun clearConnections() {
-        _activeConnections.value = emptySet()
-    }
-
-    fun getOrCreateSession(profileId: String): ActiveSessionState {
-        return sessions.getOrPut(profileId) {
-            ActiveSessionState(profileId = profileId)
+        val currentCount = _activeConnectionCounts.value[profileId] ?: 0
+        if (currentCount > 0) {
+            val newMap = _activeConnectionCounts.value.toMutableMap()
+            if (currentCount == 1) {
+                newMap.remove(profileId)
+            } else {
+                newMap[profileId] = currentCount - 1
+            }
+            _activeConnectionCounts.value = newMap
         }
     }
 
-    fun clearSession(profileId: String) {
-        sessions.remove(profileId)
-        mockTestTranscripts.remove(profileId)
+    fun clearConnections() {
+        _activeConnectionCounts.value = emptyMap()
     }
 
-    suspend fun emitOutput(profileId: String, data: ByteArray) {
-        val session = sessions[profileId]
+    fun getOrCreateSession(profileId: String, sessionId: String? = null): ActiveSessionState {
+        if (sessionId != null) {
+            sessions[sessionId]?.let { return it }
+        }
+        val newSessionId = sessionId ?: java.util.UUID.randomUUID().toString()
+        val session = ActiveSessionState(sessionId = newSessionId, profileId = profileId)
+        sessions[newSessionId] = session
+        return session
+    }
+
+    fun clearSession(sessionId: String) {
+        sessions.remove(sessionId)
+        mockTestTranscripts.remove(sessionId)
+    }
+
+    suspend fun emitOutput(sessionId: String, data: ByteArray) {
+        val session = sessions[sessionId]
         if (session != null) {
             var emitToFlow = false
             synchronized(session.bufferLock) {
@@ -95,15 +106,15 @@ object ConnectionStateRepository {
                 }
             }
             if (emitToFlow) {
-                _sessionOutput.emit(Pair(profileId, data))
+                _sessionOutput.emit(Pair(sessionId, data))
             }
         } else {
-            _sessionOutput.emit(Pair(profileId, data))
+            _sessionOutput.emit(Pair(sessionId, data))
         }
     }
 
-    fun attachUiAndGetBuffer(profileId: String): List<ByteArray> {
-        val session = sessions[profileId] ?: return emptyList()
+    fun attachUiAndGetBuffer(sessionId: String): List<ByteArray> {
+        val session = sessions[sessionId] ?: return emptyList()
         val buffer = mutableListOf<ByteArray>()
         synchronized(session.bufferLock) {
             session.isUiAttached = true

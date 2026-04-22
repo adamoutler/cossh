@@ -17,6 +17,7 @@ import org.junit.Assert.assertTrue
 import org.junit.runner.RunWith
 import kotlinx.coroutines.runBlocking
 import androidx.test.core.app.ActivityScenario
+import com.adamoutler.ssh.annotations.FullTest
 import java.io.File
 import java.security.MessageDigest
 import java.util.UUID
@@ -164,8 +165,5 @@ class OcrVerificationTest {
             context.startService(stopIntent)
             scenario.close()
         }
-    }
-}
-
     }
 }

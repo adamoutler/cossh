@@ -59,9 +59,9 @@ class TerminalViewModel(application: Application) : AndroidViewModel(application
         _fontSizeFlow.value = newSize.coerceIn(4, 40)
     }
 
-    fun getOrCreateSession(profileId: String, context: Context): TerminalSession {
+    fun getOrCreateSession(sessionId: String, context: Context): TerminalSession {
         getContext = { context }
-        return sessions.getOrPut(profileId) {
+        return sessions.getOrPut(sessionId) {
             TerminalSession(
                 "/system/bin/sh", "/",
                 arrayOf("sh", "-c", "exec sleep 2147483647"),

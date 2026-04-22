@@ -16,13 +16,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.adamoutler.ssh.data.ConnectionProfile
-import com.adamoutler.ssh.network.SshService
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun GroupedConnectionList(
     groupedProfiles: Map<String?, List<ConnectionProfile>>,
-    activeConnections: Set<String>,
+    activeConnectionCounts: Map<String, Int>,
     onConnect: (String) -> Unit,
     onEditConnection: (String) -> Unit,
     onDeleteConnection: (String) -> Unit,
@@ -56,10 +55,11 @@ fun GroupedConnectionList(
             }
 
             items(profiles, key = { it.id }) { profile ->
+                val activeCount = activeConnectionCounts[profile.id] ?: 0
                 if (com.adamoutler.ssh.network.ConnectionStateRepository.isHeadlessTest) {
                     ConnectionItem(
                         profile = profile,
-                        isActive = activeConnections.contains(profile.id),
+                        activeCount = activeCount,
                         onClick = { onConnect(profile.id) },
                         onEdit = { onEditConnection(profile.id) }
                     )
@@ -111,19 +111,8 @@ fun GroupedConnectionList(
                         content = {
                             ConnectionItem(
                                 profile = profile,
-                                isActive = activeConnections.contains(profile.id),
-                                onClick = {
-                                    val intent = android.content.Intent(context, SshService::class.java).apply {
-                                        action = SshService.ACTION_START
-                                        putExtra(SshService.EXTRA_PROFILE_ID, profile.id)
-                                    }
-                                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                        context.startForegroundService(intent)
-                                    } else {
-                                        context.startService(intent)
-                                    }
-                                    onConnect(profile.id)
-                                },
+                                activeCount = activeCount,
+                                onClick = { onConnect(profile.id) },
                                 onEdit = { onEditConnection(profile.id) }
                             )
                         }

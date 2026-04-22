@@ -16,7 +16,7 @@ import com.adamoutler.ssh.data.ConnectionProfile
 @Composable
 fun ConnectionItem(
     profile: ConnectionProfile,
-    isActive: Boolean = false,
+    activeCount: Int = 0,
     onClick: () -> Unit,
     onEdit: () -> Unit,
     elevation: Dp = 2.dp
@@ -42,9 +42,9 @@ fun ConnectionItem(
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = profile.nickname, style = MaterialTheme.typography.titleMedium)
-                    if (isActive) {
+                    if (activeCount > 0) {
                         Spacer(modifier = Modifier.width(8.dp))
-                        Badge { Text("1") }
+                        Badge { Text(activeCount.toString()) }
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))

@@ -46,7 +46,7 @@ class ConnectionListSessionSelectorScreenshotTest {
                     ConnectionListContent(
                         groupedProfiles = profiles.groupBy { it.folderId },
                         searchQuery = "",
-                        activeConnections = setOf("1", "2"),
+                        activeConnectionCounts = mapOf("1" to 1, "2" to 1),
                         onSearchQueryChange = {},
                         onAddConnection = {},
                         onEditConnection = {},

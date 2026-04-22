@@ -25,7 +25,7 @@ class TerminalScreenInstrumentedTest {
     @Test(timeout = 300000L)
     fun testBackPressWhenKeyboardHiddenNavigatesBack() {
         // Clear any previous state
-        com.adamoutler.ssh.network.SshSessionProvider.activeConnections.value.forEach {
+        com.adamoutler.ssh.network.SshSessionProvider.activeConnectionCounts.value.keys.forEach {
             com.adamoutler.ssh.network.SshSessionProvider.removeConnection(it)
         }
         

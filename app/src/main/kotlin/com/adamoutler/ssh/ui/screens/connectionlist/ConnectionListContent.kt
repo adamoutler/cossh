@@ -21,7 +21,7 @@ import com.adamoutler.ssh.ui.screens.connectionlist.components.MoveToFolderBotto
 fun ConnectionListContent(
     groupedProfiles: Map<String?, List<ConnectionProfile>>,
     searchQuery: String,
-    activeConnections: Set<String> = emptySet(),
+    activeConnectionCounts: Map<String, Int> = emptyMap(),
     onSearchQueryChange: (String) -> Unit,
     onAddConnection: () -> Unit,
     onEditConnection: (String) -> Unit,
@@ -63,7 +63,7 @@ fun ConnectionListContent(
 
             GroupedConnectionList(
                 groupedProfiles = groupedProfiles,
-                activeConnections = activeConnections,
+                activeConnectionCounts = activeConnectionCounts,
                 onConnect = onConnect,
                 onEditConnection = onEditConnection,
                 onDeleteConnection = onDeleteConnection,

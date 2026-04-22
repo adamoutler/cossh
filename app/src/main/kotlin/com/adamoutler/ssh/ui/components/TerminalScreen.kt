@@ -51,30 +51,41 @@ enum class TerminalInputState {
 @Composable
 fun TerminalScreen(
     profileId: String,
+    sessionId: String? = null,
     modifier: Modifier = Modifier,
     terminalViewModel: TerminalViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     onNavigateBack: () -> Unit = {}
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val session = remember(profileId) { terminalViewModel.getOrCreateSession(profileId, context) }
-    val activeSession = remember(profileId) { ConnectionStateRepository.getOrCreateSession(profileId) }
+    
+    // Resolve session ID or get the first active one
+    val actualSessionId = remember(sessionId, profileId) {
+        sessionId ?: ConnectionStateRepository.sessions.values.firstOrNull { it.profileId == profileId }?.sessionId ?: java.util.UUID.randomUUID().toString()
+    }
+    
+    val session = remember(actualSessionId) { terminalViewModel.getOrCreateSession(actualSessionId, context) }
+    val activeSession = remember(actualSessionId) { ConnectionStateRepository.getOrCreateSession(profileId, actualSessionId) }
     val currentFontSize by terminalViewModel.fontSizeFlow.collectAsState()
 
     androidx.compose.runtime.LaunchedEffect(profileId) {
         terminalViewModel.initFontSize(profileId)
     }
 
-    val activeConnections by ConnectionStateRepository.activeConnections.collectAsState()
+    val activeConnectionCounts by ConnectionStateRepository.activeConnectionCounts.collectAsState()
+    val activeCount = activeConnectionCounts[profileId] ?: 0
+    val isConnectionActive = activeCount > 0
+
     val connectionStates by ConnectionStateRepository.connectionStates.collectAsState()
-    val errorStateEntry = connectionStates.entries.firstOrNull { it.value is com.adamoutler.ssh.network.ConnectionState.Error }
+    val errorStateEntry = connectionStates.entries.firstOrNull { it.key == profileId && it.value is com.adamoutler.ssh.network.ConnectionState.Error }
     val errorMessage = (errorStateEntry?.value as? com.adamoutler.ssh.network.ConnectionState.Error)?.message
 
     TerminalScreenContent(
         profileId = profileId,
+        sessionId = actualSessionId,
         session = session,
         activeSession = activeSession,
         currentFontSize = currentFontSize,
-        activeConnections = activeConnections,
+        isConnectionActive = isConnectionActive,
         errorMessage = errorMessage,
         onUpdateFontSize = { terminalViewModel.updateFontSize(it) },
         onNavigateBack = onNavigateBack,
@@ -86,10 +97,11 @@ fun TerminalScreen(
 @Composable
 fun TerminalScreenContent(
     profileId: String,
+    sessionId: String,
     session: TerminalSession,
     activeSession: com.adamoutler.ssh.network.ActiveSessionState,
     currentFontSize: Int,
-    activeConnections: Set<String>,
+    isConnectionActive: Boolean,
     errorMessage: String?,
     onUpdateFontSize: (Int) -> Unit,
     onNavigateBack: () -> Unit,
@@ -99,12 +111,12 @@ fun TerminalScreenContent(
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
     val context = androidx.compose.ui.platform.LocalContext.current
     
-    androidx.compose.runtime.LaunchedEffect(profileId) {
+    androidx.compose.runtime.LaunchedEffect(sessionId) {
         val processBytes = { bytes: ByteArray ->
             if (ConnectionStateRepository.isHeadlessTest) {
                 val newText = String(bytes, Charsets.UTF_8)
-                val current = ConnectionStateRepository.mockTestTranscripts[profileId] ?: ""
-                ConnectionStateRepository.mockTestTranscripts[profileId] = current + newText
+                val current = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: ""
+                ConnectionStateRepository.mockTestTranscripts[sessionId] = current + newText
             } else {
                 val emulator = session.emulator
                 if (emulator != null) {
@@ -122,7 +134,7 @@ fun TerminalScreenContent(
 
         launch {
             ConnectionStateRepository.sessionOutput.collect { (id, bytes) ->
-                if (id == profileId) {
+                if (id == sessionId) {
                     processBytes(bytes)
                 }
             }
@@ -130,7 +142,7 @@ fun TerminalScreenContent(
 
         kotlinx.coroutines.yield()
 
-        val bufferedBytes = ConnectionStateRepository.attachUiAndGetBuffer(profileId)
+        val bufferedBytes = ConnectionStateRepository.attachUiAndGetBuffer(sessionId)
         for (bytes in bufferedBytes) {
             processBytes(bytes)
         }
@@ -151,7 +163,6 @@ fun TerminalScreenContent(
     }
 
     var showKeepAliveDialog by remember { mutableStateOf(false) }
-    val isConnectionActive = activeConnections.isNotEmpty()
     var wasActive by remember { mutableStateOf(false) }
     var showDisconnectedOverlay by remember { mutableStateOf(false) }
 
@@ -221,7 +232,9 @@ fun TerminalScreenContent(
                     val ctx = terminalViewRef?.context
                     if (ctx != null) {
                         val intent = android.content.Intent(ctx, com.adamoutler.ssh.network.SshService::class.java).apply { 
-                            action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT 
+                            action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
+                            putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profileId)
+                            putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, sessionId)
                         }
                         ctx.startService(intent)
                     }
@@ -282,7 +295,7 @@ fun TerminalScreenContent(
             if (isHeadlessTest) {
                 Box(modifier = Modifier.fillMaxSize().background(Color.Black).padding(4.dp)) {
                     Text(
-                        text = ConnectionStateRepository.mockTestTranscripts[profileId] ?: "Welcome to CoSSH Terminal",
+                        text = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: "Welcome to CoSSH Terminal",
                         color = Color.Green,
                         fontFamily = FontFamily.Monospace
                     )
@@ -499,7 +512,9 @@ fun TerminalScreenContent(
                         val ctx = terminalViewRef?.context
                         if (ctx != null) {
                             val intent = android.content.Intent(ctx, com.adamoutler.ssh.network.SshService::class.java).apply { 
-                                action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT 
+                                action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
+                                putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profileId)
+                                putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, sessionId)
                             }
                             ctx.startService(intent)
                         }

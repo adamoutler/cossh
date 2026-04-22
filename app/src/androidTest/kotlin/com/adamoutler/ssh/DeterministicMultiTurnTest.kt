@@ -21,6 +21,7 @@ import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import com.adamoutler.ssh.annotations.FullTest
 import java.io.File
 import java.security.MessageDigest
 
@@ -468,8 +469,5 @@ class DeterministicMultiTurnTest {
             device.pressBack()
             device.waitForIdle()
         }
-    }
-}
-
     }
 }

@@ -24,10 +24,30 @@ import com.adamoutler.ssh.ui.events.UiEventBus
 import com.adamoutler.ssh.ui.theme.CoSSHTheme
 import com.adamoutler.ssh.ui.navigation.AppNavigation
 import kotlinx.coroutines.flow.collectLatest
+import android.content.Intent
+import com.adamoutler.ssh.network.SshService
 
 class MainActivity : ComponentActivity() {
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        if (intent?.hasExtra(SshService.EXTRA_PROFILE_ID) == true) {
+            val profileId = intent.getStringExtra(SshService.EXTRA_PROFILE_ID)
+            val sessionId = intent.getStringExtra(SshService.EXTRA_SESSION_ID)
+            if (profileId != null && sessionId != null) {
+                UiEventBus.publish(UiEvent.Navigate("terminal?profileId=$profileId&sessionId=$sessionId"))
+            } else if (profileId != null) {
+                UiEventBus.publish(UiEvent.Navigate("terminal?profileId=$profileId"))
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        handleIntent(intent)
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             CoSSHTheme {

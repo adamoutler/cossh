@@ -7,6 +7,7 @@ import com.adamoutler.ssh.MainActivity
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
+import com.adamoutler.ssh.annotations.FullTest
 
 @RunWith(AndroidJUnit4::class)
 @FullTest
@@ -24,8 +25,5 @@ class TerminalInstrumentationTest {
         assertNotNull("Activity scenario should be valid and UI should have loaded.", scenario)
         
         scenario.close()
-    }
-}
-
     }
 }

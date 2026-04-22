@@ -36,15 +36,15 @@ class ConnectionStateRepositoryTest {
         val session = ConnectionStateRepository.getOrCreateSession(profileId)
 
         // UI is NOT attached yet. Emit 3 chunks.
-        ConnectionStateRepository.emitOutput(profileId, "Chunk1".toByteArray())
-        ConnectionStateRepository.emitOutput(profileId, "Chunk2".toByteArray())
-        ConnectionStateRepository.emitOutput(profileId, "Chunk3".toByteArray())
+        ConnectionStateRepository.emitOutput(session.sessionId, "Chunk1".toByteArray())
+        ConnectionStateRepository.emitOutput(session.sessionId, "Chunk2".toByteArray())
+        ConnectionStateRepository.emitOutput(session.sessionId, "Chunk3".toByteArray())
 
         // Ensure buffer contains 3 chunks
         assertEquals(3, session.outputBuffer.size)
 
         // Now attach UI
-        val bufferedBytes = ConnectionStateRepository.attachUiAndGetBuffer(profileId)
+        val bufferedBytes = ConnectionStateRepository.attachUiAndGetBuffer(session.sessionId)
         
         // Ensure bufferedBytes contains the 3 chunks
         assertEquals(3, bufferedBytes.size)

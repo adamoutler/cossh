@@ -25,12 +25,30 @@ fun AppNavigation() {
     val billingManager = remember { BillingManager(context) }
     val driveSyncManager = remember { DriveSyncManager(context) }
 
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        com.adamoutler.ssh.ui.events.UiEventBus.events.collect { event ->
+            if (event is com.adamoutler.ssh.ui.events.UiEvent.Navigate) {
+                navController.navigate(event.route) {
+                    launchSingleTop = true
+                }
+            } else if (event is com.adamoutler.ssh.ui.events.UiEvent.NavigateUp) {
+                navController.navigateUp()
+            }
+        }
+    }
+
     NavHost(navController = navController, startDestination = "connectionList") {
         composable("connectionList") {
             ConnectionListScreen(
                 onAddConnection = { navController.navigate("addEditProfile") },
                 onEditConnection = { profileId -> navController.navigate("addEditProfile?profileId=$profileId") },
-                onConnect = { profileId -> navController.navigate("terminal?profileId=$profileId") },
+                onConnect = { profileId, sessionId -> 
+                    if (sessionId != null) {
+                        navController.navigate("terminal?profileId=$profileId&sessionId=$sessionId")
+                    } else {
+                        navController.navigate("terminal?profileId=$profileId") 
+                    }
+                },
                 onSettingsRequested = { navController.navigate("settings") }
             )
         }
@@ -57,14 +75,17 @@ fun AppNavigation() {
             )
         }
         composable(
-            route = "terminal?profileId={profileId}",
-            arguments = listOf(navArgument("profileId") {
-                type = NavType.StringType
-            })
+            route = "terminal?profileId={profileId}&sessionId={sessionId}",
+            arguments = listOf(
+                navArgument("profileId") { type = NavType.StringType },
+                navArgument("sessionId") { type = NavType.StringType; nullable = true; defaultValue = null }
+            )
         ) { backStackEntry ->
             val profileId = backStackEntry.arguments?.getString("profileId") ?: ""
+            val sessionId = backStackEntry.arguments?.getString("sessionId")
             TerminalScreen(
                 profileId = profileId,
+                sessionId = sessionId,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

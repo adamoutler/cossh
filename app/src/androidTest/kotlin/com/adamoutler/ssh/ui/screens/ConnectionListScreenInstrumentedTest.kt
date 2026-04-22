@@ -36,13 +36,15 @@ class ConnectionListScreenInstrumentedTest {
 
         composeTestRule.setContent {
             ConnectionListContent(
-                profiles = listOf(mockProfile),
+                groupedProfiles = mapOf(null to listOf(mockProfile)),
                 searchQuery = "",
+                activeConnectionCounts = emptyMap(),
                 onSearchQueryChange = {},
                 onAddConnection = {},
                 onEditConnection = { 
                     onEditCalled = true
                 },
+                onDeleteConnection = {},
                 onConnect = {}
             )
         }
@@ -90,11 +92,13 @@ class ConnectionListScreenInstrumentedTest {
                 androidx.compose.ui.platform.LocalContext provides contextWrapper
             ) {
                 ConnectionListContent(
-                    profiles = listOf(mockProfile),
+                    groupedProfiles = mapOf(null to listOf(mockProfile)),
                     searchQuery = "",
+                    activeConnectionCounts = emptyMap(),
                     onSearchQueryChange = {},
                     onAddConnection = {},
                     onEditConnection = {},
+                    onDeleteConnection = {},
                     onConnect = {
                         onConnectCalled = true
                     }
@@ -128,12 +132,13 @@ class ConnectionListScreenInstrumentedTest {
         )
         composeTestRule.setContent {
             ConnectionListContent(
-                profiles = listOf(mockProfile),
+                groupedProfiles = mapOf(null to listOf(mockProfile)),
                 searchQuery = "",
-                activeConnections = setOf("1"),
+                activeConnectionCounts = mapOf("1" to 1),
                 onSearchQueryChange = {},
                 onAddConnection = {},
                 onEditConnection = {},
+                onDeleteConnection = {},
                 onConnect = {}
             )
         }
