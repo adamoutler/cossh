@@ -7,7 +7,7 @@ import org.junit.Test
 class ReflectionTest {
     @Test
     fun dumpMethods() {
-        val f = java.io.File("app/reflect-methods.txt")
+        val f = java.io.File("reflect-methods.txt")
         f.printWriter().use { out ->
             out.println("TerminalSession:")
             TerminalSession::class.java.methods.forEach { out.println(it.name) }
