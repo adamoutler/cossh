@@ -33,8 +33,22 @@ fun AddEditProfileScreen(
     var keyReference by remember { mutableStateOf("") }
     var identityId by remember { mutableStateOf<String?>(null) }
 
-    val availableKeys = viewModel.getAvailableKeys()
-    val identities = viewModel.getIdentities()
+    var availableKeys by remember { mutableStateOf(viewModel.getAvailableKeys()) }
+    var identities by remember { mutableStateOf(viewModel.getIdentities()) }
+
+    val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                availableKeys = viewModel.getAvailableKeys()
+                identities = viewModel.getIdentities()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     LaunchedEffect(profileId) {
         if (profileId != null) {
@@ -73,18 +87,23 @@ fun AddEditProfileScreen(
         onIdentityChange = { identityId = it },
         onManageIdentities = onManageIdentities,
         onSave = {
-            val passBytes = if (authType == AuthType.PASSWORD && password.isNotEmpty()) {
+            val selectedIdent = identities.find { it.id == identityId }
+            val finalUsername = if (selectedIdent != null) selectedIdent.username else username
+            val finalAuthType = if (selectedIdent != null) selectedIdent.authType else authType
+            
+            // If using an identity, we don't store inline credentials in the profile
+            val passBytes = if (identityId == null && finalAuthType == AuthType.PASSWORD && password.isNotEmpty()) {
                 password.toByteArray(Charsets.UTF_8)
             } else null
-            val keyRef = if (authType == AuthType.KEY) keyReference else null
+            val keyRef = if (identityId == null && finalAuthType == AuthType.KEY) keyReference else null
 
             viewModel.saveProfile(
                 id = profileId,
                 nickname = nickname,
                 host = host,
                 port = port,
-                username = username,
-                authType = authType,
+                username = finalUsername,
+                authType = finalAuthType,
                 password = passBytes,
                 keyReference = keyRef,
                 identityId = identityId
