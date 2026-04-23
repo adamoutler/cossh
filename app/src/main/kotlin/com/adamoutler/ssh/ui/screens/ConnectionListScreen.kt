@@ -5,6 +5,10 @@ import android.widget.Toast
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -14,7 +18,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.adamoutler.ssh.network.SshService
@@ -62,10 +68,31 @@ fun ConnectionListScreen(
     if (profileIdToConnect != null) {
         val activeCount = activeConnectionCounts[profileIdToConnect] ?: 0
         if (activeCount > 0) {
+            val activeSessions = ConnectionStateRepository.sessions.values
+                .filter { it.profileId == profileIdToConnect }
+                .sortedBy { it.connectedAt }
+            
             AlertDialog(
                 onDismissRequest = { profileIdToConnect = null },
-                title = { Text("Multiple Sessions") },
-                text = { Text("This connection is already active. Do you want to resume the existing session or start a new one?") },
+                title = { Text("Active Sessions") },
+                text = {
+                    Column {
+                        Text("This connection is already active. Select a session to resume or start a new one.")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        androidx.compose.foundation.lazy.LazyColumn(modifier = Modifier.heightIn(max = 200.dp)) {
+                            items(activeSessions.size) { index ->
+                                val session = activeSessions[index]
+                                val dateStr = java.text.SimpleDateFormat("MMM dd, HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(session.connectedAt))
+                                TextButton(onClick = {
+                                    onConnect(profileIdToConnect!!, session.sessionId)
+                                    profileIdToConnect = null
+                                }) { 
+                                    Text("Resume Session ${index + 1} ($dateStr)") 
+                                }
+                            }
+                        }
+                    }
+                },
                 confirmButton = {
                     TextButton(onClick = {
                         val newSessionId = java.util.UUID.randomUUID().toString()
@@ -84,11 +111,7 @@ fun ConnectionListScreen(
                     }) { Text("Start New") }
                 },
                 dismissButton = {
-                    TextButton(onClick = {
-                        val activeSession = ConnectionStateRepository.sessions.values.firstOrNull { it.profileId == profileIdToConnect }
-                        onConnect(profileIdToConnect!!, activeSession?.sessionId)
-                        profileIdToConnect = null
-                    }) { Text("Resume") }
+                    TextButton(onClick = { profileIdToConnect = null }) { Text("Cancel") }
                 }
             )
         } else {
