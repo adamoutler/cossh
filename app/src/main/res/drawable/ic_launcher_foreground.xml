@@ -3,7 +3,46 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- Outer Shield (Silver) -->
+    <path
+        android:fillColor="#E2E6EA"
+        android:pathData="M 54,8 C 28,15 13,25 10,40 C 10,70 33,90 54,100 C 75,90 98,70 98,40 C 95,25 80,15 54,8 Z" />
+
+    <!-- Inner Shield Left (Light Cobalt) -->
+    <path
+        android:fillColor="#256EBB"
+        android:pathData="M 54,14 C 31,20 16,29 14,42 C 14,68 35,85 54,94 Z" />
+
+    <!-- Inner Shield Right (Dark Cobalt) -->
+    <path
+        android:fillColor="#0047AB"
+        android:pathData="M 54,14 C 77,20 92,29 94,42 C 94,68 73,85 54,94 Z" />
+
+    <!-- Circuit Lines Left (Cyan, semi-transparent) -->
+    <path
+        android:strokeColor="#664DA1FF"
+        android:strokeWidth="1.5"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"
+        android:pathData="M 25,55 L 35,55 L 45,65 L 45,75 M 20,45 L 30,45 L 40,35 L 40,25 M 35,75 L 35,82 M 45,28 L 50,28" />
+
+    <!-- Circuit Lines Right (Cyan, semi-transparent) -->
+    <path
+        android:strokeColor="#664DA1FF"
+        android:strokeWidth="1.5"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"
+        android:pathData="M 83,55 L 73,55 L 63,65 L 63,75 M 88,45 L 78,45 L 68,35 L 68,25 M 73,75 L 73,82 M 63,28 L 58,28" />
+
+    <!-- Left Chevron (White) -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M31,63.928c0,0 6.4,-22.724 39.522,-22.724l-11.411,-11.411c-1.353,-1.353 -1.353,-3.547 0,-4.9 1.353,-1.353 3.547,-1.353 4.9,0l17.411,17.411c1.353,1.353 1.353,3.547 0,4.9l-17.411,17.411c-1.353,1.353 -3.547,1.353 -4.9,0 -1.353,-1.353 -1.353,-3.547 0,-4.9l11.411,-11.411c-33.122,0 -39.522,22.724 -39.522,22.724" />
+        android:pathData="M 20,21 L 54,38 L 54,70 L 20,87 L 20,71 L 54,54 L 20,37 Z" />
+
+    <!-- Right Chevron (Light Gray) -->
+    <path
+        android:fillColor="#D0D6DC"
+        android:pathData="M 54,38 L 86,54 L 54,70 Z" />
+
 </vector>
