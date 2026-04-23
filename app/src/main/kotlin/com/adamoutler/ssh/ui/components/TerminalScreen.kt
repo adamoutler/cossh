@@ -148,6 +148,12 @@ fun TerminalScreenContent(
         }
     }
 
+    androidx.compose.runtime.DisposableEffect(sessionId) {
+        onDispose {
+            ConnectionStateRepository.detachUi(sessionId)
+        }
+    }
+
     var terminalInputState by remember { mutableStateOf(0) }
     var showOverlayButtons by remember { mutableStateOf(false) }
     val ctrlSticky = remember { mutableStateOf(false) }
@@ -493,6 +499,7 @@ fun TerminalScreenContent(
 
                         terminalView.attachSession(session)
                         terminalViewRef = terminalView
+                        terminalView.onScreenUpdated()
                         terminalView
                     },
                     update = { view ->

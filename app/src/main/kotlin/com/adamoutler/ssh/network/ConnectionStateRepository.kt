@@ -125,4 +125,13 @@ object ConnectionStateRepository {
         }
         return buffer
     }
+
+    fun detachUi(sessionId: String) {
+        val session = sessions[sessionId]
+        if (session != null) {
+            synchronized(session.bufferLock) {
+                session.isUiAttached = false
+            }
+        }
+    }
 }
