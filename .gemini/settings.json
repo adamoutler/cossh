@@ -28,7 +28,7 @@
           {
             "name": "qa-gate",
             "type": "command",
-            "command": "./.gemini/hooks/qa-gate.sh",
+            "command": "./.gemini/hooks/qa-gate.py",
             "description": "Prevents the AI Orchestrator from directly closing tickets to enforce the verification pipeline.",
             "timeout": 180000
           }
