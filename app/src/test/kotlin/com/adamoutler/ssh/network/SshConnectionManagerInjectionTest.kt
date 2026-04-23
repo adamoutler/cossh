@@ -102,9 +102,8 @@ class SshConnectionManagerInjectionTest {
         val publicKeyString = SSHKeyGenerator.encodePublicKey(keyPair)
         
         // 1. Inject the key using password authentication
-        val injectionCommand = "mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo \"$publicKeyString\" >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
-        manager.connectAndExecute(passwordProfile, injectionCommand)
-        assertTrue("Should successfully inject the public key", true)
+        val injectResult = manager.injectPublicKey(passwordProfile, publicKeyString)
+        assertTrue("Should successfully inject the public key", injectResult)
         
         // 2. Re-authenticate using the newly injected key
         val keyProfile = ConnectionProfile(

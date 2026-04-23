@@ -21,10 +21,16 @@ import kotlin.random.Random
 @RunWith(RobolectricTestRunner::class)
 class FiftyKbIntegrityTest {
 
+    companion object {
+        var currentPort = 3000
+    }
+
     private var mockSshdProcess: Process? = null
+    private var testPort = 0
 
     @Before
     fun setUp() {
+        testPort = currentPort++
         var mockScript = File("mock_sshd.py")
         if (!mockScript.exists()) {
              mockScript = File("../../mock_sshd.py")
@@ -33,9 +39,9 @@ class FiftyKbIntegrityTest {
              mockScript = File("../mock_sshd.py")
         }
         
-        println("Starting mock_sshd from: ${mockScript.absolutePath}")
+        println("Starting mock_sshd from: ${mockScript.absolutePath} on port $testPort")
         try {
-            val pb = ProcessBuilder("python3", mockScript.absolutePath)
+            val pb = ProcessBuilder("python3", mockScript.absolutePath, testPort.toString())
             pb.redirectErrorStream(true)
             mockSshdProcess = pb.start()
             Thread {
@@ -78,7 +84,7 @@ class FiftyKbIntegrityTest {
             id = "id_50kb",
             nickname = "IntegrityServer",
             host = "127.0.0.1",
-            port = 2222,
+            port = testPort,
             username = "user",
             authType = AuthType.PASSWORD,
             password = "password".toByteArray()
@@ -137,7 +143,7 @@ class FiftyKbIntegrityTest {
             sessionData.ptyOutputStream?.write(dataBytes, offset, length)
             sessionData.ptyOutputStream?.flush()
             offset += length
-            delay(10) // tiny delay to allow reading
+            delay(50) // tiny delay to allow reading
         }
 
         println("Data transmitted through terminal.")

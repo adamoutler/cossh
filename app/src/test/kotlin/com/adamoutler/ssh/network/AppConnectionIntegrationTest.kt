@@ -18,10 +18,16 @@ import java.io.File
 @RunWith(RobolectricTestRunner::class)
 class AppConnectionIntegrationTest {
 
+    companion object {
+        var currentPort = 4000
+    }
+
     private var mockSshdProcess: Process? = null
+    private var testPort = 0
 
     @Before
     fun setUp() {
+        testPort = currentPort++
         var mockScript = File("mock_sshd.py")
         if (!mockScript.exists()) {
              mockScript = File("../../mock_sshd.py")
@@ -30,9 +36,9 @@ class AppConnectionIntegrationTest {
              mockScript = File("../mock_sshd.py")
         }
         
-        println("Starting mock_sshd from: ${mockScript.absolutePath}")
+        println("Starting mock_sshd from: ${mockScript.absolutePath} on port $testPort")
         try {
-            val pb = ProcessBuilder("python3", mockScript.absolutePath)
+            val pb = ProcessBuilder("python3", mockScript.absolutePath, testPort.toString())
             pb.redirectErrorStream(true)
             mockSshdProcess = pb.start()
             Thread {
@@ -68,7 +74,7 @@ class AppConnectionIntegrationTest {
             id = "id_integration",
             nickname = "IntegrationServer",
             host = "127.0.0.1",
-            port = 2222,
+            port = testPort,
             username = "user",
             authType = AuthType.PASSWORD,
             password = "password".toByteArray()
