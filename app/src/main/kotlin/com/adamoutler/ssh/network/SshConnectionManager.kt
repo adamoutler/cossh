@@ -49,22 +49,33 @@ class SshConnectionManager(
 
     private fun loadKeyPairFromIdentity(identity: IdentityProfile): KeyPair {
         val privateKeyBytes = identity.privateKey ?: throw IllegalArgumentException("Identity has no private key")
-        // Identity currently doesn't store the algorithm explicitly for private keys, 
-        // but we can infer it or try both. For now we assume the identity creation 
-        // matches the supported algorithms in SSHKeyGenerator.
         
-        // This is a simplified loader. In a real app, we'd store the algorithm name.
+        var publicKey: java.security.PublicKey? = null
+        try {
+            val pubKeyStr = identity.publicKey
+            if (!pubKeyStr.isNullOrEmpty()) {
+                val parts = pubKeyStr.split(" ")
+                if (parts.size >= 2) {
+                    val type = parts[0]
+                    val base64 = parts[1]
+                    val decoded = java.util.Base64.getDecoder().decode(base64)
+                    val buffer = net.schmizz.sshj.common.Buffer.PlainBuffer(decoded)
+                    buffer.readString() // Read algorithm name
+                    publicKey = net.schmizz.sshj.common.KeyType.fromString(type).readPubKeyFromBuffer(buffer)
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("SshConnectionManager", "Failed to parse public key from identity", e)
+        }
+
         return try {
             val keyFactory = KeyFactory.getInstance("Ed25519")
             val privateKey = keyFactory.generatePrivate(PKCS8EncodedKeySpec(privateKeyBytes))
-            // We'd also need the public key to reconstruct the KeyPair, 
-            // or we use a different SshAuthenticator that only needs the private key.
-            // Sshj's KeyPair wrapper often needs both.
-            KeyPair(null, privateKey) // Placeholder
+            KeyPair(publicKey, privateKey)
         } catch (e: Exception) {
             val keyFactory = KeyFactory.getInstance("RSA")
             val privateKey = keyFactory.generatePrivate(PKCS8EncodedKeySpec(privateKeyBytes))
-            KeyPair(null, privateKey) // Placeholder
+            KeyPair(publicKey, privateKey)
         }
     }
 
