@@ -17,9 +17,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.filters.LargeTest
+import org.junit.experimental.categories.Category
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@FullTest
 class SshServiceInstrumentationTest {
 
     @get:Rule

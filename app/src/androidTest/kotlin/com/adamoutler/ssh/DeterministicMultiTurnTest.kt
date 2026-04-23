@@ -24,6 +24,7 @@ import org.junit.runner.RunWith
 import com.adamoutler.ssh.annotations.FullTest
 import java.io.File
 import java.security.MessageDigest
+import org.junit.experimental.categories.Category
 
 /**
  * # DeterministicMultiTurnTest — The Golden Path E2E Verification

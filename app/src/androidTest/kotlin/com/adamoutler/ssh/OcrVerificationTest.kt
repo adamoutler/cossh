@@ -22,6 +22,8 @@ import java.io.File
 import java.security.MessageDigest
 import java.util.UUID
 
+import org.junit.experimental.categories.Category
+
 @RunWith(AndroidJUnit4::class)
 @FullTest
 class OcrVerificationTest {

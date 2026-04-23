@@ -11,21 +11,21 @@ import android.content.Context
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
-import org.junit.Assert.assertTrue
 import org.junit.runner.RunWith
 import kotlinx.coroutines.runBlocking
 import androidx.test.core.app.ActivityScenario
 import com.adamoutler.ssh.annotations.FullTest
+import org.junit.experimental.categories.Category
 
 @RunWith(AndroidJUnit4::class)
 @FullTest
 class ConnectionCrashTest {
-
     @get:Rule
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
         android.Manifest.permission.POST_NOTIFICATIONS,

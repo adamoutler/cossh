@@ -66,6 +66,11 @@ android {
             isIncludeAndroidResources = true
             all {
                 it.maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+                if (!project.hasProperty("fullTestRun")) {
+                    it.useJUnit {
+                        excludeCategories("com.adamoutler.ssh.annotations.FullTest")
+                    }
+                }
             }
         }
     }
