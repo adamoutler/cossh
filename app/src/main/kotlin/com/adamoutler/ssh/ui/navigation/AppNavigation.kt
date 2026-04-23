@@ -83,9 +83,14 @@ fun AppNavigation() {
         ) { backStackEntry ->
             val profileId = backStackEntry.arguments?.getString("profileId") ?: ""
             val sessionId = backStackEntry.arguments?.getString("sessionId")
+            
+            val activity = LocalContext.current as androidx.activity.ComponentActivity
+            val terminalViewModel: com.adamoutler.ssh.ui.screens.TerminalViewModel = androidx.lifecycle.viewmodel.compose.viewModel(activity)
+            
             TerminalScreen(
                 profileId = profileId,
                 sessionId = sessionId,
+                terminalViewModel = terminalViewModel,
                 onNavigateBack = { navController.popBackStack() }
             )
         }
