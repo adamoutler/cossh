@@ -169,12 +169,13 @@ fun TerminalScreenContent(
     }
 
     var showKeepAliveDialog by remember { mutableStateOf(false) }
+    var lastBackPressTime by remember { mutableStateOf(0L) }
     var wasActive by remember { mutableStateOf(false) }
     var showDisconnectedOverlay by remember { mutableStateOf(false) }
 
     if (errorMessage != null) {
         androidx.compose.material3.AlertDialog(
-            onDismissRequest = { 
+            onDismissRequest = {
                 onClearError()
                 onNavigateBack()
             },
@@ -213,14 +214,25 @@ fun TerminalScreenContent(
                 }
             }
         } else {
+            // Navigation Back Button Logic for Terminal Screen:
+            // 1. Single Back Press: Shows a dialog asking the user whether to terminate the session 
+            //    or keep it running in the background.
+            // 2. Double Back Press (within 500ms): Bypasses the dialog and immediately 
+            //    backgrounds the session, navigating the user back to the connection list.
             if (isConnectionActive) {
-                showKeepAliveDialog = true
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - lastBackPressTime < 500) { // Double tap within 500ms
+                    showKeepAliveDialog = false
+                    onNavigateBack() // Background immediately
+                } else {
+                    lastBackPressTime = currentTime
+                    showKeepAliveDialog = true
+                }
             } else {
                 onNavigateBack()
             }
         }
     }
-
     if (showKeepAliveDialog) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { showKeepAliveDialog = false },

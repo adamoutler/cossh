@@ -66,15 +66,22 @@ fun ConnectionListScreen(
     var profileIdToConnect by remember { mutableStateOf<String?>(null) }
 
     if (profileIdToConnect != null) {
+        val profileToConnect = groupedProfiles.values.flatten().find { it.id == profileIdToConnect }
+        val profileName = profileToConnect?.nickname ?: profileToConnect?.host ?: "Connection"
         val activeCount = activeConnectionCounts[profileIdToConnect] ?: 0
         if (activeCount > 0) {
+            // Connection Resume / Multiple Sessions Logic:
+            // When tapping a connection that is already active (one or more background sessions running),
+            // display a dialog showing the specific connection's name.
+            // The dialog lists all active sessions for this profile so the user can explicitly
+            // select which session to resume, or opt to start a fresh connection.
             val activeSessions = ConnectionStateRepository.sessions.values
                 .filter { it.profileId == profileIdToConnect }
                 .sortedBy { it.connectedAt }
             
             AlertDialog(
                 onDismissRequest = { profileIdToConnect = null },
-                title = { Text("Active Sessions") },
+                title = { Text("Active Sessions: $profileName") },
                 text = {
                     Column {
                         Text("This connection is already active. Select a session to resume or start a new one.")
