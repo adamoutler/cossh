@@ -1,7 +1,8 @@
 package com.adamoutler.ssh.ui
 
 import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import com.adamoutler.ssh.MainActivity
 import com.adamoutler.ssh.network.ConnectionStateRepository
 import org.junit.Before
 import org.junit.Rule
@@ -15,7 +16,7 @@ import org.robolectric.annotation.Config
 class UserJourneyIntegrationTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @Before
     fun setup() {
@@ -30,9 +31,7 @@ class UserJourneyIntegrationTest {
     @Test
     fun testUserJourney_AddProfileAndSeeInList() {
         // 1. App starts on Connection List (empty initially)
-        composeTestRule.setContent {
-            com.adamoutler.ssh.ui.navigation.AppNavigation()
-        }
+
 
         settleUI()
 
@@ -61,9 +60,7 @@ class UserJourneyIntegrationTest {
 
     @Test
     fun testUserJourney_ConnectionResumeAndConcurrentSessions() {
-        composeTestRule.setContent {
-            com.adamoutler.ssh.ui.navigation.AppNavigation()
-        }
+
 
         settleUI()
 
