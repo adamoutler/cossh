@@ -197,6 +197,7 @@ class SshService : Service() {
 
         val pendingIntent: PendingIntent =
             Intent(this, MainActivity::class.java).let { notificationIntent ->
+                notificationIntent.action = "com.adamoutler.ssh.RESUME_$sessionId"
                 notificationIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 notificationIntent.putExtra(EXTRA_PROFILE_ID, profileId)
                 notificationIntent.putExtra(EXTRA_SESSION_ID, sessionId)

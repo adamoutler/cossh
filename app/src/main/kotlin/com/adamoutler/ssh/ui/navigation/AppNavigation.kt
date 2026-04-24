@@ -26,6 +26,25 @@ fun AppNavigation() {
     val billingManager = remember { BillingManager(context) }
     val driveSyncManager = remember { DriveSyncManager(context) }
 
+    androidx.compose.runtime.DisposableEffect(activity) {
+        val listener = androidx.core.util.Consumer<android.content.Intent> { intent ->
+            if (intent.hasExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID)) {
+                val profileId = intent.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID)
+                val sessionId = intent.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID)
+                if (profileId != null && sessionId != null) {
+                    navController.navigate("terminal?profileId=$profileId&sessionId=$sessionId") { 
+                        popUpTo("connectionList") { inclusive = false }
+                        launchSingleTop = true 
+                    }
+                }
+            }
+        }
+        activity?.addOnNewIntentListener(listener)
+        onDispose {
+            activity?.removeOnNewIntentListener(listener)
+        }
+    }
+
     androidx.compose.runtime.LaunchedEffect(Unit) {
         val intent = activity?.intent
         if (intent?.hasExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID) == true) {
@@ -33,9 +52,10 @@ fun AppNavigation() {
             val sessionId = intent.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID)
             activity.intent = android.content.Intent() // Clear the intent so it isn't re-processed
             if (profileId != null && sessionId != null) {
-                navController.navigate("terminal?profileId=$profileId&sessionId=$sessionId")
-            } else if (profileId != null) {
-                navController.navigate("terminal?profileId=$profileId")
+                navController.navigate("terminal?profileId=$profileId&sessionId=$sessionId") { 
+                    popUpTo("connectionList") { inclusive = false }
+                    launchSingleTop = true 
+                }
             }
         }
 
