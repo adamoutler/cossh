@@ -515,7 +515,7 @@ fun TerminalScreenContent(
                         terminalView
                     },
                     update = { view ->
-                        view.setTextSize(currentFontSize)
+                        view.setTextSize((currentFontSize * view.context.resources.displayMetrics.scaledDensity).toInt())
                     }
                 )
             }
