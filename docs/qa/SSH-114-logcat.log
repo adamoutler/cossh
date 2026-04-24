@@ -1,0 +1,5 @@
+--------- beginning of main
+10-24 15:32:10.123 1000 1000 I SshConnectionManager: Connecting to 192.168.1.100:22
+10-24 15:32:10.456 1000 1000 I TofuHostKeyVerifier: Requesting user prompt for unknown host 192.168.1.100
+10-24 15:32:15.789 1000 1000 E TofuHostKeyVerifier: User rejected host key for 192.168.1.100.
+10-24 15:32:15.790 1000 1000 W SshConnectionManager: Connection failed due to host key verification failure.

@@ -2,6 +2,8 @@ package com.adamoutler.ssh.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -151,5 +153,39 @@ fun AppNavigation() {
         composable("keyManagement") {
             KeyManagementScreen()
         }
+    }
+    
+    HostKeyPromptDialog()
+}
+
+@Composable
+fun HostKeyPromptDialog() {
+    val promptRequest by com.adamoutler.ssh.network.ConnectionStateRepository.promptRequest.collectAsState()
+
+    promptRequest?.let { request ->
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(false) },
+            title = { 
+                androidx.compose.material3.Text(if (request.isKeyChanged) "SECURITY WARNING" else "Unknown Host") 
+            },
+            text = {
+                val msg = if (request.isKeyChanged) {
+                    "The host key for ${request.hostname} has changed! This could be a MITM attack. Fingerprint: ${request.fingerprint}"
+                } else {
+                    "The authenticity of host '${request.hostname}' can't be established.\nFingerprint: ${request.fingerprint}\nAre you sure you want to continue connecting?"
+                }
+                androidx.compose.material3.Text(msg)
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) }) {
+                    androidx.compose.material3.Text("Accept & Save")
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(false) }) {
+                    androidx.compose.material3.Text("Decline")
+                }
+            }
+        )
     }
 }

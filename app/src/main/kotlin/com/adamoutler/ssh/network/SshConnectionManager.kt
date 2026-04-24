@@ -246,11 +246,12 @@ class SshConnectionManager(
             if (hostKeyVerifier != null) {
                 client.addHostKeyVerifier(hostKeyVerifier)
             } else {
-                try {
-                    client.loadKnownHosts()
-                } catch (e: java.io.IOException) {
-                    android.util.Log.w("SshConnectionManager", "Could not load known_hosts, falling back to PromiscuousVerifier", e)
-                    client.addHostKeyVerifier(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
+                val knownHostsFile = context?.let { File(it.filesDir, "ssh_known_hosts") }
+                if (knownHostsFile != null) {
+                    if (!knownHostsFile.exists()) knownHostsFile.createNewFile()
+                    client.addHostKeyVerifier(TofuHostKeyVerifier(knownHostsFile))
+                } else {
+                    throw java.io.IOException("No Context provided for TOFU verifier and no HostKeyVerifier configured. Refusing to connect insecurely.")
                 }
             }
             client.connect(profile.host, profile.port)

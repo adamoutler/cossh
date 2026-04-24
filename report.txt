@@ -1,0 +1,73 @@
+---
+name: final report
+description: comprehensive summary of all findings
+---
+
+Here is the comprehensive security and code quality report for the CoSSH codebase, synthesizing the findings from the `@codebase-investigator` and our architectural review.
+
+---
+
+# CoSSH Security & Code Quality Report
+
+**Date:** April 24, 2026
+**Target:** CoSSH (Cobalt SSH) Android Client
+**Focus:** SSH Connectivity, Storage Invariants, and State Sanitization
+
+## Executive Summary
+While the CoSSH application implements a strong theoretical security foundation utilizing AES-256-GCM encryption, Android Keystore, and a custom `SecureCrashHandler`, several critical implementation flaws undermine these invariants. Specifically, the "Hostile Wire" and "Volatile State Sanitization" mandates are currently compromised, leaving the application vulnerable to Man-in-the-Middle (MITM) attacks and data leakage. 
+
+## 🚨 Critical Vulnerabilities 
+
+### 1. Network Security: MITM Risk via PromiscuousVerifier (Critical)
+*   **Location:** `app/src/main/kotlin/com/adamoutler/ssh/network/SshConnectionManager.kt` (Lines 147-148, 196-197)
+*   **Vulnerability:** The SSH client catches exceptions when loading the `known_hosts` file and silently executes `client.addHostKeyVerifier(PromiscuousVerifier())`.
+*   **Impact:** Bypasses host key verification entirely when the known hosts file is missing or unreadable. This forces the client to accept any host key, leaving users vulnerable to MITM interception attacks during the initial connection or subsequent failures.
+
+### 2. Insecure Storage Fallbacks (High)
+*   **Location:** 
+    * `app/src/main/kotlin/com/adamoutler/ssh/crypto/SecurityStorageManager.kt` (approx. line 41)
+    * `app/src/main/kotlin/com/adamoutler/ssh/crypto/IdentityStorageManager.kt` (approx. line 41)
+*   **Vulnerability:** If the `EncryptedSharedPreferences` fails to initialize, both managers contain a fallback mechanism to standard, plain-text `SharedPreferences` (`Context.MODE_PRIVATE`).
+*   **Impact:** Connection profile metadata (hostnames, ports, usernames, nicknames, etc.) is written to the device's storage in plain text, quietly degrading the security posture without notifying the user.
+
+### 3. Weakened Hardware Security: In-Memory Key Fallback (High)
+*   **Location:** `app/src/main/kotlin/com/adamoutler/ssh/crypto/PasswordCipher.kt` (Lines 37-42)
+*   **Vulnerability:** If the Android Keystore is unavailable, the application falls back to generating a volatile, in-memory `SecretKey` (`fallbackKey = keyGenerator.generateKey()`).
+*   **Impact:** This reduces security from hardware-backed to software-level encryption. In the event of an app restart, any data encrypted with this volatile key is permanently lost. It also makes the key susceptible to memory extraction.
+
+### 4. Volatile State & Memory Leakage (Medium-High)
+*   **Locations:**
+    * `app/src/main/kotlin/com/adamoutler/ssh/ui/screens/AddEditProfileScreen.kt` (Line 129)
+    * `app/src/main/kotlin/com/adamoutler/ssh/ui/screens/ConnectionListViewModel.kt`
+    * `app/src/main/kotlin/com/adamoutler/ssh/backup/BackupCryptoManager.kt`
+*   **Vulnerability:** The app violates the "Volatile State Sanitization" mandate.
+    * The Jetpack Compose UI layer handles passwords strictly as immutable `String` objects, preventing active memory scrubbing.
+    * `ConnectionListViewModel` simultaneously loads all saved profiles and decrypted passwords into an in-memory `StateFlow`.
+    * `BackupCryptoManager` does not zero out temporary byte arrays after export/import operations.
+*   **Impact:** Sensitive credentials remain lingering in memory until garbage collection runs, risking exposure during unexpected crashes or memory dumps.
+
+### 5. Identity Authentication Flaws (Medium)
+*   **Locations:** `IdentityStorageManager.kt`, `AddEditIdentityScreen.kt`, and `SSHKeyGenerator.kt`
+*   **Vulnerability:** Private keys are subjected to double-encryption (once in `SSHKeyGenerator` and again via `PasswordCipher` in the Storage Manager) but are only decrypted once upon retrieval. Manual PEM key entry fails to convert to the necessary PKCS8 DER format. 
+*   **Impact:** Identity-based authentication is fundamentally unusable. Additionally, `data_extraction_rules.xml` does not prevent these identities from being backed up to Google Drive.
+
+### 6. Hardcoded Secrets (Low/Medium)
+*   **Location:** `app/src/main/kotlin/com/adamoutler/ssh/ui/screens/ConnectionListViewModel.kt` (approx. line 49)
+*   **Vulnerability:** A hardcoded `ConnectionProfile` containing `username = "test"` and `password = "test".toByteArray()` is instantiated in `DEBUG` builds.
+*   **Impact:** Hardcoded secrets risk leaking into production builds if build configurations are mishandled. 
+
+---
+
+## Prioritized Remediation Plan
+
+1. **Remove the PromiscuousVerifier:** Immediately enforce strict Host Key verification and implement a **Trust On First Use (TOFU)** prompt dialog. The application must never default to accepting unknown host keys.
+2. **Eliminate Storage/Hardware Fallbacks:** Remove the plain-text `SharedPreferences` and in-memory AES key fallbacks. The application must securely fail and notify the user if hardware-backed cryptography cannot be initialized.
+3. **Fix Identity Authentication Flow:** Resolve the double-encryption bug in `IdentityStorageManager` and ensure PEM strings are properly parsed into PKCS8 DER format for the SSH connection layer.
+4. **Enforce Volatile State Sanitization:**
+   * Transition UI-layer secrets (e.g., passwords) to mutable types like `CharArray` or `ByteArray`.
+   * Update the `BackupCryptoManager` to explicitly run `Arrays.fill(buffer, 0.toByte())` on data streams.
+   * Implement "Lazy Loading" of secrets so they are decrypted only upon session initialization rather than populating list views.
+5. **Patch Data Leakages:** Remove the hardcoded test profile and patch `data_extraction_rules.xml` to ensure identity material is not synced to the cloud.
+
+---
+*End of Report*

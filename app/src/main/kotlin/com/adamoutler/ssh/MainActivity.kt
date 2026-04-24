@@ -36,23 +36,6 @@ class MainActivity : ComponentActivity() {
         // Handle permission result if needed
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        handleIntent(intent)
-    }
-
-    private fun handleIntent(intent: Intent?) {
-        if (intent?.hasExtra(SshService.EXTRA_PROFILE_ID) == true) {
-            val profileId = intent.getStringExtra(SshService.EXTRA_PROFILE_ID)
-            val sessionId = intent.getStringExtra(SshService.EXTRA_SESSION_ID)
-            if (profileId != null && sessionId != null) {
-                UiEventBus.publish(UiEvent.Navigate("terminal?profileId=$profileId&sessionId=$sessionId"))
-            } else if (profileId != null) {
-                UiEventBus.publish(UiEvent.Navigate("terminal?profileId=$profileId"))
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         

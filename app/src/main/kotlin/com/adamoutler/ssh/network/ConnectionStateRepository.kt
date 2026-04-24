@@ -16,6 +16,13 @@ sealed interface ConnectionState {
     data class Error(val message: String) : ConnectionState
 }
 
+data class HostKeyPromptRequest(
+    val hostname: String,
+    val fingerprint: String,
+    val isKeyChanged: Boolean, // True if MITM warning
+    val deferred: kotlinx.coroutines.CompletableDeferred<Boolean>
+)
+
 data class ActiveSessionState(
     val sessionId: String = java.util.UUID.randomUUID().toString(),
     val profileId: String,
@@ -42,6 +49,20 @@ object ConnectionStateRepository {
 
     private val _sessionOutput = MutableSharedFlow<Pair<String, ByteArray>>(extraBufferCapacity = 1000)
     val sessionOutput = _sessionOutput.asSharedFlow()
+
+    private val _promptRequest = MutableStateFlow<HostKeyPromptRequest?>(null)
+    val promptRequest = _promptRequest.asStateFlow()
+
+    suspend fun requestPrompt(hostname: String, fingerprint: String, isKeyChanged: Boolean): Boolean {
+        val deferred = kotlinx.coroutines.CompletableDeferred<Boolean>()
+        _promptRequest.value = HostKeyPromptRequest(hostname, fingerprint, isKeyChanged, deferred)
+        return deferred.await()
+    }
+
+    fun resolvePrompt(accept: Boolean) {
+        _promptRequest.value?.deferred?.complete(accept)
+        _promptRequest.value = null
+    }
 
     fun updateConnectionState(profileId: String, state: ConnectionState) {
         val newMap = _connectionStates.value.toMutableMap()

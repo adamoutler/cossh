@@ -4,11 +4,11 @@ onBell
 onTextChanged
 onTitleChanged
 onSessionFinished
-onCopyTextToClipboard
-logError
-onPasteTextFromClipboard
 onColorsChanged
+onCopyTextToClipboard
+onPasteTextFromClipboard
 getTerminalCursorStyle
+logError
 logWarn
 logInfo
 logDebug
