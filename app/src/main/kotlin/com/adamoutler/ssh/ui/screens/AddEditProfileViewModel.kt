@@ -9,6 +9,8 @@ import com.adamoutler.ssh.data.IdentityProfile
 import com.adamoutler.ssh.ui.base.BaseAndroidViewModel
 import java.util.UUID
 
+import com.adamoutler.ssh.data.PortForwardConfig
+
 class AddEditProfileViewModel(
     application: Application,
     private val storageManager: SecurityStorageManager,
@@ -30,7 +32,9 @@ class AddEditProfileViewModel(
         authType: AuthType,
         password: ByteArray?,
         keyReference: String?,
-        identityId: String? = null
+        identityId: String? = null,
+        envVars: Map<String, String> = emptyMap(),
+        portForwards: List<PortForwardConfig> = emptyList()
     ) {
         val profileId = id ?: UUID.randomUUID().toString()
         val profile = ConnectionProfile(
@@ -42,7 +46,9 @@ class AddEditProfileViewModel(
             authType = authType,
             password = password,
             sshKeyPasswordReferenceId = keyReference,
-            identityId = identityId
+            identityId = identityId,
+            envVars = envVars,
+            portForwards = portForwards
         )
         storageManager.saveProfile(profile)
     }

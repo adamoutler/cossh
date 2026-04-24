@@ -48,6 +48,7 @@ class SshConnectionManager(
     private val context: android.content.Context? = null
 ) {
     private var client: SSHClient? = null
+    private val localServerSockets = mutableListOf<java.net.ServerSocket>()
 
     private fun configureHostKeyVerifier() {
         if (hostKeyVerifier != null) {
@@ -196,6 +197,44 @@ class SshConnectionManager(
         } catch (e: Exception) {
             android.util.Log.e("SshConnectionManager", "Error during manual disconnect", e)
         }
+        try {
+            localServerSockets.forEach { it.close() }
+            localServerSockets.clear()
+        } catch (e: Exception) {
+            android.util.Log.e("SshConnectionManager", "Error closing local port forwarders", e)
+        }
+    }
+
+    private fun startPortForwards(client: SSHClient, profile: ConnectionProfile) {
+        profile.portForwards.forEach { config ->
+            try {
+                if (config.type == com.adamoutler.ssh.data.PortForwardType.LOCAL) {
+                    val params = net.schmizz.sshj.connection.channel.direct.Parameters("127.0.0.1", config.localPort, config.remoteHost, config.remotePort)
+                    val serverSocket = java.net.ServerSocket()
+                    serverSocket.reuseAddress = true
+                    serverSocket.bind(java.net.InetSocketAddress("127.0.0.1", config.localPort))
+                    localServerSockets.add(serverSocket)
+                    val localPortForwarder = client.newLocalPortForwarder(params, serverSocket)
+                    kotlin.concurrent.thread(name = "LocalPortForwarder_${config.localPort}") {
+                        try {
+                            localPortForwarder.listen()
+                        } catch (e: Exception) {
+                            android.util.Log.e("SshConnectionManager", "Local port forwarder error", e)
+                        } finally {
+                            try { serverSocket.close() } catch (e: Exception) {}
+                        }
+                    }
+                } else if (config.type == com.adamoutler.ssh.data.PortForwardType.REMOTE) {
+                    val remoteForward = net.schmizz.sshj.connection.channel.forwarded.RemotePortForwarder.Forward(config.remotePort)
+                    val host = if (config.remoteHost.isEmpty()) "127.0.0.1" else config.remoteHost
+                    val localTargetAddress = java.net.InetSocketAddress(host, config.localPort)
+                    val localListener = net.schmizz.sshj.connection.channel.forwarded.SocketForwardingConnectListener(localTargetAddress)
+                    client.remotePortForwarder.bind(remoteForward, localListener)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("SshConnectionManager", "Failed to setup port forward $config", e)
+            }
+        }
     }
 
     suspend fun connectAndExecute(profile: ConnectionProfile, command: String, keyPair: KeyPair? = null): String = withContext(Dispatchers.IO) {
@@ -266,7 +305,16 @@ class SshConnectionManager(
 
             getAuthenticator(profile, keyPair, identity).authenticate(client, effectiveProfile)
 
+            startPortForwards(client, effectiveProfile)
+
             client.startSession().use { session ->
+                effectiveProfile.envVars.forEach { (key, value) ->
+                    try {
+                        session.setEnvVar(key, value)
+                    } catch (e: Exception) {
+                        android.util.Log.w("SshConnectionManager", "Failed to set env var $key", e)
+                    }
+                }
                 session.allocateDefaultPTY()
                 val shell = session.startShell()
                 

@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.IdentityProfile
+import com.adamoutler.ssh.data.PortForwardConfig
+import com.adamoutler.ssh.data.PortForwardType
 
 @Composable
 fun AddEditProfileScreen(
@@ -32,6 +34,8 @@ fun AddEditProfileScreen(
     var authType by remember { mutableStateOf(AuthType.PASSWORD) }
     var keyReference by remember { mutableStateOf("") }
     var identityId by remember { mutableStateOf<String?>(null) }
+    var envVarsText by remember { mutableStateOf("") }
+    var portForwardsText by remember { mutableStateOf("") }
 
     var availableKeys by remember { mutableStateOf(viewModel.getAvailableKeys()) }
     var identities by remember { mutableStateOf(viewModel.getIdentities()) }
@@ -61,6 +65,11 @@ fun AddEditProfileScreen(
                 password = profile.password?.toString(Charsets.UTF_8) ?: ""
                 keyReference = profile.sshKeyPasswordReferenceId ?: ""
                 identityId = profile.identityId
+                envVarsText = profile.envVars.entries.joinToString(",") { "${it.key}=${it.value}" }
+                portForwardsText = profile.portForwards.joinToString(",") {
+                    val prefix = if (it.type == PortForwardType.LOCAL) "L" else "R"
+                    "$prefix:${it.localPort}:${it.remoteHost}:${it.remotePort}"
+                }
             }
         }
     }
@@ -86,6 +95,10 @@ fun AddEditProfileScreen(
         identityId = identityId,
         onIdentityChange = { identityId = it },
         onManageIdentities = onManageIdentities,
+        envVarsText = envVarsText,
+        onEnvVarsTextChange = { envVarsText = it },
+        portForwardsText = portForwardsText,
+        onPortForwardsTextChange = { portForwardsText = it },
         onSave = {
             val selectedIdent = identities.find { it.id == identityId }
             val finalUsername = if (selectedIdent != null) selectedIdent.username else username
@@ -97,6 +110,28 @@ fun AddEditProfileScreen(
             } else null
             val keyRef = if (identityId == null && finalAuthType == AuthType.KEY) keyReference else null
 
+            val parsedEnvVars = envVarsText.split(",")
+                .map { it.trim() }
+                .filter { it.contains("=") }
+                .associate { 
+                    val parts = it.split("=", limit = 2)
+                    parts[0] to parts[1]
+                }
+            
+            val parsedPortForwards = portForwardsText.split(",")
+                .map { it.trim() }
+                .filter { it.contains(":") }
+                .mapNotNull {
+                    val parts = it.split(":")
+                    if (parts.size >= 4) {
+                        val type = if (parts[0].uppercase() == "L") PortForwardType.LOCAL else PortForwardType.REMOTE
+                        val localPort = parts[1].toIntOrNull() ?: return@mapNotNull null
+                        val remoteHost = parts[2]
+                        val remotePort = parts[3].toIntOrNull() ?: return@mapNotNull null
+                        PortForwardConfig(type, localPort, remoteHost, remotePort)
+                    } else null
+                }
+
             viewModel.saveProfile(
                 id = profileId,
                 nickname = nickname,
@@ -106,7 +141,9 @@ fun AddEditProfileScreen(
                 authType = finalAuthType,
                 password = passBytes,
                 keyReference = keyRef,
-                identityId = identityId
+                identityId = identityId,
+                envVars = parsedEnvVars,
+                portForwards = parsedPortForwards
             )
             onNavigateBack()
         },
@@ -137,6 +174,10 @@ fun AddEditProfileScreenContent(
     identityId: String?,
     onIdentityChange: (String?) -> Unit,
     onManageIdentities: () -> Unit,
+    envVarsText: String,
+    onEnvVarsTextChange: (String) -> Unit,
+    portForwardsText: String,
+    onPortForwardsTextChange: (String) -> Unit,
     onSave: () -> Unit,
     onNavigateBack: () -> Unit,
     defaultPasswordVisible: Boolean = false
@@ -344,6 +385,26 @@ fun AddEditProfileScreenContent(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("Advanced Configuration", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = envVarsText,
+                onValueChange = onEnvVarsTextChange,
+                label = { Text("Environment Variables (VAR=val,...)") },
+                modifier = Modifier.fillMaxWidth().testTag("EnvVarsInput")
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = portForwardsText,
+                onValueChange = onPortForwardsTextChange,
+                label = { Text("Port Forwards (L:8080:host:80,R:9090:host:90)") },
+                modifier = Modifier.fillMaxWidth().testTag("PortForwardsInput")
+            )
 
             Spacer(modifier = Modifier.weight(1f))
         }

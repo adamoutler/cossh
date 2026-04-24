@@ -48,6 +48,10 @@ class AddEditProfileScreenScreenshotTest {
                         identityId = null,
                         onIdentityChange = {},
                         onManageIdentities = {},
+                        envVarsText = "",
+                        onEnvVarsTextChange = {},
+                        portForwardsText = "",
+                        onPortForwardsTextChange = {},
                         onSave = {},
                         onNavigateBack = {}
                     )
@@ -85,6 +89,10 @@ class AddEditProfileScreenScreenshotTest {
                         identityId = null,
                         onIdentityChange = {},
                         onManageIdentities = {},
+                        envVarsText = "",
+                        onEnvVarsTextChange = {},
+                        portForwardsText = "",
+                        onPortForwardsTextChange = {},
                         onSave = {},
                         onNavigateBack = {}
                     )
@@ -122,6 +130,10 @@ class AddEditProfileScreenScreenshotTest {
                         identityId = null,
                         onIdentityChange = {},
                         onManageIdentities = {},
+                        envVarsText = "",
+                        onEnvVarsTextChange = {},
+                        portForwardsText = "",
+                        onPortForwardsTextChange = {},
                         onSave = {},
                         onNavigateBack = {},
                         defaultPasswordVisible = true

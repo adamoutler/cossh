@@ -22,6 +22,20 @@ object ByteArrayAsBase64Serializer : KSerializer<ByteArray> {
 }
 
 @Serializable
+enum class PortForwardType {
+    LOCAL,
+    REMOTE
+}
+
+@Serializable
+data class PortForwardConfig(
+    val type: PortForwardType,
+    val localPort: Int,
+    val remoteHost: String,
+    val remotePort: Int
+)
+
+@Serializable
 data class ConnectionProfile(
     val id: String,
     val nickname: String,
@@ -35,7 +49,9 @@ data class ConnectionProfile(
     val sshKeyPasswordReferenceId: String? = null,
     val identityId: String? = null,
     val fontSize: Int? = null,
-    val folderId: String? = null
+    val folderId: String? = null,
+    val envVars: Map<String, String> = emptyMap(),
+    val portForwards: List<PortForwardConfig> = emptyList()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -58,6 +74,8 @@ data class ConnectionProfile(
         if (identityId != other.identityId) return false
         if (fontSize != other.fontSize) return false
         if (folderId != other.folderId) return false
+        if (envVars != other.envVars) return false
+        if (portForwards != other.portForwards) return false
 
         return true
     }
@@ -75,6 +93,8 @@ data class ConnectionProfile(
         result = 31 * result + (identityId?.hashCode() ?: 0)
         result = 31 * result + (fontSize ?: 0)
         result = 31 * result + (folderId?.hashCode() ?: 0)
+        result = 31 * result + envVars.hashCode()
+        result = 31 * result + portForwards.hashCode()
         return result
     }
 
