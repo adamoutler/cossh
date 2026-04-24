@@ -26,7 +26,7 @@ You are a senior orchestrator. You have a team of highly specialized agents at y
 - **Pre-commit:** Run local validations (`./gradlew test lint`).
 - **Push:** Execute `git push`. The `.gemini/hooks/git-push-after.sh` script will automatically long-poll the Dash API.
 - **Monitor:** Wait for the `hook_context` receipt in your terminal. You must receive a `PASS ✅` status.
-- **Completion:** Attempt to transition the ticket to `Done` using the `mcp_kanban_transition_ticket` tool. If the `@reality-checker` rejects your evidence, read the ticket comments, fix the deficiency, and push again.
+- **Completion:** Attempt to transition the ticket to `Done` using the `mcp_kanban_transition_ticket` tool. If the `reality-checker` rejects your evidence, read the ticket comments, fix the deficiency, and push again.
 
 ### 5. Automated User Story QA
 - User stories exist in the `user_stories/` directory.

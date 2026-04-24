@@ -22,7 +22,7 @@ import urllib.parse
 SERVER = "https://kanban.hackedyour.info"
 WORKSPACE = "ssh"  # Kanban workspace identifier (URL segment)
 # Format: provider/owner/repo/workflow_name
-DASH = "github/adamoutler/gemini-webui/Build and Publish"
+DASH = "github/adamoutler/cossh/CI"
 
 # QA Gate Bypass Flags (FOR TESTING ONLY)
 BYPASS_UNCOMMITTED = False
@@ -106,6 +106,8 @@ def verify_git_pushed():
     """5. Validates that the local branch is not ahead of its remote tracking counterpart."""
     if BYPASS_PUSHED: return
     status = subprocess.run(["git", "status", "-sb"], capture_output=True, text=True).stdout
+        if not status or "..." not in status.splitlines()[0]:
+        deny_transition("Git branch has no upstream tracking branch. Please push changes before QA to ensure we match the main repo.")
     if "ahead" in status:
         deny_transition("Git repository has unpushed commits. Please push changes before QA to ensure we match the main repo.")
 
