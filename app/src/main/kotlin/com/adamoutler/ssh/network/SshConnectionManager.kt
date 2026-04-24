@@ -16,6 +16,8 @@ class SshConnectionManager(
     private val hostKeyVerifier: HostKeyVerifier? = null,
     private val identityStorageManager: IdentityStorageManager? = null
 ) {
+    private var client: SSHClient? = null
+
     private class CompositeAuthenticator(private val authenticators: List<SshAuthenticator>) : SshAuthenticator {
         override fun authenticate(client: SSHClient, profile: ConnectionProfile) {
             var lastException: Exception? = null
@@ -118,8 +120,17 @@ class SshConnectionManager(
         return identityStorageManager?.getIdentity(id)
     }
 
+    fun disconnect() {
+        try {
+            client?.disconnect()
+        } catch (e: Exception) {
+            android.util.Log.e("SshConnectionManager", "Error during manual disconnect", e)
+        }
+    }
+
     suspend fun connectAndExecute(profile: ConnectionProfile, command: String, keyPair: KeyPair? = null): String = withContext(Dispatchers.IO) {
         val client = SSHClient(net.schmizz.sshj.AndroidConfig())
+        this@SshConnectionManager.client = client
         // Aggressive timeouts per security invariant
         client.connectTimeout = 10000
         client.timeout = 10000
@@ -169,6 +180,7 @@ class SshConnectionManager(
         onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell) -> Unit
     ) = withContext(Dispatchers.IO) {
         val client = SSHClient(net.schmizz.sshj.AndroidConfig())
+        this@SshConnectionManager.client = client
         client.connectTimeout = 10000
         client.timeout = 10000
         

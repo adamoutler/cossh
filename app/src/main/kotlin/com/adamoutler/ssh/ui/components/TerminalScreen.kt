@@ -201,37 +201,17 @@ fun TerminalScreenContent(
     }
 
     androidx.activity.compose.BackHandler(enabled = true) {
-        if (terminalInputState != 0) {
-            terminalInputState = 0
-            terminalViewRef?.let {
-                val window = (it.context as? android.app.Activity)?.window
-                if (window != null) {
-                    val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, it)
-                    insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.ime())
-                    it.clearFocus()
-                } else {
-                    val imm = it.context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
-                    imm.hideSoftInputFromWindow(it.windowToken, 0)
-                }
+        if (isConnectionActive) {
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastBackPressTime < 500) { // Double tap within 500ms
+                showKeepAliveDialog = false
+                onNavigateBack() // Background immediately
+            } else {
+                lastBackPressTime = currentTime
+                showKeepAliveDialog = true
             }
         } else {
-            // Navigation Back Button Logic for Terminal Screen:
-            // 1. Single Back Press: Shows a dialog asking the user whether to terminate the session 
-            //    or keep it running in the background.
-            // 2. Double Back Press (within 500ms): Bypasses the dialog and immediately 
-            //    backgrounds the session, navigating the user back to the connection list.
-            if (isConnectionActive) {
-                val currentTime = System.currentTimeMillis()
-                if (currentTime - lastBackPressTime < 500) { // Double tap within 500ms
-                    showKeepAliveDialog = false
-                    onNavigateBack() // Background immediately
-                } else {
-                    lastBackPressTime = currentTime
-                    showKeepAliveDialog = true
-                }
-            } else {
-                onNavigateBack()
-            }
+            onNavigateBack()
         }
     }
     if (showKeepAliveDialog) {
@@ -560,7 +540,16 @@ fun TerminalScreenContent(
                 TerminalOverlayButtons(
                     onBackground = { onNavigateBack() },
                     onTerminate = {
-                        showTerminateConfirmDialog = true
+                        val ctx = terminalViewRef?.context
+                        if (ctx != null) {
+                            val intent = android.content.Intent(ctx, com.adamoutler.ssh.network.SshService::class.java).apply {
+                                action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
+                                putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profileId)
+                                putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, sessionId)
+                            }
+                            ctx.startService(intent)
+                        }
+                        onNavigateBack()
                     }                )
             }
         }

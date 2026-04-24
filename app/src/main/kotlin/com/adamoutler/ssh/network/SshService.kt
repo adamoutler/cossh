@@ -167,6 +167,7 @@ class SshService : Service() {
     }
 
     private fun stopSshConnection(sessionId: String) {
+        sshManagers[sessionId]?.disconnect()
         connectionJobs[sessionId]?.cancel()
     }
 
@@ -196,6 +197,7 @@ class SshService : Service() {
 
         val pendingIntent: PendingIntent =
             Intent(this, MainActivity::class.java).let { notificationIntent ->
+                notificationIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 notificationIntent.putExtra(EXTRA_PROFILE_ID, profileId)
                 notificationIntent.putExtra(EXTRA_SESSION_ID, sessionId)
                 PendingIntent.getActivity(
