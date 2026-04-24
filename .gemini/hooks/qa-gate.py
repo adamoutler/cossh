@@ -83,8 +83,8 @@ def acquire_lock():
             lock_time = int(f.read().strip())
             try_again = time.strftime("%H:%M:%S", time.localtime(lock_time + 300))
         except Exception:
-            try_again = "in 5 minutes"
-        deny_transition(f"Another QA assessment is currently in progress. Please try again at {try_again}.")
+            try_again = "in 5-20 minutes"
+        deny_transition(f"Another QA assessment is currently in progress. Please try again {try_again}.")
 
 # =============================================================================
 # Validation Functions (Steps 3-7)
@@ -221,7 +221,7 @@ def run_reality_checker(ticket_md):
     time.sleep(20)
 
     try:
-        proc = subprocess.run(["gemini", "-y", "-p", prompt, "--output-format=json"], input=ticket_md, text=True, capture_output=True, timeout=1150)
+        proc = subprocess.run(["gemini", "-y", "-p", prompt, "--output-format=json"], input=ticket_md, text=True, capture_output=True, timeout=1050)
         if proc.returncode != 0:
             deny_transition(f"No quality control available. Gemini command exited with {proc.returncode}. Stderr: {proc.stderr}")
     except subprocess.TimeoutExpired:
