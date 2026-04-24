@@ -22,10 +22,23 @@ import com.adamoutler.ssh.ui.screens.SettingsScreen
 fun AppNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
+    val activity = context as? androidx.activity.ComponentActivity
     val billingManager = remember { BillingManager(context) }
     val driveSyncManager = remember { DriveSyncManager(context) }
 
     androidx.compose.runtime.LaunchedEffect(Unit) {
+        val intent = activity?.intent
+        if (intent?.hasExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID) == true) {
+            val profileId = intent.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID)
+            val sessionId = intent.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID)
+            activity.intent = android.content.Intent() // Clear the intent so it isn't re-processed
+            if (profileId != null && sessionId != null) {
+                navController.navigate("terminal?profileId=$profileId&sessionId=$sessionId")
+            } else if (profileId != null) {
+                navController.navigate("terminal?profileId=$profileId")
+            }
+        }
+
         com.adamoutler.ssh.ui.events.UiEventBus.events.collect { event ->
             if (event is com.adamoutler.ssh.ui.events.UiEvent.Navigate) {
                 navController.navigate(event.route) {

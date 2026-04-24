@@ -169,6 +169,7 @@ fun TerminalScreenContent(
     }
 
     var showKeepAliveDialog by remember { mutableStateOf(false) }
+    var showTerminateConfirmDialog by remember { mutableStateOf(false) }
     var lastBackPressTime by remember { mutableStateOf(0L) }
     var wasActive by remember { mutableStateOf(false) }
     var showDisconnectedOverlay by remember { mutableStateOf(false) }
@@ -249,7 +250,7 @@ fun TerminalScreenContent(
                     showKeepAliveDialog = false
                     val ctx = terminalViewRef?.context
                     if (ctx != null) {
-                        val intent = android.content.Intent(ctx, com.adamoutler.ssh.network.SshService::class.java).apply { 
+                        val intent = android.content.Intent(ctx, com.adamoutler.ssh.network.SshService::class.java).apply {
                             action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
                             putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profileId)
                             putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, sessionId)
@@ -262,6 +263,33 @@ fun TerminalScreenContent(
         )
     }
 
+    if (showTerminateConfirmDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showTerminateConfirmDialog = false },
+            title = { Text("Terminate Connection?") },
+            text = { Text("Are you sure you want to terminate this SSH session? All running processes will be killed.") },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    showTerminateConfirmDialog = false
+                    val ctx = terminalViewRef?.context
+                    if (ctx != null) {
+                        val intent = android.content.Intent(ctx, com.adamoutler.ssh.network.SshService::class.java).apply {
+                            action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
+                            putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profileId)
+                            putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, sessionId)
+                        }
+                        ctx.startService(intent)
+                    }
+                    onNavigateBack()
+                }) { Text("Terminate") }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    showTerminateConfirmDialog = false
+                }) { Text("Cancel") }
+            }
+        )
+    }
     if (showDisconnectedOverlay) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { 
@@ -532,18 +560,8 @@ fun TerminalScreenContent(
                 TerminalOverlayButtons(
                     onBackground = { onNavigateBack() },
                     onTerminate = {
-                        val ctx = terminalViewRef?.context
-                        if (ctx != null) {
-                            val intent = android.content.Intent(ctx, com.adamoutler.ssh.network.SshService::class.java).apply { 
-                                action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
-                                putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profileId)
-                                putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, sessionId)
-                            }
-                            ctx.startService(intent)
-                        }
-                        onNavigateBack()
-                    }
-                )
+                        showTerminateConfirmDialog = true
+                    }                )
             }
         }
         if (terminalInputState == 2) {

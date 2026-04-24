@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
             requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
         }
 
-        handleIntent(intent)
+        // handleIntent(intent) // Removed, handled by AppNavigation on launch
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             CoSSHTheme {
