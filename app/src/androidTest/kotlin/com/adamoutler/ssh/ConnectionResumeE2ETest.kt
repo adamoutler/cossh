@@ -47,10 +47,10 @@ class ConnectionResumeE2ETest {
             nickname = "mock.hackedyour.info",
             host = "192.168.1.115",
             username = "test",
-            authType = AuthType.PASSWORD,
+            authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
             port = 32222
         )
-        profile.password = "password".toByteArray()
+        profile.password = java.util.UUID.randomUUID().toString().toByteArray()
         storageManager.saveProfile(profile)
 
         var scenario: ActivityScenario<MainActivity>? = null
@@ -73,8 +73,8 @@ class ConnectionResumeE2ETest {
             // 3. Wait for connection and type something
             device.waitForIdle()
             var connected = false
-            for (i in 1..20) {
-                val acceptButton = device.findObject(UiSelector().textMatches("(?i)accept|yes|ok|continue"))
+            for (i in 1..40) {
+                val acceptButton = device.findObject(UiSelector().textMatches("(?i).*accept.*|(?i).*yes.*|(?i).*ok.*|(?i).*continue.*"))
                 if (acceptButton.waitForExists(500)) acceptButton.click()
                 if (SshSessionProvider.ptyOutputStream != null) {
                     connected = true

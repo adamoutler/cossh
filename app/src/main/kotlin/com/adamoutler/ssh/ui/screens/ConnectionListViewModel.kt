@@ -42,16 +42,31 @@ class ConnectionListViewModel(
         launchWithHandler {
             if (com.adamoutler.ssh.BuildConfig.DEBUG && storageManager.getAllProfiles().isEmpty()) {
                 // Troubleshooting profile: mock.hackedyour.info — port 32222 is SSH, port 32223 is HTTP health check
+                val identityStorage = com.adamoutler.ssh.crypto.IdentityStorageManager(getApplication())
+                val wellKnownKey = """-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACAMXP6JRs0AflZ1/nV7BZlO3n84+gn/KdyLpEI4ISLuyQAAAJiQ30JXkN9C
+VwAAAAtzc2gtZWQyNTUxOQAAACAMXP6JRs0AflZ1/nV7BZlO3n84+gn/KdyLpEI4ISLuyQ
+AAAEBzoFMNN4gntE6K7Rb+DhpiP1cJZMhWhu6q+AYVLSg1vQxc/olGzQB+VnX+dXsFmU7e
+fzj6Cf8p3IukQjghIu7JAAAAE2FkYW1vdXRsZXJASExBQi1BMjUBAg==
+-----END OPENSSH PRIVATE KEY-----""".trimIndent()
+                val mockIdentity = com.adamoutler.ssh.data.IdentityProfile(
+                    id = "mock_identity",
+                    name = "Mock Server Key",
+                    username = "test",
+                    privateKey = wellKnownKey.toByteArray()
+                )
+                identityStorage.saveIdentity(mockIdentity)
+
                 val testProfile = ConnectionProfile(
                     id = "default_test_profile",
                     nickname = "mock.hackedyour.info",
                     host = "mock.hackedyour.info",
                     username = "test",
-                    authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
-                    port = 32222
-                ).apply {
-                    password = "test".toByteArray()
-                }
+                    authType = com.adamoutler.ssh.data.AuthType.KEY,
+                    port = 32222,
+                    identityId = mockIdentity.id
+                )
                 storageManager.saveProfile(testProfile)
             }
             
