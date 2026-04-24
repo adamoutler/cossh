@@ -37,6 +37,7 @@ fun AddEditIdentityScreen(
     var publicKey by remember { mutableStateOf("") }
     var privateKey by remember { mutableStateOf<ByteArray?>(null) }
     var authType by remember { mutableStateOf(AuthType.PASSWORD) }
+    var passwordVisible by remember { mutableStateOf(false) }
     
     var showInjectDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -108,7 +109,12 @@ fun AddEditIdentityScreen(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Password (optional)") },
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible) androidx.compose.ui.text.input.VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    TextButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Text(text = if (passwordVisible) "Hide" else "Show")
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 

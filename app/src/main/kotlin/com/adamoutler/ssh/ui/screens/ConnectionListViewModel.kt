@@ -41,11 +41,11 @@ class ConnectionListViewModel(
     fun loadProfiles() {
         launchWithHandler {
             if (com.adamoutler.ssh.BuildConfig.DEBUG && storageManager.getAllProfiles().isEmpty()) {
-                // Troubleshooting profile: 192.168.1.115 — port 32222 is SSH, port 32223 is HTTP health check
+                // Troubleshooting profile: mock.hackedyour.info — port 32222 is SSH, port 32223 is HTTP health check
                 val testProfile = ConnectionProfile(
                     id = "default_test_profile",
-                    nickname = "Troubleshooting (192.168.1.115)",
-                    host = "192.168.1.115",
+                    nickname = "mock.hackedyour.info",
+                    host = "mock.hackedyour.info",
                     username = "test",
                     authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
                     port = 32222
