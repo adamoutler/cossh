@@ -86,12 +86,10 @@ object SSHKeyGenerator {
     }
 
     /**
-     * Encodes a private key to PKCS8 format and encrypts it using PasswordCipher.
+     * Encodes a private key to PKCS8 format.
+     * Note: The caller is responsible for securing these bytes (e.g., using IdentityStorageManager).
      */
     fun encodePrivateKey(keyPair: KeyPair): ByteArray {
-        val rawBytes = keyPair.private.encoded
-        val encryptedBytes = PasswordCipher.encrypt(rawBytes)
-        rawBytes.fill(0) // Attempt to scrub volatile memory
-        return encryptedBytes
+        return keyPair.private.encoded
     }
 }
