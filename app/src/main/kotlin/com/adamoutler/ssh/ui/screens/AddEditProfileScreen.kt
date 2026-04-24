@@ -336,7 +336,11 @@ fun AddEditProfileScreenContent(
                         Text("Using credentials from identity:", style = MaterialTheme.typography.labelSmall)
                         Text(selectedIdentity?.name ?: "", style = MaterialTheme.typography.titleMedium)
                         Text("Username: ${selectedIdentity?.username}", style = MaterialTheme.typography.bodySmall)
-                        Text("Auth Method: ${selectedIdentity?.authType}", style = MaterialTheme.typography.bodySmall)
+                        val authMethodDisplay = when {
+                            selectedIdentity?.authType == AuthType.KEY && selectedIdentity.password != null -> "Key & Password"
+                            else -> selectedIdentity?.authType?.name ?: "Unknown"
+                        }
+                        Text("Auth Method: $authMethodDisplay", style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }

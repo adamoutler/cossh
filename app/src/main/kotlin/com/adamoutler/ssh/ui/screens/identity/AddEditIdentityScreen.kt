@@ -40,6 +40,8 @@ fun AddEditIdentityScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     
     var showInjectDialog by remember { mutableStateOf(false) }
+    var manualKeyEntry by remember { mutableStateOf(false) }
+    var manualPrivKey by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(identityId) {
@@ -153,6 +155,29 @@ fun AddEditIdentityScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Gen RSA-4096")
                 }
+            }
+
+            Button(
+                onClick = { manualKeyEntry = !manualKeyEntry },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.Lock, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(if (manualKeyEntry) "Hide Manual Key Entry" else "Enter Private Key Manually")
+            }
+
+            if (manualKeyEntry) {
+                OutlinedTextField(
+                    value = manualPrivKey,
+                    onValueChange = { 
+                        manualPrivKey = it
+                        privateKey = if (it.isNotEmpty()) it.toByteArray() else null
+                        if (it.isNotEmpty()) authType = AuthType.KEY
+                    },
+                    label = { Text("Paste Private Key (PEM format)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 5
+                )
             }
 
             if (publicKey.isNotEmpty()) {
