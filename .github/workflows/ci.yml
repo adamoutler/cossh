@@ -27,6 +27,9 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew assembleDebug
 
+      - name: Install dependencies
+        run: pip install paramiko
+
       - name: Run Tests
         run: ./gradlew testDebugUnitTest
 
