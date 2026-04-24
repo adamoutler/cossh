@@ -56,7 +56,8 @@ class TerminalViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun updateFontSize(newSize: Int) {
-        _fontSizeFlow.value = newSize.coerceIn(4, 40)
+        // Removed upper limit per user request. No regulation on max font size.
+        _fontSizeFlow.value = newSize.coerceAtLeast(4)
     }
 
     fun getOrCreateSession(sessionId: String, context: Context): TerminalSession {
