@@ -90,7 +90,15 @@ object ConnectionStateRepository {
     }
 
     fun clearSession(sessionId: String) {
-        sessions.remove(sessionId)
+        val session = sessions.remove(sessionId)
+        session?.let { s ->
+            synchronized(s.bufferLock) {
+                while (true) {
+                    val bytes = s.outputBuffer.poll() ?: break
+                    bytes.fill(0)
+                }
+            }
+        }
         mockTestTranscripts.remove(sessionId)
     }
 
