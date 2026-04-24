@@ -308,6 +308,9 @@ fun TerminalScreenContent(
             .fillMaxSize()
             .imePadding()
     ) {
+        val currentFontSizeState = androidx.compose.runtime.rememberUpdatedState(currentFontSize)
+        val onUpdateFontSizeState = androidx.compose.runtime.rememberUpdatedState(onUpdateFontSize)
+
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             val isHeadlessTest = ConnectionStateRepository.isHeadlessTest
             if (isHeadlessTest) {
@@ -398,11 +401,11 @@ fun TerminalScreenContent(
                                 }
                                 
                                 if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP) {
-                                    onUpdateFontSize(currentFontSize + 1)
+                                    onUpdateFontSizeState.value(currentFontSizeState.value + 1)
                                     return true
                                 }
                                 if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_DOWN) {
-                                    onUpdateFontSize(currentFontSize - 1)
+                                    onUpdateFontSizeState.value(currentFontSizeState.value - 1)
                                     return true
                                 }
 
@@ -512,6 +515,7 @@ fun TerminalScreenContent(
                         terminalView.attachSession(session)
                         terminalViewRef = terminalView
                         terminalView.onScreenUpdated()
+                        terminalView.requestFocus()
                         terminalView
                     },
                     update = { view ->

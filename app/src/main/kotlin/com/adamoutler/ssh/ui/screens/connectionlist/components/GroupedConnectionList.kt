@@ -29,6 +29,7 @@ fun GroupedConnectionList(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    var profileToDelete by remember { mutableStateOf<ConnectionProfile?>(null) }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -68,7 +69,7 @@ fun GroupedConnectionList(
                     
                     LaunchedEffect(dismissState.currentValue) {
                         if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
-                            onDeleteConnection(profile.id)
+                            profileToDelete = profile
                             dismissState.reset()
                         } else if (dismissState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
                             onMoveToFolder(profile.id)
@@ -120,5 +121,28 @@ fun GroupedConnectionList(
                 }
             }
         }
+    }
+
+    if (profileToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { profileToDelete = null },
+            title = { Text("Delete Connection") },
+            text = { Text("Are you sure you want to delete '${profileToDelete?.nickname}'?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        profileToDelete?.id?.let { onDeleteConnection(it) }
+                        profileToDelete = null
+                    }
+                ) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { profileToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

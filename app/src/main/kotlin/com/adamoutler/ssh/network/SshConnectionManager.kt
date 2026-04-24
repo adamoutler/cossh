@@ -16,32 +16,66 @@ class SshConnectionManager(
     private val hostKeyVerifier: HostKeyVerifier? = null,
     private val identityStorageManager: IdentityStorageManager? = null
 ) {
+    private class CompositeAuthenticator(private val authenticators: List<SshAuthenticator>) : SshAuthenticator {
+        override fun authenticate(client: SSHClient, profile: ConnectionProfile) {
+            var lastException: Exception? = null
+            for (authenticator in authenticators) {
+                try {
+                    authenticator.authenticate(client, profile)
+                    if (client.isAuthenticated) {
+                        return
+                    }
+                } catch (e: Exception) {
+                    lastException = e
+                    android.util.Log.w("CompositeAuthenticator", "Authentication failed with ${authenticator::class.java.simpleName}, trying next", e)
+                }
+            }
+            throw net.schmizz.sshj.userauth.UserAuthException("All authentication methods failed", lastException)
+        }
+    }
+
     private fun getAuthenticator(
         profile: ConnectionProfile,
         keyPair: KeyPair?,
         identity: IdentityProfile? = null
     ): SshAuthenticator {
-        // Resolve credentials priority: 1. Identity, 2. Explicit KeyPair, 3. Inline Profile
         if (identity != null) {
-            return when (identity.authType) {
-                AuthType.PASSWORD -> {
-                    PasswordAuthenticator()
-                }
-                AuthType.KEY -> {
+            val authenticators = mutableListOf<SshAuthenticator>()
+            
+            // Try key auth if a private key exists
+            if (identity.privateKey != null || keyPair != null) {
+                try {
                     val resolvedKeyPair = if (identity.privateKey != null) {
                         loadKeyPairFromIdentity(identity)
                     } else {
                         keyPair
-                    } ?: throw IllegalArgumentException("No KeyPair available for identity ${identity.name}")
-                    KeyAuthenticator(resolvedKeyPair)
+                    }
+                    if (resolvedKeyPair?.public != null) {
+                        authenticators.add(KeyAuthenticator(resolvedKeyPair))
+                    } else {
+                        android.util.Log.w("SshConnectionManager", "Public key is null, skipping KeyAuthenticator")
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("SshConnectionManager", "Failed to initialize keypair", e)
                 }
             }
+
+            // Try password auth if a password exists
+            if (identity.password != null) {
+                authenticators.add(PasswordAuthenticator())
+            }
+
+            if (authenticators.isNotEmpty()) {
+                return CompositeAuthenticator(authenticators)
+            }
+            
+            throw IllegalArgumentException("Identity has neither valid password nor complete private/public key")
         }
 
         return when (profile.authType) {
             AuthType.PASSWORD -> PasswordAuthenticator()
             AuthType.KEY -> {
-                if (keyPair == null) throw IllegalArgumentException("KeyPair required for key-based authentication")
+                if (keyPair == null || keyPair.public == null) throw IllegalArgumentException("Valid KeyPair with public key required for key-based authentication")
                 KeyAuthenticator(keyPair)
             }
         }

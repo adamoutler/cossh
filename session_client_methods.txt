@@ -5,10 +5,10 @@ onTextChanged
 onTitleChanged
 onSessionFinished
 onCopyTextToClipboard
+logError
 onPasteTextFromClipboard
 onColorsChanged
 getTerminalCursorStyle
-logError
 logWarn
 logInfo
 logDebug

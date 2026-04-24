@@ -98,4 +98,28 @@ class SshConnectionManagerIntegrationTest {
             org.junit.Assert.assertTrue("Password memory was not cleared on exception!", allZero)
         }
     }
+
+    @Test(timeout = 300000L)
+    fun testHeadlessKeyConnection() = runBlocking {
+        val keyPair = SSHKeyGenerator.generateEd25519KeyPair()
+        val profile = ConnectionProfile(
+            id = "test-key-auth",
+            nickname = "Test Server Key",
+            host = "mock.hackedyour.info",
+            port = 32222,
+            username = "testuser",
+            authType = AuthType.KEY
+        )
+
+        val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
+        // Assuming mock.hackedyour.info accepts any key for testing, or at least doesn't crash with NPE
+        try {
+            val result = manager.connectAndExecute(profile, "echo \"CoSSH_Key_Test\"", keyPair)
+            // It might succeed or throw UserAuthException depending on the mock server config.
+            // As long as it doesn't crash with NPE on key.getAlgorithm(), the test passes the client side.
+            assertTrue("Result should not be null", result != null)
+        } catch (e: net.schmizz.sshj.userauth.UserAuthException) {
+            // Expected if mock server rejects the randomly generated key, but importantly not NPE
+        }
+    }
 }
