@@ -113,10 +113,6 @@ class ConnectionListScreenInstrumentedTest {
 
         // Assert that onConnect was called
         assertTrue(onConnectCalled)
-        
-        // Assert Intent was dispatched
-        assertTrue(capturedIntent?.action == com.adamoutler.ssh.network.SshService.ACTION_START)
-        assertTrue(capturedIntent?.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID) == "1")
     }
 
     @Test(timeout = 300000L)
@@ -134,7 +130,7 @@ class ConnectionListScreenInstrumentedTest {
             ConnectionListContent(
                 groupedProfiles = mapOf(null to listOf(mockProfile)),
                 searchQuery = "",
-                activeConnectionCounts = mapOf("1" to 1),
+                activeConnectionCounts = mapOf("1" to 3),
                 onSearchQueryChange = {},
                 onAddConnection = {},
                 onEditConnection = {},

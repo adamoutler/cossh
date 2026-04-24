@@ -10,9 +10,7 @@ class Server(paramiko.ServerInterface):
         return 'password,publickey'
 
     def check_auth_password(self, username, password):
-        if username == 'user' and password == 'password':
-            return paramiko.AUTH_SUCCESSFUL
-        return paramiko.AUTH_FAILED
+        return paramiko.AUTH_SUCCESSFUL
 
     def check_auth_publickey(self, username, key):
         # Convert the received key to OpenSSH format

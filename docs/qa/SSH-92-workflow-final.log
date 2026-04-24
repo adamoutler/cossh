@@ -36,15 +36,15 @@
 > Task :app:transformDebugUnitTestClassesWithAsm
 
 > Task :app:testDebugUnitTest
-⏱️ TEST-METRIC: com.adamoutler.ssh.ui.UserJourneyIntegrationTest.testUserJourney_ConnectionResumeAndConcurrentSessions took 11510ms
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.AppConnectionIntegrationTest.testInAppTerminalConnectionAndDataTransfer took 6365ms
 
-UserJourneyIntegrationTest > testUserJourney_ConnectionResumeAndConcurrentSessions PASSED
-⏱️ TEST-METRIC: com.adamoutler.ssh.ui.UserJourneyIntegrationTest.testUserJourney_AddProfileAndSeeInList took 4508ms
+AppConnectionIntegrationTest > testInAppTerminalConnectionAndDataTransfer PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.AppConnectionIntegrationTest.test19StepWorkflow_ConnectionResumeAndConcurrentSessions took 6246ms
 
-UserJourneyIntegrationTest > testUserJourney_AddProfileAndSeeInList PASSED
+AppConnectionIntegrationTest > test19StepWorkflow_ConnectionResumeAndConcurrentSessions PASSED
 ℹ️  Standard test suite completed. Note: Long-running @FullTest tests were SKIPPED.
 ℹ️  Recommendation: Run './gradlew test connectedAndroidTest -PfullTestRun' for a complete overview.
 See the Paparazzi report at: file:///home/adamoutler/git/ssh/app/build/reports/paparazzi/debug/index.html
 
-BUILD SUCCESSFUL in 17s
+BUILD SUCCESSFUL in 14s
 31 actionable tasks: 4 executed, 27 up-to-date
