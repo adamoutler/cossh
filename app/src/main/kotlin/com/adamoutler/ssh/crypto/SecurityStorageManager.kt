@@ -48,8 +48,7 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
 
     private fun decryptPassword(base64EncryptedPwd: String?): ByteArray? {
         if (base64EncryptedPwd == null) return null
-        val encryptedBytes = java.util.Base64.getDecoder().decode(base64EncryptedPwd)
-        return PasswordCipher.decrypt(encryptedBytes)
+        return java.util.Base64.getDecoder().decode(base64EncryptedPwd)
     }
 
     fun saveProfile(profile: ConnectionProfile) {
@@ -58,8 +57,7 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
         editor.putString(profile.id, jsonString)
         
         if (profile.password != null) {
-            val encryptedPassword = PasswordCipher.encrypt(profile.password!!)
-            val base64Password = java.util.Base64.getEncoder().encodeToString(encryptedPassword)
+            val base64Password = java.util.Base64.getEncoder().encodeToString(profile.password!!)
             editor.putString("${profile.id}_pwd", base64Password)
         } else {
             editor.remove("${profile.id}_pwd")

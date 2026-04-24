@@ -49,8 +49,7 @@ class IdentityStorageManager(context: Context, injectedPrefs: SharedPreferences?
     private fun decryptSensitive(encryptedBase64: String?): ByteArray? {
         if (encryptedBase64 == null) return null
         return try {
-            val encryptedBytes = Base64.getDecoder().decode(encryptedBase64)
-            PasswordCipher.decrypt(encryptedBytes)
+            Base64.getDecoder().decode(encryptedBase64)
         } catch (e: Exception) {
             android.util.Log.e("IdentityStorageManager", "Failed to decrypt sensitive field", e)
             null
@@ -64,16 +63,14 @@ class IdentityStorageManager(context: Context, injectedPrefs: SharedPreferences?
         
         // Encrypt and save password
         if (identity.password != null) {
-            val encrypted = PasswordCipher.encrypt(identity.password!!)
-            editor.putString("${identity.id}_pwd", Base64.getEncoder().encodeToString(encrypted))
+            editor.putString("${identity.id}_pwd", Base64.getEncoder().encodeToString(identity.password!!))
         } else {
             editor.remove("${identity.id}_pwd")
         }
 
         // Encrypt and save private key
         if (identity.privateKey != null) {
-            val encrypted = PasswordCipher.encrypt(identity.privateKey!!)
-            editor.putString("${identity.id}_key", Base64.getEncoder().encodeToString(encrypted))
+            editor.putString("${identity.id}_key", Base64.getEncoder().encodeToString(identity.privateKey!!))
         } else {
             editor.remove("${identity.id}_key")
         }

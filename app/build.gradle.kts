@@ -134,6 +134,7 @@ dependencies {
     implementation(libs.termux.terminal.view)
     implementation(libs.termux.shared)
     implementation(libs.bouncycastle.prov)
+    implementation(libs.bcpkix.jdk18on)
     
     implementation(libs.billing.client)
     implementation(libs.credential.manager)

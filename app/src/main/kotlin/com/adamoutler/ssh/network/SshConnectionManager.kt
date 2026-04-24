@@ -151,22 +151,26 @@ class SshConnectionManager(
 
         val privateKeyString = String(privateKeyBytes)
         if (privateKeyString.contains("-----BEGIN")) {
-            var tempFile: java.io.File? = null
-            try {
-                tempFile = java.io.File.createTempFile("temp_ssh_key", ".pem")
-                tempFile.writeBytes(privateKeyBytes)
-                
-                val tempClient = SSHClient(net.schmizz.sshj.AndroidConfig())
-                val keyProvider = tempClient.loadKeys(tempFile.absolutePath)
-                val privKey = keyProvider.private
-                val pubKey = keyProvider.public ?: publicKey
-                if (privKey != null) {
-                    return KeyPair(pubKey, privKey)
+            return try {
+                val reader = java.io.StringReader(privateKeyString)
+                val parser = org.bouncycastle.openssl.PEMParser(reader)
+                val obj = parser.readObject()
+                val converter = org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter()
+
+                var parsedPublicKey: java.security.PublicKey? = publicKey
+                val privKey: java.security.PrivateKey = when (obj) {
+                    is org.bouncycastle.openssl.PEMKeyPair -> {
+                        parsedPublicKey = converter.getPublicKey(obj.publicKeyInfo)
+                        converter.getPrivateKey(obj.privateKeyInfo)
+                    }
+                    is org.bouncycastle.asn1.pkcs.PrivateKeyInfo -> converter.getPrivateKey(obj)
+                    is org.bouncycastle.asn1.x509.SubjectPublicKeyInfo -> throw IllegalArgumentException("Expected private key, got public key")
+                    else -> throw IllegalArgumentException("Unsupported PEM object: ${obj?.javaClass?.name}")
                 }
+                KeyPair(parsedPublicKey, privKey)
             } catch (e: Exception) {
-                android.util.Log.e("SshConnectionManager", "Failed to parse PEM string via SSHJ", e)
-            } finally {
-                tempFile?.delete()
+                android.util.Log.e("SshConnectionManager", "Failed to parse PEM string via BouncyCastle", e)
+                throw IllegalArgumentException("Failed to parse PEM string: ${e.message}", e)
             }
         }
 
