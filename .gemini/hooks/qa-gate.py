@@ -220,9 +220,12 @@ def run_reality_checker(ticket_md):
 
     time.sleep(20)
 
-    proc = subprocess.run(["gemini", "-y", "-p", prompt, "--output-format=json"], input=ticket_md, text=True, capture_output=True)
-    if proc.returncode != 0:
-        deny_transition(f"No quality control available. Gemini command exited with {proc.returncode}. Stderr: {proc.stderr}")
+    try:
+        proc = subprocess.run(["gemini", "-y", "-p", prompt, "--output-format=json"], input=ticket_md, text=True, capture_output=True, timeout=1150)
+        if proc.returncode != 0:
+            deny_transition(f"No quality control available. Gemini command exited with {proc.returncode}. Stderr: {proc.stderr}")
+    except subprocess.TimeoutExpired:
+        deny_transition("The QA Gate took too long to respond (timeout during gemini execution). Please try again now.")
 
     try:
         res_data = json.loads(proc.stdout)
@@ -243,6 +246,10 @@ def post_kanban_comment(workspace, project_id, work_item_id, html):
 # =============================================================================
 
 if __name__ == "__main__":
+    # Set a timeout just under 20 minutes (1190 seconds) to ensure we terminate before MCP does
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(1190)
+
     # 1. Gather payload variables
     payload_str = sys.stdin.read()
     if not payload_str.strip():
