@@ -401,6 +401,7 @@ fun TerminalScreenContent(
                             
                             override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, s: TerminalSession?): Boolean {
                                 if (e?.action != android.view.KeyEvent.ACTION_DOWN) return false
+                                if (keyCode == android.view.KeyEvent.KEYCODE_BACK) return false
                                 
                                 // Prevent bleed-through key events from previous screens (like hitting Enter to connect)
                                 if (isBleedThroughEvent(e, connectionStartTime)) {
@@ -444,7 +445,10 @@ fun TerminalScreenContent(
                                 }
                                 return true
                             }
-                            override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean = true
+                            override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean {
+                                if (keyCode == android.view.KeyEvent.KEYCODE_BACK) return false
+                                return true
+                            }
                             override fun readControlKey(): Boolean = false
                             override fun readAltKey(): Boolean = false
                             override fun readShiftKey(): Boolean = false
