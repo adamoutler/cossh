@@ -137,9 +137,13 @@ class SshService : Service() {
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error("Profile not found"))
                 }
             } catch (e: Exception) {
-                Log.e("SshService", "SSH Connection failed for $profileId (Session: $sessionId)", e)
-                updateSessionNotification(profileId, sessionId, "Connection", "Connection failed")
-                ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error(e.message ?: "Connection failed"))
+                if (e !is kotlinx.coroutines.CancellationException && e.message?.equals("Disconnected", ignoreCase = true) != true) {
+                    Log.e("SshService", "SSH Connection failed for $profileId (Session: $sessionId)", e)
+                    updateSessionNotification(profileId, sessionId, "Connection", "Connection failed")
+                    ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error(e.message ?: "Connection failed"))
+                } else {
+                    Log.d("SshService", "SSH Session disconnected normally for $profileId (Session: $sessionId)")
+                }
             } finally {
                 ConnectionStateRepository.removeConnection(profileId)
                 val activeCount = ConnectionStateRepository.activeConnectionCounts.value[profileId] ?: 0

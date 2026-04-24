@@ -103,6 +103,7 @@ fun ConnectionListScreen(
                 confirmButton = {
                     TextButton(onClick = {
                         val newSessionId = java.util.UUID.randomUUID().toString()
+                        ConnectionStateRepository.clearConnectionState(profileIdToConnect!!)
                         val intent = Intent(context, SshService::class.java).apply {
                             action = SshService.ACTION_START
                             putExtra(SshService.EXTRA_PROFILE_ID, profileIdToConnect)
