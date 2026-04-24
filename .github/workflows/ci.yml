@@ -27,17 +27,17 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew assembleDebug
 
-      - name: Install dependencies
-        run: pip install paramiko
-
-      - name: Run Tests
-        run: ./gradlew test
-
       - name: Run Lint
         run: ./gradlew lint
 
       - name: Submit Dependency Graph
         uses: gradle/actions/dependency-submission@v4
+
+      - name: Install dependencies
+        run: pip install paramiko
+
+      - name: Run Tests
+        run: ./gradlew test
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
