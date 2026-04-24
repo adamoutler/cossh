@@ -37,8 +37,12 @@ class IdentityStorageManager(context: Context, injectedPrefs: SharedPreferences?
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             )
         } catch (e: Exception) {
-            android.util.Log.e("IdentityStorageManager", "Failed to create EncryptedSharedPreferences", e)
-            context.getSharedPreferences("secret_ssh_identities_fallback", Context.MODE_PRIVATE)
+            val isRobolectric = System.getProperty("robolectric.logging") != null || android.os.Build.FINGERPRINT.contains("robolectric")
+            if (isRobolectric) {
+                android.util.Log.e("IdentityStorageManager", "Failed to create EncryptedSharedPreferences, falling back to regular SharedPreferences for Robolectric testing only", e)
+                return@run context.getSharedPreferences("secret_ssh_identities_fallback", Context.MODE_PRIVATE)
+            }
+            throw SecureStorageUnavailableException("Failed to create EncryptedSharedPreferences. Hardware Keystore may be corrupted.", e)
         }
     }
 

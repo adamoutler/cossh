@@ -37,8 +37,12 @@ class SecurityStorageManager(context: Context, injectedPrefs: SharedPreferences?
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             )
         } catch (e: Exception) {
-            android.util.Log.e("SecurityStorageManager", "Failed to create EncryptedSharedPreferences, falling back to regular SharedPreferences for testing", e)
-            context.getSharedPreferences("secret_ssh_profiles_fallback", Context.MODE_PRIVATE)
+            val isRobolectric = System.getProperty("robolectric.logging") != null || android.os.Build.FINGERPRINT.contains("robolectric")
+            if (isRobolectric) {
+                android.util.Log.e("SecurityStorageManager", "Failed to create EncryptedSharedPreferences, falling back to regular SharedPreferences for Robolectric testing only", e)
+                return@run context.getSharedPreferences("secret_ssh_profiles_fallback", Context.MODE_PRIVATE)
+            }
+            throw SecureStorageUnavailableException("Failed to create EncryptedSharedPreferences. Hardware Keystore may be corrupted.", e)
         }
     }
 

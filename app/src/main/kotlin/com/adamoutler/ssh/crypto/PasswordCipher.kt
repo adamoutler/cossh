@@ -8,6 +8,8 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
+class SecureStorageUnavailableException(message: String, cause: Throwable? = null) : Exception(message, cause)
+
 object PasswordCipher {
     private const val KEY_ALIAS = "cossh_volatile_password_key"
     private const val ANDROID_KEYSTORE = "AndroidKeyStore"
@@ -33,13 +35,17 @@ object PasswordCipher {
                 keyGenerator.generateKey()
             }
         } catch (e: Exception) {
-            android.util.Log.w("PasswordCipher", "AndroidKeyStore unavailable, falling back to standard AES for testing", e)
-            if (fallbackKey == null) {
-                val keyGenerator = KeyGenerator.getInstance("AES")
-                keyGenerator.init(256)
-                fallbackKey = keyGenerator.generateKey()
+            val isRobolectric = System.getProperty("robolectric.logging") != null || android.os.Build.FINGERPRINT.contains("robolectric")
+            if (isRobolectric) {
+                android.util.Log.w("PasswordCipher", "AndroidKeyStore unavailable, falling back to standard AES for Robolectric testing only.", e)
+                if (fallbackKey == null) {
+                    val keyGenerator = KeyGenerator.getInstance("AES")
+                    keyGenerator.init(256)
+                    fallbackKey = keyGenerator.generateKey()
+                }
+                return fallbackKey!!
             }
-            fallbackKey!!
+            throw SecureStorageUnavailableException("AndroidKeyStore unavailable. Refusing to fallback to insecure storage.", e)
         }
     }
 

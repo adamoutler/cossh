@@ -1,11 +1,12 @@
 TerminalSession:
+getTitle
+onColorsChanged
 isRunning
 reset
 write
 getPid
 updateTerminalSessionClient
 updateSize
-getTitle
 initializeEmulator
 writeCodePoint
 getEmulator
@@ -15,7 +16,6 @@ getExitStatus
 onCopyTextToClipboard
 onPasteTextFromClipboard
 onBell
-onColorsChanged
 getCwd
 write
 equals
@@ -28,12 +28,12 @@ wait
 wait
 wait
 TerminalEmulator:
+getTitle
+getSelectedText
 reset
 toString
 append
 resize
-updateTerminalSessionClient
-getTitle
 getScreen
 isAlternateBufferActive
 sendMouseEvent
@@ -53,8 +53,8 @@ processCodePoint
 doDecSetOrReset
 getScrollCounter
 clearScrollCounter
-getSelectedText
 paste
+updateTerminalSessionClient
 equals
 hashCode
 getClass
