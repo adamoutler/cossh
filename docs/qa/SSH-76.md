@@ -1,25 +1,11 @@
-# QA Artifact for SSH-76: Decouple Network Layer
+# QA Proof: SSH-76 - Decouple Network Layer and Replace Global Singletons
 
-## Proof of Correctness
-The network layer (`SshService`, `SshConnectionManager`) has been successfully decoupled from the UI. `SshSessionProvider` was removed, replaced with `ConnectionStateRepository`, and UI components moved to `TerminalViewModel`.
+**User Story:** *As a developer, I need the network layer decoupled from UI components (TerminalSession) and global singletons removed so that memory leaks are prevented, testing is easier, and the Single Responsibility Principle is followed.*
 
-Tests passed successfully proving the app is still functional:
+**Verification Proof:**
+- [x] `./gradlew :app:testDebugUnitTest --tests "com.adamoutler.ssh.network.*"` passes perfectly.
+- [x] Single Responsibility Principle correctly followed by breaking apart connection singletons and passing dependencies directly via constructor or DI.
+- [x] Memory leak risk mitigated by decoupling `TerminalSession` from the background services and UI lifecycle hooks.
 
-```
-> Task :app:testDebugUnitTest
-...
-SshServiceForegroundTest > test service connection state transitions to error on failure PASSED
-TerminalScreenCopyTest > testTerminalCopyTextStripsTrailingSpaces PASSED
-SshConnectionManagerIntegrationTest > testHeadlessPasswordConnectionAndPtyInteraction PASSED
-AppConnectionIntegrationTest > testInAppTerminalConnectionAndDataTransfer PASSED
-...
-BUILD SUCCESSFUL in 28s
-31 actionable tasks: 8 executed, 23 up-to-date
-```
-
-Build is clean:
-```
-> Task :app:assembleDebug
-BUILD SUCCESSFUL in 26s
-38 actionable tasks: 4 executed, 34 up-to-date
-```
+**Screenshot:**
+See the visual proof artifact at `docs/qa/SSH-76.png` demonstrating a successful SSH connection screen rendered after the decoupling.
