@@ -149,6 +149,27 @@ class SshConnectionManager(
             android.util.Log.e("SshConnectionManager", "Failed to parse public key from identity", e)
         }
 
+        val privateKeyString = String(privateKeyBytes)
+        if (privateKeyString.contains("-----BEGIN")) {
+            var tempFile: java.io.File? = null
+            try {
+                tempFile = java.io.File.createTempFile("temp_ssh_key", ".pem")
+                tempFile.writeBytes(privateKeyBytes)
+                
+                val tempClient = SSHClient(net.schmizz.sshj.AndroidConfig())
+                val keyProvider = tempClient.loadKeys(tempFile.absolutePath)
+                val privKey = keyProvider.private
+                val pubKey = keyProvider.public ?: publicKey
+                if (privKey != null) {
+                    return KeyPair(pubKey, privKey)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("SshConnectionManager", "Failed to parse PEM string via SSHJ", e)
+            } finally {
+                tempFile?.delete()
+            }
+        }
+
         return try {
             val keyFactory = KeyFactory.getInstance("Ed25519")
             val privateKey = keyFactory.generatePrivate(PKCS8EncodedKeySpec(privateKeyBytes))
