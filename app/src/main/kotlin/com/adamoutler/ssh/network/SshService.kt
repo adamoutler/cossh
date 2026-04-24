@@ -101,7 +101,7 @@ class SshService : Service() {
                 if (profile != null) {
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Connecting)
                     updateSessionNotification(profileId, sessionId, profile.nickname, "Connecting...")
-                    val manager = SshConnectionManager(identityStorageManager = identityStorageManager)
+                    val manager = SshConnectionManager(identityStorageManager = identityStorageManager, context = applicationContext)
                     sshManagers[sessionId] = manager
                     
                     manager.connectPty(

@@ -8,15 +8,60 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.HostKeyVerifier
+import net.schmizz.sshj.transport.verification.OpenSSHKnownHosts
 import java.security.KeyPair
 import java.security.KeyFactory
 import java.security.spec.PKCS8EncodedKeySpec
+import java.security.PublicKey
+import java.io.File
+
+class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(knownHostsFile) {
+    override fun verify(hostname: String, port: Int, key: PublicKey): Boolean {
+        if (super.verify(hostname, port, key)) {
+            return true
+        }
+
+        // If not verified, check if we have any key for this host
+        val hostExists = knownHostsFile.exists() && knownHostsFile.useLines { lines ->
+            lines.any { it.split(" ").firstOrNull()?.contains(hostname) == true }
+        }
+
+        if (hostExists) {
+            // Host is known, but key didn't match -> MITM Risk! Reject!
+            android.util.Log.e("TofuHostKeyVerifier", "Host key for $hostname has changed! MITM risk. Connection rejected.")
+            return false
+        } else {
+            // Trust on First Use (TOFU) -> Accept and save
+            android.util.Log.i("TofuHostKeyVerifier", "Unknown host $hostname, accepting and saving key (TOFU).")
+            val keyType = net.schmizz.sshj.common.KeyType.fromKey(key).toString()
+            val buffer = net.schmizz.sshj.common.Buffer.PlainBuffer().putPublicKey(key)
+            val keyBlobBase64 = java.util.Base64.getEncoder().encodeToString(buffer.compactData)
+            knownHostsFile.appendText("$hostname $keyType $keyBlobBase64\n")
+            return true
+        }
+    }
+}
 
 class SshConnectionManager(
     private val hostKeyVerifier: HostKeyVerifier? = null,
-    private val identityStorageManager: IdentityStorageManager? = null
+    private val identityStorageManager: IdentityStorageManager? = null,
+    private val context: android.content.Context? = null
 ) {
     private var client: SSHClient? = null
+
+    private fun configureHostKeyVerifier() {
+        if (hostKeyVerifier != null) {
+            client?.addHostKeyVerifier(hostKeyVerifier)
+        } else {
+            val knownHostsFile = context?.let { File(it.filesDir, "ssh_known_hosts") }
+            if (knownHostsFile != null) {
+                if (!knownHostsFile.exists()) knownHostsFile.createNewFile()
+                client?.addHostKeyVerifier(TofuHostKeyVerifier(knownHostsFile))
+            } else {
+                throw java.io.IOException("No Context provided for TOFU verifier and no HostKeyVerifier configured. Refusing to connect insecurely.")
+            }
+        }
+    }
 
     private class CompositeAuthenticator(private val authenticators: List<SshAuthenticator>) : SshAuthenticator {
         override fun authenticate(client: SSHClient, profile: ConnectionProfile) {
@@ -136,23 +181,13 @@ class SshConnectionManager(
         client.timeout = 10000
         
         val identity = resolveIdentity(profile)
-        
+
         try {
-            if (hostKeyVerifier != null) {
-                client.addHostKeyVerifier(hostKeyVerifier)
-            } else {
-                try {
-                    client.loadKnownHosts()
-                } catch (e: java.io.IOException) {
-                    android.util.Log.w("SshConnectionManager", "Could not load known_hosts, falling back to PromiscuousVerifier", e)
-                    client.addHostKeyVerifier(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
-                }
-            }
-            
+            configureHostKeyVerifier()
+
             client.connect(profile.host, profile.port)
-            
-            val effectiveProfile = if (identity != null) {
-                profile.copy(username = identity.username, password = identity.password)
+
+            val effectiveProfile = if (identity != null) {                profile.copy(username = identity.username, password = identity.password)
             } else profile
 
             getAuthenticator(profile, keyPair, identity).authenticate(client, effectiveProfile)

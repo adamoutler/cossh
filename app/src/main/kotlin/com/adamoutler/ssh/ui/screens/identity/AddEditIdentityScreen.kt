@@ -208,6 +208,7 @@ fun AddEditIdentityScreen(
         }
     }
 
+    val context = androidx.compose.ui.platform.LocalContext.current
     if (showInjectDialog) {
         InjectKeyDialog(
             onDismiss = { showInjectDialog = false },
@@ -215,7 +216,7 @@ fun AddEditIdentityScreen(
                 showInjectDialog = false
                 coroutineScope.launch {
                     UiEventBus.publish(UiEvent.ShowSnackbar("Injecting key..."))
-                    val manager = SshConnectionManager()
+                    val manager = SshConnectionManager(context = context)
                     val tempProfile = ConnectionProfile(
                         id = "temp",
                         nickname = "Temp",
