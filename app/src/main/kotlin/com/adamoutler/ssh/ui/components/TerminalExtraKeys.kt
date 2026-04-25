@@ -27,12 +27,14 @@ fun TerminalExtraKeys(
     onKeyPress: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val page1Row1 = listOf("Esc", "Super", "Menu", "Up", "Tab", "Home")
-    val page1Row2 = listOf("Ctrl", "Alt", "Left", "Down", "Right", "End")
+    val page1Row1 = listOf("Esc", "Super", "Menu", "↑", "Tab", "Home")
+    val page1Row2 = listOf("Ctrl", "Alt", "←", "↓", "→", "End")
     val page2Row1 = listOf("PgUp", "Ins", "PrtSc")
     val page2Row2 = listOf("PgDn", "Del", "Pause")
+    val page3Row1 = listOf("F1", "F2", "F3", "F4", "F5", "F6")
+    val page3Row2 = listOf("F7", "F8", "F9", "F10", "F11", "F12")
 
-    val pagerState = rememberPagerState(pageCount = { 2 })
+    val pagerState = rememberPagerState(pageCount = { 3 })
 
     HorizontalPager(
         state = pagerState,
@@ -45,7 +47,11 @@ fun TerminalExtraKeys(
     ) { page ->
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                val items1 = if (page == 0) page1Row1 else page2Row1
+                val items1 = when (page) {
+                    0 -> page1Row1
+                    1 -> page2Row1
+                    else -> page3Row1
+                }
                 items1.forEach { key ->
                     ExtraKeyButton(key, isActive(key, ctrlActive, altActive, superActive, menuActive), Modifier.weight(1f)) {
                         handleKey(key, onKeyToggle, onKeyPress)
@@ -59,7 +65,11 @@ fun TerminalExtraKeys(
             }
             Spacer(modifier = Modifier.height(4.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                val items2 = if (page == 0) page1Row2 else page2Row2
+                val items2 = when (page) {
+                    0 -> page1Row2
+                    1 -> page2Row2
+                    else -> page3Row2
+                }
                 items2.forEach { key ->
                     ExtraKeyButton(key, isActive(key, ctrlActive, altActive, superActive, menuActive), Modifier.weight(1f)) {
                         handleKey(key, onKeyToggle, onKeyPress)
