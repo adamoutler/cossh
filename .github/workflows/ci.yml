@@ -37,7 +37,7 @@ jobs:
         run: pip install paramiko
 
       - name: Run Tests
-        run: ./gradlew test
+        run: ./gradlew cleanTest test
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
