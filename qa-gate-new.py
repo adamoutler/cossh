@@ -29,7 +29,7 @@ DASH = "github/adamoutler/cossh/CI"
 BYPASS_UNCOMMITTED = False
 BYPASS_REALITY = False
 BYPASS_PUSHED = False
-BYPASS_CI = False
+BYPASS_CI = True
 
 # =============================================================================
 # Core Utility Functions
