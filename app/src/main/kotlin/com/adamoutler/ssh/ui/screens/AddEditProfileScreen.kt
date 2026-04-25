@@ -5,6 +5,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -26,16 +29,7 @@ fun AddEditProfileScreen(
     onNavigateBack: () -> Unit,
     onManageIdentities: () -> Unit
 ) {
-    var nickname by remember { mutableStateOf("") }
-    var host by remember { mutableStateOf("") }
-    var port by remember { mutableStateOf("22") }
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var authType by remember { mutableStateOf(AuthType.PASSWORD) }
-    var keyReference by remember { mutableStateOf("") }
-    var identityId by remember { mutableStateOf<String?>(null) }
-    var envVarsText by remember { mutableStateOf("") }
-    var portForwardsText by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsState()
 
     var availableKeys by remember { mutableStateOf(viewModel.getAvailableKeys()) }
     var identities by remember { mutableStateOf(viewModel.getIdentities()) }
@@ -55,62 +49,52 @@ fun AddEditProfileScreen(
     }
 
     LaunchedEffect(profileId) {
-        if (profileId != null) {
-            viewModel.getProfile(profileId)?.let { profile ->
-                nickname = profile.nickname
-                host = profile.host
-                port = profile.port.toString()
-                username = profile.username
-                authType = profile.authType
-                password = profile.password?.toString(Charsets.UTF_8) ?: ""
-                keyReference = profile.sshKeyPasswordReferenceId ?: ""
-                identityId = profile.identityId
-                envVarsText = profile.envVars.entries.joinToString(",") { "${it.key}=${it.value}" }
-                portForwardsText = profile.portForwards.joinToString(",") {
-                    val prefix = if (it.type == PortForwardType.LOCAL) "L" else "R"
-                    "$prefix:${it.localPort}:${it.remoteHost}:${it.remotePort}"
-                }
-            }
-        }
+        viewModel.loadProfileIfNeeded(profileId)
     }
 
     AddEditProfileScreenContent(
         profileId = profileId,
-        nickname = nickname,
-        onNicknameChange = { nickname = it },
-        host = host,
-        onHostChange = { host = it },
-        port = port,
-        onPortChange = { port = it },
-        username = username,
-        onUsernameChange = { username = it },
-        password = password,
-        onPasswordChange = { password = it },
-        authType = authType,
-        onAuthTypeChange = { authType = it },
+        nickname = uiState.nickname,
+        onNicknameChange = { newName -> viewModel.updateState { it.copy(nickname = newName) } },
+        host = uiState.host,
+        onHostChange = { newHost -> viewModel.updateState { it.copy(host = newHost) } },
+        port = uiState.port,
+        onPortChange = { newPort -> viewModel.updateState { it.copy(port = newPort) } },
+        username = uiState.username,
+        onUsernameChange = { newUsername -> viewModel.updateState { it.copy(username = newUsername) } },
+        password = uiState.password,
+        onPasswordChange = { newPass -> viewModel.updateState { it.copy(password = newPass) } },
+        isPasswordLocked = uiState.isPasswordLocked,
+        onPasswordLockedChange = { locked -> viewModel.updateState { it.copy(isPasswordLocked = locked) } },
+        authType = uiState.authType,
+        onAuthTypeChange = { newAuth -> viewModel.updateState { it.copy(authType = newAuth) } },
         availableKeys = availableKeys,
-        keyReference = keyReference,
-        onKeyReferenceChange = { keyReference = it },
+        keyReference = uiState.keyReference,
+        onKeyReferenceChange = { newKey -> viewModel.updateState { it.copy(keyReference = newKey) } },
         identities = identities,
-        identityId = identityId,
-        onIdentityChange = { identityId = it },
+        identityId = uiState.identityId,
+        onIdentityChange = { newId -> viewModel.updateState { it.copy(identityId = newId) } },
         onManageIdentities = onManageIdentities,
-        envVarsText = envVarsText,
-        onEnvVarsTextChange = { envVarsText = it },
-        portForwardsText = portForwardsText,
-        onPortForwardsTextChange = { portForwardsText = it },
+        envVarsText = uiState.envVarsText,
+        onEnvVarsTextChange = { newEnv -> viewModel.updateState { it.copy(envVarsText = newEnv) } },
+        portForwardsText = uiState.portForwardsText,
+        onPortForwardsTextChange = { newPF -> viewModel.updateState { it.copy(portForwardsText = newPF) } },
         onSave = {
-            val selectedIdent = identities.find { it.id == identityId }
-            val finalUsername = if (selectedIdent != null) selectedIdent.username else username
-            val finalAuthType = if (selectedIdent != null) selectedIdent.authType else authType
+            val selectedIdent = identities.find { it.id == uiState.identityId }
+            val finalUsername = if (selectedIdent != null) selectedIdent.username else uiState.username
+            val finalAuthType = if (selectedIdent != null) selectedIdent.authType else uiState.authType
             
             // If using an identity, we don't store inline credentials in the profile
-            val passBytes = if (identityId == null && finalAuthType == AuthType.PASSWORD && password.isNotEmpty()) {
-                password.toByteArray(Charsets.UTF_8)
+            val passBytes = if (uiState.identityId == null && finalAuthType == AuthType.PASSWORD) {
+                if (uiState.isPasswordLocked) {
+                    uiState.originalPassword
+                } else if (uiState.password.isNotEmpty()) {
+                    uiState.password.toByteArray(Charsets.UTF_8)
+                } else null
             } else null
-            val keyRef = if (identityId == null && finalAuthType == AuthType.KEY) keyReference else null
+            val keyRef = if (uiState.identityId == null && finalAuthType == AuthType.KEY) uiState.keyReference else null
 
-            val parsedEnvVars = envVarsText.split(",")
+            val parsedEnvVars = uiState.envVarsText.split(",")
                 .map { it.trim() }
                 .filter { it.contains("=") }
                 .associate { 
@@ -118,7 +102,7 @@ fun AddEditProfileScreen(
                     parts[0] to parts[1]
                 }
             
-            val parsedPortForwards = portForwardsText.split(",")
+            val parsedPortForwards = uiState.portForwardsText.split(",")
                 .map { it.trim() }
                 .filter { it.contains(":") }
                 .mapNotNull {
@@ -134,20 +118,23 @@ fun AddEditProfileScreen(
 
             viewModel.saveProfile(
                 id = profileId,
-                nickname = nickname,
-                host = host,
-                port = port,
+                nickname = uiState.nickname,
+                host = uiState.host,
+                port = uiState.port,
                 username = finalUsername,
                 authType = finalAuthType,
                 password = passBytes,
                 keyReference = keyRef,
-                identityId = identityId,
+                identityId = uiState.identityId,
                 envVars = parsedEnvVars,
                 portForwards = parsedPortForwards
             )
             onNavigateBack()
         },
-        onNavigateBack = onNavigateBack
+        onNavigateBack = {
+            viewModel.resetState()
+            onNavigateBack()
+        }
     )
 }
 
@@ -165,6 +152,8 @@ fun AddEditProfileScreenContent(
     onUsernameChange: (String) -> Unit,
     password: String,
     onPasswordChange: (String) -> Unit,
+    isPasswordLocked: Boolean,
+    onPasswordLockedChange: (Boolean) -> Unit,
     authType: AuthType,
     onAuthTypeChange: (AuthType) -> Unit,
     availableKeys: List<String>,
@@ -314,18 +303,44 @@ fun AddEditProfileScreenContent(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 if (authType == AuthType.PASSWORD) {
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = onPasswordChange,
-                        label = { Text("Password") },
-                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                        trailingIcon = {
-                            TextButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Text(text = if (passwordVisible) "Hide" else "Show")
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth().testTag("PasswordInput")
-                    )
+                    if (isPasswordLocked) {
+                        OutlinedTextField(
+                            value = "••••••••",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Password") },
+                            trailingIcon = {
+                                IconButton(onClick = { 
+                                    onPasswordLockedChange(false)
+                                    onPasswordChange("")
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Edit,
+                                        contentDescription = "Edit Password",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth().testTag("PasswordInputLocked")
+                        )
+                    } else {
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = onPasswordChange,
+                            label = { Text("Password") },
+                            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                            trailingIcon = {
+                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                    Icon(
+                                        imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                        contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth().testTag("PasswordInput")
+                        )
+                    }
                 } else {
                     ExposedDropdownMenuBox(
                         expanded = isKeyDropdownExpanded,
