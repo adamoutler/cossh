@@ -36,11 +36,18 @@ data class PortForwardConfig(
 )
 
 @Serializable
+enum class Protocol {
+    SSH,
+    TELNET
+}
+
+@Serializable
 data class ConnectionProfile(
     val id: String,
     val nickname: String,
     val host: String,
     val port: Int = 22,
+    val protocol: Protocol = Protocol.SSH,
     val username: String = "",
     val authType: AuthType = AuthType.PASSWORD,
     var sortOrder: Int = 0,
@@ -63,6 +70,7 @@ data class ConnectionProfile(
         if (nickname != other.nickname) return false
         if (host != other.host) return false
         if (port != other.port) return false
+        if (protocol != other.protocol) return false
         if (username != other.username) return false
         if (authType != other.authType) return false
         if (sortOrder != other.sortOrder) return false
@@ -85,6 +93,7 @@ data class ConnectionProfile(
         result = 31 * result + nickname.hashCode()
         result = 31 * result + host.hashCode()
         result = 31 * result + port
+        result = 31 * result + protocol.hashCode()
         result = 31 * result + username.hashCode()
         result = 31 * result + authType.hashCode()
         result = 31 * result + sortOrder

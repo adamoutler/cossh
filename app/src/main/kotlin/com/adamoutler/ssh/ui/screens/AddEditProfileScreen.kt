@@ -1,17 +1,26 @@
 package com.adamoutler.ssh.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -21,6 +30,7 @@ import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.IdentityProfile
 import com.adamoutler.ssh.data.PortForwardConfig
 import com.adamoutler.ssh.data.PortForwardType
+import com.adamoutler.ssh.data.Protocol
 
 @Composable
 fun AddEditProfileScreen(
@@ -60,6 +70,13 @@ fun AddEditProfileScreen(
         onHostChange = { newHost -> viewModel.updateState { it.copy(host = newHost) } },
         port = uiState.port,
         onPortChange = { newPort -> viewModel.updateState { it.copy(port = newPort) } },
+        protocol = uiState.protocol,
+        onProtocolChange = { newProto -> 
+            viewModel.updateState { 
+                val newPort = if (newProto == Protocol.TELNET && it.port == "22") "23" else if (newProto == Protocol.SSH && it.port == "23") "22" else it.port
+                it.copy(protocol = newProto, port = newPort, authType = if (newProto == Protocol.TELNET) AuthType.PASSWORD else it.authType) 
+            } 
+        },
         username = uiState.username,
         onUsernameChange = { newUsername -> viewModel.updateState { it.copy(username = newUsername) } },
         password = uiState.password,
@@ -77,22 +94,21 @@ fun AddEditProfileScreen(
         onManageIdentities = onManageIdentities,
         envVarsText = uiState.envVarsText,
         onEnvVarsTextChange = { newEnv -> viewModel.updateState { it.copy(envVarsText = newEnv) } },
-        portForwardsText = uiState.portForwardsText,
-        onPortForwardsTextChange = { newPF -> viewModel.updateState { it.copy(portForwardsText = newPF) } },
+        portForwards = uiState.portForwards,
+        onPortForwardsChange = { newPF -> viewModel.updateState { it.copy(portForwards = newPF) } },
         onSave = {
             val selectedIdent = identities.find { it.id == uiState.identityId }
-            val finalUsername = if (selectedIdent != null) selectedIdent.username else uiState.username
-            val finalAuthType = if (selectedIdent != null) selectedIdent.authType else uiState.authType
+            val finalUsername = if (selectedIdent != null && uiState.protocol == Protocol.SSH) selectedIdent.username else uiState.username
+            val finalAuthType = if (selectedIdent != null && uiState.protocol == Protocol.SSH) selectedIdent.authType else uiState.authType
             
-            // If using an identity, we don't store inline credentials in the profile
-            val passBytes = if (uiState.identityId == null && finalAuthType == AuthType.PASSWORD) {
+            val passBytes = if ((uiState.identityId == null || uiState.protocol == Protocol.TELNET) && finalAuthType == AuthType.PASSWORD) {
                 if (uiState.isPasswordLocked) {
                     uiState.originalPassword
                 } else if (uiState.password.isNotEmpty()) {
                     uiState.password.toByteArray(Charsets.UTF_8)
                 } else null
             } else null
-            val keyRef = if (uiState.identityId == null && finalAuthType == AuthType.KEY) uiState.keyReference else null
+            val keyRef = if ((uiState.identityId == null || uiState.protocol == Protocol.TELNET) && finalAuthType == AuthType.KEY) uiState.keyReference else null
 
             val parsedEnvVars = uiState.envVarsText.split(",")
                 .map { it.trim() }
@@ -102,32 +118,19 @@ fun AddEditProfileScreen(
                     parts[0] to parts[1]
                 }
             
-            val parsedPortForwards = uiState.portForwardsText.split(",")
-                .map { it.trim() }
-                .filter { it.contains(":") }
-                .mapNotNull {
-                    val parts = it.split(":")
-                    if (parts.size >= 4) {
-                        val type = if (parts[0].uppercase() == "L") PortForwardType.LOCAL else PortForwardType.REMOTE
-                        val localPort = parts[1].toIntOrNull() ?: return@mapNotNull null
-                        val remoteHost = parts[2]
-                        val remotePort = parts[3].toIntOrNull() ?: return@mapNotNull null
-                        PortForwardConfig(type, localPort, remoteHost, remotePort)
-                    } else null
-                }
-
             viewModel.saveProfile(
                 id = profileId,
                 nickname = uiState.nickname,
                 host = uiState.host,
                 port = uiState.port,
+                protocol = uiState.protocol,
                 username = finalUsername,
                 authType = finalAuthType,
                 password = passBytes,
                 keyReference = keyRef,
-                identityId = uiState.identityId,
+                identityId = if (uiState.protocol == Protocol.SSH) uiState.identityId else null,
                 envVars = parsedEnvVars,
-                portForwards = parsedPortForwards
+                portForwards = uiState.portForwards
             )
             onNavigateBack()
         },
@@ -148,6 +151,8 @@ fun AddEditProfileScreenContent(
     onHostChange: (String) -> Unit,
     port: String,
     onPortChange: (String) -> Unit,
+    protocol: Protocol,
+    onProtocolChange: (Protocol) -> Unit,
     username: String,
     onUsernameChange: (String) -> Unit,
     password: String,
@@ -165,8 +170,8 @@ fun AddEditProfileScreenContent(
     onManageIdentities: () -> Unit,
     envVarsText: String,
     onEnvVarsTextChange: (String) -> Unit,
-    portForwardsText: String,
-    onPortForwardsTextChange: (String) -> Unit,
+    portForwards: List<PortForwardConfig>,
+    onPortForwardsChange: (List<PortForwardConfig>) -> Unit,
     onSave: () -> Unit,
     onNavigateBack: () -> Unit,
     defaultPasswordVisible: Boolean = false
@@ -203,7 +208,42 @@ fun AddEditProfileScreenContent(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(
+                    selected = protocol == Protocol.SSH,
+                    onClick = { onProtocolChange(Protocol.SSH) },
+                    label = { Text("SSH") },
+                    modifier = Modifier.testTag("ProtocolSSH")
+                )
+                FilterChip(
+                    selected = protocol == Protocol.TELNET,
+                    onClick = { onProtocolChange(Protocol.TELNET) },
+                    label = { Text("Telnet") },
+                    modifier = Modifier.testTag("ProtocolTelnet")
+                )
+            }
+
+            if (protocol == Protocol.TELNET) {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                ) {
+                    Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.Warning, contentDescription = "Warning", tint = Color(0xFFE65100))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "⚠️ **Warning: Insecure Protocol.** Telnet transmits all data, including passwords, in cleartext. Use only on trusted local networks.",
+                            color = Color(0xFFE65100),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             OutlinedTextField(
                 value = nickname,
                 onValueChange = onNicknameChange,
@@ -232,51 +272,53 @@ fun AddEditProfileScreenContent(
 
             Text("Authentication", style = MaterialTheme.typography.titleMedium)
 
-            ExposedDropdownMenuBox(
-                expanded = isIdentityDropdownExpanded,
-                onExpandedChange = { isIdentityDropdownExpanded = !isIdentityDropdownExpanded },
-                modifier = Modifier.padding(top = 8.dp)
-            ) {
-                OutlinedTextField(
-                    value = selectedIdentity?.name ?: "None (Use Inline Credentials)",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Use Identity") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isIdentityDropdownExpanded) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth().testTag("IdentityDropdown")
-                )
-                ExposedDropdownMenu(
+            if (protocol == Protocol.SSH) {
+                ExposedDropdownMenuBox(
                     expanded = isIdentityDropdownExpanded,
-                    onDismissRequest = { isIdentityDropdownExpanded = false }
+                    onExpandedChange = { isIdentityDropdownExpanded = !isIdentityDropdownExpanded },
+                    modifier = Modifier.padding(top = 8.dp)
                 ) {
-                    DropdownMenuItem(
-                        text = { Text("None (Use Inline Credentials)") },
-                        onClick = {
-                            onIdentityChange(null)
-                            isIdentityDropdownExpanded = false
-                        }
+                    OutlinedTextField(
+                        value = selectedIdentity?.name ?: "None (Use Inline Credentials)",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Use Identity") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isIdentityDropdownExpanded) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth().testTag("IdentityDropdown")
                     )
-                    identities.forEach { identity ->
+                    ExposedDropdownMenu(
+                        expanded = isIdentityDropdownExpanded,
+                        onDismissRequest = { isIdentityDropdownExpanded = false }
+                    ) {
                         DropdownMenuItem(
-                            text = { Text(identity.name) },
+                            text = { Text("None (Use Inline Credentials)") },
                             onClick = {
-                                onIdentityChange(identity.id)
+                                onIdentityChange(null)
+                                isIdentityDropdownExpanded = false
+                            }
+                        )
+                        identities.forEach { identity ->
+                            DropdownMenuItem(
+                                text = { Text(identity.name) },
+                                onClick = {
+                                    onIdentityChange(identity.id)
+                                    isIdentityDropdownExpanded = false
+                                }
+                            )
+                        }
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = { Text("Manage Identities...") },
+                            onClick = {
+                                onManageIdentities()
                                 isIdentityDropdownExpanded = false
                             }
                         )
                     }
-                    HorizontalDivider()
-                    DropdownMenuItem(
-                        text = { Text("Manage Identities...") },
-                        onClick = {
-                            onManageIdentities()
-                            isIdentityDropdownExpanded = false
-                        }
-                    )
                 }
             }
 
-            if (identityId == null) {
+            if (identityId == null || protocol == Protocol.TELNET) {
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = username,
@@ -286,23 +328,25 @@ fun AddEditProfileScreenContent(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(
-                        selected = authType == AuthType.PASSWORD,
-                        onClick = { onAuthTypeChange(AuthType.PASSWORD) },
-                        label = { Text("Password") },
-                        modifier = Modifier.testTag("AuthTypePassword")
-                    )
-                    FilterChip(
-                        selected = authType == AuthType.KEY,
-                        onClick = { onAuthTypeChange(AuthType.KEY) },
-                        label = { Text("SSH Key") },
-                        modifier = Modifier.testTag("AuthTypeKey")
-                    )
+                if (protocol == Protocol.SSH) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = authType == AuthType.PASSWORD,
+                            onClick = { onAuthTypeChange(AuthType.PASSWORD) },
+                            label = { Text("Password") },
+                            modifier = Modifier.testTag("AuthTypePassword")
+                        )
+                        FilterChip(
+                            selected = authType == AuthType.KEY,
+                            onClick = { onAuthTypeChange(AuthType.KEY) },
+                            label = { Text("SSH Key") },
+                            modifier = Modifier.testTag("AuthTypeKey")
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
-                Spacer(modifier = Modifier.height(8.dp))
 
-                if (authType == AuthType.PASSWORD) {
+                if (authType == AuthType.PASSWORD || protocol == Protocol.TELNET) {
                     if (isPasswordLocked) {
                         OutlinedTextField(
                             value = "••••••••",
@@ -341,7 +385,7 @@ fun AddEditProfileScreenContent(
                             modifier = Modifier.fillMaxWidth().testTag("PasswordInput")
                         )
                     }
-                } else {
+                } else if (protocol == Protocol.SSH) {
                     ExposedDropdownMenuBox(
                         expanded = isKeyDropdownExpanded,
                         onExpandedChange = { isKeyDropdownExpanded = !isKeyDropdownExpanded }
@@ -414,14 +458,125 @@ fun AddEditProfileScreenContent(
                 modifier = Modifier.fillMaxWidth().testTag("EnvVarsInput")
             )
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = portForwardsText,
-                onValueChange = onPortForwardsTextChange,
-                label = { Text("Port Forwards (L:8080:host:80,R:9090:host:90)") },
-                modifier = Modifier.fillMaxWidth().testTag("PortForwardsInput")
-            )
+            Text("Port Forwarding", style = MaterialTheme.typography.titleSmall)
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            portForwards.forEach { pf ->
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(8.dp).fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = if (pf.type == PortForwardType.LOCAL) "Local Forward" else "Remote Forward",
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Text(
+                                text = "${pf.localPort} ➔ ${pf.remoteHost}:${pf.remotePort}",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                        IconButton(onClick = {
+                            val newList = portForwards.toMutableList()
+                            newList.remove(pf)
+                            onPortForwardsChange(newList)
+                        }) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Delete Port Forward")
+                        }
+                    }
+                }
+            }
+            
+            var showAddDialog by remember { mutableStateOf(false) }
+            
+            if (showAddDialog) {
+                var type by remember { mutableStateOf(PortForwardType.LOCAL) }
+                var localPort by remember { mutableStateOf("") }
+                var remoteHost by remember { mutableStateOf("") }
+                var remotePort by remember { mutableStateOf("") }
 
-            Spacer(modifier = Modifier.weight(1f))
+                AlertDialog(
+                    onDismissRequest = { showAddDialog = false },
+                    title = { Text("Add Port Forward") },
+                    text = {
+                        Column {
+                            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                                SegmentedButton(
+                                    selected = type == PortForwardType.LOCAL,
+                                    onClick = { type = PortForwardType.LOCAL },
+                                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
+                                ) {
+                                    Text("Local")
+                                }
+                                SegmentedButton(
+                                    selected = type == PortForwardType.REMOTE,
+                                    onClick = { type = PortForwardType.REMOTE },
+                                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
+                                ) {
+                                    Text("Remote")
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = localPort,
+                                onValueChange = { localPort = it },
+                                label = { Text("Local Port") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                singleLine = true
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = remoteHost,
+                                onValueChange = { remoteHost = it },
+                                label = { Text("Remote Host") },
+                                singleLine = true
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = remotePort,
+                                onValueChange = { remotePort = it },
+                                label = { Text("Remote Port") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                singleLine = true
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            val lp = localPort.toIntOrNull()
+                            val rp = remotePort.toIntOrNull()
+                            if (lp != null && rp != null && remoteHost.isNotBlank()) {
+                                val newList = portForwards.toMutableList()
+                                newList.add(PortForwardConfig(type, lp, remoteHost, rp))
+                                onPortForwardsChange(newList)
+                                showAddDialog = false
+                            }
+                        }) {
+                            Text("Add")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showAddDialog = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
+
+            Button(
+                onClick = { showAddDialog = true },
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Add Port Forward")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Add Port Forward")
+            }
         }
     }
 }

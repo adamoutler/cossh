@@ -12,6 +12,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.adamoutler.ssh.data.ConnectionProfile
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.ui.graphics.Color
+import com.adamoutler.ssh.data.Protocol
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ConnectionItem(
@@ -39,16 +45,27 @@ fun ConnectionItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = profile.nickname, style = MaterialTheme.typography.titleMedium)
-                    if (activeCount > 0) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Badge { Text(activeCount.toString()) }
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                Icon(
+                    imageVector = if (profile.protocol == Protocol.TELNET) Icons.Filled.LockOpen else Icons.Filled.Lock,
+                    contentDescription = if (profile.protocol == Protocol.TELNET) "Telnet Unencrypted" else "SSH Encrypted",
+                    tint = if (profile.protocol == Protocol.TELNET) Color(0xFFE65100) else Color(0xFF388E3C),
+                    modifier = Modifier.size(32.dp).padding(end = 8.dp)
+                )
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = profile.nickname, style = MaterialTheme.typography.titleMedium)
+                        if (activeCount > 0) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Badge { Text(activeCount.toString()) }
+                        }
                     }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "${profile.username}@${profile.host}:${profile.port} (${profile.protocol.name})",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "${profile.username}@${profile.host}:${profile.port}", style = MaterialTheme.typography.bodySmall)
             }
         }
     }

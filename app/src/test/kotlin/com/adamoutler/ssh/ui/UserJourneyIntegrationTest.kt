@@ -55,7 +55,7 @@ class UserJourneyIntegrationTest {
         // 4. Verify we are back on the Connection List and the profile exists
         // Use useUnmergedTree = true because the item is inside a SwipeToDismissBox
         composeTestRule.onNodeWithText("My Test Server", useUnmergedTree = true).assertExists()
-        composeTestRule.onNodeWithText("root@10.0.0.1:22", useUnmergedTree = true).assertExists()
+        composeTestRule.onNodeWithText("root@10.0.0.1:22 (SSH)", useUnmergedTree = true).assertExists()
     }
 
     @Test

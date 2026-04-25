@@ -3,8 +3,11 @@ isRunning
 reset
 write
 getPid
+updateSize
+getTitle
 initializeEmulator
 writeCodePoint
+updateTerminalSessionClient
 getEmulator
 finishIfRunning
 titleChanged
@@ -14,9 +17,6 @@ onPasteTextFromClipboard
 onBell
 onColorsChanged
 getCwd
-updateTerminalSessionClient
-updateSize
-getTitle
 write
 equals
 toString
@@ -32,8 +32,8 @@ reset
 toString
 append
 resize
-updateTerminalSessionClient
 getTitle
+updateTerminalSessionClient
 getScreen
 isAlternateBufferActive
 sendMouseEvent

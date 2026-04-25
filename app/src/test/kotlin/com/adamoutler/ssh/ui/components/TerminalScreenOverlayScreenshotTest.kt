@@ -24,7 +24,8 @@ class TerminalScreenOverlayScreenshotTest {
             Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
                 TerminalOverlayButtons(
                     onBackground = {},
-                    onTerminate = {}
+                    onTerminate = {},
+                    profile = null
                 )
             }
         }

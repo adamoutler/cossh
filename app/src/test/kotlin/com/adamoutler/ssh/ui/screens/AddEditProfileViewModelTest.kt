@@ -25,6 +25,7 @@ class AddEditProfileViewModelTest {
             nickname = "Local Test",
             host = "127.0.0.1",
             port = "2222",
+            protocol = com.adamoutler.ssh.data.Protocol.SSH,
             username = "root",
             authType = AuthType.PASSWORD,
             password = "testpassword".toByteArray(),

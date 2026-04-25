@@ -3,6 +3,7 @@ package com.adamoutler.ssh.backup
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
+import com.adamoutler.ssh.data.Protocol
 import org.junit.Assert.*
 import org.junit.Test
 import java.io.ByteArrayInputStream
@@ -13,8 +14,8 @@ class BackupCryptoManagerTest {
     @Test
     fun testExportAndImportBackup() {
         val passwordBytes = "my_secret_password".toByteArray()
-        val profile1 = ConnectionProfile("id1", "Host 1", "host1.com", 22, "user1", AuthType.PASSWORD, 0, passwordBytes)
-        val profile2 = ConnectionProfile("id2", "Host 2", "host2.com", 22, "user2", AuthType.KEY, 0)
+        val profile1 = ConnectionProfile("id1", "Host 1", "host1.com", 22, Protocol.SSH, "user1", AuthType.PASSWORD, 0, passwordBytes)
+        val profile2 = ConnectionProfile("id2", "Host 2", "host2.com", 22, Protocol.SSH, "user2", AuthType.KEY, 0)
 
         val profiles = listOf(profile1, profile2)
         

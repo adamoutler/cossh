@@ -20,6 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -90,6 +93,9 @@ fun TerminalScreen(
         onUpdateFontSize = { terminalViewModel.updateFontSize(it) },
         onNavigateBack = onNavigateBack,
         onClearError = { errorStateEntry?.key?.let { ConnectionStateRepository.clearConnectionState(it) } },
+        profile = remember(profileId) {
+            com.adamoutler.ssh.crypto.SecurityStorageManager(context).getProfile(profileId)
+        },
         modifier = modifier
     )
 }
@@ -106,13 +112,13 @@ fun TerminalScreenContent(
     onUpdateFontSize: (Int) -> Unit,
     onNavigateBack: () -> Unit,
     onClearError: () -> Unit,
+    profile: com.adamoutler.ssh.data.ConnectionProfile? = null,
     modifier: Modifier = Modifier
 ) {
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
     val context = androidx.compose.ui.platform.LocalContext.current
-    
-    androidx.compose.runtime.LaunchedEffect(sessionId) {
-        val processBytes = { bytes: ByteArray ->
+
+    androidx.compose.runtime.LaunchedEffect(sessionId) {        val processBytes = { bytes: ByteArray ->
             if (ConnectionStateRepository.isHeadlessTest) {
                 val newText = String(bytes, Charsets.UTF_8)
                 val current = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: ""
@@ -554,7 +560,9 @@ fun TerminalScreenContent(
                             ctx.startService(intent)
                         }
                         onNavigateBack()
-                    }                )
+                    },
+                    profile = profile
+                )
             }
         }
         if (terminalInputState == 2) {
@@ -617,32 +625,58 @@ fun TerminalScreenContent(
 fun TerminalOverlayButtons(
     onBackground: () -> Unit,
     onTerminate: () -> Unit,
+    profile: com.adamoutler.ssh.data.ConnectionProfile?,
     modifier: Modifier = Modifier
 ) {
-    androidx.compose.foundation.layout.Row(
-        modifier = modifier.fillMaxWidth().padding(8.dp),
-        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
-    ) {
-        androidx.compose.material3.IconButton(
-            onClick = onBackground,
-            modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), shape = androidx.compose.foundation.shape.CircleShape)
-        ) {
-            androidx.compose.material3.Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Background Session",
-                tint = Color.White
-            )
+    androidx.compose.foundation.layout.Column(modifier = modifier.fillMaxWidth()) {
+        if (profile?.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
+            androidx.compose.material3.Surface(
+                color = Color(0xFFE65100),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                androidx.compose.foundation.layout.Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                ) {
+                    androidx.compose.material3.Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = "Insecure Protocol Warning",
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    androidx.compose.material3.Text(
+                        text = "Telnet: Unencrypted Connection",
+                        color = Color.White,
+                        style = androidx.compose.material3.MaterialTheme.typography.labelMedium
+                    )
+                }
+            }
         }
-
-        androidx.compose.material3.IconButton(
-            onClick = onTerminate,
-            modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), shape = androidx.compose.foundation.shape.CircleShape)
+        androidx.compose.foundation.layout.Row(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
         ) {
-            androidx.compose.material3.Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "Terminate Session",
-                tint = Color.White
-            )
+            androidx.compose.material3.IconButton(
+                onClick = onBackground,
+                modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), shape = androidx.compose.foundation.shape.CircleShape)
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Background Session",
+                    tint = Color.White
+                )
+            }
+
+            androidx.compose.material3.IconButton(
+                onClick = onTerminate,
+                modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), shape = androidx.compose.foundation.shape.CircleShape)
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Terminate Session",
+                    tint = Color.White
+                )
+            }
         }
     }
 }

@@ -15,11 +15,13 @@ import kotlinx.coroutines.flow.update
 
 import com.adamoutler.ssh.data.PortForwardConfig
 import com.adamoutler.ssh.data.PortForwardType
+import com.adamoutler.ssh.data.Protocol
 
 data class ProfileFormState(
     val nickname: String = "",
     val host: String = "",
     val port: String = "22",
+    val protocol: Protocol = Protocol.SSH,
     val username: String = "",
     val authType: AuthType = AuthType.PASSWORD,
     val originalPassword: ByteArray? = null,
@@ -28,7 +30,7 @@ data class ProfileFormState(
     val keyReference: String = "",
     val identityId: String? = null,
     val envVarsText: String = "",
-    val portForwardsText: String = "",
+    val portForwards: List<PortForwardConfig> = emptyList(),
     val isLoaded: Boolean = false
 )
 
@@ -61,6 +63,7 @@ class AddEditProfileViewModel(
                         nickname = profile.nickname,
                         host = profile.host,
                         port = profile.port.toString(),
+                        protocol = profile.protocol,
                         username = profile.username,
                         authType = profile.authType,
                         originalPassword = profile.password,
@@ -68,10 +71,7 @@ class AddEditProfileViewModel(
                         keyReference = profile.sshKeyPasswordReferenceId ?: "",
                         identityId = profile.identityId,
                         envVarsText = profile.envVars.entries.joinToString(",") { entry -> "${entry.key}=${entry.value}" },
-                        portForwardsText = profile.portForwards.joinToString(",") { pf ->
-                            val prefix = if (pf.type == PortForwardType.LOCAL) "L" else "R"
-                            "$prefix:${pf.localPort}:${pf.remoteHost}:${pf.remotePort}"
-                        },
+                        portForwards = profile.portForwards,
                         isLoaded = true
                     )
                 }
@@ -90,6 +90,7 @@ class AddEditProfileViewModel(
         nickname: String,
         host: String,
         port: String,
+        protocol: Protocol,
         username: String,
         authType: AuthType,
         password: ByteArray?,
@@ -103,7 +104,8 @@ class AddEditProfileViewModel(
             id = profileId,
             nickname = nickname,
             host = host,
-            port = port.toIntOrNull() ?: 22,
+            port = port.toIntOrNull() ?: if (protocol == Protocol.TELNET) 23 else 22,
+            protocol = protocol,
             username = username,
             authType = authType,
             password = password,
