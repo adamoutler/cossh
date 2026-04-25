@@ -582,6 +582,7 @@ fun TerminalScreenContent(
                 onKeyPress = { key ->
                     val bytes = when (key) {
                         "Esc" -> byteArrayOf(0x1B)
+                        "Ctrl-C" -> byteArrayOf(0x03)
                         "↑" -> byteArrayOf(0x1B, '['.code.toByte(), 'A'.code.toByte())
                         "↓" -> byteArrayOf(0x1B, '['.code.toByte(), 'B'.code.toByte())
                         "→" -> byteArrayOf(0x1B, '['.code.toByte(), 'C'.code.toByte())

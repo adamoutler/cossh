@@ -36,7 +36,7 @@ class TerminalExtraKeysScreenshotTest {
             TerminalExtraKeys(
                 ctrlActive = true,
                 altActive = false,
-                superActive = true,
+                superActive = false,
                 menuActive = false,
                 onKeyToggle = {},
                 onKeyPress = {},

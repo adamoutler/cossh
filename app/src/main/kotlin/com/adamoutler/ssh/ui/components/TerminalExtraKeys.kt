@@ -27,7 +27,7 @@ fun TerminalExtraKeys(
     onKeyPress: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val page1Row1 = listOf("Esc", "Super", "Menu", "↑", "Tab", "Home")
+    val page1Row1 = listOf("Esc", "Ctrl-C", "Menu", "↑", "Tab", "Home")
     val page1Row2 = listOf("Ctrl", "Alt", "←", "↓", "→", "End")
     val page2Row1 = listOf("PgUp", "Ins", "PrtSc")
     val page2Row2 = listOf("PgDn", "Del", "Pause")
@@ -96,7 +96,7 @@ private fun isActive(key: String, ctrlActive: Boolean, altActive: Boolean, super
 }
 
 private fun handleKey(key: String, onKeyToggle: (String) -> Unit, onKeyPress: (String) -> Unit) {
-    if (key == "Ctrl" || key == "Alt" || key == "Super" || key == "Menu") {
+    if (key == "Ctrl" || key == "Alt" || key == "Menu") {
         onKeyToggle(key)
     } else {
         onKeyPress(key)
@@ -105,13 +105,25 @@ private fun handleKey(key: String, onKeyToggle: (String) -> Unit, onKeyPress: (S
 
 @Composable
 fun ExtraKeyButton(text: String, isActive: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val interactionSource = androidx.compose.runtime.remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val repeatableKeys = setOf("↑", "↓", "←", "→", "Ctrl-C", "PgUp", "PgDn", "Del", "Ins", "Home", "End")
+    
     Box(
         modifier = modifier
             .padding(horizontal = 2.dp)
             .height(48.dp)
             .background(if (isActive) MaterialTheme.colorScheme.primary else Color(0xFF444444), shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp))
             .focusProperties { canFocus = false }
-            .clickable { onClick() },
+            .then(
+                if (text in repeatableKeys) {
+                    Modifier.repeatingClickable(interactionSource = interactionSource) { onClick() }
+                } else {
+                    Modifier.clickable(
+                        interactionSource = interactionSource,
+                        indication = androidx.compose.foundation.LocalIndication.current
+                    ) { onClick() }
+                }
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
