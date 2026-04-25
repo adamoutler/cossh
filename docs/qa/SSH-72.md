@@ -1,20 +1,7 @@
-# SSH-72 Verification Proof
-
-## Session Selector for Multiple Active Background Connections
-
-**Feature Verification:**
-- Implemented `ActiveSessionSelectorDialog` inside `ConnectionListScreen.kt`.
-- The system observes the `Lifecycle.Event.ON_START` event, checking if the background service has >1 active connections stored in `SshSessionProvider.activeConnections.value.size`.
-- If true, a prompt gives the user the choice of starting a new connection or selecting from the active sessions list.
-
-**Visual Proof:**
-A Paparazzi UI Snapshot test `ConnectionListSessionSelectorScreenshotTest` was executed and generated the required UI artifact.
-See `docs/qa/SSH-72-selector.png` for visual proof.
-
-**Testing Evidence:**
-The newly authored `ConnectionListSessionSelectorScreenshotTest` test passed successfully:
-```
-> Task :app:testDebugUnitTest
-com.adamoutler.ssh.ui.screens.ConnectionListSessionSelectorScreenshotTest > sessionSelectorDialogScreen PASSED
-BUILD SUCCESSFUL
-```
+# SSH-72 QA Proof
+- Feature: Session Selector for Multiple Active Background Connections
+- **Status:** Already Implemented
+- The component `ActiveSessionSelectorDialog` exists and handles the logic for choosing which session to resume or whether to start a new one.
+- This UI flow was implemented as part of the broader "Connection Resume" epic (SSH-92).
+- Verification Proof: The UI test `ConnectionListSessionSelectorScreenshotTest` successfully generated a screenshot of this dialog at `app/src/test/snapshots/images/com.adamoutler.ssh.ui.screens_ConnectionListSessionSelectorScreenshotTest_sessionSelectorDialogScreen.png`.
+- Integration is proven via `AppConnectionIntegrationTest.test19StepWorkflow_ConnectionResumeAndConcurrentSessions`. All tests pass successfully under `./gradlew testReleaseUnitTest`.
