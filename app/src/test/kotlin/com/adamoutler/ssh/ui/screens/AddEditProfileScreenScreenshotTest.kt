@@ -195,7 +195,7 @@ class AddEditProfileScreenScreenshotTest {
     }
 
     @Test
-    fun toggledScreenPasswordAuth() {
+    fun portForwardDialogScreen() {
         paparazzi.snapshot {
             CoSSHTheme {
                 Surface(

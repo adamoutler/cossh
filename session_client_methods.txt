@@ -1,6 +1,6 @@
 TerminalSessionClient:
-onTerminalCursorStateChange
 onBell
+onTerminalCursorStateChange
 onTextChanged
 onTitleChanged
 onSessionFinished
