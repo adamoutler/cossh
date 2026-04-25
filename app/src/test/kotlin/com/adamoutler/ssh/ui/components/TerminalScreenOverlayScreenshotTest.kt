@@ -30,4 +30,22 @@ class TerminalScreenOverlayScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun overlayButtonsVisibleTelnet() {
+        paparazzi.snapshot {
+            Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+                TerminalOverlayButtons(
+                    onBackground = {},
+                    onTerminate = {},
+                    profile = com.adamoutler.ssh.data.ConnectionProfile(
+                        id = "1",
+                        nickname = "Telnet Server",
+                        host = "mock.hackedyour.info",
+                        protocol = com.adamoutler.ssh.data.Protocol.TELNET
+                    )
+                )
+            }
+        }
+    }
 }

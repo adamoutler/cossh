@@ -41,8 +41,17 @@ class ConnectionListScreenScreenshotTest {
                 nickname = "Staging Server",
                 host = "staging.example.com",
                 port = 2222,
-                username = "deploy",
+                username = "dev",
+                authType = AuthType.PASSWORD
+            ),
+            ConnectionProfile(
+                id = "3",
+                nickname = "Legacy Switch",
+                host = "10.0.0.1",
+                port = 23,
+                username = "admin",
                 authType = AuthType.PASSWORD,
+                protocol = com.adamoutler.ssh.data.Protocol.TELNET,
                 password = "password".toByteArray()
             )
         )

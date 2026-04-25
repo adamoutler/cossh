@@ -1,8 +1,8 @@
 TerminalSessionClient:
+onTerminalCursorStateChange
 onBell
 onTextChanged
 onTitleChanged
-onTerminalCursorStateChange
 onSessionFinished
 onCopyTextToClipboard
 onPasteTextFromClipboard

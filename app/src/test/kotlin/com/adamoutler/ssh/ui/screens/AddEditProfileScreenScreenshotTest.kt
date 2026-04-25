@@ -20,6 +20,52 @@ class AddEditProfileScreenScreenshotTest {
     )
 
     @Test
+    fun telnetScreenWarningBanner() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    AddEditProfileScreenContent(
+                        profileId = null,
+                        nickname = "Test Telnet Server",
+                        onNicknameChange = {},
+                        host = "test.example.com",
+                        onHostChange = {},
+                        port = "23",
+                        onPortChange = {},
+                        protocol = com.adamoutler.ssh.data.Protocol.TELNET,
+                        onProtocolChange = {},
+                        username = "admin",
+                        onUsernameChange = {},
+                        password = "password123",
+                        onPasswordChange = {},
+                        isPasswordLocked = false,
+                        onPasswordLockedChange = {},
+                        authType = AuthType.PASSWORD,
+                        onAuthTypeChange = {},
+                        availableKeys = emptyList(),
+                        keyReference = "",
+                        onKeyReferenceChange = {},
+                        identities = emptyList(),
+                        identityId = null,
+                        onIdentityChange = {},
+                        onManageIdentities = {},
+                        envVarsText = "",
+                        onEnvVarsTextChange = {},
+                        portForwards = emptyList(),
+                        onPortForwardsChange = {},
+                        onSave = {},
+                        onNavigateBack = {},
+                        defaultPasswordVisible = false
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
     fun defaultScreenPasswordAuth() {
         paparazzi.snapshot {
             CoSSHTheme {

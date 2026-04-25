@@ -77,7 +77,7 @@ class TerminalScreenDialogScreenshotTest {
                     AlertDialog(
                         onDismissRequest = { },
                         title = { Text("Connection Failed") },
-                        text = { Text("Error: Authentication exhausted") },
+                        text = { Text("Error: Authentication exhausted. Please check your credentials.") },
                         confirmButton = {
                             TextButton(onClick = { }) { Text("OK") }
                         }

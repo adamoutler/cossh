@@ -15,7 +15,6 @@ import com.adamoutler.ssh.crypto.SettingsManager
 import com.adamoutler.ssh.sync.DriveSyncManager
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     billingManager: BillingManager,
@@ -30,6 +29,39 @@ fun SettingsScreen(
     val settingsManager = remember { SettingsManager(context) }
     var defaultGroupName by remember { mutableStateOf(settingsManager.defaultGroupName) }
 
+    SettingsScreenContent(
+        isCloudSyncEnabled = isCloudSyncEnabled,
+        isSyncing = isSyncing,
+        defaultGroupName = defaultGroupName,
+        onDefaultGroupNameChange = {
+            defaultGroupName = it
+            settingsManager.defaultGroupName = if (it.isBlank()) "Uncategorized" else it
+        },
+        onPurchaseCloudSync = {
+            activity?.let { billingManager.purchaseCloudSync(it) }
+        },
+        onAuthenticateGoogle = {
+            scope.launch {
+                isSyncing = true
+                activity?.let { driveSyncManager.authenticate(it) }
+                isSyncing = false
+            }
+        },
+        onNavigateBack = onNavigateBack
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreenContent(
+    isCloudSyncEnabled: Boolean,
+    isSyncing: Boolean,
+    defaultGroupName: String,
+    onDefaultGroupNameChange: (String) -> Unit,
+    onPurchaseCloudSync: () -> Unit,
+    onAuthenticateGoogle: () -> Unit,
+    onNavigateBack: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -60,10 +92,7 @@ fun SettingsScreen(
                     Text(text = "General Settings", style = MaterialTheme.typography.titleMedium)
                     OutlinedTextField(
                         value = defaultGroupName,
-                        onValueChange = { 
-                            defaultGroupName = it
-                            settingsManager.defaultGroupName = if (it.isBlank()) "Uncategorized" else it
-                        },
+                        onValueChange = onDefaultGroupNameChange,
                         label = { Text("Default Group Name") },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -86,9 +115,7 @@ fun SettingsScreen(
 
                     if (!isCloudSyncEnabled) {
                         Button(
-                            onClick = {
-                                activity?.let { billingManager.purchaseCloudSync(it) }
-                            },
+                            onClick = onPurchaseCloudSync,
                             modifier = Modifier.align(Alignment.End)
                         ) {
                             Text("Unlock Cloud Sync ($10.00)")
@@ -107,13 +134,7 @@ fun SettingsScreen(
                         }
                         
                         Button(
-                            onClick = {
-                                scope.launch {
-                                    isSyncing = true
-                                    activity?.let { driveSyncManager.authenticate(it) }
-                                    isSyncing = false
-                                }
-                            },
+                            onClick = onAuthenticateGoogle,
                             modifier = Modifier.align(Alignment.End),
                             enabled = !isSyncing
                         ) {
