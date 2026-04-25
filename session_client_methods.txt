@@ -2,6 +2,7 @@ TerminalSessionClient:
 onBell
 onTextChanged
 onTitleChanged
+onTerminalCursorStateChange
 onSessionFinished
 onCopyTextToClipboard
 onPasteTextFromClipboard
@@ -9,7 +10,6 @@ onColorsChanged
 getTerminalCursorStyle
 logError
 logWarn
-onTerminalCursorStateChange
 logInfo
 logDebug
 logVerbose

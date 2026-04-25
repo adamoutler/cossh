@@ -140,7 +140,13 @@ class SshService : Service() {
                 if (e !is kotlinx.coroutines.CancellationException && e.message?.equals("Disconnected", ignoreCase = true) != true) {
                     Log.e("SshService", "SSH Connection failed for $profileId (Session: $sessionId)", e)
                     updateSessionNotification(profileId, sessionId, "Connection", "Connection failed")
-                    ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error(e.message ?: "Connection failed"))
+                    val rawMessage = e.message ?: "Connection failed"
+                    val userMessage = if (rawMessage.contains("Exhausted available authentication methods") || rawMessage.contains("All authentication methods failed")) {
+                        "Authentication exhausted. Please check your credentials."
+                    } else {
+                        rawMessage
+                    }
+                    ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error(userMessage))
                 } else {
                     Log.d("SshService", "SSH Session disconnected normally for $profileId (Session: $sessionId)")
                 }

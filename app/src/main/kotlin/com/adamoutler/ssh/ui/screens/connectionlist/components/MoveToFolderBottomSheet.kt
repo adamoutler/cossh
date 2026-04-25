@@ -63,7 +63,7 @@ fun MoveToFolderBottomSheet(
                     }
                     items(folders) { folderId ->
                         ListItem(
-                            headlineContent = { Text(folderId ?: "Uncategorized") },
+                            headlineContent = { Text(folderId ?: com.adamoutler.ssh.crypto.SettingsManager(androidx.compose.ui.platform.LocalContext.current).defaultGroupName) },
                             leadingContent = { Icon(Icons.Default.List, contentDescription = null) },
                             modifier = Modifier.clickable { onFolderSelected(folderId) }
                         )

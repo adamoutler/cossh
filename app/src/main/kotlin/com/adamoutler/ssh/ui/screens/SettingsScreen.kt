@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.adamoutler.ssh.billing.BillingManager
+import com.adamoutler.ssh.crypto.SettingsManager
 import com.adamoutler.ssh.sync.DriveSyncManager
 import kotlinx.coroutines.launch
 
@@ -26,6 +27,8 @@ fun SettingsScreen(
     val isCloudSyncEnabled by billingManager.isCloudSyncEnabled.collectAsState()
     val scope = rememberCoroutineScope()
     var isSyncing by remember { mutableStateOf(false) }
+    val settingsManager = remember { SettingsManager(context) }
+    var defaultGroupName by remember { mutableStateOf(settingsManager.defaultGroupName) }
 
     Scaffold(
         topBar = {
@@ -46,6 +49,27 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(text = "General Settings", style = MaterialTheme.typography.titleMedium)
+                    OutlinedTextField(
+                        value = defaultGroupName,
+                        onValueChange = { 
+                            defaultGroupName = it
+                            settingsManager.defaultGroupName = if (it.isBlank()) "Uncategorized" else it
+                        },
+                        label = { Text("Default Group Name") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
