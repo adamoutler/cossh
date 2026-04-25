@@ -15,7 +15,7 @@ class AddEditProfileScreenScreenshotTest {
 
     @get:Rule
     val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.PIXEL_5,
+        deviceConfig = DeviceConfig.PIXEL_5.copy(screenHeight = 4000),
         theme = "android:Theme.Material.Light.NoActionBar"
     )
 
@@ -79,7 +79,7 @@ class AddEditProfileScreenScreenshotTest {
     }
 
     @Test
-    fun defaultScreenPasswordAuth() {
+    fun portForwardTableScreen() {
         paparazzi.snapshot {
             CoSSHTheme {
                 Surface(
@@ -254,3 +254,4 @@ class AddEditProfileScreenScreenshotTest {
         }
     }
 }
+
