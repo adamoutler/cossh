@@ -54,7 +54,20 @@ class AddEditProfileScreenScreenshotTest {
                         onManageIdentities = {},
                         envVarsText = "",
                         onEnvVarsTextChange = {},
-                        portForwards = emptyList(),
+                        portForwards = listOf(
+                            com.adamoutler.ssh.data.PortForwardConfig(
+                                type = com.adamoutler.ssh.data.PortForwardType.LOCAL,
+                                localPort = 8080,
+                                remoteHost = "localhost",
+                                remotePort = 80
+                            ),
+                            com.adamoutler.ssh.data.PortForwardConfig(
+                                type = com.adamoutler.ssh.data.PortForwardType.REMOTE,
+                                localPort = 9000,
+                                remoteHost = "internal-db",
+                                remotePort = 5432
+                            )
+                        ),
                         onPortForwardsChange = {},
                         onSave = {},
                         onNavigateBack = {},
@@ -100,7 +113,20 @@ class AddEditProfileScreenScreenshotTest {
                         onManageIdentities = {},
                         envVarsText = "",
                         onEnvVarsTextChange = {},
-                        portForwards = emptyList(),
+                        portForwards = listOf(
+                            com.adamoutler.ssh.data.PortForwardConfig(
+                                type = com.adamoutler.ssh.data.PortForwardType.LOCAL,
+                                localPort = 8080,
+                                remoteHost = "localhost",
+                                remotePort = 80
+                            ),
+                            com.adamoutler.ssh.data.PortForwardConfig(
+                                type = com.adamoutler.ssh.data.PortForwardType.REMOTE,
+                                localPort = 9000,
+                                remoteHost = "internal-db",
+                                remotePort = 5432
+                            )
+                        ),
                         onPortForwardsChange = {},
                         onSave = {},
                         onNavigateBack = {}
@@ -145,7 +171,20 @@ class AddEditProfileScreenScreenshotTest {
                         onManageIdentities = {},
                         envVarsText = "",
                         onEnvVarsTextChange = {},
-                        portForwards = emptyList(),
+                        portForwards = listOf(
+                            com.adamoutler.ssh.data.PortForwardConfig(
+                                type = com.adamoutler.ssh.data.PortForwardType.LOCAL,
+                                localPort = 8080,
+                                remoteHost = "localhost",
+                                remotePort = 80
+                            ),
+                            com.adamoutler.ssh.data.PortForwardConfig(
+                                type = com.adamoutler.ssh.data.PortForwardType.REMOTE,
+                                localPort = 9000,
+                                remoteHost = "internal-db",
+                                remotePort = 5432
+                            )
+                        ),
                         onPortForwardsChange = {},
                         onSave = {},
                         onNavigateBack = {}
@@ -190,11 +229,25 @@ class AddEditProfileScreenScreenshotTest {
                         onManageIdentities = {},
                         envVarsText = "",
                         onEnvVarsTextChange = {},
-                        portForwards = emptyList(),
+                        portForwards = listOf(
+                            com.adamoutler.ssh.data.PortForwardConfig(
+                                type = com.adamoutler.ssh.data.PortForwardType.LOCAL,
+                                localPort = 8080,
+                                remoteHost = "localhost",
+                                remotePort = 80
+                            ),
+                            com.adamoutler.ssh.data.PortForwardConfig(
+                                type = com.adamoutler.ssh.data.PortForwardType.REMOTE,
+                                localPort = 9000,
+                                remoteHost = "internal-db",
+                                remotePort = 5432
+                            )
+                        ),
                         onPortForwardsChange = {},
                         onSave = {},
                         onNavigateBack = {},
-                        defaultPasswordVisible = true
+                        defaultPasswordVisible = true,
+                        defaultShowAddDialog = true
                     )
                 }
             }
