@@ -1,0 +1,2 @@
+*.bat text eol=crlf
+src/itest/docker-image/** eol=lf
