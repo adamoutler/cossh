@@ -31,7 +31,8 @@ fun ConnectionListContent(
     onExportRequested: () -> Unit = {},
     onImportRequested: () -> Unit = {},
     onSettingsRequested: () -> Unit = {},
-    initialMenuExpanded: Boolean = false
+    initialMenuExpanded: Boolean = false,
+    defaultGroupName: String = com.adamoutler.ssh.crypto.SettingsManager(androidx.compose.ui.platform.LocalContext.current).defaultGroupName
 ) {
     var profileIdMovingToFolder by remember { mutableStateOf<String?>(null) }
 
@@ -67,7 +68,8 @@ fun ConnectionListContent(
                 onConnect = onConnect,
                 onEditConnection = onEditConnection,
                 onDeleteConnection = onDeleteConnection,
-                onMoveToFolder = { profileIdMovingToFolder = it }
+                onMoveToFolder = { profileId -> profileIdMovingToFolder = profileId },
+                defaultGroupName = defaultGroupName
             )
         }
     }

@@ -172,4 +172,39 @@ class ConnectionListScreenScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun renamedDefaultGroupScreen() {
+        val mockProfiles = listOf(
+            ConnectionProfile(
+                id = "1",
+                nickname = "Production Server",
+                host = "192.168.1.10",
+                port = 22,
+                username = "admin",
+                authType = AuthType.KEY,
+                sshKeyPasswordReferenceId = "mock-key-1",
+                folderId = null // Explicitly uncategorized
+            )
+        )
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    ConnectionListContent(
+                        groupedProfiles = mockProfiles.groupBy { it.folderId },
+                        searchQuery = "",
+                        onSearchQueryChange = {},
+                        onAddConnection = {},
+                        onEditConnection = {},
+                        onDeleteConnection = {},
+                        onConnect = {},
+                        defaultGroupName = "My Custom Group"
+                    )
+                }
+            }
+        }
+    }
 }

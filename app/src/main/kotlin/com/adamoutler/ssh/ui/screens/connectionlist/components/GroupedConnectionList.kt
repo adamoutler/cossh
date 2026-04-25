@@ -26,7 +26,8 @@ fun GroupedConnectionList(
     onEditConnection: (String) -> Unit,
     onDeleteConnection: (String) -> Unit,
     onMoveToFolder: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    defaultGroupName: String = com.adamoutler.ssh.crypto.SettingsManager(LocalContext.current).defaultGroupName
 ) {
     val context = LocalContext.current
     var profileToDelete by remember { mutableStateOf<ConnectionProfile?>(null) }
@@ -47,7 +48,7 @@ fun GroupedConnectionList(
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         Text(
-                            text = folderId ?: com.adamoutler.ssh.crypto.SettingsManager(androidx.compose.ui.platform.LocalContext.current).defaultGroupName,
+                            text = folderId ?: defaultGroupName,
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
