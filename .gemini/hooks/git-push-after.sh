@@ -9,7 +9,9 @@ if [[ "$command" =~ (^|[[:space:]\;\&\|])git[[:space:]]+push([[:space:]]|$) ]]; 
     sleep 10
 
     # Use the wait endpoint to ensure we have waited for current build.
-    curl -N -s "https://dash.hackedyour.info/api/wait?provider=github&owner=${OWNER}&repo=${REPO}" 2>/dev/null | tail -n 1 
+    # Redirect stdout to /dev/null to prevent breaking the JSON payload
+    curl -N -s "https://dash.hackedyour.info/api/wait?provider=github&owner=${OWNER}&repo=${REPO}" > /dev/null 2>&1
+    
     # get the actual status.
     CI_STATUS=$(curl -s https://dash.hackedyour.info/api/status 2>/dev/null | jq -r '.[] | select(.provider == "github" and .owner == "adamoutler" and .repo == "cossh") | .status')
 
