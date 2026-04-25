@@ -12,6 +12,7 @@ import sys
 import json
 import time
 import fcntl
+import signal
 import subprocess
 import urllib.request
 import urllib.parse
@@ -33,6 +34,9 @@ BYPASS_CI = False
 # =============================================================================
 # Core Utility Functions
 # =============================================================================
+
+def timeout_handler(signum, frame):
+    deny_transition("GATE DENIED: QA Evaluation exceeded the maximum allowed time (20 minutes).")
 
 def allow_transition():
     """Outputs an allow decision to MCP and terminates execution."""
