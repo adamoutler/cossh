@@ -34,7 +34,7 @@ class ConnectionListViewModelDragDropTest {
         storageManager.saveProfile(p2)
         storageManager.saveProfile(p3)
         
-        viewModel = ConnectionListViewModel(app, storageManager, BackupManager(app, storageManager))
+        viewModel = ConnectionListViewModel(app, storageManager, BackupManager(app, storageManager, com.adamoutler.ssh.crypto.IdentityStorageManager(app)))
     }
 
     @Test
@@ -58,7 +58,7 @@ class ConnectionListViewModelDragDropTest {
         
         // Let's reload a brand new view model to prove storage persistency
         val app = ApplicationProvider.getApplicationContext<Application>()
-        val newViewModel = ConnectionListViewModel(app, storageManager, BackupManager(app, storageManager))
+        val newViewModel = ConnectionListViewModel(app, storageManager, BackupManager(app, storageManager, com.adamoutler.ssh.crypto.IdentityStorageManager(app)))
         
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
         Thread.sleep(100)

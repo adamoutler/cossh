@@ -1,6 +1,7 @@
 package com.adamoutler.ssh.backup
 
 import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.data.IdentityProfile
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -20,9 +21,12 @@ import javax.crypto.spec.SecretKeySpec
 
 @Serializable
 data class BackupPayload(
-    val version: Int = 1,
+    val version: Int = 2,
     val profiles: List<ConnectionProfile>,
-    val profilePasswords: Map<String, String>
+    val profilePasswords: Map<String, String>,
+    val identities: List<IdentityProfile> = emptyList(),
+    val identityPasswords: Map<String, String> = emptyMap(),
+    val identityPrivateKeys: Map<String, String> = emptyMap()
 )
 
 object BackupCryptoManager {
@@ -32,14 +36,38 @@ object BackupCryptoManager {
     private const val IV_LENGTH = 12
     private const val TAG_LENGTH_BIT = 128
 
-    fun exportProfilesToZip(profiles: List<ConnectionProfile>, password: CharArray, outputStream: OutputStream) {
+    fun exportProfilesToZip(
+        profiles: List<ConnectionProfile>,
+        identities: List<IdentityProfile>,
+        password: CharArray,
+        outputStream: OutputStream
+    ) {
         val passwordsMap = mutableMapOf<String, String>()
         for (profile in profiles) {
             profile.password?.let { pwdBytes ->
                 passwordsMap[profile.id] = Base64.getEncoder().encodeToString(pwdBytes)
             }
         }
-        val payload = BackupPayload(profiles = profiles, profilePasswords = passwordsMap)
+        
+        val identityPasswordsMap = mutableMapOf<String, String>()
+        val identityPrivateKeysMap = mutableMapOf<String, String>()
+        for (identity in identities) {
+            identity.password?.let {
+                identityPasswordsMap[identity.id] = Base64.getEncoder().encodeToString(it)
+            }
+            identity.privateKey?.let {
+                identityPrivateKeysMap[identity.id] = Base64.getEncoder().encodeToString(it)
+            }
+        }
+        
+        val payload = BackupPayload(
+            version = 2,
+            profiles = profiles, 
+            profilePasswords = passwordsMap,
+            identities = identities,
+            identityPasswords = identityPasswordsMap,
+            identityPrivateKeys = identityPrivateKeysMap
+        )
         
         val jsonString = Json.encodeToString(payload)
         val plainTextBytes = jsonString.toByteArray(Charsets.UTF_8)
@@ -74,7 +102,7 @@ object BackupCryptoManager {
         }
     }
 
-    fun importProfilesFromZip(inputStream: InputStream, password: CharArray): List<ConnectionProfile> {
+    fun importProfilesFromZip(inputStream: InputStream, password: CharArray): Pair<List<ConnectionProfile>, List<IdentityProfile>> {
         var encryptedData: ByteArray? = null
         ZipInputStream(inputStream).use { zipIn ->
             var entry = zipIn.nextEntry
@@ -108,14 +136,22 @@ object BackupCryptoManager {
         val plainTextBytes = cipher.doFinal(cipherText)
         val jsonString = String(plainTextBytes, Charsets.UTF_8)
 
-        val payload = Json.decodeFromString<BackupPayload>(jsonString)
+        val payload = Json { ignoreUnknownKeys = true }.decodeFromString<BackupPayload>(jsonString)
         
         for (profile in payload.profiles) {
             payload.profilePasswords[profile.id]?.let { pwdStr ->
                 profile.password = Base64.getDecoder().decode(pwdStr)
             }
         }
+        for (identity in payload.identities) {
+            payload.identityPasswords[identity.id]?.let { pwdStr ->
+                identity.password = Base64.getDecoder().decode(pwdStr)
+            }
+            payload.identityPrivateKeys[identity.id]?.let { pkStr ->
+                identity.privateKey = Base64.getDecoder().decode(pkStr)
+            }
+        }
         
-        return payload.profiles
+        return Pair(payload.profiles, payload.identities)
     }
 }

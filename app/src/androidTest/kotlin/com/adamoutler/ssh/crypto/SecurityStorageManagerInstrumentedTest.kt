@@ -47,9 +47,12 @@ class SecurityStorageManagerInstrumentedTest {
 
     @Test
     fun testBackupManagerExportImport() {
+        val app = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.app.Application>()
+        val identityStorageManager = com.adamoutler.ssh.crypto.IdentityStorageManager(app)
         val backupManager = com.adamoutler.ssh.backup.BackupManager(
-            androidx.test.core.app.ApplicationProvider.getApplicationContext(),
-            storageManager
+            app,
+            storageManager,
+            identityStorageManager
         )
         val profile = ConnectionProfile(
             id = "backup-id-1",

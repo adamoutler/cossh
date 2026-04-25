@@ -22,7 +22,7 @@ class ConnectionListViewModel(
     constructor(application: Application) : this(
         application,
         SecurityStorageManager(application),
-        BackupManager(application, SecurityStorageManager(application))
+        BackupManager(application, SecurityStorageManager(application), com.adamoutler.ssh.crypto.IdentityStorageManager(application))
     )
 
     private val _profiles = MutableStateFlow<List<ConnectionProfile>>(emptyList())
