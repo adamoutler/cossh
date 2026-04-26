@@ -353,7 +353,7 @@ if __name__ == "__main__":
 
        # 8. Prepare payload for AI QA gate using the dash apis
         commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
-        ticket_md = build_ticket_context(WORKSPACE, project_id, work_item_id, commit, ci_job)
+        ticket_md = build_ticket_context(WORKSPACE, project_id, work_item_id, commit, ci_job, tool_input.get("comment"))
 
         # 9. Check with reality-checker AI to verify it's done
         if BYPASS_REALITY:
@@ -370,5 +370,8 @@ if __name__ == "__main__":
             allow_transition(f"QA Gate Passed. Reality Checker Report:\n{result_text}")
         else:
             deny_transition(f"Reality Checker determined the work is not ready. Feedback: {result_text}")
+    finally:
+        lock_file.close()
+Reality Checker determined the work is not ready. Feedback: {result_text}")
     finally:
         lock_file.close()
