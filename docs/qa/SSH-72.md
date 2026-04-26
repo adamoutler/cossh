@@ -12,4 +12,9 @@
   ActiveSessionSelectorDialogTest > testStartNew_StartsNewSession PASSED
   ```
 - Verification Proof 2 (Visual): The UI test `ConnectionListSessionSelectorScreenshotTest` successfully generated a screenshot of this dialog at `docs/qa/SSH-72-selector.png`.
-- Verification Proof 3 (Integration): Integration is proven via `AppConnectionIntegrationTest.test19StepWorkflow_ConnectionResumeAndConcurrentSessions`. All tests pass successfully under `./gradlew testReleaseUnitTest`.
+- Verification Proof 3 (Integration): The UI integration test `ConnectionListDialogIntegrationTest` explicitly mounts the `ConnectionListScreen`, mocks multiple active sessions via `ConnectionStateRepository`, and asserts that the `AlertDialog` dynamically renders. It then explicitly tests the `onConnect` navigation parameters for both "Start New" (new UUID) and "Resume" (existing session UUID).
+  ```
+  > Task :app:testDebugUnitTest
+  ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListDialogIntegrationTest.testConnectionList_ShowsSessionSelector_AndNavigates took 3530ms
+  ConnectionListDialogIntegrationTest > testConnectionList_ShowsSessionSelector_AndNavigates PASSED
+  ```
