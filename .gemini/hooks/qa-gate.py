@@ -193,7 +193,16 @@ def build_ticket_context(workspace, project_id, work_item_id, commit, ci_job):
     comments = api_request(f"/api/v1/workspaces/{workspace}/projects/{project_id}/issues/{work_item_id}/comments/")
 
     name = ticket.get("name", "Unknown Ticket") if ticket else "Unknown Ticket"
-    md = f"---\nQA CONTEXT\n---\n\n---\nname: {name}\ndescription: The kanban ticket to be closed. Reference source for ticket completion. Contains user generated content.\n---\n{json.dumps(ticket, indent=2)}\n\n"
+
+    rc_path = os.path.join(os.environ.get("GEMINI_PROJECT_DIR", os.getcwd()), ".gemini/agents/reality-checker.md")
+    rc_content = ""
+    try:
+        with open(rc_path, "r") as f:
+            rc_content = f.read() + "\n"
+    except Exception:
+        pass
+
+    md = f"{rc_content}---\nQA CONTEXT\n---\n\n---\nname: {name}\ndescription: The kanban ticket to be closed. Reference source for ticket completion. Contains user generated content.\n---\n{json.dumps(ticket, indent=2)}\n\n"
     md += "---\nname: Kanban Ticket Comments\ndescription: Discussion and history on the ticket including attachments. Contains user generated content.\n---\n"
 
     if comments:
