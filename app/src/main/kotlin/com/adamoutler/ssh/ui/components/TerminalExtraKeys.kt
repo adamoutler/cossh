@@ -25,7 +25,8 @@ fun TerminalExtraKeys(
     menuActive: Boolean,
     onKeyToggle: (String) -> Unit,
     onKeyPress: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    initialPage: Int = 0
 ) {
     val page1Row1 = listOf("Esc", "Ctrl-C", "Menu", "↑", "Tab", "Home")
     val page1Row2 = listOf("Ctrl", "Alt", "←", "↓", "→", "End")
@@ -34,7 +35,7 @@ fun TerminalExtraKeys(
     val page3Row1 = listOf("F1", "F2", "F3", "F4", "F5", "F6")
     val page3Row2 = listOf("F7", "F8", "F9", "F10", "F11", "F12")
 
-    val pagerState = rememberPagerState(pageCount = { 3 })
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { 3 })
 
     HorizontalPager(
         state = pagerState,

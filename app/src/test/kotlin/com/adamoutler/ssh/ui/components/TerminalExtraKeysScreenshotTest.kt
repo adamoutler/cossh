@@ -44,4 +44,20 @@ class TerminalExtraKeysScreenshotTest {
             )
         }
     }
+
+    @Test
+    fun page3_f1_f12_keys() {
+        paparazzi.snapshot {
+            TerminalExtraKeys(
+                ctrlActive = false,
+                altActive = false,
+                superActive = false,
+                menuActive = false,
+                onKeyToggle = {},
+                onKeyPress = {},
+                modifier = Modifier.fillMaxWidth(),
+                initialPage = 2
+            )
+        }
+    }
 }

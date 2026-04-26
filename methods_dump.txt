@@ -4,12 +4,6 @@ reset
 write
 getPid
 updateTerminalSessionClient
-updateSize
-getTitle
-initializeEmulator
-writeCodePoint
-getEmulator
-finishIfRunning
 titleChanged
 getExitStatus
 onCopyTextToClipboard
@@ -17,6 +11,12 @@ onPasteTextFromClipboard
 onBell
 onColorsChanged
 getCwd
+updateSize
+getTitle
+initializeEmulator
+writeCodePoint
+getEmulator
+finishIfRunning
 write
 equals
 toString
