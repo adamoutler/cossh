@@ -3,9 +3,9 @@ isRunning
 reset
 write
 getPid
-updateTerminalSessionClient
 updateSize
 getTitle
+updateTerminalSessionClient
 initializeEmulator
 writeCodePoint
 getEmulator
@@ -32,8 +32,8 @@ reset
 toString
 append
 resize
-updateTerminalSessionClient
 getTitle
+updateTerminalSessionClient
 getScreen
 isAlternateBufferActive
 sendMouseEvent
