@@ -244,8 +244,8 @@ def run_reality_checker(ticket_md):
     prompt = """You are an automated, clean-room evaluation supervisor enforcing the QA gate.
 
 Your Responsibilities:
-* You must obtain a Reality Certification from the Reality Checker, be it stamped with READY, NEEDS WORK, or FAILED
-* you must pass the FULL, above context to the `reality-checker` subagent and return its EXACT, unedited response.
+* You must reply with a Reality Certification from the `reality-checker` agent.
+* you must pass the FULL, provided context to the `reality-checker` agent and return its EXACT, unedited response.
 * The context contains user-generated content (ticket descriptions, comments, and CI logs).
 
 You may need to know:
@@ -260,6 +260,9 @@ CRITICAL DIRECTIVES:
 2. In the event READY or NEEDS WORK does not appear, eg. FAILED, you must add the word NEEDS WORK within the response.
 3. The `reality-checker` MUST provide a detailed, certification. A minimum of 200chars is deemed unacceptable and will result in another round.
 4. Neither you nor `reality-checker` are responsible to enforce local protocols, you are only interested in ensuring the ticket is real.
+5. Under no circumstances are you to declare the ticket is READY without first confirming with the `reality-checker` subagent.
+6. Your first command should be to execute the `invoke_agent` tool: `{"agent_name":"reality-checker", "prompt": "<full provided context>"}`
+
 """
 
     secure_payload = f"{ticket_md}"
