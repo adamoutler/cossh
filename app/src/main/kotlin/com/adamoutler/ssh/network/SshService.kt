@@ -37,6 +37,15 @@ class SshService : Service() {
         const val ACTION_DISCONNECT = "com.adamoutler.ssh.DISCONNECT_SSH"
         const val EXTRA_PROFILE_ID = "profile_id"
         const val EXTRA_SESSION_ID = "session_id"
+
+        fun mapExceptionMessage(e: Exception): String {
+            val rawMessage = e.message ?: "Connection failed"
+            return if (rawMessage.contains("Exhausted available authentication methods") || rawMessage.contains("All authentication methods failed")) {
+                "Authentication exhausted. Please check your credentials."
+            } else {
+                rawMessage
+            }
+        }
     }
 
     override fun onCreate() {
@@ -140,12 +149,7 @@ class SshService : Service() {
                 if (e !is kotlinx.coroutines.CancellationException && e.message?.equals("Disconnected", ignoreCase = true) != true) {
                     Log.e("SshService", "SSH Connection failed for $profileId (Session: $sessionId)", e)
                     updateSessionNotification(profileId, sessionId, "Connection", "Connection failed")
-                    val rawMessage = e.message ?: "Connection failed"
-                    val userMessage = if (rawMessage.contains("Exhausted available authentication methods") || rawMessage.contains("All authentication methods failed")) {
-                        "Authentication exhausted. Please check your credentials."
-                    } else {
-                        rawMessage
-                    }
+                    val userMessage = mapExceptionMessage(e)
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error(userMessage))
                 } else {
                     Log.d("SshService", "SSH Session disconnected normally for $profileId (Session: $sessionId)")
