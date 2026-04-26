@@ -614,6 +614,7 @@ fun TerminalScreenContent(
                         if (ctrlSticky.value) ctrlSticky.value = false
                         if (superSticky.value) superSticky.value = false
                         if (menuSticky.value) menuSticky.value = false
+                        android.util.Log.d("TerminalScreen", "Sending extra key bytes: ${bytes.joinToString(",") { String.format("0x%02X", it) }}")
                         sendToTerminal(bytes)
                     }
                 }
