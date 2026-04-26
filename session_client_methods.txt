@@ -4,9 +4,9 @@ onBell
 onTextChanged
 onTitleChanged
 onSessionFinished
+onColorsChanged
 onCopyTextToClipboard
 onPasteTextFromClipboard
-onColorsChanged
 getTerminalCursorStyle
 logError
 logWarn

@@ -8,8 +8,6 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-class SecureStorageUnavailableException(message: String, cause: Throwable? = null) : Exception(message, cause)
-
 object PasswordCipher {
     private const val KEY_ALIAS = "cossh_volatile_password_key"
     private const val ANDROID_KEYSTORE = "AndroidKeyStore"
@@ -45,7 +43,7 @@ object PasswordCipher {
                 }
                 return fallbackKey!!
             }
-            throw SecureStorageUnavailableException("AndroidKeyStore unavailable. Refusing to fallback to insecure storage.", e)
+            e.handleKeystoreExceptions("AndroidKeyStore unavailable. Refusing to fallback to insecure storage.")
         }
     }
 
@@ -58,11 +56,15 @@ object PasswordCipher {
     }
 
     fun decrypt(encryptedData: ByteArray): ByteArray {
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        val iv = encryptedData.copyOfRange(0, 12)
-        val ciphertext = encryptedData.copyOfRange(12, encryptedData.size)
-        val spec = GCMParameterSpec(128, iv)
-        cipher.init(Cipher.DECRYPT_MODE, getOrGenerateKey(), spec)
-        return cipher.doFinal(ciphertext)
+        try {
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            val iv = encryptedData.copyOfRange(0, 12)
+            val ciphertext = encryptedData.copyOfRange(12, encryptedData.size)
+            val spec = GCMParameterSpec(128, iv)
+            cipher.init(Cipher.DECRYPT_MODE, getOrGenerateKey(), spec)
+            return cipher.doFinal(ciphertext)
+        } catch (e: Exception) {
+            e.handleKeystoreExceptions("Decryption failed due to Keystore error.")
+        }
     }
 }

@@ -1,6 +1,8 @@
 package com.adamoutler.ssh.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
@@ -19,6 +21,8 @@ import com.adamoutler.ssh.ui.screens.identity.AddEditIdentityScreen
 import com.adamoutler.ssh.billing.BillingManager
 import com.adamoutler.ssh.sync.DriveSyncManager
 import com.adamoutler.ssh.ui.screens.SettingsScreen
+import com.adamoutler.ssh.ui.components.KeystoreInvalidatedDialog
+import com.adamoutler.ssh.crypto.SecurityStorageManager
 
 @Composable
 fun AppNavigation() {
@@ -27,6 +31,9 @@ fun AppNavigation() {
     val activity = context as? androidx.activity.ComponentActivity
     val billingManager = remember { BillingManager(context) }
     val driveSyncManager = remember { DriveSyncManager(context) }
+    val securityStorageManager = remember { SecurityStorageManager(context) }
+
+    var showKeystoreDialog by remember { mutableStateOf(false) }
 
     androidx.compose.runtime.DisposableEffect(activity) {
         val listener = androidx.core.util.Consumer<android.content.Intent> { intent ->
@@ -68,8 +75,23 @@ fun AppNavigation() {
                 }
             } else if (event is com.adamoutler.ssh.ui.events.UiEvent.NavigateUp) {
                 navController.navigateUp()
+            } else if (event is com.adamoutler.ssh.ui.events.UiEvent.ShowKeystoreInvalidatedDialog) {
+                showKeystoreDialog = true
             }
         }
+    }
+
+    if (showKeystoreDialog) {
+        KeystoreInvalidatedDialog(
+            onConfirmReset = {
+                securityStorageManager.resetInvalidatedKeys()
+                com.adamoutler.ssh.crypto.IdentityStorageManager(context).resetInvalidatedKeys()
+                showKeystoreDialog = false
+            },
+            onDismissApp = {
+                activity?.finishAffinity()
+            }
+        )
     }
 
     NavHost(navController = navController, startDestination = "connectionList") {

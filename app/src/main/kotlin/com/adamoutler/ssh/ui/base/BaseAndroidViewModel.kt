@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.adamoutler.ssh.crypto.KeyInvalidatedException
 import com.adamoutler.ssh.ui.events.UiEvent
 import com.adamoutler.ssh.ui.events.UiEventBus
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -16,8 +17,12 @@ abstract class BaseAndroidViewModel(application: Application) : AndroidViewModel
 
     protected val exceptionHandler = CoroutineExceptionHandler { _, exception ->
         Log.e("BaseAndroidViewModel", "Unhandled Coroutine Exception", exception)
-        val errorMessage = exception.message ?: "An unknown error occurred"
-        UiEventBus.publish(UiEvent.ShowSnackbar(errorMessage))
+        if (exception is KeyInvalidatedException) {
+            UiEventBus.publish(UiEvent.ShowKeystoreInvalidatedDialog)
+        } else {
+            val errorMessage = exception.message ?: "An unknown error occurred"
+            UiEventBus.publish(UiEvent.ShowSnackbar(errorMessage))
+        }
     }
 
     protected fun launchWithHandler(
