@@ -372,6 +372,3 @@ if __name__ == "__main__":
             deny_transition(f"Reality Checker determined the work is not ready. Feedback: {result_text}")
     finally:
         lock_file.close()
-Reality Checker determined the work is not ready. Feedback: {result_text}")
-    finally:
-        lock_file.close()
