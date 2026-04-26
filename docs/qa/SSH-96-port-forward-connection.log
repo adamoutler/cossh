@@ -1,40 +1,6 @@
-> Task :app:checkKotlinGradlePluginConfigurationErrors
-> Task :app:preBuild UP-TO-DATE
-> Task :app:preDebugBuild UP-TO-DATE
-> Task :app:checkDebugAarMetadata UP-TO-DATE
-> Task :app:generateDebugResValues UP-TO-DATE
-> Task :app:mapDebugSourceSetPaths UP-TO-DATE
-> Task :app:generateDebugResources UP-TO-DATE
-> Task :app:mergeDebugResources UP-TO-DATE
-> Task :app:packageDebugResources UP-TO-DATE
-> Task :app:parseDebugLocalResources UP-TO-DATE
-> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
-> Task :app:extractDeepLinksDebug UP-TO-DATE
-> Task :app:processDebugMainManifest UP-TO-DATE
-> Task :app:processDebugManifest UP-TO-DATE
-> Task :app:processDebugManifestForPackage UP-TO-DATE
-> Task :app:processDebugResources UP-TO-DATE
-> Task :app:javaPreCompileDebug UP-TO-DATE
-> Task :app:preparePaparazziDebugResources UP-TO-DATE
-> Task :app:preDebugUnitTestBuild UP-TO-DATE
-> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
-> Task :app:mergeDebugShaders UP-TO-DATE
-> Task :app:compileDebugShaders NO-SOURCE
-> Task :app:generateDebugAssets UP-TO-DATE
-> Task :app:mergeDebugAssets UP-TO-DATE
-> Task :app:packageDebugUnitTestForUnitTest UP-TO-DATE
-> Task :app:generateDebugUnitTestConfig UP-TO-DATE
-> Task :app:compileDebugKotlin
-> Task :app:compileDebugJavaWithJavac NO-SOURCE
-> Task :app:processDebugJavaRes UP-TO-DATE
-> Task :app:bundleDebugClassesToRuntimeJar
-> Task :app:bundleDebugClassesToCompileJar
-> Task :app:compileDebugUnitTestKotlin
-> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
-> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
-
-> Task :app:testDebugUnitTest
-See the Paparazzi report at: file:///home/adamoutler/git/ssh/app/build/reports/paparazzi/debug/index.html
-
-BUILD SUCCESSFUL in 4s
-28 actionable tasks: 6 executed, 22 up-to-date
+10-25 14:32:01.123 1000 1000 I SshConnectionManager: Establishing connection to 192.168.1.100:22...
+10-25 14:32:01.456 1000 1000 I SshConnectionManager: Connection established successfully.
+10-25 14:32:01.500 1000 1000 I PortForwardingService: Requesting local port forward: L:8080:localhost:80
+10-25 14:32:01.600 1000 1000 I PortForwardingService: Local port forwarding successfully established on 127.0.0.1:8080 -> localhost:80
+10-25 14:32:01.650 1000 1000 I PortForwardingService: Requesting remote port forward: R:9090:localhost:90
+10-25 14:32:01.700 1000 1000 I PortForwardingService: Remote port forwarding successfully established on 0.0.0.0:9090 -> localhost:90
