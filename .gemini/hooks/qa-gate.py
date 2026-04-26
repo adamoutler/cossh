@@ -187,7 +187,7 @@ def fetch_done_state(workspace, project_id):
             return str(s.get("id"))
     return None
 
-def build_ticket_context(workspace, project_id, work_item_id, commit, ci_job):
+def build_ticket_context(workspace, project_id, work_item_id, commit, ci_job, current_comment):
     """7. Prepares payload for AI QA gate using the dash apis."""
     ticket = api_request(f"/api/v1/workspaces/{workspace}/projects/{project_id}/issues/{work_item_id}/")
     comments = api_request(f"/api/v1/workspaces/{workspace}/projects/{project_id}/issues/{work_item_id}/comments/")
@@ -208,6 +208,8 @@ def build_ticket_context(workspace, project_id, work_item_id, commit, ci_job):
     if comments:
         for c in comments.get("results", []):
             md += f"User Id: {c.get('created_by')}\nLast Updated: {c.get('updated_at') or c.get('created_at')}\n{c.get('comment_html')}\nAttachments: {json.dumps(c.get('attachments'))}\n---\n"
+    if current_comment:
+        md += f"\n---\nname: transition comment\ndescription: comment provided with this transition:\n---\n{current_comment}\n\n"
 
     if ci_job and ci_job.get("workflow_id"):
         query = urllib.parse.urlencode({
