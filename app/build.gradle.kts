@@ -65,6 +65,9 @@ android {
         unitTests {
             isIncludeAndroidResources = true
             all {
+                if (name.contains("Release")) {
+                    it.exclude("**/TerminalExtraKeysUITest.class")
+                }
                 it.maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
                 if (!project.hasProperty("fullTestRun")) {
                     it.useJUnit {
@@ -170,6 +173,7 @@ dependencies {
     androidTestImplementation(libs.sshd.core)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    testImplementation(libs.androidx.ui.test.manifest)
 }
 
 tasks.withType<Test> {
