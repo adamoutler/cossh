@@ -80,6 +80,7 @@ def handle_client(client_socket):
             data = channel.recv(1024)
             if not data:
                 break
+            print(f"Received bytes from SSH client: {[hex(b) for b in data]}", flush=True)
             channel.send(data)
         except Exception:
             break

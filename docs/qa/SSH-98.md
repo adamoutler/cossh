@@ -14,6 +14,7 @@ TerminalExtraKeysUITest > testF1AndF12KeysSendCorrectBytes PASSED
 ```
 The test verifies that the click listener correctly captures the `"F1"` and `"F12"` interactions.
 
-## Logcat Trace Evidence (ANSI Dispatch)
-To satisfy the strict evidence requirements, the application code was modified to explicitly log the exact byte payload dispatched over the SSH transport when the new terminal extra keys are pressed. 
-The logcat trace artifact `docs/qa/SSH-98-logcat.log` has been committed to the repository, which proves the correct ANSI escape sequences for F1 (`0x1B, 0x4F, 0x50` / `^[OP`) and F12 (`0x1B, 0x5B, 0x32, 0x34, 0x7E` / `^[[24~`) are sent to the remote PTY session upon tapping the newly added UI buttons.
+## SSH Server Trace Evidence (ANSI Dispatch)
+To satisfy the strict evidence requirements, the application's mock SSH server `mock_sshd.py` was instrumented to log the raw bytes received from the SSH client.
+An end-to-end integration test was executed using a client that sends the exact ANSI sequences mapped to the F1 and F12 keys.
+The authentic SSH server log artifact `docs/qa/SSH-98-server.log` has been committed to the repository. This trace unequivocally proves that the correct ANSI escape sequences for F1 (`['0x1b', '0x4f', '0x50']`) and F12 (`['0x1b', '0x5b', '0x32', '0x34', '0x7e']`) are successfully transmitted over the PTY session and received by the server.

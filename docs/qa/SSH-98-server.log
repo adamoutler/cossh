@@ -1,0 +1,7 @@
+Mock SSHD listening on 9999
+Auth publickey requested: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDBWWqBKJN7+7PpomC1P+Xk/6ppp7Ak2H07kMvGHEwJl+kfI8FobaAMHMLvuhllM9t8OqPGUeV7vipYFu3tkWb/nAGQni/L/NHFJU5ugR22bAleunJnYSsLcGMRtUr32xxZsh1H/2HEtjXeQV5KdS7xEHpFgPOM6b7mR7KD0ayNR62gO/P3ugw43YaIngcGnm+Bn1mkA/WH4NIwObmJJkHdxFjKz53ll/7t/7MQ5GrDqJOm+WnNQAjShXt+l/4OCD1udVV66kKZBSwakNhU8VO4RZQf2ZAa8ca4E7GbH5oxqmnAWVLisyDFzyTv34KzkUjrfk6DBlhQLAuqhEj/Lvz/FyUqMys9U0RJqojjdC6Uom+SaSwxmXrmd+lpMRK7sb/vBHgeeVWcxe+YOHEeRdnTy3rFZd3JbJiDER54LJSIQZyrr2ve1gWh3LJjgSqy2sd1kDbs6CzIB7g06yQtPF+wJ3jFS5CAmdTiB/bBfYewXm672qfJgohl3Mkk5523C0owFD16sr8aeDldnWSqC7XwYSbAOGjmfmkKNjFE6l4eDI3FRHjbRsliAk2OPP6acmtPz/xqJZ+irp7eGJxj7f/vsVZe3ezl+1Y5nn+E6M4zCHwFrLGjWjzi5R+ADsuiScI5j0MbiNyIeuFsVDCb8VpwtaD485IFYJcZ7cTEReEuCQ==
+Currently injected keys: set()
+Auth publickey requested: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILJMYPK213TXgY/mkHVujMqFWcoeAvyzfQAzmdPuR2GS
+Currently injected keys: set()
+Received bytes from SSH client: ['0x1b', '0x4f', '0x50']
+Received bytes from SSH client: ['0x1b', '0x5b', '0x32', '0x34', '0x7e']
