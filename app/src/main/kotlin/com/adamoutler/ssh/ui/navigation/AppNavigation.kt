@@ -99,14 +99,15 @@ fun AppNavigation() {
             ConnectionListScreen(
                 onAddConnection = { navController.navigate("addEditProfile") },
                 onEditConnection = { profileId -> navController.navigate("addEditProfile?profileId=$profileId") },
-                onConnect = { profileId, sessionId -> 
+                onConnect = { profileId, sessionId ->
                     if (sessionId != null) {
                         navController.navigate("terminal?profileId=$profileId&sessionId=$sessionId")
                     } else {
-                        navController.navigate("terminal?profileId=$profileId") 
+                        navController.navigate("terminal?profileId=$profileId")
                     }
                 },
-                onSettingsRequested = { navController.navigate("settings") }
+                onSettingsRequested = { navController.navigate("settings") },
+                onManageIdentitiesRequested = { navController.navigate("identityList") }
             )
         }
         composable("settings") {

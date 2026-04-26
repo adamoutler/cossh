@@ -31,6 +31,7 @@ fun ConnectionListContent(
     onExportRequested: () -> Unit = {},
     onImportRequested: () -> Unit = {},
     onSettingsRequested: () -> Unit = {},
+    onManageIdentitiesRequested: () -> Unit = {},
     initialMenuExpanded: Boolean = false,
     defaultGroupName: String = com.adamoutler.ssh.crypto.SettingsManager(androidx.compose.ui.platform.LocalContext.current).defaultGroupName
 ) {
@@ -42,6 +43,7 @@ fun ConnectionListContent(
                 onExportRequested = onExportRequested,
                 onImportRequested = onImportRequested,
                 onSettingsRequested = onSettingsRequested,
+                onManageIdentitiesRequested = onManageIdentitiesRequested,
                 initialMenuExpanded = initialMenuExpanded
             )
         },

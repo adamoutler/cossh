@@ -12,6 +12,7 @@ fun ConnectionListTopBar(
     onExportRequested: () -> Unit,
     onImportRequested: () -> Unit,
     onSettingsRequested: () -> Unit,
+    onManageIdentitiesRequested: () -> Unit,
     modifier: Modifier = Modifier,
     initialMenuExpanded: Boolean = false
 ) {
@@ -27,6 +28,13 @@ fun ConnectionListTopBar(
                 expanded = menuExpanded,
                 onDismissRequest = { menuExpanded = false }
             ) {
+                DropdownMenuItem(
+                    text = { Text("Manage Identities") },
+                    onClick = {
+                        menuExpanded = false
+                        onManageIdentitiesRequested()
+                    }
+                )
                 DropdownMenuItem(
                     text = { Text("Export Backup") },
                     onClick = {
