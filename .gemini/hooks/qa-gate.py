@@ -273,7 +273,13 @@ CRITICAL DIRECTIVES:
         deny_transition("The QA Gate took too long to respond (timeout during gemini execution). Please try again now.")
 
     try:
-        res_data = json.loads(proc.stdout)
+        stdout_str = proc.stdout.strip()
+        if stdout_str and not stdout_str.startswith("{"):
+            start_idx = stdout_str.find("{")
+            end_idx = stdout_str.rfind("}")
+            if start_idx != -1 and end_idx != -1:
+                stdout_str = stdout_str[start_idx:end_idx+1]
+        res_data = json.loads(stdout_str)
         result = res_data.get("response", "")
     except json.JSONDecodeError:
         result = ""
