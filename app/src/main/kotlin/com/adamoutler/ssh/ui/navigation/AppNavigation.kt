@@ -7,6 +7,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -188,25 +195,72 @@ fun HostKeyPromptDialog() {
     promptRequest?.let { request ->
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(false) },
-            title = { 
-                androidx.compose.material3.Text(if (request.isKeyChanged) "SECURITY WARNING" else "Unknown Host") 
+            title = {
+                androidx.compose.foundation.layout.Row(
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                ) {
+                    androidx.compose.material3.Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Filled.Warning,
+                        contentDescription = "Warning",
+                        tint = androidx.compose.material3.MaterialTheme.colorScheme.error,
+                        modifier = androidx.compose.ui.Modifier.padding(end = 8.dp)
+                    )
+                    androidx.compose.material3.Text(
+                        if (request.isKeyChanged) "Security Alert: Host Key Changed" else "Unknown Host",
+                        style = androidx.compose.material3.MaterialTheme.typography.titleLarge
+                    )
+                }
             },
             text = {
-                val msg = if (request.isKeyChanged) {
-                    "The host key for ${request.hostname} has changed! This could be a MITM attack. Fingerprint: ${request.fingerprint}"
-                } else {
-                    "The authenticity of host '${request.hostname}' can't be established.\nFingerprint: ${request.fingerprint}\nAre you sure you want to continue connecting?"
+                androidx.compose.foundation.layout.Column {
+                    val msg = if (request.isKeyChanged) {
+                        "The identification key for this server has changed. This could mean the server was rebuilt, or someone is intercepting your connection (Man-in-the-Middle attack)."
+                    } else {
+                        "The authenticity of host '${request.hostname}' can't be established."
+                    }
+                    androidx.compose.material3.Text(msg, modifier = androidx.compose.ui.Modifier.padding(bottom = 16.dp))
+
+                    androidx.compose.foundation.layout.Column(
+                        modifier = androidx.compose.ui.Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                            )
+                            .padding(12.dp)
+                    ) {
+                        if (request.expectedFingerprint != null) {
+                            androidx.compose.material3.Text(
+                                "Expected: ${request.expectedFingerprint}",
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                style = androidx.compose.material3.MaterialTheme.typography.bodySmall
+                            )
+                            androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(8.dp))
+                        }
+                        androidx.compose.material3.Text(
+                            "Received: ${request.receivedFingerprint}",
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            style = androidx.compose.material3.MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
-                androidx.compose.material3.Text(msg)
             },
             confirmButton = {
-                androidx.compose.material3.TextButton(onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) }) {
-                    androidx.compose.material3.Text("Accept & Save")
+                if (request.isKeyChanged) {
+                    com.adamoutler.ssh.ui.components.HoldToConfirmButton(
+                        onConfirm = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) },
+                        text = "Hold to Accept Risk",
+                        modifier = androidx.compose.ui.Modifier.padding(end = 8.dp)
+                    )
+                } else {
+                    androidx.compose.material3.TextButton(onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) }) {
+                        androidx.compose.material3.Text("Accept & Save")
+                    }
                 }
             },
             dismissButton = {
-                androidx.compose.material3.TextButton(onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(false) }) {
-                    androidx.compose.material3.Text("Decline")
+                androidx.compose.material3.Button(onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(false) }) {
+                    androidx.compose.material3.Text("Abort Connection")
                 }
             }
         )

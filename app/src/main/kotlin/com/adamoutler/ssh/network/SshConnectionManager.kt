@@ -21,23 +21,73 @@ class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(
             return true
         }
 
-        // If not verified, check if we have any key for this host
+        var oldFingerprint: String? = null
         val hostExists = knownHostsFile.exists() && knownHostsFile.useLines { lines ->
-            lines.any { it.split(" ").firstOrNull()?.contains(hostname) == true }
+            var found = false
+            for (line in lines) {
+                val tokens = line.split(" ")
+                val firstToken = tokens.firstOrNull()
+                if (firstToken != null && (firstToken.contains(hostname) || firstToken.contains("[$hostname]:$port"))) {
+                    found = true
+                    if (tokens.size >= 3) {
+                        try {
+                            val decodedOld = java.util.Base64.getDecoder().decode(tokens[2])
+                            val md = java.security.MessageDigest.getInstance("SHA-256")
+                            oldFingerprint = "SHA256:" + java.util.Base64.getEncoder().encodeToString(md.digest(decodedOld))
+                        } catch (e: Exception) {
+                            oldFingerprint = "Unknown/Unparseable"
+                        }
+                    }
+                    break
+                }
+            }
+            found
         }
 
-        if (hostExists) {
-            // Host is known, but key didn't match -> MITM Risk! Reject!
-            android.util.Log.e("TofuHostKeyVerifier", "Host key for $hostname has changed! MITM risk. Connection rejected.")
-            return false
-        } else {
-            // Trust on First Use (TOFU) -> Accept and save
-            android.util.Log.i("TofuHostKeyVerifier", "Unknown host $hostname, accepting and saving key (TOFU).")
-            val keyType = net.schmizz.sshj.common.KeyType.fromKey(key).toString()
-            val buffer = net.schmizz.sshj.common.Buffer.PlainBuffer().putPublicKey(key)
-            val keyBlobBase64 = java.util.Base64.getEncoder().encodeToString(buffer.compactData)
+        val keyType = net.schmizz.sshj.common.KeyType.fromKey(key).toString()
+        val buffer = net.schmizz.sshj.common.Buffer.PlainBuffer().putPublicKey(key)
+        val keyBlobBase64 = java.util.Base64.getEncoder().encodeToString(buffer.compactData)
+        val receivedFingerprint = try {
+            net.schmizz.sshj.common.SecurityUtils.getFingerprint(key)
+        } catch (e: Exception) {
+            val md = java.security.MessageDigest.getInstance("SHA-256")
+            "SHA256:" + java.util.Base64.getEncoder().encodeToString(md.digest(buffer.compactData))
+        }
+
+        // Prompt user (runBlocking because verify is synchronous but we need to await the user's UI action)
+        val userAccepted = kotlinx.coroutines.runBlocking {
+            ConnectionStateRepository.requestPrompt(
+                hostname = hostname,
+                expectedFingerprint = oldFingerprint,
+                receivedFingerprint = receivedFingerprint,
+                isKeyChanged = hostExists
+            )
+        }
+
+        if (userAccepted) {
+            if (hostExists) {
+                // Atomic overwrite: remove old entry, write new
+                val tempFile = File(knownHostsFile.absolutePath + ".tmp")
+                if (knownHostsFile.exists()) {
+                    knownHostsFile.useLines { lines ->
+                        tempFile.printWriter().use { out ->
+                            lines.forEach { line ->
+                                val firstToken = line.split(" ").firstOrNull()
+                                if (firstToken != null && !firstToken.contains(hostname) && !firstToken.contains("[$hostname]:$port")) {
+                                    out.println(line)
+                                }
+                            }
+                        }
+                    }
+                    tempFile.renameTo(knownHostsFile)
+                }
+            }
             knownHostsFile.appendText("$hostname $keyType $keyBlobBase64\n")
+            android.util.Log.i("TofuHostKeyVerifier", "Host $hostname key accepted and saved.")
             return true
+        } else {
+            android.util.Log.e("TofuHostKeyVerifier", "Host key for $hostname rejected by user. Connection aborted.")
+            return false
         }
     }
 }

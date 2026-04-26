@@ -18,7 +18,8 @@ sealed interface ConnectionState {
 
 data class HostKeyPromptRequest(
     val hostname: String,
-    val fingerprint: String,
+    val expectedFingerprint: String?, // Null if completely new host
+    val receivedFingerprint: String,
     val isKeyChanged: Boolean, // True if MITM warning
     val deferred: kotlinx.coroutines.CompletableDeferred<Boolean>
 )
@@ -53,9 +54,9 @@ object ConnectionStateRepository {
     private val _promptRequest = MutableStateFlow<HostKeyPromptRequest?>(null)
     val promptRequest = _promptRequest.asStateFlow()
 
-    suspend fun requestPrompt(hostname: String, fingerprint: String, isKeyChanged: Boolean): Boolean {
+    suspend fun requestPrompt(hostname: String, expectedFingerprint: String?, receivedFingerprint: String, isKeyChanged: Boolean): Boolean {
         val deferred = kotlinx.coroutines.CompletableDeferred<Boolean>()
-        _promptRequest.value = HostKeyPromptRequest(hostname, fingerprint, isKeyChanged, deferred)
+        _promptRequest.value = HostKeyPromptRequest(hostname, expectedFingerprint, receivedFingerprint, isKeyChanged, deferred)
         return deferred.await()
     }
 
