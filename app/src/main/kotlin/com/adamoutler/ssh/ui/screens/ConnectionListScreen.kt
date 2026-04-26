@@ -77,19 +77,25 @@ fun ConnectionListScreen(
     val context = LocalContext.current
 
     if (showExportPasswordDialog != null) {
-        var password by remember { mutableStateOf("") }
-        var confirmPassword by remember { mutableStateOf("") }
-        var passwordVisible by remember { mutableStateOf(false) }
+        val passwordBuffer = remember { java.util.concurrent.atomic.AtomicReference(CharArray(0)) }
+        val confirmPasswordBuffer = remember { java.util.concurrent.atomic.AtomicReference(CharArray(0)) }
+        var isPasswordStrong by remember { mutableStateOf(false) }
+        var doPasswordsMatch by remember { mutableStateOf(false) }
         
-        val isPasswordStrong = password.length >= 8
-        val doPasswordsMatch = password == confirmPassword && password.isNotEmpty()
         val isFormValid = isPasswordStrong && doPasswordsMatch
+
+        val checkForm = {
+            val pass = passwordBuffer.get()
+            val confirm = confirmPasswordBuffer.get()
+            isPasswordStrong = pass.size >= 8
+            doPasswordsMatch = pass.isNotEmpty() && pass.contentEquals(confirm)
+        }
 
         AlertDialog(
             onDismissRequest = { 
                 showExportPasswordDialog = null
-                password = ""
-                confirmPassword = ""
+                passwordBuffer.get().fill('\u0000')
+                confirmPasswordBuffer.get().fill('\u0000')
             },
             title = { Text("Secure Backup", color = MaterialTheme.colorScheme.primary) },
             text = {
@@ -100,60 +106,44 @@ fun ConnectionListScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Backup Password") },
-                        singleLine = true,
-                        isError = password.isNotEmpty() && !isPasswordStrong,
-                        supportingText = if (password.isNotEmpty() && !isPasswordStrong) {
-                            { Text("Password must be at least 8 characters") }
-                        } else null,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Next
-                        ),
-                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                        trailingIcon = {
-                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(
-                                    imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                    contentDescription = if (passwordVisible) "Hide password" else "Show password"
-                                )
-                            }
+                    com.adamoutler.ssh.ui.components.SecurePasswordEditText(
+                        hint = "Backup Password",
+                        onPasswordChanged = { 
+                            passwordBuffer.get().fill('\u0000')
+                            passwordBuffer.set(it)
+                            checkForm()
                         }
                     )
                     
+                    if (!isPasswordStrong && passwordBuffer.get().isNotEmpty()) {
+                        Text("Password must be at least 8 characters", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    }
+                    
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    OutlinedTextField(
-                        value = confirmPassword,
-                        onValueChange = { confirmPassword = it },
-                        label = { Text("Confirm Password") },
-                        singleLine = true,
-                        isError = confirmPassword.isNotEmpty() && !doPasswordsMatch,
-                        supportingText = if (confirmPassword.isNotEmpty() && !doPasswordsMatch) {
-                            { Text("Passwords do not match") }
-                        } else null,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Done
-                        ),
-                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
+                    com.adamoutler.ssh.ui.components.SecurePasswordEditText(
+                        hint = "Confirm Password",
+                        onPasswordChanged = { 
+                            confirmPasswordBuffer.get().fill('\u0000')
+                            confirmPasswordBuffer.set(it)
+                            checkForm()
+                        }
                     )
+                    
+                    if (!doPasswordsMatch && confirmPasswordBuffer.get().isNotEmpty()) {
+                        Text("Passwords do not match", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    }
                 }
             },
             confirmButton = {
                 Button(
                     onClick = {
                         val uri = showExportPasswordDialog!!
-                        val charArray = password.toCharArray()
+                        val pass = passwordBuffer.get()
                         
-                        password = ""
-                        confirmPassword = ""
-                        
-                        viewModel.exportBackup(uri, charArray) { success ->
-                            charArray.fill('\u0000')
+                        viewModel.exportBackup(uri, pass) { success ->
+                            pass.fill('\u0000')
+                            confirmPasswordBuffer.get().fill('\u0000')
                             if (success) {
                                 Toast.makeText(context, "Export successful", Toast.LENGTH_SHORT).show()
                             } else {
@@ -170,21 +160,21 @@ fun ConnectionListScreen(
             dismissButton = {
                 TextButton(onClick = { 
                     showExportPasswordDialog = null
-                    password = ""
-                    confirmPassword = ""
+                    passwordBuffer.get().fill('\u0000')
+                    confirmPasswordBuffer.get().fill('\u0000')
                 }) { Text("Cancel") }
             }
         )
     }
 
     if (showImportPasswordDialog != null) {
-        var password by remember { mutableStateOf("") }
-        var passwordVisible by remember { mutableStateOf(false) }
+        val passwordBuffer = remember { java.util.concurrent.atomic.AtomicReference(CharArray(0)) }
+        var hasPassword by remember { mutableStateOf(false) }
         
         AlertDialog(
             onDismissRequest = { 
                 showImportPasswordDialog = null
-                password = ""
+                passwordBuffer.get().fill('\u0000')
             },
             title = { Text("Import Backup", color = MaterialTheme.colorScheme.primary) },
             text = {
@@ -194,23 +184,12 @@ fun ConnectionListScreen(
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Password") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Done
-                        ),
-                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                        trailingIcon = {
-                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(
-                                    imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                    contentDescription = if (passwordVisible) "Hide password" else "Show password"
-                                )
-                            }
+                    com.adamoutler.ssh.ui.components.SecurePasswordEditText(
+                        hint = "Password",
+                        onPasswordChanged = { 
+                            passwordBuffer.get().fill('\u0000')
+                            passwordBuffer.set(it)
+                            hasPassword = it.isNotEmpty()
                         }
                     )
                 }
@@ -219,12 +198,10 @@ fun ConnectionListScreen(
                 Button(
                     onClick = {
                         val uri = showImportPasswordDialog!!
-                        val charArray = password.toCharArray()
+                        val pass = passwordBuffer.get()
                         
-                        password = ""
-                        
-                        viewModel.importBackup(uri, charArray) { success ->
-                            charArray.fill('\u0000')
+                        viewModel.importBackup(uri, pass) { success ->
+                            pass.fill('\u0000')
                             if (success) {
                                 Toast.makeText(context, "Import successful", Toast.LENGTH_SHORT).show()
                             } else {
@@ -233,13 +210,13 @@ fun ConnectionListScreen(
                         }
                         showImportPasswordDialog = null
                     },
-                    enabled = password.isNotEmpty()
+                    enabled = hasPassword
                 ) { Text("Import Backup") }
             },
             dismissButton = {
                 TextButton(onClick = { 
                     showImportPasswordDialog = null
-                    password = ""
+                    passwordBuffer.get().fill('\u0000')
                 }) { Text("Cancel") }
             }
         )
@@ -331,7 +308,7 @@ fun ConnectionListScreen(
         onDeleteConnection = { viewModel.deleteProfile(it) },
         onConnect = { profileId -> profileIdToConnect = profileId },
         onMoveToFolder = { profileId, folderId -> viewModel.moveToFolder(profileId, folderId) },
-        onExportRequested = { exportLauncher.launch("cossh_backup.zip") },
+        onExportRequested = { exportLauncher.launch("connections_and_identities.cossh") },
         onImportRequested = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) },
         onSettingsRequested = onSettingsRequested
     )
