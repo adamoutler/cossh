@@ -38,4 +38,23 @@ class PemParsingTest {
             throw e
         }
     }
+
+    @Test
+    fun testParseOpenSshEd25519() {
+        Security.addProvider(org.bouncycastle.jce.provider.BouncyCastleProvider())
+        val pem = """-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACCnNxk0iLUCuAaRrTYcBLQu8dwMKeavOHjLnZ/Qu2OfNAAAAJizHwIXsx8C
+FwAAAAtzc2gtZWQyNTUxOQAAACCnNxk0iLUCuAaRrTYcBLQu8dwMKeavOHjLnZ/Qu2OfNA
+AAAEBKiLMDOccl0BWyiGJ1QQUyW0PznmjKtml2gwOymx/MBKc3GTSItQK4BpGtNhwEtC7x
+3Awp5q84eMudn9C7Y580AAAAE2FkYW1vdXRsZXJASExBQi1BMjUBAg==
+-----END OPENSSH PRIVATE KEY-----"""
+        val identity = IdentityProfile(name="test", username="test", privateKey = pem.toByteArray())
+        val manager = SshConnectionManager(context = ApplicationProvider.getApplicationContext())
+        val method = manager.javaClass.getDeclaredMethod("loadKeyPairFromIdentity", IdentityProfile::class.java)
+        method.isAccessible = true
+        val parsedKp = method.invoke(manager, identity) as java.security.KeyPair
+        assertNotNull(parsedKp)
+        assertNotNull(parsedKp.private)
+    }
 }

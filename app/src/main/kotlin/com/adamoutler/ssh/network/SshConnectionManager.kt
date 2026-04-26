@@ -150,40 +150,7 @@ class SshConnectionManager(
             android.util.Log.e("SshConnectionManager", "Failed to parse public key from identity", e)
         }
 
-        val privateKeyString = String(privateKeyBytes)
-        if (privateKeyString.contains("-----BEGIN")) {
-            return try {
-                val reader = java.io.StringReader(privateKeyString)
-                val parser = org.bouncycastle.openssl.PEMParser(reader)
-                val obj = parser.readObject()
-                val converter = org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter()
-
-                var parsedPublicKey: java.security.PublicKey? = publicKey
-                val privKey: java.security.PrivateKey = when (obj) {
-                    is org.bouncycastle.openssl.PEMKeyPair -> {
-                        parsedPublicKey = converter.getPublicKey(obj.publicKeyInfo)
-                        converter.getPrivateKey(obj.privateKeyInfo)
-                    }
-                    is org.bouncycastle.asn1.pkcs.PrivateKeyInfo -> converter.getPrivateKey(obj)
-                    is org.bouncycastle.asn1.x509.SubjectPublicKeyInfo -> throw IllegalArgumentException("Expected private key, got public key")
-                    else -> throw IllegalArgumentException("Unsupported PEM object: ${obj?.javaClass?.name}")
-                }
-                KeyPair(parsedPublicKey, privKey)
-            } catch (e: Exception) {
-                android.util.Log.e("SshConnectionManager", "Failed to parse PEM string via BouncyCastle", e)
-                throw IllegalArgumentException("Failed to parse PEM string: ${e.message}", e)
-            }
-        }
-
-        return try {
-            val keyFactory = KeyFactory.getInstance("Ed25519")
-            val privateKey = keyFactory.generatePrivate(PKCS8EncodedKeySpec(privateKeyBytes))
-            KeyPair(publicKey, privateKey)
-        } catch (e: Exception) {
-            val keyFactory = KeyFactory.getInstance("RSA")
-            val privateKey = keyFactory.generatePrivate(PKCS8EncodedKeySpec(privateKeyBytes))
-            KeyPair(publicKey, privateKey)
-        }
+        return com.adamoutler.ssh.crypto.PemUtils.parsePemToKeyPair(privateKeyBytes, publicKey)
     }
 
     private fun resolveIdentity(profile: ConnectionProfile): IdentityProfile? {
