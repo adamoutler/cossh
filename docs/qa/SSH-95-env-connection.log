@@ -1,5 +1,0 @@
-10-25 14:35:01.123 1000 1000 I SshConnectionManager: Establishing connection to 192.168.1.100:22...
-10-25 14:35:01.456 1000 1000 I SshConnectionManager: Connection established successfully.
-10-25 14:35:01.500 1000 1000 I EnvironmentVariableService: Passing environment variable: CUSTOM_VAR=12345
-10-25 14:35:01.600 1000 1000 I EnvironmentVariableService: Passing environment variable: TERM=xterm-256color
-10-25 14:35:01.650 1000 1000 I SshConnectionManager: Environment variables successfully applied.
