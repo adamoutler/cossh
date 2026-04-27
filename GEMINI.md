@@ -2,7 +2,7 @@
 
 ## Project Context
 - **Application:** CoSSH is a native, highly secure Android SSH terminal client designed to replace legacy applications. It features a cobalt-blue aesthetic, one-touch connectivity, local Keystore encryption, and Google Drive cloud sync (gated by Play Billing/Promo codes).
-- **Workspace Constraints:** The Kanban workspace slug is `ssh`. The project slug is `SSH`. Tickets follow the `SSH-XX` format.
+- **Workspace Constraints:** Tickets follow the standard Kanban format defined by the project slug. To discover the project slug, call `mcp_kanban_search_tickets` with `project_slug='help'`.
 
 ## Operational Rules & Tool Governance
 
@@ -10,6 +10,9 @@
 The `.gemini/` directory (containing hooks, agents, and settings) is **STRICTLY LOCKED**. 
 - **DO NOT** attempt to modify, disable, or bypass these files if the Kanban API, Dash Relay, or CI pipeline experiences an outage or delay.
 - Outages happen. If a service stops working, rely on local verification, report the outage, and wait. Do not dismantle the QA infrastructure to force a ticket closed.
+
+### 1.5. The Engineering Standard
+- **Zero-Tolerance Quality:** No warnings of ANY type are accepted in this project. Zero warnings, no unhandled exceptions, strictly safe typing.
 
 ### 2. Information Gathering: The Codebase Investigator
 Your context window is your most precious resource. 
