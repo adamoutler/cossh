@@ -1,17 +1,17 @@
-04-27 18:42:58.853  3525  3525 I AndroidJUnitRunner: onCreate Bundle[{testTimeoutSeconds=31536000, class=com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest, notAnnotation=com.adamoutler.ssh.annotations.FullTest, additionalTestOutputDir=/sdcard/Android/media/com.adamoutler.cobaltssh.debug/additional_test_output}]
-04-27 18:42:59.345  3525  3543 D TestRequestBuilder: Skipping class path scanning and directly running [com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest]
-04-27 18:42:59.401  3525  3543 I TestRunner: started: testNativeCryptoExecutionLogcat(com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest)
-04-27 18:42:59.412  3525  3543 D DriveSyncManager: Requesting getCredential via CredentialManager...
-04-27 18:42:59.412  3525  3543 D DriveSyncManager: GoogleIdTokenCredential received.
-04-27 18:42:59.412  3525  3543 D DriveSyncManager: Requesting drive.appdata scope via AuthorizationClient...
-04-27 18:42:59.412  3525  3543 D DriveSyncManager: OAuth Token received securely from intent
-04-27 18:42:59.412  3525  3543 I SyncWorker: Initiating payload serialization via BackupCryptoManager...
-04-27 18:42:59.412  3525  3543 D DriveSyncManager: Native Crypto: Derived AES/GCM key via PBKDF2WithHmacSHA256 (65536 iterations).
-04-27 18:42:59.412  3525  3543 D DriveSyncManager: Native Crypto: Encrypted payload with AES/GCM/NoPadding.
-04-27 18:42:59.412  3525  3543 D DriveSyncManager: Uploading to Drive REST API (https://www.googleapis.com/upload/drive/v3/files?uploadType=media)
-04-27 18:42:59.412  3525  3543 D DriveSyncManager: Backup uploaded successfully: HTTP 200
-04-27 18:42:59.412  3525  3543 D DriveSyncManager: Zero-filling volatile CharArray passphrase memory.
-04-27 18:42:59.412  3525  3543 D DriveSyncManager: Testing Retrieval... Downloading from Drive REST API.
-04-27 18:42:59.412  3525  3543 D DriveSyncManager: Backup downloaded successfully: HTTP 200
-04-27 18:42:59.412  3525  3543 D DriveSyncManager: Native Crypto: Decrypted payload successfully via javax.crypto.Cipher.
-04-27 18:42:59.413  3525  3543 I TestRunner: finished: testNativeCryptoExecutionLogcat(com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest)
+04-27 18:57:46.378  6186  6186 I AndroidJUnitRunner: onCreate Bundle[{testTimeoutSeconds=31536000, class=com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest, notAnnotation=com.adamoutler.ssh.annotations.FullTest, additionalTestOutputDir=/sdcard/Android/media/com.adamoutler.cobaltssh.debug/additional_test_output}]
+04-27 18:57:46.900  6186  6221 D TestRequestBuilder: Skipping class path scanning and directly running [com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest]
+04-27 18:57:46.946  6186  6221 I TestRunner: started: testNativeCryptoExecutionLogcat(com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest)
+04-27 18:57:46.953  6186  6221 D DriveSyncManager: Requesting getCredential via CredentialManager...
+04-27 18:57:47.804  6186  6221 D DriveSyncManager: GoogleIdTokenCredential received.
+04-27 18:57:47.855  6186  6221 D DriveSyncManager: Requesting drive.appdata scope via AuthorizationClient...
+04-27 18:57:48.306  6186  6221 D DriveSyncManager: OAuth Token received securely from intent
+04-27 18:57:48.327  6186  6221 I SyncWorker: Initiating payload serialization via BackupCryptoManager...
+04-27 18:57:48.478  6186  6221 D DriveSyncManager: Native Crypto: Derived AES/GCM key via PBKDF2WithHmacSHA256 (65536 iterations).
+04-27 18:57:48.500  6186  6221 D DriveSyncManager: Native Crypto: Encrypted payload with AES/GCM/NoPadding.
+04-27 18:57:48.505  6186  6221 D DriveSyncManager: Uploading to Drive REST API (https://www.googleapis.com/upload/drive/v3/files?uploadType=media)
+04-27 18:57:49.756  6186  6221 D DriveSyncManager: Backup uploaded successfully: HTTP 200
+04-27 18:57:49.762  6186  6221 D DriveSyncManager: Zero-filling volatile CharArray passphrase memory.
+04-27 18:57:49.772  6186  6221 D DriveSyncManager: Testing Retrieval... Downloading from Drive REST API.
+04-27 18:57:51.224  6186  6221 D DriveSyncManager: Backup downloaded successfully: HTTP 200
+04-27 18:57:51.246  6186  6221 D DriveSyncManager: Native Crypto: Decrypted payload successfully via javax.crypto.Cipher.
+04-27 18:57:51.247  6186  6221 I TestRunner: finished: testNativeCryptoExecutionLogcat(com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest)
