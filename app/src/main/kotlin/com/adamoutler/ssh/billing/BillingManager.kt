@@ -53,7 +53,7 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
 
     private fun processPurchases(purchases: List<Purchase>?) {
         purchases?.forEach { purchase ->
-            if (purchase.products.contains("cloud_sync_unlock")) {
+            if (purchase.products.contains("lifetimecloudsync")) {
                 if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
                     if (!purchase.isAcknowledged) {
                         val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
@@ -83,7 +83,7 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
             .setProductList(
                 listOf(
                     QueryProductDetailsParams.Product.newBuilder()
-                        .setProductId("cloud_sync_unlock")
+                        .setProductId("lifetimecloudsync")
                         .setProductType(BillingClient.ProductType.INAPP)
                         .build()
                 )

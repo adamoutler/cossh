@@ -10,8 +10,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
 class BillingManagerTest {
 
     @Test
@@ -26,7 +28,7 @@ class BillingManagerTest {
             {
               "orderId": "GPA.1234-5678-9012-34567",
               "packageName": "com.adamoutler.ssh",
-              "productId": "cloud_sync_unlock",
+              "productId": "lifetimecloudsync",
               "purchaseTime": 1620000000000,
               "purchaseState": 0,
               "purchaseToken": "token",
