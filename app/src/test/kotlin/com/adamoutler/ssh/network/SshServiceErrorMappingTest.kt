@@ -11,7 +11,7 @@ class SshServiceErrorMappingTest {
         val mappedMessage = SshService.mapExceptionMessage(originalException)
         
         assertEquals(
-            "Authentication exhausted. Please check your credentials.", 
+            "Connection failed", 
             mappedMessage
         )
     }

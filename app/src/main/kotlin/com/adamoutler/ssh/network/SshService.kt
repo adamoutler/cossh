@@ -41,7 +41,7 @@ class SshService : Service() {
         fun mapExceptionMessage(e: Exception): String {
             val rawMessage = e.message ?: "Connection failed"
             return if (rawMessage.contains("Exhausted available authentication methods") || rawMessage.contains("All authentication methods failed")) {
-                "Authentication exhausted. Please check your credentials."
+                "Connection failed"
             } else {
                 rawMessage
             }
