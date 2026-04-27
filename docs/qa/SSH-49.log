@@ -1,8 +1,3 @@
-Starting emulator...
-Waiting for emulator to boot...
-Emulator booted.
-Clearing logcat...
-Running test...
 > Task :app:checkKotlinGradlePluginConfigurationErrors
 > Task :app:preBuild UP-TO-DATE
 > Task :app:preDebugBuild UP-TO-DATE
@@ -72,27 +67,68 @@ Running test...
 > Task :app:writeDebugAndroidTestSigningConfigVersions UP-TO-DATE
 
 > Task :app:compileDebugAndroidTestKotlin
-w: file:///home/adamoutler/git/ssh/app/src/androidTest/kotlin/com/adamoutler/ssh/network/SshServiceInstrumentationTest.kt:82:51 'getRunningServices(Int): (Mutable)List<ActivityManager.RunningServiceInfo!>!' is deprecated. Deprecated in Java
+w: file:///home/adamoutler/git/ssh/app/src/androidTest/kotlin/com/adamoutler/ssh/network/SshServiceInstrumentationTest.kt:81:51 'getRunningServices(Int): (Mutable)List<ActivityManager.RunningServiceInfo!>!' is deprecated. Deprecated in Java
+w: file:///home/adamoutler/git/ssh/app/src/androidTest/kotlin/com/adamoutler/ssh/ui/components/TerminalScreenInstrumentedTest.kt:143:13 Variable 'backNavigationCalled' is assigned but never accessed
+w: file:///home/adamoutler/git/ssh/app/src/androidTest/kotlin/com/adamoutler/ssh/ui/screens/ConnectionListScreenInstrumentedTest.kt:64:13 Variable 'capturedIntent' is assigned but never accessed
 
 > Task :app:compileDebugAndroidTestJavaWithJavac
 > Task :app:dexBuilderDebugAndroidTest
-> Task :app:mergeDebugAndroidTestGlobalSynthetics UP-TO-DATE
-> Task :app:processDebugAndroidTestJavaRes UP-TO-DATE
-> Task :app:mergeDebugAndroidTestJavaResource UP-TO-DATE
+> Task :app:mergeDebugAndroidTestGlobalSynthetics
+> Task :app:processDebugAndroidTestJavaRes
 > Task :app:mergeProjectDexDebugAndroidTest
+> Task :app:mergeDebugAndroidTestJavaResource
 > Task :app:packageDebugAndroidTest
-> Task :app:createDebugAndroidTestApkListingFileRedirect UP-TO-DATE
+> Task :app:createDebugAndroidTestApkListingFileRedirect
 
 > Task :app:connectedDebugAndroidTest
-Skipping device 'emulator-5554' (emulator-5554): Device is OFFLINE.
-Starting 0 tests on Pixel 9 Pro - 16
+Starting 12 tests on Pixel 9 Pro - 16
 
-Finished 0 tests on Pixel 9 Pro - 16
+Pixel 9 Pro - 16 Tests 0/12 completed. (0 skipped) (0 failed)
 
-> Task :app:connectedAndroidTest
+> Task :app:connectedDebugAndroidTest
 
-BUILD SUCCESSFUL in 14s
-68 actionable tasks: 7 executed, 61 up-to-date
-Dumping logcat for FATAL exceptions...
-- waiting for device -
-error: more than one device/emulator
+com.adamoutler.ssh.ConnectionResumeE2ETest > testConnectionResumeAndMultipleSessions[Pixel 9 Pro - 16] [31mFAILED [0m
+	java.lang.AssertionError: Transcript should contain 'Hello Resume'
+	at org.junit.Assert.fail(Assert.java:89)
+
+com.adamoutler.ssh.ui.components.TerminalScreenInstrumentedTest > testKeyboardToggleTriggersSigwinch[Pixel 9 Pro - 16] [31mFAILED [0m
+	java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.lang.RuntimeException: java.lang.NoSuchMethodException: android.hardware.input.InputManager.getInstance []
+	at androidx.test.espresso.Espresso.onIdle(Espresso.java:18)
+
+com.adamoutler.ssh.ui.components.TerminalScreenInstrumentedTest > testBackPressWhenKeyboardHiddenNavigatesBack[Pixel 9 Pro - 16] [31mFAILED [0m
+	java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.lang.RuntimeException: java.lang.NoSuchMethodException: android.hardware.input.InputManager.getInstance []
+	at androidx.test.espresso.Espresso.onIdle(Espresso.java:18)
+
+com.adamoutler.ssh.ui.components.TerminalScreenInstrumentedTest > testKeepAliveDialogFlow[Pixel 9 Pro - 16] [31mFAILED [0m
+	java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.lang.RuntimeException: java.lang.NoSuchMethodException: android.hardware.input.InputManager.getInstance []
+	at androidx.test.espresso.Espresso.onIdle(Espresso.java:18)
+
+com.adamoutler.ssh.ui.components.TerminalScreenInstrumentedTest > testBackPressNavigatesBackWhenConnectionDrops[Pixel 9 Pro - 16] [31mFAILED [0m
+	java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.lang.RuntimeException: java.lang.NoSuchMethodException: android.hardware.input.InputManager.getInstance []
+	at androidx.test.espresso.Espresso.onIdle(Espresso.java:18)
+
+com.adamoutler.ssh.ui.components.TerminalScreenInstrumentedTest > testFloatingOverlayButtons[Pixel 9 Pro - 16] [31mFAILED [0m
+	java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.lang.RuntimeException: java.lang.NoSuchMethodException: android.hardware.input.InputManager.getInstance []
+	at androidx.test.espresso.Espresso.onIdle(Espresso.java:18)
+
+com.adamoutler.ssh.ui.screens.AddEditProfileScreenInstrumentedTest > saveButtonInTopAppBarTriggersSave[Pixel 9 Pro - 16] [31mFAILED [0m
+	java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.lang.RuntimeException: java.lang.NoSuchMethodException: android.hardware.input.InputManager.getInstance []
+	at androidx.test.espresso.Espresso.onIdle(Espresso.java:18)
+
+com.adamoutler.ssh.ui.screens.ConnectionListScreenInstrumentedTest > tapTriggersConnect[Pixel 9 Pro - 16] [31mFAILED [0m
+	java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.lang.RuntimeException: java.lang.NoSuchMethodException: android.hardware.input.InputManager.getInstance []
+	at androidx.test.espresso.Espresso.onIdle(Espresso.java:18)
+
+com.adamoutler.ssh.ui.screens.ConnectionListScreenInstrumentedTest > longPressTriggersEdit[Pixel 9 Pro - 16] [31mFAILED [0m
+	java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.lang.RuntimeException: java.lang.NoSuchMethodException: android.hardware.input.InputManager.getInstance []
+	at androidx.test.espresso.Espresso.onIdle(Espresso.java:18)
+
+com.adamoutler.ssh.ui.screens.ConnectionListScreenInstrumentedTest > activeConnectionShowsBadge[Pixel 9 Pro - 16] [31mFAILED [0m
+	java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.lang.RuntimeException: java.lang.NoSuchMethodException: android.hardware.input.InputManager.getInstance []
+	at androidx.test.espresso.Espresso.onIdle(Espresso.java:18)
+Tests on Pixel 9 Pro - 16 failed: There was 10 failure(s).
+
+Finished 12 tests on Pixel 9 Pro - 16
+
+> Task :app:connectedDebugAndroidTest FAILED
+68 actionable tasks: 11 executed, 57 up-to-date
