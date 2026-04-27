@@ -1,0 +1,2 @@
+-dontwarn reactor.blockhound.**
+-dontwarn io.netty.**

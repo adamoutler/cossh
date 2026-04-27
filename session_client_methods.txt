@@ -1,0 +1,17 @@
+TerminalSessionClient:
+onTitleChanged
+onColorsChanged
+logError
+onTextChanged
+onCopyTextToClipboard
+onPasteTextFromClipboard
+logVerbose
+logWarn
+onSessionFinished
+logDebug
+onBell
+getTerminalCursorStyle
+logStackTraceWithMessage
+logStackTrace
+logInfo
+onTerminalCursorStateChange
