@@ -435,7 +435,26 @@ fun TerminalScreenContent(
                                     else -> {
                                         val unicodeChar = e.unicodeChar
                                         if (unicodeChar != 0) {
-                                            String(Character.toChars(unicodeChar)).toByteArray(Charsets.UTF_8)
+                                            var cp = unicodeChar
+                                            val ctrlPressed = ctrlSticky.value || e.isCtrlPressed
+                                            if (ctrlPressed) {
+                                                if (cp in 'a'.code..'z'.code) {
+                                                    cp = cp - 'a'.code + 1
+                                                } else if (cp in 'A'.code..'Z'.code) {
+                                                    cp = cp - 'A'.code + 1
+                                                } else if (cp == '['.code) {
+                                                    cp = 27 // ESC
+                                                } else if (cp == ']'.code) {
+                                                    cp = 29
+                                                } else if (cp == '\\'.code) {
+                                                    cp = 28
+                                                } else if (cp == '^'.code) {
+                                                    cp = 30
+                                                } else if (cp == '_'.code) {
+                                                    cp = 31
+                                                }
+                                            }
+                                            String(Character.toChars(cp)).toByteArray(Charsets.UTF_8)
                                         } else {
                                             null
                                         }
