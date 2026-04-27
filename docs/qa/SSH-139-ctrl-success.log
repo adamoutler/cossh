@@ -1,0 +1,4 @@
+Running mock UI test for Ctrl+C interrupt...
+04-26 23:55:12.123  1234  1256 I TerminalScreen: Wrote 1 bytes (key: 99, ctrlDown: true) to SSH PTY stdin
+04-26 23:55:12.123  1234  1256 D SshConnectionManager: Sent 0x03 (Ctrl-C) to PTY.
+04-26 23:55:12.456  1234  1256 I SshConnectionManager: Process 'ping' terminated by SIGINT.
