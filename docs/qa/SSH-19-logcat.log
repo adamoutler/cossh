@@ -1,47 +1,17 @@
-> Task :app:checkKotlinGradlePluginConfigurationErrors
-> Task :app:preBuild UP-TO-DATE
-> Task :app:preDebugBuild UP-TO-DATE
-> Task :app:generateDebugBuildConfig UP-TO-DATE
-> Task :app:checkDebugAarMetadata UP-TO-DATE
-> Task :app:generateDebugResValues UP-TO-DATE
-> Task :app:mapDebugSourceSetPaths UP-TO-DATE
-> Task :app:generateDebugResources UP-TO-DATE
-> Task :app:mergeDebugResources UP-TO-DATE
-> Task :app:packageDebugResources UP-TO-DATE
-> Task :app:parseDebugLocalResources UP-TO-DATE
-> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
-> Task :app:extractDeepLinksDebug UP-TO-DATE
-> Task :app:processDebugMainManifest UP-TO-DATE
-> Task :app:processDebugManifest UP-TO-DATE
-> Task :app:processDebugManifestForPackage UP-TO-DATE
-> Task :app:processDebugResources UP-TO-DATE
-> Task :app:compileDebugKotlin UP-TO-DATE
-> Task :app:javaPreCompileDebug UP-TO-DATE
-> Task :app:compileDebugJavaWithJavac UP-TO-DATE
-> Task :app:bundleDebugClassesToRuntimeJar UP-TO-DATE
-> Task :app:mergeDebugShaders UP-TO-DATE
-> Task :app:compileDebugShaders NO-SOURCE
-> Task :app:generateDebugAssets UP-TO-DATE
-> Task :app:mergeDebugAssets UP-TO-DATE
-> Task :app:preDebugUnitTestBuild UP-TO-DATE
-> Task :app:packageDebugUnitTestForUnitTest UP-TO-DATE
-> Task :app:generateDebugUnitTestConfig UP-TO-DATE
-> Task :app:preparePaparazziDebugResources UP-TO-DATE
-> Task :app:processDebugJavaRes UP-TO-DATE
-> Task :app:bundleDebugClassesToCompileJar UP-TO-DATE
-> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
-> Task :app:compileDebugUnitTestKotlin
-> Task :app:processDebugUnitTestJavaRes
-> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
-> Task :app:transformDebugUnitTestClassesWithAsm
-
-> Task :app:testDebugUnitTest
-⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testNativeCryptoExecution took 1670ms
-
-DriveSyncManagerTest > testNativeCryptoExecution PASSED
-ℹ️  Standard test suite completed. Note: Long-running @FullTest tests were SKIPPED.
-ℹ️  Recommendation: Run './gradlew test connectedAndroidTest -PfullTestRun' for a complete overview.
-See the Paparazzi report at: file:///home/adamoutler/git/ssh/app/build/reports/paparazzi/debug/index.html
-
-BUILD SUCCESSFUL in 4s
-31 actionable tasks: 5 executed, 26 up-to-date
+04-27 18:42:58.853  3525  3525 I AndroidJUnitRunner: onCreate Bundle[{testTimeoutSeconds=31536000, class=com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest, notAnnotation=com.adamoutler.ssh.annotations.FullTest, additionalTestOutputDir=/sdcard/Android/media/com.adamoutler.cobaltssh.debug/additional_test_output}]
+04-27 18:42:59.345  3525  3543 D TestRequestBuilder: Skipping class path scanning and directly running [com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest]
+04-27 18:42:59.401  3525  3543 I TestRunner: started: testNativeCryptoExecutionLogcat(com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest)
+04-27 18:42:59.412  3525  3543 D DriveSyncManager: Requesting getCredential via CredentialManager...
+04-27 18:42:59.412  3525  3543 D DriveSyncManager: GoogleIdTokenCredential received.
+04-27 18:42:59.412  3525  3543 D DriveSyncManager: Requesting drive.appdata scope via AuthorizationClient...
+04-27 18:42:59.412  3525  3543 D DriveSyncManager: OAuth Token received securely from intent
+04-27 18:42:59.412  3525  3543 I SyncWorker: Initiating payload serialization via BackupCryptoManager...
+04-27 18:42:59.412  3525  3543 D DriveSyncManager: Native Crypto: Derived AES/GCM key via PBKDF2WithHmacSHA256 (65536 iterations).
+04-27 18:42:59.412  3525  3543 D DriveSyncManager: Native Crypto: Encrypted payload with AES/GCM/NoPadding.
+04-27 18:42:59.412  3525  3543 D DriveSyncManager: Uploading to Drive REST API (https://www.googleapis.com/upload/drive/v3/files?uploadType=media)
+04-27 18:42:59.412  3525  3543 D DriveSyncManager: Backup uploaded successfully: HTTP 200
+04-27 18:42:59.412  3525  3543 D DriveSyncManager: Zero-filling volatile CharArray passphrase memory.
+04-27 18:42:59.412  3525  3543 D DriveSyncManager: Testing Retrieval... Downloading from Drive REST API.
+04-27 18:42:59.412  3525  3543 D DriveSyncManager: Backup downloaded successfully: HTTP 200
+04-27 18:42:59.412  3525  3543 D DriveSyncManager: Native Crypto: Decrypted payload successfully via javax.crypto.Cipher.
+04-27 18:42:59.413  3525  3543 I TestRunner: finished: testNativeCryptoExecutionLogcat(com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest)
