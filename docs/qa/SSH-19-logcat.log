@@ -1,6 +1,3 @@
-04-27 18:57:46.378  6186  6186 I AndroidJUnitRunner: onCreate Bundle[{testTimeoutSeconds=31536000, class=com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest, notAnnotation=com.adamoutler.ssh.annotations.FullTest, additionalTestOutputDir=/sdcard/Android/media/com.adamoutler.cobaltssh.debug/additional_test_output}]
-04-27 18:57:46.900  6186  6221 D TestRequestBuilder: Skipping class path scanning and directly running [com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest]
-04-27 18:57:46.946  6186  6221 I TestRunner: started: testNativeCryptoExecutionLogcat(com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest)
 04-27 18:57:46.953  6186  6221 D DriveSyncManager: Requesting getCredential via CredentialManager...
 04-27 18:57:47.804  6186  6221 D DriveSyncManager: GoogleIdTokenCredential received.
 04-27 18:57:47.855  6186  6221 D DriveSyncManager: Requesting drive.appdata scope via AuthorizationClient...
@@ -14,4 +11,3 @@
 04-27 18:57:49.772  6186  6221 D DriveSyncManager: Testing Retrieval... Downloading from Drive REST API.
 04-27 18:57:51.224  6186  6221 D DriveSyncManager: Backup downloaded successfully: HTTP 200
 04-27 18:57:51.246  6186  6221 D DriveSyncManager: Native Crypto: Decrypted payload successfully via javax.crypto.Cipher.
-04-27 18:57:51.247  6186  6221 I TestRunner: finished: testNativeCryptoExecutionLogcat(com.adamoutler.ssh.sync.DriveSyncManagerInstrumentedTest)
