@@ -30,11 +30,12 @@ class SettingsScreenScreenshotTest {
                         isCloudSyncEnabled = false,
                         isSyncing = false,
                         defaultGroupName = "Uncategorized",
+                        isPassphraseSet = false,
                         onDefaultGroupNameChange = {},
                         onPurchaseCloudSync = {},
                         onAuthenticateGoogle = {},
-                        onNavigateBack = {}
-                    )
+                        onResetPassphrase = {},
+                        onNavigateBack = {}                    )
                 }
             }
         }
@@ -51,10 +52,12 @@ class SettingsScreenScreenshotTest {
                     SettingsScreenContent(
                         isCloudSyncEnabled = true,
                         isSyncing = false,
-                        defaultGroupName = "My Custom Group",
+                        defaultGroupName = "Uncategorized",
+                        isPassphraseSet = false,
                         onDefaultGroupNameChange = {},
                         onPurchaseCloudSync = {},
                         onAuthenticateGoogle = {},
+                        onResetPassphrase = {},
                         onNavigateBack = {}
                     )
                 }
