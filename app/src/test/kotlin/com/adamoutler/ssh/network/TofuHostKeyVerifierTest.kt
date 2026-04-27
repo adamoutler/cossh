@@ -44,7 +44,7 @@ class TofuHostKeyVerifierTest {
         return kpg.generateKeyPair().public
     }
 
-    @Test
+    @Test(timeout = 5000)
     fun testAtomicKeyUpdate() {
         val verifier = TofuHostKeyVerifier(knownHostsFile)
         val hostname = "192.168.1.100"
@@ -54,13 +54,9 @@ class TofuHostKeyVerifierTest {
         val keyA = generateKey()
         logFile.appendText("Initial connection with Key A...\n")
         
-        // Mock prompt to return true (TOFU)
-        val deferred1 = CompletableDeferred<Boolean>()
-        setPromptRequest(HostKeyPromptRequest(hostname, null, "fingerprintA", false, deferred1))
-        
         // In a real scenario, runBlocking would block until deferred is resolved. We just pre-resolve it.
         Thread {
-            Thread.sleep(100)
+            Thread.sleep(500)
             ConnectionStateRepository.resolvePrompt(true)
         }.start()
 
@@ -73,12 +69,9 @@ class TofuHostKeyVerifierTest {
         val keyB = generateKey()
         logFile.appendText("\nDetecting changed host key! MITM Warning triggered...\n")
         
-        val deferred2 = CompletableDeferred<Boolean>()
-        setPromptRequest(HostKeyPromptRequest(hostname, "fingerprintA", "fingerprintB", true, deferred2))
-        
         // User clicks "Hold to Accept Risk"
         Thread {
-            Thread.sleep(100)
+            Thread.sleep(500)
             logFile.appendText("User actively held confirmation button to accept the risk.\n")
             ConnectionStateRepository.resolvePrompt(true)
         }.start()

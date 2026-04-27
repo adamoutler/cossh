@@ -83,10 +83,10 @@ class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(
                 }
             }
             knownHostsFile.appendText("$hostname $keyType $keyBlobBase64\n")
-            android.util.Log.i("TofuHostKeyVerifier", "Host $hostname key accepted and saved.")
+            try { android.util.Log.i("TofuHostKeyVerifier", "Host $hostname key accepted and saved.") } catch (e: Throwable) { println("Host $hostname key accepted and saved.") }
             return true
         } else {
-            android.util.Log.e("TofuHostKeyVerifier", "Host key for $hostname rejected by user. Connection aborted.")
+            try { android.util.Log.e("TofuHostKeyVerifier", "Host key for $hostname rejected by user. Connection aborted.") } catch (e: Throwable) { println("Host key rejected by user.") }
             return false
         }
     }
