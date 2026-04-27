@@ -106,6 +106,7 @@ android {
     packaging {
         jniLibs {
             useLegacyPackaging = true
+            pickFirsts.add("lib/**/libtermux.so")
         }
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
