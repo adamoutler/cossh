@@ -65,24 +65,25 @@ class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(
         }
 
         if (userAccepted) {
-            if (hostExists) {
+            val newEntry = "$hostname $keyType $keyBlobBase64\n"
+            if (hostExists && knownHostsFile.exists()) {
                 // Atomic overwrite: remove old entry, write new
                 val tempFile = File(knownHostsFile.absolutePath + ".tmp")
-                if (knownHostsFile.exists()) {
-                    knownHostsFile.useLines { lines ->
-                        tempFile.printWriter().use { out ->
-                            lines.forEach { line ->
-                                val firstToken = line.split(" ").firstOrNull()
-                                if (firstToken != null && !firstToken.contains(hostname) && !firstToken.contains("[$hostname]:$port")) {
-                                    out.println(line)
-                                }
+                knownHostsFile.useLines { lines ->
+                    tempFile.printWriter().use { out ->
+                        lines.forEach { line ->
+                            val firstToken = line.split(" ").firstOrNull()
+                            if (firstToken != null && !firstToken.contains(hostname) && !firstToken.contains("[$hostname]:$port")) {
+                                out.println(line)
                             }
                         }
+                        out.print(newEntry)
                     }
-                    tempFile.renameTo(knownHostsFile)
                 }
+                tempFile.renameTo(knownHostsFile)
+            } else {
+                knownHostsFile.appendText(newEntry)
             }
-            knownHostsFile.appendText("$hostname $keyType $keyBlobBase64\n")
             try { android.util.Log.i("TofuHostKeyVerifier", "Host $hostname key accepted and saved.") } catch (e: Throwable) { println("Host $hostname key accepted and saved.") }
             return true
         } else {
