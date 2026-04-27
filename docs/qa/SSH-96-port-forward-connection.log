@@ -1,6 +1,0 @@
-10-25 14:32:01.123 1000 1000 I SshConnectionManager: Establishing connection to 192.168.1.100:22...
-10-25 14:32:01.456 1000 1000 I SshConnectionManager: Connection established successfully.
-10-25 14:32:01.500 1000 1000 I PortForwardingService: Requesting local port forward: L:8080:localhost:80
-10-25 14:32:01.600 1000 1000 I PortForwardingService: Local port forwarding successfully established on 127.0.0.1:8080 -> localhost:80
-10-25 14:32:01.650 1000 1000 I PortForwardingService: Requesting remote port forward: R:9090:localhost:90
-10-25 14:32:01.700 1000 1000 I PortForwardingService: Remote port forwarding successfully established on 0.0.0.0:9090 -> localhost:90
