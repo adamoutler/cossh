@@ -40,6 +40,7 @@ fun SettingsScreen(
     if (showPassphraseDialog) {
         var passphrase by remember { mutableStateOf("") }
         AlertDialog(
+            modifier = Modifier.widthIn(max = 320.dp),
             onDismissRequest = { showPassphraseDialog = false },
             title = { Text("Sync Passphrase") },
             text = {

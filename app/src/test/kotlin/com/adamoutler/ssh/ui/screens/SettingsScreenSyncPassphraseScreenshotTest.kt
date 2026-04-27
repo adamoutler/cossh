@@ -39,6 +39,7 @@ class SettingsScreenSyncPassphraseScreenshotTest {
                     // The easiest way to force the dialog in a screenshot test without mocking the parent state
                     // is to just render the AlertDialog directly over the surface.
                     androidx.compose.material3.AlertDialog(
+                        modifier = androidx.compose.ui.Modifier.widthIn(max = 320.dp),
                         onDismissRequest = { },
                         title = { androidx.compose.material3.Text("Sync Passphrase") },
                         text = {
