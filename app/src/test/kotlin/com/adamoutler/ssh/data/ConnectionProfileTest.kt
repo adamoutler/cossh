@@ -36,4 +36,12 @@ class ConnectionProfileTest {
         // Assert the new protocol does not break existing data
         assertEquals(originalProfile.id, restoredProfile.id)
     }
+
+    @Test
+    fun testLegacyDeserializationDefaultsToSsh() {
+        val legacyJson = """{"id":"test-legacy","nickname":"Old Server","host":"10.0.0.1","port":22,"username":"admin","authType":"PASSWORD","keyReference":0}"""
+        val restoredProfile = Json { ignoreUnknownKeys = true }.decodeFromString<ConnectionProfile>(legacyJson)
+        assertEquals(Protocol.SSH, restoredProfile.protocol)
+        assertEquals("Old Server", restoredProfile.nickname)
+    }
 }

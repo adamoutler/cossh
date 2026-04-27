@@ -325,6 +325,30 @@ fun TerminalScreenContent(
         val currentFontSizeState = androidx.compose.runtime.rememberUpdatedState(currentFontSize)
         val onUpdateFontSizeState = androidx.compose.runtime.rememberUpdatedState(onUpdateFontSize)
 
+        if (profile?.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
+            androidx.compose.material3.Surface(
+                color = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                androidx.compose.foundation.layout.Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                ) {
+                    androidx.compose.material3.Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = "Insecure Protocol Warning",
+                        tint = Color(0xFFE65100)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    androidx.compose.material3.Text(
+                        text = "${profile.nickname} (Telnet: Unencrypted)",
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = androidx.compose.material3.MaterialTheme.typography.titleMedium
+                    )
+                }
+            }
+        }
+
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             val isHeadlessTest = ConnectionStateRepository.isHeadlessTest
             if (isHeadlessTest) {
