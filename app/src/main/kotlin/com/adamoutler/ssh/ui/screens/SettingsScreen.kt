@@ -12,8 +12,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.adamoutler.ssh.billing.BillingManager
 import com.adamoutler.ssh.crypto.SettingsManager
+import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.sync.DriveSyncManager
 import kotlinx.coroutines.launch
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import com.adamoutler.ssh.sync.SyncWorker
 
 @Composable
 fun SettingsScreen(
@@ -27,12 +32,66 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     var isSyncing by remember { mutableStateOf(false) }
     val settingsManager = remember { SettingsManager(context) }
+    val securityStorageManager = remember { SecurityStorageManager(context) }
     var defaultGroupName by remember { mutableStateOf(settingsManager.defaultGroupName) }
+    var showPassphraseDialog by remember { mutableStateOf(false) }
+    var isPassphraseSet by remember { mutableStateOf(securityStorageManager.getSyncPassphrase() != null) }
+
+    if (showPassphraseDialog) {
+        var passphrase by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { showPassphraseDialog = false },
+            title = { Text("Sync Passphrase") },
+            text = {
+                Column {
+                    Text("Enter a secure passphrase to encrypt your backups before they leave this device.")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = passphrase,
+                        onValueChange = { passphrase = it },
+                        label = { Text("Passphrase") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        securityStorageManager.saveSyncPassphrase(passphrase.toCharArray())
+                        isPassphraseSet = true
+                        showPassphraseDialog = false
+                        scope.launch {
+                            isSyncing = true
+                            try {
+                                activity?.let { driveSyncManager.authenticate(it) }
+                                WorkManager.getInstance(context).enqueue(
+                                    OneTimeWorkRequestBuilder<SyncWorker>().build()
+                                )
+                            } finally {
+                                isSyncing = false
+                            }
+                        }
+                    },
+                    enabled = passphrase.isNotBlank()
+                ) {
+                    Text("Save & Sync")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPassphraseDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
     SettingsScreenContent(
         isCloudSyncEnabled = isCloudSyncEnabled,
         isSyncing = isSyncing,
         defaultGroupName = defaultGroupName,
+        isPassphraseSet = isPassphraseSet,
         onDefaultGroupNameChange = {
             defaultGroupName = it
             settingsManager.defaultGroupName = if (it.isBlank()) "Uncategorized" else it
@@ -41,11 +100,24 @@ fun SettingsScreen(
             activity?.let { billingManager.purchaseCloudSync(it) }
         },
         onAuthenticateGoogle = {
-            scope.launch {
-                isSyncing = true
-                activity?.let { driveSyncManager.authenticate(it) }
-                isSyncing = false
+            if (!isPassphraseSet) {
+                showPassphraseDialog = true
+            } else {
+                scope.launch {
+                    isSyncing = true
+                    try {
+                        activity?.let { driveSyncManager.authenticate(it) }
+                        WorkManager.getInstance(context).enqueue(
+                            OneTimeWorkRequestBuilder<SyncWorker>().build()
+                        )
+                    } finally {
+                        isSyncing = false
+                    }
+                }
             }
+        },
+        onResetPassphrase = {
+            showPassphraseDialog = true
         },
         onNavigateBack = onNavigateBack
     )
@@ -57,9 +129,11 @@ fun SettingsScreenContent(
     isCloudSyncEnabled: Boolean,
     isSyncing: Boolean,
     defaultGroupName: String,
+    isPassphraseSet: Boolean,
     onDefaultGroupNameChange: (String) -> Unit,
     onPurchaseCloudSync: () -> Unit,
     onAuthenticateGoogle: () -> Unit,
+    onResetPassphrase: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
     Scaffold(
@@ -132,13 +206,26 @@ fun SettingsScreenContent(
                                 onCheckedChange = { /* TODO Disable sync */ }
                             )
                         }
-                        
-                        Button(
-                            onClick = onAuthenticateGoogle,
-                            modifier = Modifier.align(Alignment.End),
-                            enabled = !isSyncing
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(if (isSyncing) "Authenticating..." else "Authenticate with Google")
+                            if (isPassphraseSet) {
+                                TextButton(onClick = onResetPassphrase) {
+                                    Text("Reset Passphrase")
+                                }
+                            } else {
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+                            
+                            Button(
+                                onClick = onAuthenticateGoogle,
+                                enabled = !isSyncing
+                            ) {
+                                Text(if (isSyncing) "Authenticating..." else "Authenticate with Google")
+                            }
                         }
                     }
                 }

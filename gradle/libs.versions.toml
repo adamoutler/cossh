@@ -33,6 +33,7 @@ googleApiClientAndroid = "2.0.0"
 googleAuthLibraryOauth2Http = "1.19.0"
 workManager = "2.9.0"
 googleid = "1.1.0"
+playServicesAuth = "21.1.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -83,6 +84,7 @@ bcutil-jdk18on = { group = "org.bouncycastle", name = "bcutil-jdk18on", version.
 billing-client = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "billing" }
 credential-manager = { group = "androidx.credentials", name = "credentials", version.ref = "credentialManager" }
 credential-manager-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialManager" }
+play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 google-api-services-drive = { group = "com.google.apis", name = "google-api-services-drive", version.ref = "googleApiServicesDrive" }
 google-api-client-android = { group = "com.google.api-client", name = "google-api-client-android", version.ref = "googleApiClientAndroid" }
 google-auth-library-oauth2-http = { group = "com.google.auth", name = "google-auth-library-oauth2-http", version.ref = "googleAuthLibraryOauth2Http" }

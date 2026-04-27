@@ -156,4 +156,14 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
             e.handleKeystoreExceptions("Failed to delete profile due to Keystore error.")
         }
     }
+
+    fun saveSyncPassphrase(passphrase: CharArray) {
+        val base64Pass = java.util.Base64.getEncoder().encodeToString(String(passphrase).toByteArray(Charsets.UTF_8))
+        encryptedPrefs.edit().putString("sync_passphrase", base64Pass).commit()
+    }
+
+    fun getSyncPassphrase(): CharArray? {
+        val base64Pass = encryptedPrefs.getString("sync_passphrase", null) ?: return null
+        return String(java.util.Base64.getDecoder().decode(base64Pass), Charsets.UTF_8).toCharArray()
+    }
 }

@@ -5,16 +5,31 @@ plugins {
     alias(libs.plugins.paparazzi)
 }
 
+val gitCommitCount = try {
+    Runtime.getRuntime().exec("git rev-list --count HEAD").inputStream.bufferedReader().readText().trim().toInt()
+} catch (e: Exception) {
+    1
+}
+
 android {
     namespace = "com.adamoutler.ssh"
-    compileSdk = 34
+    compileSdk = 35
+    ndkVersion = "29.0.14206865"
 
     defaultConfig {
         applicationId = "com.adamoutler.cobaltssh"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 35
+        versionCode = gitCommitCount
+        versionName = "1.$gitCommitCount"
+
+        // We compile libtermux.so locally using the NDK to ensure it is aligned to 16KB page boundaries.
+        // This clears Android 15/16 App Compatibility warnings on strict 16KB page-sized devices.
+        externalNativeBuild {
+            ndkBuild {
+                arguments += listOf("-j" + Runtime.getRuntime().availableProcessors())
+            }
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         if (!project.hasProperty("fullTestRun")) {
@@ -22,6 +37,14 @@ android {
         }
         vectorDrawables {
             useSupportLibrary = true
+        }
+    }
+
+    // Link the termux native C code. Re-compiling locally is mandatory
+    // for Android 15/16 16KB ELF LOAD segment alignment.
+    externalNativeBuild {
+        ndkBuild {
+            path = file("src/main/jni/Android.mk")
         }
     }
 
@@ -39,7 +62,10 @@ android {
             applicationIdSuffix = ".debug"
         }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -143,6 +169,7 @@ dependencies {
     implementation(libs.billing.client)
     implementation(libs.credential.manager)
     implementation(libs.credential.manager.play.services.auth)
+    implementation(libs.play.services.auth)
     implementation(libs.google.api.services.drive) {
         exclude(group = "org.apache.httpcomponents")
     }

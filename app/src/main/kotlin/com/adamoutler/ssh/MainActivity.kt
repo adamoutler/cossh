@@ -29,11 +29,18 @@ import android.content.Intent
 import android.os.Build
 import com.adamoutler.ssh.network.SshService
 
+import com.adamoutler.ssh.sync.DriveSyncManager
+
 class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         // Handle permission result if needed
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        DriveSyncManager.handleAuthorizationResult(requestCode, resultCode, data)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

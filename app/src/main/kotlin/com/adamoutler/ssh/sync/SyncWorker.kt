@@ -4,7 +4,11 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.adamoutler.ssh.billing.BillingManager
+import com.adamoutler.ssh.crypto.IdentityStorageManager
+import com.adamoutler.ssh.crypto.SecurityStorageManager
+import com.adamoutler.ssh.backup.BackupCryptoManager
 import kotlinx.coroutines.flow.first
+import java.io.ByteArrayOutputStream
 
 class SyncWorker(
     appContext: Context,
@@ -20,15 +24,18 @@ class SyncWorker(
         }
 
         val driveSyncManager = DriveSyncManager(applicationContext)
+        val securityStorageManager = SecurityStorageManager(applicationContext)
+        val identityStorageManager = IdentityStorageManager(applicationContext)
 
         return try {
-            // Placeholder: Retrieve the master password securely in a real implementation.
-            val pass = "placeholder_password".toCharArray() 
+            val pass = securityStorageManager.getSyncPassphrase() ?: return Result.failure()
+
+            val profiles = securityStorageManager.getAllProfiles()
+            val identities = identityStorageManager.getAllIdentities()
             
-            // Placeholder: Use BackupCryptoManager to serialize profiles to ByteArray.
-            // val backupCryptoManager = BackupCryptoManager(applicationContext)
-            // val payload = backupCryptoManager.serializeProfiles()
-            val payload = ByteArray(0) 
+            val outputStream = ByteArrayOutputStream()
+            BackupCryptoManager.exportProfilesToZip(profiles, identities, pass, outputStream)
+            val payload = outputStream.toByteArray()
 
             driveSyncManager.uploadBackup(payload, pass)
             
