@@ -363,7 +363,7 @@ class SshConnectionManager(
         profile: ConnectionProfile,
         onOutput: suspend (ByteArray, Int) -> Unit,
         onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit
-    ) = withContext(Dispatchers.IO) {
+    ): Unit = withContext(Dispatchers.IO) {
         val tc = org.apache.commons.net.telnet.TelnetClient()
         this@SshConnectionManager.telnetClient = tc
         tc.connectTimeout = 10000
@@ -443,8 +443,16 @@ class SshConnectionManager(
             
             onConnect(autoFlushingStream, null)
             
-            val bridge = PtyStreamBridge(tc.inputStream, onOutput)
-            bridge.startBridge()
+            val bridgeJob = kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
+                val bridge = PtyStreamBridge(tc.inputStream, onOutput)
+                bridge.startBridge()
+            }
+            
+            try {
+                kotlinx.coroutines.awaitCancellation()
+            } finally {
+                bridgeJob.cancel()
+            }
         } finally {
             try {
                 tc.disconnect()

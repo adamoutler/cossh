@@ -13,14 +13,10 @@ class PtyStreamBridge(
         val buffer = ByteArray(4096)
         try {
             while (kotlinx.coroutines.currentCoroutineContext().isActive) {
-                if (inputStream.available() > 0) {
-                    val read = inputStream.read(buffer)
-                    if (read == -1) break
-                    if (read > 0) {
-                        onOutput(buffer.copyOf(read), read)
-                    }
-                } else {
-                    kotlinx.coroutines.delay(50)
+                val read = inputStream.read(buffer)
+                if (read == -1) break
+                if (read > 0) {
+                    onOutput(buffer.copyOf(read), read)
                 }
             }
         } catch (e: Exception) {
