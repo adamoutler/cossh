@@ -334,8 +334,6 @@ fun TerminalScreenContent(
     androidx.compose.foundation.layout.Column(
         modifier = modifier
             .fillMaxSize()
-            .systemBarsPadding()
-            .imePadding()
     ) {
         val currentFontSizeState = androidx.compose.runtime.rememberUpdatedState(currentFontSize)
         val onUpdateFontSizeState = androidx.compose.runtime.rememberUpdatedState(onUpdateFontSize)

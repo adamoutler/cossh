@@ -60,7 +60,7 @@ fun CoSSHTheme(
         SideEffect {
             val window = view.context.findActivity()?.window
             if (window != null) {
-                window.statusBarColor = android.graphics.Color.TRANSPARENT
+                window.statusBarColor = colorScheme.primaryContainer.toArgb()
                 window.navigationBarColor = android.graphics.Color.TRANSPARENT
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     window.isNavigationBarContrastEnforced = false
