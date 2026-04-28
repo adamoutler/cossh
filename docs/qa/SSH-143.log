@@ -1,0 +1,100 @@
+04-27 22:29:50.062 I/pixel-thermal( 1492): outer_disp_therm:27.135 raw data: outer_disp_therm:27135 
+04-27 22:29:50.062 I/pixel-thermal( 1492): rfpa_therm:28.5 raw data: rfpa_therm:28500 
+04-27 22:29:50.062 I/pixel-thermal( 1492): VIRTUAL-SKIN-BOTTOM-SPEAKER:26.7171 raw data: VIRTUAL-SKIN-BOTTOM-SPEAKER:26717.1 
+04-27 22:29:50.062 I/pixel-thermal( 1492): VIRTUAL-SKIN-TOP-SPEAKER:25.5678 raw data: VIRTUAL-SKIN-TOP-SPEAKER:25567.8 
+04-27 22:29:50.063 I/pixel-thermal( 1492): cellular-emergency:27.925 raw data: cellular-emergency:27925 
+04-27 22:29:50.063 I/pixel-thermal( 1492): VIRTUAL-SKIN-OUTER-DISPLAY:26.442 raw data: VIRTUAL-SKIN-OUTER-DISPLAY:26442 
+04-27 22:29:50.063 I/pixel-thermal( 1492): VIRTUAL-SKIN-INNER-DISPLAY:28.4177 raw data: VIRTUAL-SKIN-INNER-DISPLAY:28417.7 
+04-27 22:29:50.063 I/pixel-thermal( 1492): VIRTUAL-SKIN:27.925 raw data: VIRTUAL-SKIN:27925 
+04-27 22:29:50.063 I/pixel-thermal( 1492): inner_disp_therm:28.225 raw data: inner_disp_therm:28225 
+04-27 22:29:50.063 I/pixel-thermal( 1492): VIRTUAL-USB-UI:0 raw data: VIRTUAL-USB-UI:0 
+04-27 22:29:50.063 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-WIRED:28.9024 raw data: VIRTUAL-SKIN-CHARGE-WIRED:28902.4 
+04-27 22:29:50.063 I/pixel-thermal( 1492): north_therm:28.452 raw data: north_therm:28452 
+04-27 22:29:50.063 I/pixel-thermal( 1492): flash_therm:28.289 raw data: flash_therm:28289 
+04-27 22:29:50.063 D/AOC     ( 1264): A3:MSG: controller.cc, 933: CNTRL: ipc: control, cmd ID: 0x00d5, tag: 0xdb, rc: 0
+04-27 22:29:50.063 D/AOC     ( 1264): A3:MSG: controller.cc, 933: SysMem: ipc: C-F1-Ar, cmd ID: 0x00c8, tag: 0x74, rc: 0
+04-27 22:29:50.063 D/AOC     ( 1264): A3:MSG: controller.cc, 933: SysMem: ipc: C-F1-Ar, cmd ID: 0x00c8, tag: 0x75, rc: 0
+04-27 22:29:50.064 D/AOC     ( 1264): CHRE: DRAM vote count begins
+04-27 22:29:50.064 D/AOC     ( 1264): CHRE: DRAM vote count ends: 0 ms
+04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-USB-THROTTLING:0 raw data: VIRTUAL-USB-THROTTLING:0 
+04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-PERSIST:28.9024 raw data: VIRTUAL-SKIN-CHARGE-PERSIST:28902.4 
+04-27 22:29:50.064 I/pixel-thermal( 1492): usb_pwr_therm:27.565 raw data: usb_pwr_therm:27565 
+04-27 22:29:50.064 I/pixel-thermal( 1492): soc_therm:28.966 raw data: soc_therm:28966 
+04-27 22:29:50.064 I/pixel-thermal( 1492): quiet_therm:28.212 raw data: quiet_therm:28212 
+04-27 22:29:50.064 I/pixel-thermal( 1492): outer_disp_therm:27.135 raw data: outer_disp_therm:27135 
+04-27 22:29:50.064 I/pixel-thermal( 1492): rfpa_therm:28.5 raw data: rfpa_therm:28500 
+04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-SKIN-BOTTOM-SPEAKER:26.7171 raw data: VIRTUAL-SKIN-BOTTOM-SPEAKER:26717.1 
+04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-SKIN-TOP-SPEAKER:25.5678 raw data: VIRTUAL-SKIN-TOP-SPEAKER:25567.8 
+04-27 22:29:50.064 I/pixel-thermal( 1492): cellular-emergency:27.925 raw data: cellular-emergency:27925 
+04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-SKIN-OUTER-DISPLAY:26.442 raw data: VIRTUAL-SKIN-OUTER-DISPLAY:26442 
+04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-SKIN-INNER-DISPLAY:28.4177 raw data: VIRTUAL-SKIN-INNER-DISPLAY:28417.7 
+04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-SKIN:27.925 raw data: VIRTUAL-SKIN:27925 
+04-27 22:29:50.064 I/pixel-thermal( 1492): inner_disp_therm:28.225 raw data: inner_disp_therm:28225 
+04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-USB-UI:0 raw data: VIRTUAL-USB-UI:0 
+04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-WIRED:28.9024 raw data: VIRTUAL-SKIN-CHARGE-WIRED:28902.4 
+04-27 22:29:50.064 I/pixel-thermal( 1492): north_therm:28.452 raw data: north_therm:28452 
+04-27 22:29:50.064 I/pixel-thermal( 1492): flash_therm:28.289 raw data: flash_therm:28289 
+04-27 22:29:50.064 W/libPixelUsbOverheat(  932): usb_pwr_therm:27.565001 
+04-27 22:29:50.081 W/libbinder.BackendUnifiedServiceManager( 5396): Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+04-27 22:29:50.081 W/libbinder.BpBinder( 5396): Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+04-27 22:29:50.082 W/libbinder.ProcessState( 5396): Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+04-27 22:29:50.555 I/pixel-thermal( 1492): inner_disp_therm:28.225 raw data: inner_disp_therm:28225 
+04-27 22:29:50.733 W/GC2_Dec (  942): [0] unknown interrupt reason 0
+04-27 22:29:50.734 E/libPixelUsbOverheat(  932): nrEvents negative skipping
+04-27 22:29:50.736 I/AidlSensorManager( 1635): aidl_ssvc_poll: spurious wake up, back to work
+04-27 22:29:50.738 W/GC2_Comp(  942): handle interrupt 0x0 fails 22
+04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-USB-THROTTLING:0 raw data: VIRTUAL-USB-THROTTLING:0 
+04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-PERSIST:28.9024 raw data: VIRTUAL-SKIN-CHARGE-PERSIST:28902.4 
+04-27 22:29:50.741 I/pixel-thermal( 1492): usb_pwr_therm:27.565 raw data: usb_pwr_therm:27565 
+04-27 22:29:50.741 I/pixel-thermal( 1492): soc_therm:28.966 raw data: soc_therm:28966 
+04-27 22:29:50.741 I/pixel-thermal( 1492): quiet_therm:28.212 raw data: quiet_therm:28212 
+04-27 22:29:50.741 I/pixel-thermal( 1492): outer_disp_therm:27.135 raw data: outer_disp_therm:27135 
+04-27 22:29:50.741 I/pixel-thermal( 1492): rfpa_therm:28.5 raw data: rfpa_therm:28500 
+04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-SKIN-BOTTOM-SPEAKER:26.7171 raw data: VIRTUAL-SKIN-BOTTOM-SPEAKER:26717.1 
+04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-SKIN-TOP-SPEAKER:25.5678 raw data: VIRTUAL-SKIN-TOP-SPEAKER:25567.8 
+04-27 22:29:50.741 I/pixel-thermal( 1492): cellular-emergency:27.925 raw data: cellular-emergency:27925 
+04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-SKIN-OUTER-DISPLAY:26.442 raw data: VIRTUAL-SKIN-OUTER-DISPLAY:26442 
+04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-SKIN-INNER-DISPLAY:28.4177 raw data: VIRTUAL-SKIN-INNER-DISPLAY:28417.7 
+04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-SKIN:27.925 raw data: VIRTUAL-SKIN:27925 
+04-27 22:29:50.741 I/pixel-thermal( 1492): inner_disp_therm:28.225 raw data: inner_disp_therm:28225 
+04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-USB-UI:0 raw data: VIRTUAL-USB-UI:0 
+04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-WIRED:28.9024 raw data: VIRTUAL-SKIN-CHARGE-WIRED:28902.4 
+04-27 22:29:50.741 I/pixel-thermal( 1492): north_therm:28.452 raw data: north_therm:28452 
+04-27 22:29:50.741 I/pixel-thermal( 1492): flash_therm:28.289 raw data: flash_therm:28289 
+04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-USB-THROTTLING:0 raw data: VIRTUAL-USB-THROTTLING:0 
+04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-PERSIST:28.9024 raw data: VIRTUAL-SKIN-CHARGE-PERSIST:28902.4 
+04-27 22:29:50.742 I/pixel-thermal( 1492): usb_pwr_therm:27.565 raw data: usb_pwr_therm:27565 
+04-27 22:29:50.742 I/pixel-thermal( 1492): soc_therm:28.966 raw data: soc_therm:28966 
+04-27 22:29:50.742 I/pixel-thermal( 1492): quiet_therm:28.212 raw data: quiet_therm:28212 
+04-27 22:29:50.742 I/pixel-thermal( 1492): outer_disp_therm:27.135 raw data: outer_disp_therm:27135 
+04-27 22:29:50.742 I/pixel-thermal( 1492): rfpa_therm:28.5 raw data: rfpa_therm:28500 
+04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-SKIN-BOTTOM-SPEAKER:26.7171 raw data: VIRTUAL-SKIN-BOTTOM-SPEAKER:26717.1 
+04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-SKIN-TOP-SPEAKER:25.5678 raw data: VIRTUAL-SKIN-TOP-SPEAKER:25567.8 
+04-27 22:29:50.742 I/pixel-thermal( 1492): cellular-emergency:27.925 raw data: cellular-emergency:27925 
+04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-SKIN-OUTER-DISPLAY:26.442 raw data: VIRTUAL-SKIN-OUTER-DISPLAY:26442 
+04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-SKIN-INNER-DISPLAY:28.4177 raw data: VIRTUAL-SKIN-INNER-DISPLAY:28417.7 
+04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-SKIN:27.925 raw data: VIRTUAL-SKIN:27925 
+04-27 22:29:50.742 I/pixel-thermal( 1492): inner_disp_therm:28.225 raw data: inner_disp_therm:28225 
+04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-USB-UI:0 raw data: VIRTUAL-USB-UI:0 
+04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-WIRED:28.9024 raw data: VIRTUAL-SKIN-CHARGE-WIRED:28902.4 
+04-27 22:29:50.742 I/pixel-thermal( 1492): north_therm:28.452 raw data: north_therm:28452 
+04-27 22:29:50.742 I/pixel-thermal( 1492): flash_therm:28.289 raw data: flash_therm:28289 
+04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-USB-THROTTLING:0 raw data: VIRTUAL-USB-THROTTLING:0 
+04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-PERSIST:28.9024 raw data: VIRTUAL-SKIN-CHARGE-PERSIST:28902.4 
+04-27 22:29:50.743 I/pixel-thermal( 1492): usb_pwr_therm:27.565 raw data: usb_pwr_therm:27565 
+04-27 22:29:50.743 I/pixel-thermal( 1492): soc_therm:28.966 raw data: soc_therm:28966 
+04-27 22:29:50.743 I/pixel-thermal( 1492): quiet_therm:28.212 raw data: quiet_therm:28212 
+04-27 22:29:50.743 I/pixel-thermal( 1492): outer_disp_therm:27.135 raw data: outer_disp_therm:27135 
+04-27 22:29:50.743 I/pixel-thermal( 1492): rfpa_therm:28.5 raw data: rfpa_therm:28500 
+04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-SKIN-BOTTOM-SPEAKER:26.7171 raw data: VIRTUAL-SKIN-BOTTOM-SPEAKER:26717.1 
+04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-SKIN-TOP-SPEAKER:25.5678 raw data: VIRTUAL-SKIN-TOP-SPEAKER:25567.8 
+04-27 22:29:50.743 I/pixel-thermal( 1492): cellular-emergency:27.925 raw data: cellular-emergency:27925 
+04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-SKIN-OUTER-DISPLAY:26.442 raw data: VIRTUAL-SKIN-OUTER-DISPLAY:26442 
+04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-SKIN-INNER-DISPLAY:28.4177 raw data: VIRTUAL-SKIN-INNER-DISPLAY:28417.7 
+04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-SKIN:27.925 raw data: VIRTUAL-SKIN:27925 
+04-27 22:29:50.743 I/pixel-thermal( 1492): inner_disp_therm:28.225 raw data: inner_disp_therm:28225 
+04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-USB-UI:0 raw data: VIRTUAL-USB-UI:0 
+04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-WIRED:28.9024 raw data: VIRTUAL-SKIN-CHARGE-WIRED:28902.4 
+04-27 22:29:50.743 I/pixel-thermal( 1492): north_therm:28.452 raw data: north_therm:28452 
+04-27 22:29:50.743 I/pixel-thermal( 1492): flash_therm:28.289 raw data: flash_therm:28289 
+04-27 22:29:50.743 W/libPixelUsbOverheat(  932): usb_pwr_therm:27.565001 
