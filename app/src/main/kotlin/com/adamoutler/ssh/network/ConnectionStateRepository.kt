@@ -13,6 +13,7 @@ import net.schmizz.sshj.connection.channel.direct.Session.Shell
 sealed interface ConnectionState {
     object Connecting : ConnectionState
     object Connected : ConnectionState
+    data class Terminated(val reason: String?) : ConnectionState
     data class Error(val message: String) : ConnectionState
 }
 

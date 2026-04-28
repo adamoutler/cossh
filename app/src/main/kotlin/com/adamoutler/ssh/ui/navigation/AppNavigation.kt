@@ -11,6 +11,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
@@ -195,52 +198,58 @@ fun HostKeyPromptDialog() {
     promptRequest?.let { request ->
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(false) },
+            modifier = androidx.compose.ui.Modifier.padding(16.dp),
+            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
             title = {
                 androidx.compose.foundation.layout.Row(
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
                 ) {
                     androidx.compose.material3.Icon(
                         imageVector = androidx.compose.material.icons.Icons.Filled.Warning,
-                        contentDescription = "Warning",
+                        contentDescription = null,
                         tint = androidx.compose.material3.MaterialTheme.colorScheme.error,
-                        modifier = androidx.compose.ui.Modifier.padding(end = 8.dp)
+                        modifier = androidx.compose.ui.Modifier.size(24.dp)
                     )
                     androidx.compose.material3.Text(
-                        if (request.isKeyChanged) "Security Alert: Host Key Changed" else "Unknown Host",
-                        style = androidx.compose.material3.MaterialTheme.typography.titleLarge
+                        text = if (request.isKeyChanged) "Security Alert" else "Unknown Host",
+                        style = androidx.compose.material3.MaterialTheme.typography.titleMedium
                     )
                 }
             },
             text = {
-                androidx.compose.foundation.layout.Column {
-                    val msg = if (request.isKeyChanged) {
-                        "The identification key for this server has changed. This could mean the server was rebuilt, or someone is intercepting your connection (Man-in-the-Middle attack)."
-                    } else {
-                        "The authenticity of host '${request.hostname}' can't be established."
-                    }
-                    androidx.compose.material3.Text(msg, modifier = androidx.compose.ui.Modifier.padding(bottom = 16.dp))
-
+                androidx.compose.foundation.layout.Column(
+                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+                ) {
+                    androidx.compose.material3.Text(
+                        text = if (request.isKeyChanged) 
+                            "Host identification changed! This could be a Man-in-the-Middle attack." 
+                        else 
+                            "Establishing trust with ${request.hostname}",
+                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall
+                    )
+                    
                     androidx.compose.foundation.layout.Column(
                         modifier = androidx.compose.ui.Modifier
                             .fillMaxWidth()
                             .background(
-                                color = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
-                                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                                androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
+                                androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
                             )
-                            .padding(12.dp)
+                            .padding(8.dp)
                     ) {
                         if (request.expectedFingerprint != null) {
                             androidx.compose.material3.Text(
-                                "Expected: ${request.expectedFingerprint}",
-                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                                style = androidx.compose.material3.MaterialTheme.typography.bodySmall
+                                "Exp: ${request.expectedFingerprint}", 
+                                style = androidx.compose.material3.MaterialTheme.typography.labelSmall, 
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
                             )
-                            androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(8.dp))
+                            androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(4.dp))
                         }
                         androidx.compose.material3.Text(
-                            "Received: ${request.receivedFingerprint}",
-                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                            style = androidx.compose.material3.MaterialTheme.typography.bodySmall
+                            "Rec: ${request.receivedFingerprint}", 
+                            style = androidx.compose.material3.MaterialTheme.typography.labelSmall, 
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
                         )
                     }
                 }
@@ -249,18 +258,22 @@ fun HostKeyPromptDialog() {
                 if (request.isKeyChanged) {
                     com.adamoutler.ssh.ui.components.HoldToConfirmButton(
                         onConfirm = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) },
-                        text = "Hold to Accept Risk",
-                        modifier = androidx.compose.ui.Modifier.padding(end = 8.dp)
+                        text = "Accept Risk",
+                        modifier = androidx.compose.ui.Modifier.height(36.dp)
                     )
                 } else {
-                    androidx.compose.material3.TextButton(onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) }) {
-                        androidx.compose.material3.Text("Accept & Save")
+                    androidx.compose.material3.TextButton(
+                        onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) }
+                    ) {
+                        androidx.compose.material3.Text("Accept")
                     }
                 }
             },
             dismissButton = {
-                androidx.compose.material3.Button(onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(false) }) {
-                    androidx.compose.material3.Text("Abort Connection")
+                androidx.compose.material3.TextButton(
+                    onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(false) }
+                ) {
+                    androidx.compose.material3.Text("Abort", color = androidx.compose.material3.MaterialTheme.colorScheme.error)
                 }
             }
         )

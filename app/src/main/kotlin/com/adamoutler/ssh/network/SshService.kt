@@ -146,19 +146,25 @@ class SshService : Service() {
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error("Profile not found"))
                 }
             } catch (e: Exception) {
-                if (e !is kotlinx.coroutines.CancellationException && e.message?.equals("Disconnected", ignoreCase = true) != true) {
+                val isNormalClosure = e is kotlinx.coroutines.CancellationException || 
+                                     e.message?.contains("Disconnected", ignoreCase = true) == true ||
+                                     e.message?.contains("Socket closed", ignoreCase = true) == true ||
+                                     e.message?.contains("EOF", ignoreCase = true) == true
+
+                if (!isNormalClosure) {
                     Log.e("SshService", "SSH Connection failed for $profileId (Session: $sessionId)", e)
                     updateSessionNotification(profileId, sessionId, "Connection", "Connection failed")
                     val userMessage = mapExceptionMessage(e)
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error(userMessage))
                 } else {
                     Log.d("SshService", "SSH Session disconnected normally for $profileId (Session: $sessionId)")
+                    ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Terminated("Disconnected"))
                 }
             } finally {
                 ConnectionStateRepository.removeConnection(profileId)
                 val activeCount = ConnectionStateRepository.activeConnectionCounts.value[profileId] ?: 0
                 val currentState = ConnectionStateRepository.connectionStates.value[profileId]
-                if (currentState !is ConnectionState.Error && activeCount == 0) {
+                if (currentState !is ConnectionState.Error && currentState !is ConnectionState.Terminated && activeCount == 0) {
                     ConnectionStateRepository.clearConnectionState(profileId)
                 }
                 

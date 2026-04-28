@@ -82,6 +82,9 @@ fun TerminalScreen(
     val connectionStates by ConnectionStateRepository.connectionStates.collectAsState()
     val errorStateEntry = connectionStates.entries.firstOrNull { it.key == profileId && it.value is com.adamoutler.ssh.network.ConnectionState.Error }
     val errorMessage = (errorStateEntry?.value as? com.adamoutler.ssh.network.ConnectionState.Error)?.message
+    
+    val terminatedStateEntry = connectionStates.entries.firstOrNull { it.key == profileId && it.value is com.adamoutler.ssh.network.ConnectionState.Terminated }
+    val isTerminated = terminatedStateEntry != null
 
     TerminalScreenContent(
         profileId = profileId,
@@ -90,10 +93,14 @@ fun TerminalScreen(
         activeSession = activeSession,
         currentFontSize = currentFontSize,
         isConnectionActive = isConnectionActive,
+        isTerminated = isTerminated,
         errorMessage = errorMessage,
         onUpdateFontSize = { terminalViewModel.updateFontSize(it) },
         onNavigateBack = onNavigateBack,
-        onClearError = { errorStateEntry?.key?.let { ConnectionStateRepository.clearConnectionState(it) } },
+        onClearError = { 
+            errorStateEntry?.key?.let { ConnectionStateRepository.clearConnectionState(it) }
+            terminatedStateEntry?.key?.let { ConnectionStateRepository.clearConnectionState(it) }
+        },
         profile = remember(profileId) {
             com.adamoutler.ssh.crypto.SecurityStorageManager(context).getProfile(profileId)
         },
@@ -109,6 +116,7 @@ fun TerminalScreenContent(
     activeSession: com.adamoutler.ssh.network.ActiveSessionState,
     currentFontSize: Int,
     isConnectionActive: Boolean,
+    isTerminated: Boolean = false,
     errorMessage: String?,
     onUpdateFontSize: (Int) -> Unit,
     onNavigateBack: () -> Unit,
@@ -198,12 +206,17 @@ fun TerminalScreenContent(
         )
     }
 
-    androidx.compose.runtime.LaunchedEffect(isConnectionActive) {
+    androidx.compose.runtime.LaunchedEffect(isConnectionActive, isTerminated) {
         if (isConnectionActive) {
             wasActive = true
             showDisconnectedOverlay = false
         } else if (wasActive) {
-            showDisconnectedOverlay = true
+            if (isTerminated) {
+                onClearError()
+                onNavigateBack()
+            } else {
+                showDisconnectedOverlay = true
+            }
         }
     }
 
