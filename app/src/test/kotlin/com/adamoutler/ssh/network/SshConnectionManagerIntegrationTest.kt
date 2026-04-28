@@ -128,4 +128,65 @@ class SshConnectionManagerIntegrationTest {
         println("Data passed successfully. Env var serialized and transmitted.")
         assertTrue("Env var transmitted successfully", true)
     }
+    @Test(timeout = 300000L)
+    fun testTelnetConnectionAndPtyInteraction() = runBlocking {
+        val profile = ConnectionProfile(
+            id = "test-telnet",
+            nickname = "Test Telnet Server",
+            host = "mock.hackedyour.info",
+            port = 32224,
+            username = "",
+            authType = AuthType.PASSWORD,
+            protocol = com.adamoutler.ssh.data.Protocol.TELNET
+        )
+
+        val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
+        
+        var receivedOutput = ""
+        var ptyOut: OutputStream? = null
+        
+        val job = launch(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                manager.connectPty(
+                    profile = profile,
+                    onOutput = { bytes, len ->
+                        receivedOutput += String(bytes, 0, len)
+                    },
+                    onConnect = { out, shell ->
+                        ptyOut = out
+                    }
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        try {
+            // Wait for connection
+            var retries = 0
+            while (ptyOut == null && retries < 100) {
+                delay(100)
+                retries++
+            }
+            
+            assertTrue("Stream should be initialized", ptyOut != null)
+            
+            delay(1000)
+            
+            ptyOut?.write("test_telnet_command\n".toByteArray())
+            ptyOut?.flush()
+            
+            retries = 0
+            while (!receivedOutput.contains("test_telnet_command") && retries < 100) {
+                delay(100)
+                retries++
+            }
+            
+            println("Telnet Output received: $receivedOutput")
+            assertTrue("Should receive echoed telnet command", receivedOutput.contains("test_telnet_command"))
+        } finally {
+            manager.disconnect()
+            job.cancel()
+        }
+    }
 }
