@@ -31,6 +31,10 @@ import com.adamoutler.ssh.network.SshService
 
 import com.adamoutler.ssh.sync.DriveSyncManager
 
+import androidx.core.view.WindowCompat
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.systemBarsPadding
+
 class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -46,6 +50,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
         }
@@ -72,12 +78,13 @@ class MainActivity : ComponentActivity() {
                 }
 
                 Scaffold(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().systemBarsPadding().imePadding(),
                     snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
                 ) { innerPadding ->
                     Surface(
                         modifier = Modifier
-                            .fillMaxSize(),
+                            .fillMaxSize()
+                            .padding(innerPadding),
                         color = MaterialTheme.colorScheme.background
                     ) {
                         AppNavigation()
