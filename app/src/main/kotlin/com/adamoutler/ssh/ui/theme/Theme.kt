@@ -60,14 +60,8 @@ fun CoSSHTheme(
         SideEffect {
             val window = view.context.findActivity()?.window
             if (window != null) {
-                window.statusBarColor = colorScheme.primaryContainer.toArgb()
-                window.navigationBarColor = android.graphics.Color.TRANSPARENT
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    window.isNavigationBarContrastEnforced = false
-                }
-                val insetsController = WindowCompat.getInsetsController(window, view)
-                insetsController.isAppearanceLightStatusBars = false
-                insetsController.isAppearanceLightNavigationBars = !darkTheme
+                window.statusBarColor = colorScheme.primary.toArgb()
+                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
             }
         }
     }

@@ -31,9 +31,6 @@ import com.adamoutler.ssh.network.SshService
 
 import com.adamoutler.ssh.sync.DriveSyncManager
 
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.WindowInsets
-
 class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -80,8 +77,7 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     Surface(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
+                            .fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
                         AppNavigation()
