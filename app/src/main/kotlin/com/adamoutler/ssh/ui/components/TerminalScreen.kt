@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -319,6 +320,7 @@ fun TerminalScreenContent(
     androidx.compose.foundation.layout.Column(
         modifier = modifier
             .fillMaxSize()
+            .systemBarsPadding()
             .imePadding()
     ) {
         val currentFontSizeState = androidx.compose.runtime.rememberUpdatedState(currentFontSize)
