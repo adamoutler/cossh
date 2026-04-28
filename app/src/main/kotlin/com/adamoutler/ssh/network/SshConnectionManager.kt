@@ -6,6 +6,8 @@ import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.HostKeyVerifier
 import net.schmizz.sshj.transport.verification.OpenSSHKnownHosts
@@ -386,24 +388,39 @@ class SshConnectionManager(
         })
         
         try {
+            tc.addOptionHandler(org.apache.commons.net.telnet.TerminalTypeOptionHandler("xterm-256color", false, false, true, false))
+            tc.addOptionHandler(org.apache.commons.net.telnet.EchoOptionHandler(false, false, false, true))
+            tc.addOptionHandler(org.apache.commons.net.telnet.SuppressGAOptionHandler(true, true, true, true))
+
             tc.connect(profile.host, profile.port)
             
+            val writeChannel = kotlinx.coroutines.channels.Channel<ByteArray>(kotlinx.coroutines.channels.Channel.UNLIMITED)
+            
+            val ioJob = kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
+                for (bytes in writeChannel) {
+                    try {
+                        tc.outputStream.write(bytes)
+                        tc.outputStream.flush()
+                    } catch(e: Exception) {
+                        android.util.Log.e("SshConnectionManager", "Error writing to telnet stream", e)
+                        break
+                    }
+                }
+            }
+
             val autoFlushingStream = object : java.io.OutputStream() {
-                val base = tc.outputStream
                 override fun write(b: Int) {
-                    if (b == '\n'.code) base.write('\r'.code)
-                    base.write(b)
-                    base.flush()
+                    writeChannel.trySend(byteArrayOf(b.toByte()))
                 }
                 override fun write(b: ByteArray, off: Int, len: Int) {
-                    for (i in off until off + len) {
-                        if (b[i] == '\n'.code.toByte()) base.write('\r'.code)
-                        base.write(b[i].toInt())
-                    }
-                    base.flush()
+                    writeChannel.trySend(b.copyOfRange(off, off + len))
                 }
-                override fun flush() = base.flush()
-                override fun close() = base.close()
+                override fun flush() {} 
+                override fun close() {
+                    writeChannel.close()
+                    ioJob.cancel()
+                    try { tc.outputStream.close() } catch (e: Exception) {}
+                }
             }
             
             onConnect(autoFlushingStream, null)
