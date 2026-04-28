@@ -29,9 +29,7 @@ private val DarkColorScheme = darkColorScheme(
     secondary = CobaltBlueGrey80,
     tertiary = CobaltBlueAccent80,
     primaryContainer = CobaltBlue40,
-    onPrimaryContainer = androidx.compose.ui.graphics.Color.White,
-    tertiaryContainer = CobaltPurple40,
-    onTertiaryContainer = androidx.compose.ui.graphics.Color.White
+    onPrimaryContainer = androidx.compose.ui.graphics.Color.White
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -39,9 +37,7 @@ private val LightColorScheme = lightColorScheme(
     secondary = CobaltBlueGrey40,
     tertiary = CobaltBlueAccent40,
     primaryContainer = CobaltBlue40,
-    onPrimaryContainer = androidx.compose.ui.graphics.Color.White,
-    tertiaryContainer = CobaltPurple40,
-    onTertiaryContainer = androidx.compose.ui.graphics.Color.White
+    onPrimaryContainer = androidx.compose.ui.graphics.Color.White
 )
 
 @Composable
@@ -64,7 +60,7 @@ fun CoSSHTheme(
         SideEffect {
             val window = view.context.findActivity()?.window
             if (window != null) {
-                window.statusBarColor = colorScheme.primaryContainer.toArgb()
+                window.statusBarColor = android.graphics.Color.TRANSPARENT
                 window.navigationBarColor = android.graphics.Color.TRANSPARENT
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     window.isNavigationBarContrastEnforced = false
