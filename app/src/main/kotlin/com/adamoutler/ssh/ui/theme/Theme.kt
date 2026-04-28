@@ -27,13 +27,17 @@ tailrec fun Context.findActivity(): Activity? = when (this) {
 private val DarkColorScheme = darkColorScheme(
     primary = CobaltBlue80,
     secondary = CobaltBlueGrey80,
-    tertiary = CobaltBlueAccent80
+    tertiary = CobaltBlueAccent80,
+    primaryContainer = CobaltBlue40,
+    onPrimaryContainer = androidx.compose.ui.graphics.Color.White
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = CobaltBlue40,
     secondary = CobaltBlueGrey40,
-    tertiary = CobaltBlueAccent40
+    tertiary = CobaltBlueAccent40,
+    primaryContainer = CobaltBlue40,
+    onPrimaryContainer = androidx.compose.ui.graphics.Color.White
 )
 
 @Composable
@@ -56,8 +60,8 @@ fun CoSSHTheme(
         SideEffect {
             val window = view.context.findActivity()?.window
             if (window != null) {
-                window.statusBarColor = colorScheme.primary.toArgb()
-                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+                window.statusBarColor = colorScheme.primaryContainer.toArgb()
+                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
             }
         }
     }
