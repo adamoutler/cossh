@@ -98,7 +98,7 @@ object PemUtils {
         val headerStr = String(headerBytes, Charsets.UTF_8)
 
         return try {
-            val converter = JcaPEMKeyConverter()
+            val converter = JcaPEMKeyConverter().setProvider("BC")
             when {
                 headerStr.contains("OPENSSH PRIVATE KEY") -> {
                     try {
@@ -183,11 +183,11 @@ object PemUtils {
 
     private fun generateKeyPairFromDer(derBytes: ByteArray, publicKey: java.security.PublicKey?): KeyPair {
         return try {
-            val keyFactory = KeyFactory.getInstance("Ed25519")
+            val keyFactory = KeyFactory.getInstance("Ed25519", "BC")
             val privateKey = keyFactory.generatePrivate(PKCS8EncodedKeySpec(derBytes))
             KeyPair(publicKey, privateKey)
         } catch (e: Exception) {
-            val keyFactory = KeyFactory.getInstance("RSA")
+            val keyFactory = KeyFactory.getInstance("RSA", "BC")
             val privateKey = keyFactory.generatePrivate(PKCS8EncodedKeySpec(derBytes))
             KeyPair(publicKey, privateKey)
         }
