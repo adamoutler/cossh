@@ -211,6 +211,7 @@ fun TerminalScreenContent(
             wasActive = true
             showDisconnectedOverlay = false
         } else if (wasActive) {
+            wasActive = false
             if (isTerminated) {
                 onClearError()
                 onNavigateBack()

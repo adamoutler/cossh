@@ -198,8 +198,6 @@ fun HostKeyPromptDialog() {
     promptRequest?.let { request ->
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(false) },
-            modifier = androidx.compose.ui.Modifier.padding(16.dp),
-            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
             title = {
                 androidx.compose.foundation.layout.Row(
                     verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
