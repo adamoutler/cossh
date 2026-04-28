@@ -307,7 +307,6 @@ fun TerminalScreenContent(
                         finalBytes = byteArrayOf(0x1B) + finalBytes
                         altSticky.value = false
                     }
-
                     activeSession.ptyOutputStream?.write(finalBytes)
                     activeSession.ptyOutputStream?.flush()
                 } catch (ex: Exception) {

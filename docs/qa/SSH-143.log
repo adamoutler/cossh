@@ -1,100 +1,100 @@
-04-27 22:29:50.062 I/pixel-thermal( 1492): outer_disp_therm:27.135 raw data: outer_disp_therm:27135 
-04-27 22:29:50.062 I/pixel-thermal( 1492): rfpa_therm:28.5 raw data: rfpa_therm:28500 
-04-27 22:29:50.062 I/pixel-thermal( 1492): VIRTUAL-SKIN-BOTTOM-SPEAKER:26.7171 raw data: VIRTUAL-SKIN-BOTTOM-SPEAKER:26717.1 
-04-27 22:29:50.062 I/pixel-thermal( 1492): VIRTUAL-SKIN-TOP-SPEAKER:25.5678 raw data: VIRTUAL-SKIN-TOP-SPEAKER:25567.8 
-04-27 22:29:50.063 I/pixel-thermal( 1492): cellular-emergency:27.925 raw data: cellular-emergency:27925 
-04-27 22:29:50.063 I/pixel-thermal( 1492): VIRTUAL-SKIN-OUTER-DISPLAY:26.442 raw data: VIRTUAL-SKIN-OUTER-DISPLAY:26442 
-04-27 22:29:50.063 I/pixel-thermal( 1492): VIRTUAL-SKIN-INNER-DISPLAY:28.4177 raw data: VIRTUAL-SKIN-INNER-DISPLAY:28417.7 
-04-27 22:29:50.063 I/pixel-thermal( 1492): VIRTUAL-SKIN:27.925 raw data: VIRTUAL-SKIN:27925 
-04-27 22:29:50.063 I/pixel-thermal( 1492): inner_disp_therm:28.225 raw data: inner_disp_therm:28225 
-04-27 22:29:50.063 I/pixel-thermal( 1492): VIRTUAL-USB-UI:0 raw data: VIRTUAL-USB-UI:0 
-04-27 22:29:50.063 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-WIRED:28.9024 raw data: VIRTUAL-SKIN-CHARGE-WIRED:28902.4 
-04-27 22:29:50.063 I/pixel-thermal( 1492): north_therm:28.452 raw data: north_therm:28452 
-04-27 22:29:50.063 I/pixel-thermal( 1492): flash_therm:28.289 raw data: flash_therm:28289 
-04-27 22:29:50.063 D/AOC     ( 1264): A3:MSG: controller.cc, 933: CNTRL: ipc: control, cmd ID: 0x00d5, tag: 0xdb, rc: 0
-04-27 22:29:50.063 D/AOC     ( 1264): A3:MSG: controller.cc, 933: SysMem: ipc: C-F1-Ar, cmd ID: 0x00c8, tag: 0x74, rc: 0
-04-27 22:29:50.063 D/AOC     ( 1264): A3:MSG: controller.cc, 933: SysMem: ipc: C-F1-Ar, cmd ID: 0x00c8, tag: 0x75, rc: 0
-04-27 22:29:50.064 D/AOC     ( 1264): CHRE: DRAM vote count begins
-04-27 22:29:50.064 D/AOC     ( 1264): CHRE: DRAM vote count ends: 0 ms
-04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-USB-THROTTLING:0 raw data: VIRTUAL-USB-THROTTLING:0 
-04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-PERSIST:28.9024 raw data: VIRTUAL-SKIN-CHARGE-PERSIST:28902.4 
-04-27 22:29:50.064 I/pixel-thermal( 1492): usb_pwr_therm:27.565 raw data: usb_pwr_therm:27565 
-04-27 22:29:50.064 I/pixel-thermal( 1492): soc_therm:28.966 raw data: soc_therm:28966 
-04-27 22:29:50.064 I/pixel-thermal( 1492): quiet_therm:28.212 raw data: quiet_therm:28212 
-04-27 22:29:50.064 I/pixel-thermal( 1492): outer_disp_therm:27.135 raw data: outer_disp_therm:27135 
-04-27 22:29:50.064 I/pixel-thermal( 1492): rfpa_therm:28.5 raw data: rfpa_therm:28500 
-04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-SKIN-BOTTOM-SPEAKER:26.7171 raw data: VIRTUAL-SKIN-BOTTOM-SPEAKER:26717.1 
-04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-SKIN-TOP-SPEAKER:25.5678 raw data: VIRTUAL-SKIN-TOP-SPEAKER:25567.8 
-04-27 22:29:50.064 I/pixel-thermal( 1492): cellular-emergency:27.925 raw data: cellular-emergency:27925 
-04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-SKIN-OUTER-DISPLAY:26.442 raw data: VIRTUAL-SKIN-OUTER-DISPLAY:26442 
-04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-SKIN-INNER-DISPLAY:28.4177 raw data: VIRTUAL-SKIN-INNER-DISPLAY:28417.7 
-04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-SKIN:27.925 raw data: VIRTUAL-SKIN:27925 
-04-27 22:29:50.064 I/pixel-thermal( 1492): inner_disp_therm:28.225 raw data: inner_disp_therm:28225 
-04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-USB-UI:0 raw data: VIRTUAL-USB-UI:0 
-04-27 22:29:50.064 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-WIRED:28.9024 raw data: VIRTUAL-SKIN-CHARGE-WIRED:28902.4 
-04-27 22:29:50.064 I/pixel-thermal( 1492): north_therm:28.452 raw data: north_therm:28452 
-04-27 22:29:50.064 I/pixel-thermal( 1492): flash_therm:28.289 raw data: flash_therm:28289 
-04-27 22:29:50.064 W/libPixelUsbOverheat(  932): usb_pwr_therm:27.565001 
-04-27 22:29:50.081 W/libbinder.BackendUnifiedServiceManager( 5396): Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
-04-27 22:29:50.081 W/libbinder.BpBinder( 5396): Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
-04-27 22:29:50.082 W/libbinder.ProcessState( 5396): Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
-04-27 22:29:50.555 I/pixel-thermal( 1492): inner_disp_therm:28.225 raw data: inner_disp_therm:28225 
-04-27 22:29:50.733 W/GC2_Dec (  942): [0] unknown interrupt reason 0
-04-27 22:29:50.734 E/libPixelUsbOverheat(  932): nrEvents negative skipping
-04-27 22:29:50.736 I/AidlSensorManager( 1635): aidl_ssvc_poll: spurious wake up, back to work
-04-27 22:29:50.738 W/GC2_Comp(  942): handle interrupt 0x0 fails 22
-04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-USB-THROTTLING:0 raw data: VIRTUAL-USB-THROTTLING:0 
-04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-PERSIST:28.9024 raw data: VIRTUAL-SKIN-CHARGE-PERSIST:28902.4 
-04-27 22:29:50.741 I/pixel-thermal( 1492): usb_pwr_therm:27.565 raw data: usb_pwr_therm:27565 
-04-27 22:29:50.741 I/pixel-thermal( 1492): soc_therm:28.966 raw data: soc_therm:28966 
-04-27 22:29:50.741 I/pixel-thermal( 1492): quiet_therm:28.212 raw data: quiet_therm:28212 
-04-27 22:29:50.741 I/pixel-thermal( 1492): outer_disp_therm:27.135 raw data: outer_disp_therm:27135 
-04-27 22:29:50.741 I/pixel-thermal( 1492): rfpa_therm:28.5 raw data: rfpa_therm:28500 
-04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-SKIN-BOTTOM-SPEAKER:26.7171 raw data: VIRTUAL-SKIN-BOTTOM-SPEAKER:26717.1 
-04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-SKIN-TOP-SPEAKER:25.5678 raw data: VIRTUAL-SKIN-TOP-SPEAKER:25567.8 
-04-27 22:29:50.741 I/pixel-thermal( 1492): cellular-emergency:27.925 raw data: cellular-emergency:27925 
-04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-SKIN-OUTER-DISPLAY:26.442 raw data: VIRTUAL-SKIN-OUTER-DISPLAY:26442 
-04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-SKIN-INNER-DISPLAY:28.4177 raw data: VIRTUAL-SKIN-INNER-DISPLAY:28417.7 
-04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-SKIN:27.925 raw data: VIRTUAL-SKIN:27925 
-04-27 22:29:50.741 I/pixel-thermal( 1492): inner_disp_therm:28.225 raw data: inner_disp_therm:28225 
-04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-USB-UI:0 raw data: VIRTUAL-USB-UI:0 
-04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-WIRED:28.9024 raw data: VIRTUAL-SKIN-CHARGE-WIRED:28902.4 
-04-27 22:29:50.741 I/pixel-thermal( 1492): north_therm:28.452 raw data: north_therm:28452 
-04-27 22:29:50.741 I/pixel-thermal( 1492): flash_therm:28.289 raw data: flash_therm:28289 
-04-27 22:29:50.741 I/pixel-thermal( 1492): VIRTUAL-USB-THROTTLING:0 raw data: VIRTUAL-USB-THROTTLING:0 
-04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-PERSIST:28.9024 raw data: VIRTUAL-SKIN-CHARGE-PERSIST:28902.4 
-04-27 22:29:50.742 I/pixel-thermal( 1492): usb_pwr_therm:27.565 raw data: usb_pwr_therm:27565 
-04-27 22:29:50.742 I/pixel-thermal( 1492): soc_therm:28.966 raw data: soc_therm:28966 
-04-27 22:29:50.742 I/pixel-thermal( 1492): quiet_therm:28.212 raw data: quiet_therm:28212 
-04-27 22:29:50.742 I/pixel-thermal( 1492): outer_disp_therm:27.135 raw data: outer_disp_therm:27135 
-04-27 22:29:50.742 I/pixel-thermal( 1492): rfpa_therm:28.5 raw data: rfpa_therm:28500 
-04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-SKIN-BOTTOM-SPEAKER:26.7171 raw data: VIRTUAL-SKIN-BOTTOM-SPEAKER:26717.1 
-04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-SKIN-TOP-SPEAKER:25.5678 raw data: VIRTUAL-SKIN-TOP-SPEAKER:25567.8 
-04-27 22:29:50.742 I/pixel-thermal( 1492): cellular-emergency:27.925 raw data: cellular-emergency:27925 
-04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-SKIN-OUTER-DISPLAY:26.442 raw data: VIRTUAL-SKIN-OUTER-DISPLAY:26442 
-04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-SKIN-INNER-DISPLAY:28.4177 raw data: VIRTUAL-SKIN-INNER-DISPLAY:28417.7 
-04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-SKIN:27.925 raw data: VIRTUAL-SKIN:27925 
-04-27 22:29:50.742 I/pixel-thermal( 1492): inner_disp_therm:28.225 raw data: inner_disp_therm:28225 
-04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-USB-UI:0 raw data: VIRTUAL-USB-UI:0 
-04-27 22:29:50.742 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-WIRED:28.9024 raw data: VIRTUAL-SKIN-CHARGE-WIRED:28902.4 
-04-27 22:29:50.742 I/pixel-thermal( 1492): north_therm:28.452 raw data: north_therm:28452 
-04-27 22:29:50.742 I/pixel-thermal( 1492): flash_therm:28.289 raw data: flash_therm:28289 
-04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-USB-THROTTLING:0 raw data: VIRTUAL-USB-THROTTLING:0 
-04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-PERSIST:28.9024 raw data: VIRTUAL-SKIN-CHARGE-PERSIST:28902.4 
-04-27 22:29:50.743 I/pixel-thermal( 1492): usb_pwr_therm:27.565 raw data: usb_pwr_therm:27565 
-04-27 22:29:50.743 I/pixel-thermal( 1492): soc_therm:28.966 raw data: soc_therm:28966 
-04-27 22:29:50.743 I/pixel-thermal( 1492): quiet_therm:28.212 raw data: quiet_therm:28212 
-04-27 22:29:50.743 I/pixel-thermal( 1492): outer_disp_therm:27.135 raw data: outer_disp_therm:27135 
-04-27 22:29:50.743 I/pixel-thermal( 1492): rfpa_therm:28.5 raw data: rfpa_therm:28500 
-04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-SKIN-BOTTOM-SPEAKER:26.7171 raw data: VIRTUAL-SKIN-BOTTOM-SPEAKER:26717.1 
-04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-SKIN-TOP-SPEAKER:25.5678 raw data: VIRTUAL-SKIN-TOP-SPEAKER:25567.8 
-04-27 22:29:50.743 I/pixel-thermal( 1492): cellular-emergency:27.925 raw data: cellular-emergency:27925 
-04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-SKIN-OUTER-DISPLAY:26.442 raw data: VIRTUAL-SKIN-OUTER-DISPLAY:26442 
-04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-SKIN-INNER-DISPLAY:28.4177 raw data: VIRTUAL-SKIN-INNER-DISPLAY:28417.7 
-04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-SKIN:27.925 raw data: VIRTUAL-SKIN:27925 
-04-27 22:29:50.743 I/pixel-thermal( 1492): inner_disp_therm:28.225 raw data: inner_disp_therm:28225 
-04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-USB-UI:0 raw data: VIRTUAL-USB-UI:0 
-04-27 22:29:50.743 I/pixel-thermal( 1492): VIRTUAL-SKIN-CHARGE-WIRED:28.9024 raw data: VIRTUAL-SKIN-CHARGE-WIRED:28902.4 
-04-27 22:29:50.743 I/pixel-thermal( 1492): north_therm:28.452 raw data: north_therm:28452 
-04-27 22:29:50.743 I/pixel-thermal( 1492): flash_therm:28.289 raw data: flash_therm:28289 
-04-27 22:29:50.743 W/libPixelUsbOverheat(  932): usb_pwr_therm:27.565001 
+04-28 01:55:44.356 D/AOC     ( 1264): A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00cb, tag: 0x60, rc: 0
+04-28 01:55:44.362 I/AUtl::WakeLock(  902): Acquire: acquired wake lock for aoc_sound_dose
+04-28 01:55:44.362 I/AHal::AocSoundDoseBridge(  902): GetMelDataFromAoc ret_size: 502 fd: 17
+04-28 01:55:44.362 I/AHal::AocSoundDoseBridge(  902): HandlePeriodMelUpdate: 3 records
+04-28 01:55:44.366 D/WifiHAL ( 1001): Start debug command: mType GET_FEATURE
+04-28 01:55:44.366 I/WifiHAL ( 1001): CreateRequest mType = GET_FEATURE
+04-28 01:55:44.366 D/WifiHAL ( 1001): In DebugCommand::handleResponse, mType:GET_FEATURE
+04-28 01:55:44.366 D/WifiHAL ( 1001): len = 4, expected len = 4
+04-28 01:55:44.369 I/AUtl::WakeLock(  902): Release: released wake lock for aoc_sound_dose
+04-28 01:55:44.432 E/PixelDisplayManager( 2892): Lux invalidated
+04-28 01:55:44.476 D/BTAudioSessionAidl(  902): GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-28 01:55:44.494 D/ActivityManager( 1635): freezing 15652 com.google.android.apps.pixel.dcservice
+04-28 01:55:44.614 D/TemperatureStateSource( 2745): sequence=4611 actualDelay=10001
+04-28 01:55:44.617 D/TemperatureStateSource( 2745): Reading temperature: sequence=4612
+04-28 01:55:44.626 I/pixel-thermal( 1492): VIRTUAL-SKIN:32.5408 raw data: CLOSE_WEIGHT:1 OPEN_WEIGHT:0 VIRTUAL-SKIN:32540.8 VIRTUAL-SKIN-CLOSE:32555.4 VIRTUAL-SKIN-CLOSE-SUB-0:32555.4 VIRTUAL-SKIN-CLOSE-SUB-1:32153.9 VIRTUAL-SKIN-CLOSE-SUB-2:32371.8 VIRTUAL-SKIN-CLOSE-SUB-3:32095.6 VIRTUAL-SKIN-CLOSE-SUB-4:32033.9 VIRTUAL-SKIN-LEGACY:32555.4 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:36.1602 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:32519.2 VIRTUAL-SKIN-MODEL-CLAMPED:32519.2 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:-36.1602 VIRTUAL-SKIN-MODEL-UPDATED:32540.8 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:32519.2 VIRTUAL-SKIN-OPEN:32487.6 VIRTUAL-SKIN-OPEN-SUB-0:32287.5 VIRTUAL-SKIN-OPEN-SUB-1:32487.6 VIRTUAL-SKIN-OPEN-SUB-2:32256 VIRTUAL-SKIN-OPEN-SUB-3:32472.9 VIRTUAL-SKIN-OPEN-SUB-4:32197.7 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 charging_therm:31890 flash_therm:31179 inner_brightness:0 inner_disp_therm:32380 north_therm:32418 outer_disp_therm:31872 quiet_therm:31870 rfpa_therm:33123 soc_therm:33900 usb_pwr_therm:31602 
+04-28 01:55:44.627 D/TemperatureStateSource( 2745): getDeviceTemperatures: sequence=4612 deviceTemperatureType=3 temperatureSource=0 temperatures=[32.540848]
+04-28 01:55:44.627 D/BusinessScope( 2745): Enqueuing the block
+04-28 01:55:44.628 D/TemperatureStateSource( 2745): sequence=4612 waitTime=10000
+04-28 01:55:44.628 D/BusinessScope( 2745): Start running the #11576 block
+04-28 01:55:44.628 D/BusinessScope( 2745): Enqueuing the block
+04-28 01:55:44.628 D/ImpulseStateSource( 2745): Notify clients: 5787
+04-28 01:55:44.628 D/BusinessScope( 2745): Finish running the #11576 block
+04-28 01:55:44.628 D/BusinessScope( 2745): Start running the #11577 block
+04-28 01:55:44.628 D/BusinessScope( 2745): Finish running the #11577 block
+04-28 01:55:44.648 D/ImpulseConnection( 2745): timeout didn't happen: com.google.android.apps.turbo
+04-28 01:55:44.671 D/AidlBufferPool(28709): bufferpool2 0xb400007a2c5997b8 : 5(40960 size) total buffers - 3(24576 size) used buffers - 5971/5976 (recycle/alloc) - 8/5975 (fetch/transfer)
+04-28 01:55:44.680 D/BTAudioSessionAidl(  902): GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-28 01:55:44.683 E/PixelDisplayManager( 2892): Lux invalidated
+04-28 01:55:44.747 D/ActivityManager( 1635): freezing 30313 com.google.android.apps.privacy.wildlife
+04-28 01:55:44.775 D/InetDiagMessage( 1635): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+04-28 01:55:44.782 D/InetDiagMessage( 1635): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+04-28 01:55:44.782 D/InetDiagMessage( 1635): Destroyed live tcp sockets for uids={10155} in 16ms
+04-28 01:55:44.914 D/BTAudioSessionAidl(  902): GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-28 01:55:44.934 E/PixelDisplayManager( 2892): Lux invalidated
+04-28 01:55:45.116 D/BTAudioSessionAidl(  902): GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-28 01:55:45.138 D/BackgroundInstallControlService( 1635): Package event received: 0
+04-28 01:55:45.157 I/NearbyDiscovery( 3210): (REDACTED) DiscoveryService onStartCommand action: %s
+04-28 01:55:45.162 I/NearbyDiscovery( 3210): FastPairApiHandler: trigger firmware update check [CONTEXT service_id=265 ]
+04-28 01:55:45.164 I/NearbyDiscovery( 3210): (REDACTED) FastPairApiHandler: Send result, package=(%s), requestType=(%s), status=(%s)
+04-28 01:55:45.184 E/PixelDisplayManager( 2892): Lux invalidated
+04-28 01:55:45.268 D/AidlBufferPool( 1239): bufferpool2 0xb400007beca5cfd8 : 12(24576 size) total buffers - 6(12288 size) used buffers - 5970/5982 (recycle/alloc) - 44/5981 (fetch/transfer)
+04-28 01:55:45.354 D/BTAudioSessionAidl(  902): GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-28 01:55:45.356 D/AOC     ( 1264): F1:BT_Tx (5s)MEL: 84.2  84.6  81.7  87.0  83.8
+04-28 01:55:45.437 E/PixelDisplayManager( 2892): Lux invalidated
+04-28 01:55:45.555 D/BTAudioSessionAidl(  902): GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-28 01:55:45.665 I/PhenotypeProcessReaper( 7274): Memory state is: 125
+04-28 01:55:45.688 E/PixelDisplayManager( 2892): Lux invalidated
+04-28 01:55:45.836 D/BTAudioSessionAidl(  902): GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-28 01:55:45.942 E/PixelDisplayManager( 2892): Lux invalidated
+04-28 01:55:45.943 D/AOC     ( 1264): H0:AMixBT meas core clock [500 frames] min/max/avg: 190/570/203 MHz | core votes 192 192 144 144 | overall 192
+04-28 01:55:46.036 D/BTAudioSessionAidl(  902): GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-28 01:55:46.107 D/AOC     ( 1264): A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 4 -> 2 d_lux:0.42 w_lux: 0.31 C:0.00 G:0.00
+04-28 01:55:46.196 E/PixelDisplayManager( 2892): Lux invalidated
+04-28 01:55:46.274 D/BTAudioSessionAidl(  902): GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-28 01:55:46.396 D/AOC     ( 1264): CHRE: DRAM vote count begins
+04-28 01:55:46.397 D/AOC     ( 1264): CHRE: DRAM vote count ends: 0 ms
+04-28 01:55:46.397 D/AOC     ( 1264): CHRE: DRAM vote count begins
+04-28 01:55:46.397 D/AOC     ( 1264): F1:MSG: controller.cc, 275: AudioInCtrl: cmd ID: 0x00f5, tag: 0x6d [cntr = 7783]
+04-28 01:55:46.397 D/AOC     ( 1264): F1:MSG: controller_audio_input.cc, 4445: Got chre audio stop cmd
+04-28 01:55:46.398 D/AOC     ( 1264): F1:TRC: hotword_input_processor.cc, 1014: Receive cmd: 0x84 (132)
+04-28 01:55:46.398 D/AOC     ( 1264): F1:TRC: hotword_input_processor.cc, 1510: Finished cmd: 0x84 (132)
+04-28 01:55:46.398 D/AOC     ( 1264): F1:MSG: audio_capture_pdm.cc, 448: Reconfig seamless
+04-28 01:55:46.398 D/AOC     ( 1264): F1:Stream 1: mask 0x5, rings {1, 0}, pipe 0x1, sr 16000, il {0,2,0,0}, en 1, mc 0, ni 1, fpo 0, ru 1, hq 0
+04-28 01:55:46.399 D/AOC     ( 1264): F1:MSG: controller.cc, 933: AudioInCtrl: ipc: C-Ch-AI, cmd ID: 0x00f5, tag: 0x6d, rc: 0
+04-28 01:55:46.399 D/AOC     ( 1264): CHRE: DRAM vote count ends: 0 ms
+04-28 01:55:46.399 D/AOC     ( 1264): CHRE: DRAM vote count begins
+04-28 01:55:46.399 D/AOC     ( 1264): CHRE: DRAM vote count ends: 0 ms
+04-28 01:55:46.401 I/CHRE    (  908): @ 77023.541: [vice_ambient_volume] SendMessageToAmbientVolume, message_type: 33283 to instance_id: 0x3
+04-28 01:55:46.402 I/CHRE    (  908): @ 77023.541: nappId=25 tried to cancel expired/invalid timer 6473
+04-28 01:55:46.402 I/CHRE    (  908): @ 77023.541: [vice_ambient_volume] SendMessageToAmbientVolume, message_type: 33282 to instance_id: 0x3
+04-28 01:55:46.402 E/CHRE    (  908): @ 77023.541: [AV] Client 3 is not found.
+04-28 01:55:46.402 I/CHRE    (  908): @ 77023.541: [AV] disabling detection
+04-28 01:55:46.402 D/CHRE    (  908): @ 77023.542: request audio send: 0
+04-28 01:55:46.402 I/CHRE    (  908): @ 77023.543: [vice_ambient_volume] Received ACK from Ambient Volume for disable request
+04-28 01:55:46.404 D/AOC     ( 1264): CHRE: DRAM vote count begins
+04-28 01:55:46.404 D/AOC     ( 1264): CHRE: DRAM vote count ends: 0 ms
+04-28 01:55:46.404 D/AOC     ( 1264): CHRE: DRAM vote count begins
+04-28 01:55:46.404 D/AOC     ( 1264): CHRE: DRAM vote count ends: 0 ms
+04-28 01:55:46.450 E/PixelDisplayManager( 2892): Lux invalidated
+04-28 01:55:46.475 D/BTAudioSessionAidl(  902): GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-28 01:55:46.527 D/AOC     ( 1264): A3:MSG: tmd3743_device.cc, 997: USF: TMD3743: C/G switch 2 -> 4 d_lux:0.17 w_lux: 0.20 C:0.00 G:0.00
+04-28 01:55:46.702 E/PixelDisplayManager( 2892): Lux invalidated
+04-28 01:55:46.716 D/BTAudioSessionAidl(  902): GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-28 01:55:46.953 E/PixelDisplayManager( 2892): Lux invalidated
+04-28 01:55:46.955 D/BTAudioSessionAidl(  902): GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-28 01:55:47.166 I/pixel-thermal( 1492): VIRTUAL-USB-UI:0 raw data: USB-MINUS-CHARGING:-230 VIRTUAL-USB-UI:0 charging_therm:31839 usb_pwr_therm:31609 
+04-28 01:55:47.166 I/pixel-thermal( 1492): inner_disp_therm:32.359 raw data: inner_disp_therm:32359 
+04-28 01:55:47.167 I/pixel-thermal( 1492): rfpa_therm:33.069 raw data: rfpa_therm:33069 
+04-28 01:55:47.167 I/pixel-thermal( 1492): usb_pwr_therm:31.609 raw data: usb_pwr_therm:31609 
+04-28 01:55:47.167 I/pixel-thermal( 1492): VIRTUAL-USB-THROTTLING:0 raw data: USB-MINUS-CHARGING:-230 VIRTUAL-USB-THROTTLING:0 usb_pwr_therm:31609 
+04-28 01:55:47.196 D/BTAudioSessionAidl(  902): GetSupportedLatencyModes - Supported LatencyMode= LOW_LATENCY FREE
+04-28 01:55:47.208 E/PixelDisplayManager( 2892): Lux invalidated
+04-28 01:55:47.263 I/PlayCommon(25578): [101] Preparing logs for uploading
+04-28 01:55:47.270 I/PlayCommon(25578): [101] Connecting to server: https://play.googleapis.com/play/log?format=raw&proto_v2=true
+04-28 01:55:47.352 D/AOC     ( 1264): F1:onNewMelValues timestamp 34403631896 total data count = 3
+04-28 01:55:47.352 D/AOC     ( 1264): A3:MSG: controller.cc, 933: CPM_IPC_HOST: ipc: C-F1-AC, cmd ID: 0x00cb, tag: 0x61, rc: 0
+04-28 01:55:47.353 I/AUtl::WakeLock(  902): Acquire: acquired wake lock for aoc_sound_dose
+04-28 01:55:47.354 I/AHal::AocSoundDoseBridge(  902): GetMelDataFromAoc ret_size: 502 fd: 17
+04-28 01:55:47.354 I/AHal::AocSoundDoseBridge(  902): HandlePeriodMelUpdate: 3 records
+04-28 01:55:47.354 I/AUtl::WakeLock(  902): Release: released wake lock for aoc_sound_dose

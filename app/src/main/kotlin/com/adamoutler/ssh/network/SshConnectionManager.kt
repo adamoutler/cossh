@@ -367,25 +367,6 @@ class SshConnectionManager(
         val tc = org.apache.commons.net.telnet.TelnetClient()
         this@SshConnectionManager.telnetClient = tc
         tc.connectTimeout = 10000
-
-        tc.setSocketFactory(object : javax.net.SocketFactory() {
-            override fun createSocket(): java.net.Socket = java.nio.channels.SocketChannel.open().socket()
-            
-            override fun createSocket(host: String, port: Int): java.net.Socket {
-                return java.nio.channels.SocketChannel.open().apply { 
-                    connect(java.net.InetSocketAddress(host, port)) 
-                }.socket()
-            }
-            
-            override fun createSocket(host: java.net.InetAddress, port: Int): java.net.Socket {
-                return java.nio.channels.SocketChannel.open().apply { 
-                    connect(java.net.InetSocketAddress(host, port)) 
-                }.socket()
-            }
-            
-            override fun createSocket(host: String, port: Int, localHost: java.net.InetAddress, localPort: Int) = throw NotImplementedError()
-            override fun createSocket(address: java.net.InetAddress, port: Int, localAddress: java.net.InetAddress, localPort: Int) = throw NotImplementedError()
-        })
         
         try {
             tc.addOptionHandler(org.apache.commons.net.telnet.TerminalTypeOptionHandler("xterm-256color", false, false, true, false))
@@ -412,21 +393,28 @@ class SshConnectionManager(
                 var lastWasCr = false
                 private fun translateAndSend(b: Int) {
                     val byteVal = b.toByte()
-                    if (byteVal == '\r'.code.toByte()) {
-                        writeChannel.trySend(byteArrayOf('\r'.code.toByte(), '\n'.code.toByte()))
+                    val result = if (byteVal == '\r'.code.toByte()) {
                         lastWasCr = true
+                        writeChannel.trySend(byteArrayOf('\r'.code.toByte(), '\n'.code.toByte()))
                     } else if (byteVal == '\n'.code.toByte()) {
-                        if (!lastWasCr) {
+                        val res = if (!lastWasCr) {
                             writeChannel.trySend(byteArrayOf('\r'.code.toByte(), '\n'.code.toByte()))
-                        }
+                        } else null
                         lastWasCr = false
+                        res
                     } else {
-                        writeChannel.trySend(byteArrayOf(byteVal))
                         lastWasCr = false
+                        writeChannel.trySend(byteArrayOf(byteVal))
+                    }
+                    if (result?.isFailure == true) {
+                        android.util.Log.e("SshConnectionManager", "Failed to send to writeChannel")
                     }
                 }
                 override fun write(b: Int) {
                     translateAndSend(b)
+                }
+                override fun write(b: ByteArray) {
+                    write(b, 0, b.size)
                 }
                 override fun write(b: ByteArray, off: Int, len: Int) {
                     for (i in off until off + len) {
