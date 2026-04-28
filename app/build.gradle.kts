@@ -160,6 +160,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.security.crypto.ktx)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.commons.net)
     implementation(libs.sshj)
     implementation(libs.slf4j.nop)
     implementation(libs.termux.terminal.view)

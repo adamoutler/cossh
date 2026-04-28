@@ -99,6 +99,7 @@ class SshConnectionManager(
     private val context: android.content.Context? = null
 ) {
     private var client: SSHClient? = null
+    private var telnetClient: org.apache.commons.net.telnet.TelnetClient? = null
     private val localServerSockets = mutableListOf<java.net.ServerSocket>()
 
     private fun configureHostKeyVerifier() {
@@ -294,8 +295,13 @@ class SshConnectionManager(
         profile: ConnectionProfile,
         keyPair: KeyPair? = null,
         onOutput: suspend (ByteArray, Int) -> Unit,
-        onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell) -> Unit
+        onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit
     ) = withContext(Dispatchers.IO) {
+        if (profile.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
+            connectTelnet(profile, onOutput, onConnect)
+            return@withContext
+        }
+
         val client = SSHClient(net.schmizz.sshj.AndroidConfig())
         this@SshConnectionManager.client = client
         client.connectTimeout = 10000
@@ -348,6 +354,30 @@ class SshConnectionManager(
                 android.util.Log.e("SshConnectionManager", "Error during disconnect", e)
             }
             identity?.clearSensitiveData()
+        }
+    }
+
+    private suspend fun connectTelnet(
+        profile: ConnectionProfile,
+        onOutput: suspend (ByteArray, Int) -> Unit,
+        onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit
+    ) = withContext(Dispatchers.IO) {
+        val tc = org.apache.commons.net.telnet.TelnetClient()
+        this@SshConnectionManager.telnetClient = tc
+        tc.connectTimeout = 10000
+        
+        try {
+            tc.connect(profile.host, profile.port)
+            onConnect(tc.outputStream, null)
+            
+            val bridge = PtyStreamBridge(tc.inputStream, onOutput)
+            bridge.startBridge()
+        } finally {
+            try {
+                tc.disconnect()
+            } catch (e: Exception) {
+                android.util.Log.e("SshConnectionManager", "Error during telnet disconnect", e)
+            }
         }
     }
 
