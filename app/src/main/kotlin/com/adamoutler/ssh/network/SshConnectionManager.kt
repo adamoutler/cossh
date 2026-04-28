@@ -365,10 +365,48 @@ class SshConnectionManager(
         val tc = org.apache.commons.net.telnet.TelnetClient()
         this@SshConnectionManager.telnetClient = tc
         tc.connectTimeout = 10000
+
+        tc.setSocketFactory(object : javax.net.SocketFactory() {
+            override fun createSocket(): java.net.Socket = java.nio.channels.SocketChannel.open().socket()
+            
+            override fun createSocket(host: String, port: Int): java.net.Socket {
+                return java.nio.channels.SocketChannel.open().apply { 
+                    connect(java.net.InetSocketAddress(host, port)) 
+                }.socket()
+            }
+            
+            override fun createSocket(host: java.net.InetAddress, port: Int): java.net.Socket {
+                return java.nio.channels.SocketChannel.open().apply { 
+                    connect(java.net.InetSocketAddress(host, port)) 
+                }.socket()
+            }
+            
+            override fun createSocket(host: String, port: Int, localHost: java.net.InetAddress, localPort: Int) = throw NotImplementedError()
+            override fun createSocket(address: java.net.InetAddress, port: Int, localAddress: java.net.InetAddress, localPort: Int) = throw NotImplementedError()
+        })
         
         try {
             tc.connect(profile.host, profile.port)
-            onConnect(tc.outputStream, null)
+            
+            val autoFlushingStream = object : java.io.OutputStream() {
+                val base = tc.outputStream
+                override fun write(b: Int) {
+                    if (b == '\n'.code) base.write('\r'.code)
+                    base.write(b)
+                    base.flush()
+                }
+                override fun write(b: ByteArray, off: Int, len: Int) {
+                    for (i in off until off + len) {
+                        if (b[i] == '\n'.code.toByte()) base.write('\r'.code)
+                        base.write(b[i].toInt())
+                    }
+                    base.flush()
+                }
+                override fun flush() = base.flush()
+                override fun close() = base.close()
+            }
+            
+            onConnect(autoFlushingStream, null)
             
             val bridge = PtyStreamBridge(tc.inputStream, onOutput)
             bridge.startBridge()
