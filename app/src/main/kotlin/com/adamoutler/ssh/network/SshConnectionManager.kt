@@ -389,7 +389,7 @@ class SshConnectionManager(
         
         try {
             tc.addOptionHandler(org.apache.commons.net.telnet.TerminalTypeOptionHandler("xterm-256color", false, false, true, false))
-            tc.addOptionHandler(org.apache.commons.net.telnet.EchoOptionHandler(false, false, false, true))
+            tc.addOptionHandler(org.apache.commons.net.telnet.EchoOptionHandler(false, true, false, true))
             tc.addOptionHandler(org.apache.commons.net.telnet.SuppressGAOptionHandler(true, true, true, true))
 
             tc.connect(profile.host, profile.port)
@@ -409,11 +409,29 @@ class SshConnectionManager(
             }
 
             val autoFlushingStream = object : java.io.OutputStream() {
+                var lastWasCr = false
+                private fun translateAndSend(b: Int) {
+                    val byteVal = b.toByte()
+                    if (byteVal == '\r'.code.toByte()) {
+                        writeChannel.trySend(byteArrayOf('\r'.code.toByte(), '\n'.code.toByte()))
+                        lastWasCr = true
+                    } else if (byteVal == '\n'.code.toByte()) {
+                        if (!lastWasCr) {
+                            writeChannel.trySend(byteArrayOf('\r'.code.toByte(), '\n'.code.toByte()))
+                        }
+                        lastWasCr = false
+                    } else {
+                        writeChannel.trySend(byteArrayOf(byteVal))
+                        lastWasCr = false
+                    }
+                }
                 override fun write(b: Int) {
-                    writeChannel.trySend(byteArrayOf(b.toByte()))
+                    translateAndSend(b)
                 }
                 override fun write(b: ByteArray, off: Int, len: Int) {
-                    writeChannel.trySend(b.copyOfRange(off, off + len))
+                    for (i in off until off + len) {
+                        translateAndSend(b[i].toInt())
+                    }
                 }
                 override fun flush() {} 
                 override fun close() {

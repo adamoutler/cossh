@@ -12,7 +12,7 @@ class PtyStreamBridge(
     suspend fun startBridge() {
         val buffer = ByteArray(4096)
         try {
-            while (currentCoroutineContext().isActive) {
+            while (kotlinx.coroutines.currentCoroutineContext().isActive) {
                 if (inputStream.available() > 0) {
                     val read = inputStream.read(buffer)
                     if (read == -1) break
@@ -20,9 +20,7 @@ class PtyStreamBridge(
                         onOutput(buffer.copyOf(read), read)
                     }
                 } else {
-                    delay(50) // Prevent tight polling loop
-                    // Also attempt a 1-byte read if stream might be closed but available() is 0
-                    // But available() usually returns > 0 or throws if closed. Let's just rely on disconnect() throwing or closing.
+                    kotlinx.coroutines.delay(50)
                 }
             }
         } catch (e: Exception) {
