@@ -8,12 +8,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
@@ -60,9 +58,17 @@ fun HoldToConfirmButton(
             .fillMaxWidth()
             .clip(RoundedCornerShape(4.dp))
             .background(baseColor)
+            .drawBehind {
+                if (progress.value > 0f) {
+                    drawRect(
+                        color = fillColor,
+                        size = size.copy(width = size.width * progress.value)
+                    )
+                }
+            }
             .pointerInput(Unit) {
                 awaitEachGesture {
-                    val down = awaitFirstDown()
+                    awaitFirstDown()
                     if (isConfirmed) return@awaitEachGesture
                     
                     val job = coroutineScope.launch {
@@ -91,15 +97,6 @@ fun HoldToConfirmButton(
             },
         contentAlignment = Alignment.Center
     ) {
-        // The fill bar
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(progress.value)
-                .fillMaxHeight()
-                .background(fillColor)
-                .align(Alignment.CenterStart)
-        )
-
         // The text on top
         Text(
             text = text,

@@ -9,6 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -159,7 +160,13 @@ fun AppNavigation() {
                 profileId = profileId,
                 sessionId = sessionId,
                 terminalViewModel = terminalViewModel,
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { 
+                    // Prevent double-pop race condition which causes a black screen
+                    // when the terminal is terminated and popBackStack is called twice.
+                    if (navController.previousBackStackEntry != null) {
+                        navController.popBackStack()
+                    }
+                }
             )
         }
         composable("identityList") {
@@ -256,8 +263,7 @@ fun HostKeyPromptDialog() {
                 if (request.isKeyChanged) {
                     com.adamoutler.ssh.ui.components.HoldToConfirmButton(
                         onConfirm = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) },
-                        text = "Accept Risk",
-                        modifier = androidx.compose.ui.Modifier.height(36.dp)
+                        modifier = androidx.compose.ui.Modifier.defaultMinSize(minHeight = 48.dp)
                     )
                 } else {
                     androidx.compose.material3.TextButton(

@@ -23,13 +23,15 @@ class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(
             return true
         }
 
+        val formattedHost = if (port != 22) "[$hostname]:$port" else hostname
+
         var oldFingerprint: String? = null
         val hostExists = knownHostsFile.exists() && knownHostsFile.useLines { lines ->
             var found = false
             for (line in lines) {
                 val tokens = line.split(" ")
                 val firstToken = tokens.firstOrNull()
-                if (firstToken != null && (firstToken.contains(hostname) || firstToken.contains("[$hostname]:$port"))) {
+                if (firstToken != null && firstToken == formattedHost) {
                     found = true
                     if (tokens.size >= 3) {
                         try {
@@ -59,7 +61,7 @@ class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(
         // Prompt user (runBlocking because verify is synchronous but we need to await the user's UI action)
         val userAccepted = kotlinx.coroutines.runBlocking {
             ConnectionStateRepository.requestPrompt(
-                hostname = hostname,
+                hostname = formattedHost,
                 expectedFingerprint = oldFingerprint,
                 receivedFingerprint = receivedFingerprint,
                 isKeyChanged = hostExists
@@ -67,7 +69,7 @@ class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(
         }
 
         if (userAccepted) {
-            val newEntry = "$hostname $keyType $keyBlobBase64\n"
+            val newEntry = "$formattedHost $keyType $keyBlobBase64\n"
             if (hostExists && knownHostsFile.exists()) {
                 // Atomic overwrite: remove old entry, write new
                 val tempFile = File(knownHostsFile.absolutePath + ".tmp")
@@ -75,7 +77,7 @@ class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(
                     tempFile.printWriter().use { out ->
                         lines.forEach { line ->
                             val firstToken = line.split(" ").firstOrNull()
-                            if (firstToken != null && !firstToken.contains(hostname) && !firstToken.contains("[$hostname]:$port")) {
+                            if (firstToken != null && firstToken != formattedHost) {
                                 out.println(line)
                             }
                         }

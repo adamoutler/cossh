@@ -7,7 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -66,59 +66,71 @@ fun GroupedConnectionList(
                         onEdit = { onEditConnection(profile.id) }
                     )
                 } else {
-                    val dismissState = rememberSwipeToDismissBoxState()
-                    
-                    LaunchedEffect(dismissState.currentValue) {
-                        if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
-                            profileToDelete = profile
-                            dismissState.reset()
-                        } else if (dismissState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
-                            onMoveToFolder(profile.id)
-                            dismissState.reset()
+                    val currentConfig = androidx.compose.ui.platform.LocalViewConfiguration.current
+                    val customConfig = remember(currentConfig) {
+                        object : androidx.compose.ui.platform.ViewConfiguration by currentConfig {
+                            override val touchSlop: Float
+                                get() = currentConfig.touchSlop * 2.5f
                         }
                     }
 
-                    SwipeToDismissBox(
-                        state = dismissState,
-                        backgroundContent = {
-                            val color = when (dismissState.dismissDirection) {
-                                SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.primary
-                                SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
-                                else -> Color.Transparent
+                    androidx.compose.runtime.CompositionLocalProvider(
+                        androidx.compose.ui.platform.LocalViewConfiguration provides customConfig
+                    ) {
+                        val dismissState = rememberSwipeToDismissBoxState()
+                        
+                        LaunchedEffect(dismissState.currentValue) {
+                            if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+                                profileToDelete = profile
+                                dismissState.reset()
+                            } else if (dismissState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
+                                onMoveToFolder(profile.id)
+                                dismissState.reset()
                             }
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                                    .background(color, shape = MaterialTheme.shapes.medium),
-                                contentAlignment = if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) Alignment.CenterStart else Alignment.CenterEnd
-                            ) {
-                                if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
-                                    Icon(
-                                        Icons.Default.ArrowForward,
-                                        contentDescription = "Move",
-                                        modifier = Modifier.padding(start = 16.dp),
-                                        tint = Color.White
-                                    )
-                                } else {
-                                    Icon(
-                                        Icons.Default.Delete,
-                                        contentDescription = "Delete",
-                                        modifier = Modifier.padding(end = 16.dp),
-                                        tint = Color.White
-                                    )
-                                }
-                            }
-                        },
-                        content = {
-                            ConnectionItem(
-                                profile = profile,
-                                activeCount = activeCount,
-                                onClick = { onConnect(profile.id) },
-                                onEdit = { onEditConnection(profile.id) }
-                            )
                         }
-                    )
+
+                        SwipeToDismissBox(
+                            state = dismissState,
+                            backgroundContent = {
+                                val color = when (dismissState.dismissDirection) {
+                                    SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.primary
+                                    SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
+                                    else -> Color.Transparent
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                                        .background(color, shape = MaterialTheme.shapes.medium),
+                                    contentAlignment = if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) Alignment.CenterStart else Alignment.CenterEnd
+                                ) {
+                                    if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.ArrowForward,
+                                            contentDescription = "Move",
+                                            modifier = Modifier.padding(start = 16.dp),
+                                            tint = Color.White
+                                        )
+                                    } else {
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = "Delete",
+                                            modifier = Modifier.padding(end = 16.dp),
+                                            tint = Color.White
+                                        )
+                                    }
+                                }
+                            },
+                            content = {
+                                ConnectionItem(
+                                    profile = profile,
+                                    activeCount = activeCount,
+                                    onClick = { onConnect(profile.id) },
+                                    onEdit = { onEditConnection(profile.id) }
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

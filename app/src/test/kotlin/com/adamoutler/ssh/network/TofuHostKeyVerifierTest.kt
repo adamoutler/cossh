@@ -56,7 +56,9 @@ class TofuHostKeyVerifierTest {
         
         // In a real scenario, runBlocking would block until deferred is resolved. We just pre-resolve it.
         Thread {
-            Thread.sleep(500)
+            while (ConnectionStateRepository.promptRequest.value == null) {
+                Thread.sleep(50)
+            }
             ConnectionStateRepository.resolvePrompt(true)
         }.start()
 
@@ -71,7 +73,9 @@ class TofuHostKeyVerifierTest {
         
         // User clicks "Hold to Accept Risk"
         Thread {
-            Thread.sleep(500)
+            while (ConnectionStateRepository.promptRequest.value == null) {
+                Thread.sleep(50)
+            }
             logFile.appendText("User actively held confirmation button to accept the risk.\n")
             ConnectionStateRepository.resolvePrompt(true)
         }.start()
