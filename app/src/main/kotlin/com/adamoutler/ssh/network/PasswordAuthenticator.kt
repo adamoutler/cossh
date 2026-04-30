@@ -4,10 +4,16 @@ import com.adamoutler.ssh.data.ConnectionProfile
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.userauth.password.PasswordFinder
 import net.schmizz.sshj.userauth.password.Resource
+import kotlinx.coroutines.runBlocking
 
 class PasswordAuthenticator : SshAuthenticator {
     override fun authenticate(client: SSHClient, profile: ConnectionProfile) {
-        val passwordBytes = profile.password ?: throw IllegalArgumentException("Password required for password auth")
+        val passwordBytes = profile.password ?: run {
+            val passStr = runBlocking {
+                ConnectionStateRepository.requestPasswordPrompt(profile.id)
+            }
+            passStr?.toByteArray() ?: throw IllegalArgumentException("Password required for password auth")
+        }
         val passwordChars = CharArray(passwordBytes.size)
         try {
             for (i in passwordBytes.indices) {

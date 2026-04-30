@@ -158,13 +158,13 @@ class SshService : Service() {
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error(userMessage))
                 } else {
                     Log.d("SshService", "SSH Session disconnected normally for $profileId (Session: $sessionId)")
-                    ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Terminated("Disconnected"))
+                    ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnected)
                 }
             } finally {
                 ConnectionStateRepository.removeConnection(profileId)
                 val activeCount = ConnectionStateRepository.activeConnectionCounts.value[profileId] ?: 0
                 val currentState = ConnectionStateRepository.connectionStates.value[profileId]
-                if (currentState !is ConnectionState.Error && currentState !is ConnectionState.Terminated && activeCount == 0) {
+                if (currentState !is ConnectionState.Error && currentState !is ConnectionState.Terminated && currentState !is ConnectionState.Disconnected && activeCount == 0) {
                     ConnectionStateRepository.clearConnectionState(profileId)
                 }
                 

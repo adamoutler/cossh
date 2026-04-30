@@ -13,6 +13,7 @@ import net.schmizz.sshj.connection.channel.direct.Session.Shell
 sealed interface ConnectionState {
     object Connecting : ConnectionState
     object Connected : ConnectionState
+    object Disconnected : ConnectionState
     data class Terminated(val reason: String?) : ConnectionState
     data class Error(val message: String) : ConnectionState
 }
@@ -23,6 +24,11 @@ data class HostKeyPromptRequest(
     val receivedFingerprint: String,
     val isKeyChanged: Boolean, // True if MITM warning
     val deferred: kotlinx.coroutines.CompletableDeferred<Boolean>
+)
+
+data class PasswordPromptRequest(
+    val profileId: String,
+    val deferred: kotlinx.coroutines.CompletableDeferred<String?>
 )
 
 data class ActiveSessionState(
@@ -54,6 +60,20 @@ object ConnectionStateRepository {
 
     private val _promptRequest = MutableStateFlow<HostKeyPromptRequest?>(null)
     val promptRequest = _promptRequest.asStateFlow()
+
+    private val _passwordPromptRequest = MutableStateFlow<PasswordPromptRequest?>(null)
+    val passwordPromptRequest = _passwordPromptRequest.asStateFlow()
+
+    suspend fun requestPasswordPrompt(profileId: String): String? {
+        val deferred = kotlinx.coroutines.CompletableDeferred<String?>()
+        _passwordPromptRequest.value = PasswordPromptRequest(profileId, deferred)
+        return deferred.await()
+    }
+
+    fun resolvePasswordPrompt(password: String?) {
+        _passwordPromptRequest.value?.deferred?.complete(password)
+        _passwordPromptRequest.value = null
+    }
 
     suspend fun requestPrompt(hostname: String, expectedFingerprint: String?, receivedFingerprint: String, isKeyChanged: Boolean): Boolean {
         val deferred = kotlinx.coroutines.CompletableDeferred<Boolean>()

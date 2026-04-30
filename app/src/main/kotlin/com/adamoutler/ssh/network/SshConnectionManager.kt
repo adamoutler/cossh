@@ -164,8 +164,8 @@ class SshConnectionManager(
                 }
             }
 
-            // Try password auth if a password exists
-            if (identity.password != null) {
+            // Try password auth if a password exists or if authType is PASSWORD
+            if (identity.password != null || profile.authType == AuthType.PASSWORD) {
                 authenticators.add(PasswordAuthenticator())
             }
 

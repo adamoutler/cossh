@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +26,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.IdentityProfile
@@ -313,6 +317,12 @@ fun AddEditProfileScreenContent(
                             onClick = {
                                 onManageIdentities()
                                 isIdentityDropdownExpanded = false
+                            },
+                            trailingIcon = {
+                                val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+                                IconButton(onClick = { uriHandler.openUri("https://github.com/adamoutler/ssh/wiki") }) {
+                                    Icon(Icons.Outlined.Info, contentDescription = "Learn more about Manage Identities", tint = MaterialTheme.colorScheme.primary)
+                                }
                             }
                         )
                     }
@@ -523,7 +533,26 @@ fun AddEditProfileScreenContent(
                                     Text("Remote")
                                 }
                             }
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
+                            val helpText = if (type == PortForwardType.LOCAL) {
+                                "Forwards a local port on this device to a remote destination."
+                            } else {
+                                "Forwards a remote port on the server to this local device."
+                            }
+                            androidx.compose.animation.AnimatedContent(
+                                targetState = helpText,
+                                label = "PortForwardingHelpAnimation",
+                                modifier = Modifier.semantics { 
+                                    liveRegion = LiveRegionMode.Polite 
+                                }
+                            ) { targetText ->
+                                Text(
+                                    text = targetText,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
                             OutlinedTextField(
                                 value = localPort,
                                 onValueChange = { localPort = it },
