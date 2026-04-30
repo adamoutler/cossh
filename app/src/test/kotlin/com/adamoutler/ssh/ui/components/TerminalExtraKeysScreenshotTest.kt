@@ -19,10 +19,10 @@ class TerminalExtraKeysScreenshotTest {
     fun page1_noModifiers() {
         paparazzi.snapshot {
             TerminalExtraKeys(
-                ctrlActive = false,
-                altActive = false,
-                superActive = false,
-                menuActive = false,
+                ctrlState = ModifierState.INACTIVE,
+                altState = ModifierState.INACTIVE,
+                superState = ModifierState.INACTIVE,
+                menuState = ModifierState.INACTIVE,
                 onKeyToggle = {},
                 onKeyPress = {},
                 modifier = Modifier.fillMaxWidth()
@@ -34,10 +34,10 @@ class TerminalExtraKeysScreenshotTest {
     fun page1_withModifiers() {
         paparazzi.snapshot {
             TerminalExtraKeys(
-                ctrlActive = true,
-                altActive = false,
-                superActive = false,
-                menuActive = false,
+                ctrlState = ModifierState.STICKY,
+                altState = ModifierState.LOCKED,
+                superState = ModifierState.INACTIVE,
+                menuState = ModifierState.INACTIVE,
                 onKeyToggle = {},
                 onKeyPress = {},
                 modifier = Modifier.fillMaxWidth()
@@ -49,10 +49,10 @@ class TerminalExtraKeysScreenshotTest {
     fun page3_f1_f12_keys() {
         paparazzi.snapshot {
             TerminalExtraKeys(
-                ctrlActive = false,
-                altActive = false,
-                superActive = false,
-                menuActive = false,
+                ctrlState = ModifierState.INACTIVE,
+                altState = ModifierState.INACTIVE,
+                superState = ModifierState.INACTIVE,
+                menuState = ModifierState.INACTIVE,
                 onKeyToggle = {},
                 onKeyPress = {},
                 modifier = Modifier.fillMaxWidth(),

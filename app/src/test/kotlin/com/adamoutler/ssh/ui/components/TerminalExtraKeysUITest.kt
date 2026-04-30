@@ -29,10 +29,10 @@ class TerminalExtraKeysUITest {
             scenario.onActivity { activity ->
                 activity.setContent {
                     TerminalExtraKeys(
-                        ctrlActive = false,
-                        altActive = false,
-                        superActive = false,
-                        menuActive = false,
+                        ctrlState = ModifierState.INACTIVE,
+                        altState = ModifierState.INACTIVE,
+                        superState = ModifierState.INACTIVE,
+                        menuState = ModifierState.INACTIVE,
                         onKeyToggle = {},
                         onKeyPress = { key -> dispatchedKey = key },
                         initialPage = 2

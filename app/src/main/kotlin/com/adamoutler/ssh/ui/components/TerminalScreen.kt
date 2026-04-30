@@ -50,6 +50,28 @@ enum class TerminalInputState {
     NONE, KEYBOARD, KEYBOARD_AND_BUTTONS
 }
 
+/**
+ * Tri-state logic for terminal modifiers (Ctrl, Alt, etc.)
+ * - INACTIVE: Normal behavior.
+ * - STICKY: Modified next keypress, then automatically returns to INACTIVE.
+ * - LOCKED: Persists across multiple keypresses until manually toggled back to INACTIVE.
+ * 
+ * NOTE TO FUTURE AGENTS: Do NOT remove the STICKY -> INACTIVE transition in key handlers.
+ * This latching behavior is intentional to support both one-shot modifiers (mobile standard)
+ * and persistent modifiers (power-user workflows).
+ */
+enum class ModifierState {
+    INACTIVE, STICKY, LOCKED;
+
+    fun next(): ModifierState = when (this) {
+        INACTIVE -> STICKY
+        STICKY -> LOCKED
+        LOCKED -> INACTIVE
+    }
+
+    val isActive: Boolean get() = this != INACTIVE
+}
+
 @Composable
 fun TerminalScreen(
     profileId: String,
@@ -179,10 +201,10 @@ fun TerminalScreenContent(
 
     var terminalInputState by remember { mutableStateOf(0) }
     var showOverlayButtons by remember { mutableStateOf(false) }
-    val ctrlSticky = remember { mutableStateOf(false) }
-    val altSticky = remember { mutableStateOf(false) }
-    val superSticky = remember { mutableStateOf(false) }
-    val menuSticky = remember { mutableStateOf(false) }
+    val ctrlState = remember { mutableStateOf(ModifierState.INACTIVE) }
+    val altState = remember { mutableStateOf(ModifierState.INACTIVE) }
+    val superState = remember { mutableStateOf(ModifierState.INACTIVE) }
+    val menuState = remember { mutableStateOf(ModifierState.INACTIVE) }
 
     androidx.compose.runtime.LaunchedEffect(showOverlayButtons) {
         if (showOverlayButtons) {
@@ -326,9 +348,12 @@ fun TerminalScreenContent(
             coroutineScope.launch(Dispatchers.IO) {
                 try {
                     var finalBytes = bytes
-                    if (altSticky.value && bytes.size == 1) {
+                    // Apply Alt modifier by prepending ESC (0x1B)
+                    if (altState.value.isActive && bytes.size == 1) {
                         finalBytes = byteArrayOf(0x1B) + finalBytes
-                        altSticky.value = false
+                        if (altState.value == ModifierState.STICKY) {
+                            altState.value = ModifierState.INACTIVE
+                        }
                     }
                     activeSession.ptyOutputStream?.write(finalBytes)
                     activeSession.ptyOutputStream?.flush()
@@ -481,8 +506,8 @@ fun TerminalScreenContent(
                                         val unicodeChar = e.unicodeChar
                                         if (unicodeChar != 0) {
                                             var cp = unicodeChar
-                                            val ctrlPressed = ctrlSticky.value || e.isCtrlPressed
-                                            if (ctrlPressed) {
+                                            val ctrlActive = ctrlState.value.isActive || e.isCtrlPressed
+                                            if (ctrlActive) {
                                                 if (cp in 'a'.code..'z'.code) {
                                                     cp = cp - 'a'.code + 1
                                                 } else if (cp in 'A'.code..'Z'.code) {
@@ -507,9 +532,9 @@ fun TerminalScreenContent(
                                 }
 
                                 if (bytesToSend != null) {
-                                    if (ctrlSticky.value) ctrlSticky.value = false
-                                    if (superSticky.value) superSticky.value = false
-                                    if (menuSticky.value) menuSticky.value = false
+                                    if (ctrlState.value == ModifierState.STICKY) ctrlState.value = ModifierState.INACTIVE
+                                    if (superState.value == ModifierState.STICKY) superState.value = ModifierState.INACTIVE
+                                    if (menuState.value == ModifierState.STICKY) menuState.value = ModifierState.INACTIVE
                                     sendToTerminal(bytesToSend)
                                     Log.d("TerminalScreen", "Wrote ${bytesToSend.size} bytes (key: $keyCode) to SSH PTY stdin")
                                 }
@@ -519,8 +544,8 @@ fun TerminalScreenContent(
                                 if (keyCode == android.view.KeyEvent.KEYCODE_BACK) return false
                                 return true
                             }
-                            override fun readControlKey(): Boolean = false
-                            override fun readAltKey(): Boolean = false
+                            override fun readControlKey(): Boolean = ctrlState.value.isActive
+                            override fun readAltKey(): Boolean = altState.value.isActive
                             override fun readShiftKey(): Boolean = false
                             override fun readFnKey(): Boolean = false
                             override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, s: TerminalSession?): Boolean {
@@ -530,7 +555,7 @@ fun TerminalScreenContent(
                                 }
                                 try {
                                     var cp = codePoint
-                                    if (ctrlSticky.value) {
+                                    if (ctrlState.value.isActive) {
                                         if (cp in 'a'.code..'z'.code) {
                                             cp = cp - 'a'.code + 1
                                         } else if (cp in 'A'.code..'Z'.code) {
@@ -546,13 +571,15 @@ fun TerminalScreenContent(
                                         } else if (cp == '_'.code) {
                                             cp = 31
                                         }
-                                        ctrlSticky.value = false
+                                        if (ctrlState.value == ModifierState.STICKY) {
+                                            ctrlState.value = ModifierState.INACTIVE
+                                        }
                                     }
                                     
                                     val chars = Character.toChars(cp)
                                     val bytes = String(chars).toByteArray(Charsets.UTF_8)
-                                    if (superSticky.value) superSticky.value = false
-                                    if (menuSticky.value) menuSticky.value = false
+                                    if (superState.value == ModifierState.STICKY) superState.value = ModifierState.INACTIVE
+                                    if (menuState.value == ModifierState.STICKY) menuState.value = ModifierState.INACTIVE
                                     sendToTerminal(bytes)
                                     Log.d("TerminalScreen", "Wrote ${bytes.size} bytes (codePoint) to SSH PTY stdin")
                                 } catch (ex: Exception) {
@@ -631,16 +658,16 @@ fun TerminalScreenContent(
         }
         if (terminalInputState == 2) {
             TerminalExtraKeys(
-                ctrlActive = ctrlSticky.value,
-                altActive = altSticky.value,
-                superActive = superSticky.value,
-                menuActive = menuSticky.value,
+                ctrlState = ctrlState.value,
+                altState = altState.value,
+                superState = superState.value,
+                menuState = menuState.value,
                 onKeyToggle = { key ->
                     when (key) {
-                        "Ctrl" -> ctrlSticky.value = !ctrlSticky.value
-                        "Alt" -> altSticky.value = !altSticky.value
-                        "Super" -> superSticky.value = !superSticky.value
-                        "Menu" -> menuSticky.value = !menuSticky.value
+                        "Ctrl" -> ctrlState.value = ctrlState.value.next()
+                        "Alt" -> altState.value = altState.value.next()
+                        "Super" -> superState.value = superState.value.next()
+                        "Menu" -> menuState.value = menuState.value.next()
                     }
                 },
                 onKeyPress = { key ->
@@ -675,9 +702,9 @@ fun TerminalScreenContent(
                         else -> null
                     }
                     if (bytes != null) {
-                        if (ctrlSticky.value) ctrlSticky.value = false
-                        if (superSticky.value) superSticky.value = false
-                        if (menuSticky.value) menuSticky.value = false
+                        if (ctrlState.value == ModifierState.STICKY) ctrlState.value = ModifierState.INACTIVE
+                        if (superState.value == ModifierState.STICKY) superState.value = ModifierState.INACTIVE
+                        if (menuState.value == ModifierState.STICKY) menuState.value = ModifierState.INACTIVE
                         android.util.Log.d("TerminalScreen", "Sending extra key bytes: ${bytes.joinToString(",") { String.format("0x%02X", it) }}")
                         sendToTerminal(bytes)
                     }

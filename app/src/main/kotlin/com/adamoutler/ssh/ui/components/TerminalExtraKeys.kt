@@ -19,10 +19,10 @@ import androidx.compose.ui.unit.sp
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun TerminalExtraKeys(
-    ctrlActive: Boolean,
-    altActive: Boolean,
-    superActive: Boolean,
-    menuActive: Boolean,
+    ctrlState: ModifierState,
+    altState: ModifierState,
+    superState: ModifierState,
+    menuState: ModifierState,
     onKeyToggle: (String) -> Unit,
     onKeyPress: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -54,7 +54,7 @@ fun TerminalExtraKeys(
                     else -> page3Row1
                 }
                 items1.forEach { key ->
-                    ExtraKeyButton(key, isActive(key, ctrlActive, altActive, superActive, menuActive), Modifier.weight(1f)) {
+                    ExtraKeyButton(key, getModifierState(key, ctrlState, altState, superState, menuState), Modifier.weight(1f)) {
                         handleKey(key, onKeyToggle, onKeyPress)
                     }
                 }
@@ -72,7 +72,7 @@ fun TerminalExtraKeys(
                     else -> page3Row2
                 }
                 items2.forEach { key ->
-                    ExtraKeyButton(key, isActive(key, ctrlActive, altActive, superActive, menuActive), Modifier.weight(1f)) {
+                    ExtraKeyButton(key, getModifierState(key, ctrlState, altState, superState, menuState), Modifier.weight(1f)) {
                         handleKey(key, onKeyToggle, onKeyPress)
                     }
                 }
@@ -86,18 +86,18 @@ fun TerminalExtraKeys(
     }
 }
 
-private fun isActive(key: String, ctrlActive: Boolean, altActive: Boolean, superActive: Boolean, menuActive: Boolean): Boolean {
+private fun getModifierState(key: String, ctrlState: ModifierState, altState: ModifierState, superState: ModifierState, menuState: ModifierState): ModifierState {
     return when (key) {
-        "Ctrl" -> ctrlActive
-        "Alt" -> altActive
-        "Super" -> superActive
-        "Menu" -> menuActive
-        else -> false
+        "Ctrl" -> ctrlState
+        "Alt" -> altState
+        "Super" -> superState
+        "Menu" -> menuState
+        else -> ModifierState.INACTIVE
     }
 }
 
 private fun handleKey(key: String, onKeyToggle: (String) -> Unit, onKeyPress: (String) -> Unit) {
-    if (key == "Ctrl" || key == "Alt" || key == "Menu") {
+    if (key == "Ctrl" || key == "Alt" || key == "Super" || key == "Menu") {
         onKeyToggle(key)
     } else {
         onKeyPress(key)
@@ -105,15 +105,26 @@ private fun handleKey(key: String, onKeyToggle: (String) -> Unit, onKeyPress: (S
 }
 
 @Composable
-fun ExtraKeyButton(text: String, isActive: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun ExtraKeyButton(text: String, state: ModifierState, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val interactionSource = androidx.compose.runtime.remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     val repeatableKeys = setOf("↑", "↓", "←", "→", "Ctrl-C", "PgUp", "PgDn", "Del", "Ins", "Home", "End")
     
+    val backgroundColor = when (state) {
+        ModifierState.INACTIVE -> Color(0xFF444444)
+        ModifierState.STICKY -> MaterialTheme.colorScheme.primary
+        ModifierState.LOCKED -> MaterialTheme.colorScheme.tertiary // Distinctive color for Locked
+    }
+
+    val contentColor = when (state) {
+        ModifierState.INACTIVE -> Color.White
+        else -> MaterialTheme.colorScheme.onPrimary
+    }
+
     Box(
         modifier = modifier
             .padding(horizontal = 2.dp)
             .height(48.dp)
-            .background(if (isActive) MaterialTheme.colorScheme.primary else Color(0xFF444444), shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp))
+            .background(backgroundColor, shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp))
             .focusProperties { canFocus = false }
             .then(
                 if (text in repeatableKeys) {
@@ -129,9 +140,9 @@ fun ExtraKeyButton(text: String, isActive: Boolean, modifier: Modifier = Modifie
     ) {
         Text(
             text = text,
-            color = if (isActive) MaterialTheme.colorScheme.onPrimary else Color.White,
+            color = contentColor,
             fontSize = 12.sp, // Slightly smaller text to fit
-            fontWeight = FontWeight.Bold,
+            fontWeight = if (state == ModifierState.LOCKED) FontWeight.ExtraBold else FontWeight.Bold,
             maxLines = 1
         )
     }
