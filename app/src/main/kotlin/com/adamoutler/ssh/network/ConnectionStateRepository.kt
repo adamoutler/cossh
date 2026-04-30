@@ -29,7 +29,7 @@ data class HostKeyPromptRequest(
 
 data class PasswordPromptRequest(
     val profileId: String,
-    val deferred: kotlinx.coroutines.CompletableDeferred<String?>
+    val deferred: kotlinx.coroutines.CompletableDeferred<CharArray?>
 )
 
 data class ActiveSessionState(
@@ -65,13 +65,13 @@ object ConnectionStateRepository {
     private val _passwordPromptRequest = MutableStateFlow<PasswordPromptRequest?>(null)
     val passwordPromptRequest = _passwordPromptRequest.asStateFlow()
 
-    suspend fun requestPasswordPrompt(profileId: String): String? {
-        val deferred = kotlinx.coroutines.CompletableDeferred<String?>()
+    suspend fun requestPasswordPrompt(profileId: String): CharArray? {
+        val deferred = kotlinx.coroutines.CompletableDeferred<CharArray?>()
         _passwordPromptRequest.value = PasswordPromptRequest(profileId, deferred)
         return deferred.await()
     }
 
-    fun resolvePasswordPrompt(password: String?) {
+    fun resolvePasswordPrompt(password: CharArray?) {
         _passwordPromptRequest.value?.deferred?.complete(password)
         _passwordPromptRequest.value = null
     }

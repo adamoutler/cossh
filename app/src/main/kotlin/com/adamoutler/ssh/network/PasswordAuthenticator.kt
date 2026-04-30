@@ -8,25 +8,31 @@ import kotlinx.coroutines.runBlocking
 
 class PasswordAuthenticator : SshAuthenticator {
     override fun authenticate(client: SSHClient, profile: ConnectionProfile) {
-        val passwordBytes = profile.password ?: run {
-            val passStr = runBlocking {
-                ConnectionStateRepository.requestPasswordPrompt(profile.id)
-            }
-            passStr?.toByteArray() ?: throw IllegalArgumentException("Password required for password auth")
-        }
-        val passwordChars = CharArray(passwordBytes.size)
+        var passwordChars: CharArray? = null
+        var passwordBytes = profile.password
+
         try {
-            for (i in passwordBytes.indices) {
-                passwordChars[i] = passwordBytes[i].toInt().toChar()
+            if (passwordBytes != null) {
+                passwordChars = CharArray(passwordBytes.size) { i -> passwordBytes[i].toInt().toChar() }
+            } else {
+                passwordChars = runBlocking {
+                    ConnectionStateRepository.requestPasswordPrompt(profile.id)
+                }
             }
+
+            if (passwordChars == null) {
+                throw IllegalArgumentException("Password required for password auth")
+            }
+
+            val finalChars = passwordChars!!
             val passwordFinder = object : PasswordFinder {
-                override fun reqPassword(resource: Resource<*>?): CharArray = passwordChars
+                override fun reqPassword(resource: Resource<*>?): CharArray = finalChars
                 override fun shouldRetry(resource: Resource<*>?): Boolean = false
             }
             client.authPassword(profile.username, passwordFinder)
         } finally {
-            passwordChars.fill('\u0000')
-            passwordBytes.fill(0)
+            passwordChars?.fill('\u0000')
+            passwordBytes?.fill(0)
         }
     }
 }
