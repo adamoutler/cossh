@@ -343,7 +343,7 @@ class SshConnectionManager(
                         android.util.Log.w("SshConnectionManager", "Failed to set env var $key", e)
                     }
                 }
-                session.allocateDefaultPTY()
+                session.allocatePTY("xterm-256color", 80, 24, 0, 0, emptyMap())
                 val shell = session.startShell()
                 
                 onConnect(shell.outputStream, shell)

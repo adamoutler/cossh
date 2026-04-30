@@ -48,4 +48,12 @@ class TerminalScreenOverlayScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun overlayButtonsHidden() {
+        paparazzi.snapshot {
+            Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+            }
+        }
+    }
 }
