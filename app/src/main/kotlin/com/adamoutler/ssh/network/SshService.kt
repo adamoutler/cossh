@@ -141,6 +141,8 @@ class SshService : Service() {
                             }
                         }
                     )
+                    Log.d("SshService", "SSH Session disconnected normally for $profileId (Session: $sessionId)")
+                    ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnected)
                 } else {
                     Log.e("SshService", "Profile not found: $profileId")
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error("Profile not found"))
@@ -187,11 +189,18 @@ class SshService : Service() {
     }
 
     private fun stopSshConnection(sessionId: String) {
+        val profileId = ConnectionStateRepository.sessions[sessionId]?.profileId
+        if (profileId != null) {
+            ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnecting)
+        }
         sshManagers[sessionId]?.disconnect()
         connectionJobs[sessionId]?.cancel()
     }
 
     private fun stopAllConnections() {
+        ConnectionStateRepository.sessions.values.forEach { session ->
+            ConnectionStateRepository.updateConnectionState(session.profileId, ConnectionState.Disconnecting)
+        }
         serviceScope.cancel()
     }
 

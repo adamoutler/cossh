@@ -81,4 +81,49 @@ class SshServiceForegroundTest {
         
         org.junit.Assert.assertTrue("State should transition to Error", currentState is ConnectionState.Error)
     }
+
+    @Test
+    fun `test service intentional disconnect does not transition to error`() = kotlinx.coroutines.runBlocking {
+        val app = ApplicationProvider.getApplicationContext<android.app.Application>()
+        val storageManager = SecurityStorageManager(app, app.getSharedPreferences("test_fgs_disconnect", 0))
+        
+        // This profile points to a non-existent local server, but we will cancel it before it errors, or we can use a mock server
+        val p1 = ConnectionProfile("id-disc", "DisconnectServer", "127.0.0.1", port = 65535, username = "u1", authType = AuthType.PASSWORD, password = "pwd".toByteArray())
+        storageManager.saveProfile(p1)
+
+        val intent = Intent(app, SshService::class.java).apply {
+            action = SshService.ACTION_START
+            putExtra(SshService.EXTRA_PROFILE_ID, "id-disc")
+            // Provide a static session ID so we can cancel it
+            putExtra(SshService.EXTRA_SESSION_ID, "session-disc")
+        }
+
+        ConnectionStateRepository.clearSession("session-disc")
+        ConnectionStateRepository.clearConnections()
+
+        val serviceController = Robolectric.buildService(SshService::class.java, intent)
+        serviceController.create().startCommand(0, 1)
+
+        // Immediately send disconnect intent
+        val disconnectIntent = Intent(app, SshService::class.java).apply {
+            action = SshService.ACTION_DISCONNECT
+            putExtra(SshService.EXTRA_PROFILE_ID, "id-disc")
+            putExtra(SshService.EXTRA_SESSION_ID, "session-disc")
+        }
+        serviceController.get().onStartCommand(disconnectIntent, 0, 2)
+
+        // Wait a bit for coroutines to process the cancellation
+        var retries = 0
+        var currentState: ConnectionState? = null
+        while (retries < 20) {
+            currentState = ConnectionStateRepository.connectionStates.value["id-disc"]
+            if (currentState is ConnectionState.Disconnected || currentState is ConnectionState.Disconnecting || currentState == null) {
+                break
+            }
+            kotlinx.coroutines.delay(100)
+            retries++
+        }
+        
+        org.junit.Assert.assertFalse("State should not transition to Error", currentState is ConnectionState.Error)
+    }
 }

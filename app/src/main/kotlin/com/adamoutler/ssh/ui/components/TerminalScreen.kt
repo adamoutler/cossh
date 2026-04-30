@@ -106,7 +106,7 @@ fun TerminalScreen(
     val terminatedStateEntry = connectionStates.entries.firstOrNull { it.key == profileId && it.value is com.adamoutler.ssh.network.ConnectionState.Terminated }
     val isTerminated = terminatedStateEntry != null
     
-    val disconnectedStateEntry = connectionStates.entries.firstOrNull { it.key == profileId && it.value is com.adamoutler.ssh.network.ConnectionState.Disconnected }
+    val disconnectedStateEntry = connectionStates.entries.firstOrNull { it.key == profileId && (it.value is com.adamoutler.ssh.network.ConnectionState.Disconnected || it.value is com.adamoutler.ssh.network.ConnectionState.Disconnecting) }
     val isDisconnected = disconnectedStateEntry != null
 
     androidx.compose.runtime.LaunchedEffect(isDisconnected) {

@@ -3,9 +3,10 @@ isRunning
 reset
 write
 getPid
-updateTerminalSessionClient
+updateSize
 getTitle
 initializeEmulator
+updateTerminalSessionClient
 writeCodePoint
 getEmulator
 finishIfRunning
@@ -16,7 +17,6 @@ onPasteTextFromClipboard
 onBell
 onColorsChanged
 getCwd
-updateSize
 write
 equals
 toString
@@ -32,8 +32,8 @@ reset
 toString
 append
 resize
-updateTerminalSessionClient
 getTitle
+updateTerminalSessionClient
 getScreen
 isAlternateBufferActive
 sendMouseEvent
@@ -47,8 +47,8 @@ shouldCursorBeVisible
 setCursorBlinkingEnabled
 setCursorBlinkState
 isKeypadApplicationMode
-isMouseTrackingActive
 isCursorKeysApplicationMode
+isMouseTrackingActive
 processCodePoint
 doDecSetOrReset
 getScrollCounter
