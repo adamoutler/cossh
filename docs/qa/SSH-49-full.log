@@ -45,6 +45,14 @@
 > Task :app:mergeExtDexDebug UP-TO-DATE
 > Task :app:mergeLibDexDebug UP-TO-DATE
 > Task :app:mergeProjectDexDebug UP-TO-DATE
+> Task :app:configureNdkBuildDebug[arm64-v8a]
+> Task :app:buildNdkBuildDebug[arm64-v8a]
+> Task :app:configureNdkBuildDebug[armeabi-v7a]
+> Task :app:buildNdkBuildDebug[armeabi-v7a]
+> Task :app:configureNdkBuildDebug[x86]
+> Task :app:buildNdkBuildDebug[x86]
+> Task :app:configureNdkBuildDebug[x86_64]
+> Task :app:buildNdkBuildDebug[x86_64]
 > Task :app:mergeDebugJniLibFolders UP-TO-DATE
 > Task :app:mergeDebugNativeLibs UP-TO-DATE
 > Task :app:stripDebugDebugSymbols UP-TO-DATE
@@ -76,18 +84,33 @@
 > Task :app:createDebugAndroidTestApkListingFileRedirect UP-TO-DATE
 
 > Task :app:connectedDebugAndroidTest
-Starting 17 tests on Pixel 9 Pro - 16
+Starting 18 tests on Agent_Device(AVD) - 14
 
-Pixel 9 Pro - 16 Tests 0/17 completed. (0 skipped) (0 failed)
+Agent_Device(AVD) - 14 Tests 0/18 completed. (0 skipped) (0 failed)
 
 > Task :app:connectedDebugAndroidTest
 
-com.adamoutler.ssh.ConnectionCrashTest > testConnectionAndDataTransmission[Pixel 9 Pro - 16] [31mFAILED [0m
-	java.lang.AssertionError: SSH Connection should be established
+com.adamoutler.ssh.ConnectionCrashTest > testConnectionAndDataTransmission[Agent_Device(AVD) - 14] [31mFAILED [0m
+	java.lang.AssertionError: Terminal should echo 'test1'
 	at org.junit.Assert.fail(Assert.java:89)
-Tests on Pixel 9 Pro - 16 failed: There was 1 failure(s).
+Tests on Agent_Device(AVD) - 14 failed: There was 1 failure(s).
 
-Finished 1 tests on Pixel 9 Pro - 16
+Finished 1 tests on Agent_Device(AVD) - 14
 
 > Task :app:connectedDebugAndroidTest FAILED
-68 actionable tasks: 2 executed, 66 up-to-date
+Test run failed to complete. Instrumentation run failed due to Process crashed.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:connectedDebugAndroidTest'.
+> There were failing tests. See the report at: file:///home/adamoutler/git/ssh/app/build/reports/androidTests/connected/debug/index.html
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 36s
+76 actionable tasks: 10 executed, 66 up-to-date
