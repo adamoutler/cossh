@@ -1,15 +1,15 @@
 TerminalSessionClient:
-onTerminalCursorStateChange
 onBell
 onTextChanged
 onTitleChanged
 onSessionFinished
 onCopyTextToClipboard
-logError
 onPasteTextFromClipboard
 onColorsChanged
 getTerminalCursorStyle
+logError
 logWarn
+onTerminalCursorStateChange
 logInfo
 logDebug
 logVerbose
