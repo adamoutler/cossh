@@ -1,0 +1,18 @@
+---
+ignore-filenames:
+  - .mobsf
+
+ignore-paths:
+  - app/build
+  - app/build_local
+  - app/src/test
+  - app/src/androidTest
+
+ignore-rules:
+  - android_task_hijacking2
+  - android_kotlin_hardcoded
+  - android_manifest_insecure_minsdk_warning
+  - android_kotlin_insecure_random
+  - android_manifest_missing_explicit_allow_backup
+  - android_kotlin_logging
+  - android_manifest_debugging_enabled
