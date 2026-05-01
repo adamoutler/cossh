@@ -1,4 +1,5 @@
 TerminalSessionClient:
+onTerminalCursorStateChange
 onBell
 onTextChanged
 onTitleChanged
@@ -9,7 +10,6 @@ onColorsChanged
 getTerminalCursorStyle
 logError
 logWarn
-onTerminalCursorStateChange
 logInfo
 logDebug
 logVerbose

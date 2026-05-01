@@ -127,6 +127,7 @@ object PemUtils {
                         throw RuntimeException("OpenSSH key parsing failed: ${e.message}", e)
                     }
                 }
+
                 headerStr.contains("RSA PRIVATE KEY") -> {
                     val rsaPrivateKey = RSAPrivateKey.getInstance(rawKeyBlob)
                     val privateKeyInfo = PrivateKeyInfo(
@@ -157,6 +158,7 @@ object PemUtils {
                     }
                     KeyPair(pubKey, privKey)
                 }
+
                 else -> {
                     // Assume PKCS#8 or standard DER
                     val inputStream = java.io.ByteArrayInputStream(pemBytes)
@@ -172,8 +174,11 @@ object PemUtils {
                             }
                             converter.getPrivateKey(obj.privateKeyInfo)
                         }
+
                         is org.bouncycastle.asn1.pkcs.PrivateKeyInfo -> converter.getPrivateKey(obj)
+
                         is org.bouncycastle.asn1.x509.SubjectPublicKeyInfo -> throw IllegalArgumentException("Expected private key, got public key")
+
                         else -> throw IllegalArgumentException("Unsupported PEM object: ${obj?.javaClass?.name}")
                     }
                     KeyPair(parsedPublicKey, privKey)
@@ -187,15 +192,13 @@ object PemUtils {
         }
     }
 
-    private fun generateKeyPairFromDer(derBytes: ByteArray, publicKey: java.security.PublicKey?): KeyPair {
-        return try {
-            val keyFactory = KeyFactory.getInstance("Ed25519", "BC")
-            val privateKey = keyFactory.generatePrivate(PKCS8EncodedKeySpec(derBytes))
-            KeyPair(publicKey, privateKey)
-        } catch (e: Exception) {
-            val keyFactory = KeyFactory.getInstance("RSA", "BC")
-            val privateKey = keyFactory.generatePrivate(PKCS8EncodedKeySpec(derBytes))
-            KeyPair(publicKey, privateKey)
-        }
+    private fun generateKeyPairFromDer(derBytes: ByteArray, publicKey: java.security.PublicKey?): KeyPair = try {
+        val keyFactory = KeyFactory.getInstance("Ed25519", "BC")
+        val privateKey = keyFactory.generatePrivate(PKCS8EncodedKeySpec(derBytes))
+        KeyPair(publicKey, privateKey)
+    } catch (e: Exception) {
+        val keyFactory = KeyFactory.getInstance("RSA", "BC")
+        val privateKey = keyFactory.generatePrivate(PKCS8EncodedKeySpec(derBytes))
+        KeyPair(publicKey, privateKey)
     }
 }

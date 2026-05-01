@@ -145,9 +145,7 @@ class DeterministicMultiTurnTest {
      * Generate a pseudorandom alphanumeric string of the given length using the provided
      * seeded Random instance. Deterministic: same seed + same call sequence = same output.
      */
-    private fun randomAlphanumeric(rng: java.util.Random, length: Int): String {
-        return (1..length).map { ALPHANUM[rng.nextInt(ALPHANUM.length)] }.joinToString("")
-    }
+    private fun randomAlphanumeric(rng: java.util.Random, length: Int): String = (1..length).map { ALPHANUM[rng.nextInt(ALPHANUM.length)] }.joinToString("")
 
     /**
      * Build the deterministic payload sequence. Every run with the same seed produces

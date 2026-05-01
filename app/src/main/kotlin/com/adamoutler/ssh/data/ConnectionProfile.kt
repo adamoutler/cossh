@@ -16,9 +16,7 @@ object ByteArrayAsBase64Serializer : KSerializer<ByteArray> {
         encoder.encodeString(Base64.getEncoder().encodeToString(value))
     }
 
-    override fun deserialize(decoder: Decoder): ByteArray {
-        return Base64.getDecoder().decode(decoder.decodeString())
-    }
+    override fun deserialize(decoder: Decoder): ByteArray = Base64.getDecoder().decode(decoder.decodeString())
 }
 
 @Serializable

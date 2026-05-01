@@ -48,6 +48,7 @@ object SSHKeyGenerator {
                 val encoded = Base64.getEncoder().encodeToString(writeSshBytes(type, rawBytes))
                 "$type $encoded"
             }
+
             "RSA" -> {
                 val rsaPubKey = publicKey as RSAPublicKey
                 val type = "ssh-rsa"
@@ -56,6 +57,7 @@ object SSHKeyGenerator {
                 )
                 "$type $encoded"
             }
+
             else -> throw IllegalArgumentException("Unsupported algorithm: ${publicKey.algorithm}")
         }
     }
@@ -67,6 +69,7 @@ object SSHKeyGenerator {
                     val bytes = part.toByteArray(Charsets.UTF_8)
                     ByteBuffer.allocate(4 + bytes.size).putInt(bytes.size).put(bytes).array()
                 }
+
                 is ByteArray -> {
                     // For big integers, we might need to handle the sign bit for OpenSSH
                     val bytes = if (part.isNotEmpty() && part[0].toInt() and 0x80 != 0) {
@@ -76,6 +79,7 @@ object SSHKeyGenerator {
                     }
                     ByteBuffer.allocate(4 + bytes.size).putInt(bytes.size).put(bytes).array()
                 }
+
                 else -> throw IllegalArgumentException("Unsupported part type")
             }
         }
@@ -89,7 +93,5 @@ object SSHKeyGenerator {
      * Encodes a private key to PKCS8 format.
      * Note: The caller is responsible for securing these bytes (e.g., using IdentityStorageManager).
      */
-    fun encodePrivateKey(keyPair: KeyPair): ByteArray {
-        return keyPair.private.encoded
-    }
+    fun encodePrivateKey(keyPair: KeyPair): ByteArray = keyPair.private.encoded
 }

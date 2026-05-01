@@ -13,7 +13,7 @@ import org.robolectric.RobolectricTestRunner
 class ConnectionListMenuTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = androidx.compose.ui.test.junit4.createComposeRule()
 
     @Test
     fun testManageIdentitiesMenuOptionNavigates() {
