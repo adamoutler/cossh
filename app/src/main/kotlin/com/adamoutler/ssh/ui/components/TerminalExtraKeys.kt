@@ -26,7 +26,7 @@ fun TerminalExtraKeys(
     onKeyToggle: (String) -> Unit,
     onKeyPress: (String) -> Unit,
     modifier: Modifier = Modifier,
-    initialPage: Int = 0
+    initialPage: Int = 0,
 ) {
     val page1Row1 = listOf("Esc", "Ctrl-C", "Menu", "↑", "Tab", "Home")
     val page1Row2 = listOf("Ctrl", "Alt", "←", "↓", "→", "End")
@@ -44,7 +44,7 @@ fun TerminalExtraKeys(
             .wrapContentHeight()
             .background(Color(0xFF222222))
             .focusProperties { canFocus = false }
-            .padding(4.dp)
+            .padding(4.dp),
     ) { page ->
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -108,7 +108,7 @@ private fun handleKey(key: String, onKeyToggle: (String) -> Unit, onKeyPress: (S
 fun ExtraKeyButton(text: String, state: ModifierState, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val interactionSource = androidx.compose.runtime.remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     val repeatableKeys = setOf("↑", "↓", "←", "→", "Ctrl-C", "PgUp", "PgDn", "Del", "Ins", "Home", "End")
-    
+
     val backgroundColor = when (state) {
         ModifierState.INACTIVE -> Color(0xFF444444)
         ModifierState.STICKY -> MaterialTheme.colorScheme.primary
@@ -132,18 +132,19 @@ fun ExtraKeyButton(text: String, state: ModifierState, modifier: Modifier = Modi
                 } else {
                     Modifier.clickable(
                         interactionSource = interactionSource,
-                        indication = androidx.compose.foundation.LocalIndication.current
+                        indication = androidx.compose.foundation.LocalIndication.current,
                     ) { onClick() }
-                }
+                },
             ),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = text,
             color = contentColor,
-            fontSize = 12.sp, // Slightly smaller text to fit
+            // Slightly smaller text to fit
+            fontSize = 12.sp,
             fontWeight = if (state == ModifierState.LOCKED) FontWeight.ExtraBold else FontWeight.Bold,
-            maxLines = 1
+            maxLines = 1,
         )
     }
 }

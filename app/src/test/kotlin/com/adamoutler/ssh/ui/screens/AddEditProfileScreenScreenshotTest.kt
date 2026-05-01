@@ -1,22 +1,22 @@
 package com.adamoutler.ssh.ui.screens
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
-import com.adamoutler.ssh.ui.theme.CoSSHTheme
 import com.adamoutler.ssh.data.AuthType
+import com.adamoutler.ssh.ui.theme.CoSSHTheme
 import org.junit.Rule
 import org.junit.Test
-import androidx.compose.material3.Surface
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Modifier
 
 class AddEditProfileScreenScreenshotTest {
 
     @get:Rule
     val paparazzi = Paparazzi(
         deviceConfig = DeviceConfig.PIXEL_5.copy(screenHeight = 4000),
-        theme = "android:Theme.Material.Light.NoActionBar"
+        theme = "android:Theme.Material.Light.NoActionBar",
     )
 
     @Test
@@ -25,7 +25,7 @@ class AddEditProfileScreenScreenshotTest {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     AddEditProfileScreenContent(
                         profileId = null,
@@ -59,19 +59,19 @@ class AddEditProfileScreenScreenshotTest {
                                 type = com.adamoutler.ssh.data.PortForwardType.LOCAL,
                                 localPort = 8080,
                                 remoteHost = "localhost",
-                                remotePort = 80
+                                remotePort = 80,
                             ),
                             com.adamoutler.ssh.data.PortForwardConfig(
                                 type = com.adamoutler.ssh.data.PortForwardType.REMOTE,
                                 localPort = 9000,
                                 remoteHost = "internal-db",
-                                remotePort = 5432
-                            )
+                                remotePort = 5432,
+                            ),
                         ),
                         onPortForwardsChange = {},
                         onSave = {},
                         onNavigateBack = {},
-                        defaultPasswordVisible = false
+                        defaultPasswordVisible = false,
                     )
                 }
             }
@@ -84,7 +84,7 @@ class AddEditProfileScreenScreenshotTest {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     AddEditProfileScreenContent(
                         profileId = null,
@@ -118,31 +118,31 @@ class AddEditProfileScreenScreenshotTest {
                                 type = com.adamoutler.ssh.data.PortForwardType.LOCAL,
                                 localPort = 8080,
                                 remoteHost = "localhost",
-                                remotePort = 80
+                                remotePort = 80,
                             ),
                             com.adamoutler.ssh.data.PortForwardConfig(
                                 type = com.adamoutler.ssh.data.PortForwardType.REMOTE,
                                 localPort = 9000,
                                 remoteHost = "internal-db",
-                                remotePort = 5432
-                            )
+                                remotePort = 5432,
+                            ),
                         ),
                         onPortForwardsChange = {},
                         onSave = {},
-                        onNavigateBack = {}
+                        onNavigateBack = {},
                     )
                 }
             }
         }
     }
-    
+
     @Test
     fun defaultScreenKeyAuth() {
         paparazzi.snapshot {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     AddEditProfileScreenContent(
                         profileId = null,
@@ -176,18 +176,18 @@ class AddEditProfileScreenScreenshotTest {
                                 type = com.adamoutler.ssh.data.PortForwardType.LOCAL,
                                 localPort = 8080,
                                 remoteHost = "localhost",
-                                remotePort = 80
+                                remotePort = 80,
                             ),
                             com.adamoutler.ssh.data.PortForwardConfig(
                                 type = com.adamoutler.ssh.data.PortForwardType.REMOTE,
                                 localPort = 9000,
                                 remoteHost = "internal-db",
-                                remotePort = 5432
-                            )
+                                remotePort = 5432,
+                            ),
                         ),
                         onPortForwardsChange = {},
                         onSave = {},
-                        onNavigateBack = {}
+                        onNavigateBack = {},
                     )
                 }
             }
@@ -200,7 +200,7 @@ class AddEditProfileScreenScreenshotTest {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     AddEditProfileScreenContent(
                         profileId = null,
@@ -234,24 +234,23 @@ class AddEditProfileScreenScreenshotTest {
                                 type = com.adamoutler.ssh.data.PortForwardType.LOCAL,
                                 localPort = 8080,
                                 remoteHost = "localhost",
-                                remotePort = 80
+                                remotePort = 80,
                             ),
                             com.adamoutler.ssh.data.PortForwardConfig(
                                 type = com.adamoutler.ssh.data.PortForwardType.REMOTE,
                                 localPort = 9000,
                                 remoteHost = "internal-db",
-                                remotePort = 5432
-                            )
+                                remotePort = 5432,
+                            ),
                         ),
                         onPortForwardsChange = {},
                         onSave = {},
                         onNavigateBack = {},
                         defaultPasswordVisible = true,
-                        defaultShowAddDialog = true
+                        defaultShowAddDialog = true,
                     )
                 }
             }
         }
     }
 }
-

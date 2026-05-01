@@ -24,7 +24,7 @@ fun DraggableConnectionList(
     onMoveProfile: (Int, Int) -> Unit,
     onConnect: (String) -> Unit,
     onEditConnection: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
@@ -49,16 +49,16 @@ fun DraggableConnectionList(
                     onDrag = { change, dragAmount ->
                         change.consume()
                         dragOffset += dragAmount.y
-                        
+
                         val draggedIndex = draggedItemIndex ?: return@detectDragGesturesAfterLongPress
                         val draggedItem = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == draggedIndex }
-                        
+
                         if (draggedItem != null) {
                             val currentCenter = draggedItem.offset + dragOffset + (draggedItem.size / 2)
                             val targetItem = listState.layoutInfo.visibleItemsInfo.firstOrNull {
                                 it.index != draggedIndex && currentCenter.toInt() in it.offset..(it.offset + it.size)
                             }
-                            
+
                             if (targetItem != null) {
                                 onMoveProfile(draggedIndex, targetItem.index)
                                 draggedItemIndex = targetItem.index
@@ -73,18 +73,18 @@ fun DraggableConnectionList(
                     onDragCancel = {
                         draggedItemIndex = null
                         dragOffset = 0f
-                    }
+                    },
                 )
-            }
+            },
     ) {
         itemsIndexed(profiles, key = { _, profile -> profile.id }) { index, profile ->
             val isDragging = index == draggedItemIndex
             val translationY = if (isDragging) dragOffset else 0f
-            
+
             Box(
                 modifier = Modifier
                     .zIndex(if (isDragging) 1f else 0f)
-                    .graphicsLayer { this.translationY = translationY }
+                    .graphicsLayer { this.translationY = translationY },
             ) {
                 ConnectionItem(
                     profile = profile,
@@ -103,7 +103,7 @@ fun DraggableConnectionList(
                         }
                         onConnect(profile.id)
                     },
-                    onEdit = { onEditConnection(profile.id) }
+                    onEdit = { onEditConnection(profile.id) },
                 )
             }
         }

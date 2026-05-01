@@ -6,16 +6,14 @@ import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
+import com.adamoutler.ssh.data.PortForwardConfig
+import com.adamoutler.ssh.data.Protocol
 import com.adamoutler.ssh.ui.base.BaseAndroidViewModel
-import java.util.UUID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-
-import com.adamoutler.ssh.data.PortForwardConfig
-import com.adamoutler.ssh.data.PortForwardType
-import com.adamoutler.ssh.data.Protocol
+import java.util.UUID
 
 data class ProfileFormState(
     val nickname: String = "",
@@ -31,13 +29,13 @@ data class ProfileFormState(
     val identityId: String? = null,
     val envVarsText: String = "",
     val portForwards: List<PortForwardConfig> = emptyList(),
-    val isLoaded: Boolean = false
+    val isLoaded: Boolean = false,
 )
 
 class AddEditProfileViewModel(
     application: Application,
     private val storageManager: SecurityStorageManager,
-    private val identityStorageManager: IdentityStorageManager
+    private val identityStorageManager: IdentityStorageManager,
 ) : BaseAndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(ProfileFormState())
@@ -46,7 +44,7 @@ class AddEditProfileViewModel(
     constructor(application: Application) : this(
         application,
         SecurityStorageManager(application),
-        IdentityStorageManager(application)
+        IdentityStorageManager(application),
     )
 
     fun updateState(updater: (ProfileFormState) -> ProfileFormState) {
@@ -72,7 +70,7 @@ class AddEditProfileViewModel(
                         identityId = profile.identityId,
                         envVarsText = profile.envVars.entries.joinToString(",") { entry -> "${entry.key}=${entry.value}" },
                         portForwards = profile.portForwards,
-                        isLoaded = true
+                        isLoaded = true,
                     )
                 }
             }
@@ -97,7 +95,7 @@ class AddEditProfileViewModel(
         keyReference: String?,
         identityId: String? = null,
         envVars: Map<String, String> = emptyMap(),
-        portForwards: List<PortForwardConfig> = emptyList()
+        portForwards: List<PortForwardConfig> = emptyList(),
     ) {
         val profileId = id ?: UUID.randomUUID().toString()
         val profile = ConnectionProfile(
@@ -112,7 +110,7 @@ class AddEditProfileViewModel(
             sshKeyPasswordReferenceId = keyReference,
             identityId = identityId,
             envVars = envVars,
-            portForwards = portForwards
+            portForwards = portForwards,
         )
         storageManager.saveProfile(profile)
         resetState()

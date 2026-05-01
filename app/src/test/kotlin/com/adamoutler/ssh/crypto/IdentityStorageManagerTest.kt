@@ -39,11 +39,11 @@ class IdentityStorageManagerTest {
             password = passwordBytes,
             privateKey = privateKeyBytes,
             publicKey = "ssh-ed25519 AAAA...",
-            authType = AuthType.KEY
+            authType = AuthType.KEY,
         )
 
         storageManager.saveIdentity(identity)
-        
+
         val retrieved = storageManager.getIdentity("identity-1")
         assertNotNull(retrieved)
         assertEquals(identity.name, retrieved?.name)
@@ -53,7 +53,7 @@ class IdentityStorageManagerTest {
         assertEquals("mypassword", String(retrieved!!.password!!))
         assertNotNull(retrieved?.privateKey)
         assertEquals("fake-private-key-data", String(retrieved!!.privateKey!!))
-        
+
         // Test volatile state sanitization
         identity.clearSensitiveData()
         assertEquals(0.toByte(), identity.password!![0])
@@ -64,10 +64,10 @@ class IdentityStorageManagerTest {
     fun testGetAllIdentities() {
         val id1 = IdentityProfile(name = "ID 1", username = "user1")
         val id2 = IdentityProfile(name = "ID 2", username = "user2", password = "p2".toByteArray())
-        
+
         storageManager.saveIdentity(id1)
         storageManager.saveIdentity(id2)
-        
+
         val all = storageManager.getAllIdentities()
         assertTrue(all.size >= 2)
         assertNotNull(all.find { it.name == "ID 1" })
@@ -79,7 +79,7 @@ class IdentityStorageManagerTest {
         val id = IdentityProfile(id = "to-delete", name = "Delete Me", username = "gone")
         storageManager.saveIdentity(id)
         assertNotNull(storageManager.getIdentity("to-delete"))
-        
+
         storageManager.deleteIdentity("to-delete")
         assertNull(storageManager.getIdentity("to-delete"))
     }

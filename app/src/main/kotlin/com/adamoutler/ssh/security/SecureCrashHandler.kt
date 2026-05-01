@@ -10,7 +10,7 @@ import java.util.Locale
 
 class SecureCrashHandler(
     private val context: Context,
-    private val defaultHandler: Thread.UncaughtExceptionHandler?
+    private val defaultHandler: Thread.UncaughtExceptionHandler?,
 ) : Thread.UncaughtExceptionHandler {
 
     var processKiller: () -> Unit = {
@@ -20,7 +20,7 @@ class SecureCrashHandler(
 
     companion object {
         const val CRASH_DIR_NAME = "secure_crashes"
-        
+
         // Regex patterns for redaction
         private val IP_REGEX = Regex("\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b")
         private val BASE64_LIKE_REGEX = Regex("([A-Za-z0-9+/]{40,}=*)") // Potential keys
@@ -32,7 +32,7 @@ class SecureCrashHandler(
             val sanitizedTrace = sanitizeThrowable(throwable)
             securelyWriteCrashToDisk(sanitizedTrace)
         } catch (e: Exception) {
-            // Ultimate fallback: If the crash handler crashes, do nothing. 
+            // Ultimate fallback: If the crash handler crashes, do nothing.
             // We fail closed to prevent accidental leakage during error handling.
             Log.e("SecureCrashHandler", "Fatal error in crash handler. Failing closed.")
         } finally {
@@ -43,7 +43,7 @@ class SecureCrashHandler(
 
     private fun sanitizeThrowable(throwable: Throwable): String {
         val rawMessage = throwable.message ?: "No message"
-        
+
         // 1. Redact highly sensitive exception types completely
         val safeMessage = if (isSensitiveException(throwable)) {
             "[REDACTED_EXCEPTION_MESSAGE]"
@@ -79,11 +79,11 @@ class SecureCrashHandler(
 
     private fun isSensitiveException(t: Throwable): Boolean {
         val name = t.javaClass.name.lowercase(Locale.ROOT)
-        return name.contains("crypto") || 
-               name.contains("security") || 
-               name.contains("auth") || 
-               name.contains("ssh") ||
-               t is java.security.GeneralSecurityException
+        return name.contains("crypto") ||
+            name.contains("security") ||
+            name.contains("auth") ||
+            name.contains("ssh") ||
+            t is java.security.GeneralSecurityException
     }
 
     private fun redactString(input: String): String {

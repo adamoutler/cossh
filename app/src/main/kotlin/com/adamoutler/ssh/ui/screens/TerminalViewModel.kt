@@ -64,11 +64,12 @@ class TerminalViewModel(application: Application) : AndroidViewModel(application
         getContext = { context }
         return sessions.getOrPut(sessionId) {
             TerminalSession(
-                "/system/bin/sh", "/",
+                "/system/bin/sh",
+                "/",
                 arrayOf("sh", "-c", "exec sleep 2147483647"),
                 arrayOf("TERM=xterm-256color"),
                 0,
-                this
+                this,
             )
         }
     }
@@ -76,7 +77,7 @@ class TerminalViewModel(application: Application) : AndroidViewModel(application
     override fun onTextChanged(session: TerminalSession) {}
     override fun onTitleChanged(session: TerminalSession) {}
     override fun onSessionFinished(session: TerminalSession) {}
-    
+
     override fun onCopyTextToClipboard(session: TerminalSession, text: String) {
         val context = getContext?.invoke() ?: return
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager

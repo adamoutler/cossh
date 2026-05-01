@@ -1,0 +1,11 @@
+pre-commit:
+  parallel: true
+  commands:
+    gitleaks:
+      run: gitleaks protect --staged
+    detekt:
+      glob: "*.kt"
+      run: ./gradlew detekt --daemon
+    spotless:
+      glob: "*.kt"
+      run: ./gradlew spotlessCheck --daemon

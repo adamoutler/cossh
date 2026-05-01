@@ -1,28 +1,28 @@
 package com.adamoutler.ssh.ui
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.adamoutler.ssh.ui.theme.CoSSHTheme
 import org.junit.Rule
 import org.junit.Test
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.ui.unit.dp
 
 class PasswordPromptDialogScreenshotTest {
 
     @get:Rule
     val paparazzi = Paparazzi(
         deviceConfig = DeviceConfig.PIXEL_5,
-        theme = "android:Theme.Material.Light.NoActionBar"
+        theme = "android:Theme.Material.Light.NoActionBar",
     )
 
     @Test
@@ -31,7 +31,7 @@ class PasswordPromptDialogScreenshotTest {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     AlertDialog(
                         onDismissRequest = { },
@@ -42,7 +42,7 @@ class PasswordPromptDialogScreenshotTest {
                                 Spacer(modifier = Modifier.height(16.dp))
                                 com.adamoutler.ssh.ui.components.SecurePasswordEditText(
                                     hint = "Password",
-                                    onPasswordChanged = {}
+                                    onPasswordChanged = {},
                                 )
                             }
                         },
@@ -51,7 +51,7 @@ class PasswordPromptDialogScreenshotTest {
                         },
                         dismissButton = {
                             TextButton(onClick = { }) { Text("Cancel") }
-                        }
+                        },
                     )
                 }
             }

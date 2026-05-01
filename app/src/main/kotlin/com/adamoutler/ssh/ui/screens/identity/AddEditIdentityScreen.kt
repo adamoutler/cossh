@@ -5,9 +5,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -20,12 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.crypto.SSHKeyGenerator
 import com.adamoutler.ssh.data.AuthType
-import com.adamoutler.ssh.data.IdentityProfile
-import com.adamoutler.ssh.ui.screens.IdentityViewModel
-import com.adamoutler.ssh.network.SshConnectionManager
 import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.data.IdentityProfile
+import com.adamoutler.ssh.network.SshConnectionManager
 import com.adamoutler.ssh.ui.events.UiEvent
 import com.adamoutler.ssh.ui.events.UiEventBus
+import com.adamoutler.ssh.ui.screens.IdentityViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,10 +33,10 @@ import kotlinx.coroutines.launch
 fun AddEditIdentityScreen(
     identityId: String?,
     viewModel: IdentityViewModel = viewModel(),
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     var passwordVisible by remember { mutableStateOf(false) }
     var showInjectDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -63,7 +63,9 @@ fun AddEditIdentityScreen(
                             uiState.originalPassword
                         } else if (uiState.password.isNotEmpty()) {
                             uiState.password.toByteArray(Charsets.UTF_8)
-                        } else null
+                        } else {
+                            null
+                        }
 
                         val identity = IdentityProfile(
                             id = identityId ?: java.util.UUID.randomUUID().toString(),
@@ -72,7 +74,7 @@ fun AddEditIdentityScreen(
                             password = passBytes,
                             publicKey = if (uiState.publicKey.isNotEmpty()) uiState.publicKey else null,
                             privateKey = uiState.privateKey,
-                            authType = uiState.authType
+                            authType = uiState.authType,
                         )
                         viewModel.saveIdentity(identity)
                         viewModel.resetState()
@@ -80,9 +82,9 @@ fun AddEditIdentityScreen(
                     }) {
                         Icon(Icons.Default.Check, contentDescription = "Save")
                     }
-                }
+                },
             )
-        }
+        },
     ) { padding ->
         Column(
             modifier = Modifier
@@ -90,20 +92,20 @@ fun AddEditIdentityScreen(
                 .padding(16.dp)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             OutlinedTextField(
                 value = uiState.name,
                 onValueChange = { newName -> viewModel.updateState { it.copy(name = newName) } },
                 label = { Text("Identity Name (e.g. My Home Server)") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
 
             OutlinedTextField(
                 value = uiState.username,
                 onValueChange = { newUsername -> viewModel.updateState { it.copy(username = newUsername) } },
                 label = { Text("Username") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
 
             if (uiState.isPasswordLocked) {
@@ -113,17 +115,17 @@ fun AddEditIdentityScreen(
                     readOnly = true,
                     label = { Text("Password (optional)") },
                     trailingIcon = {
-                        IconButton(onClick = { 
+                        IconButton(onClick = {
                             viewModel.updateState { it.copy(isPasswordLocked = false, password = "") }
                         }) {
                             Icon(
                                 imageVector = Icons.Filled.Edit,
                                 contentDescription = "Edit Password",
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = MaterialTheme.colorScheme.primary,
                             )
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             } else {
                 OutlinedTextField(
@@ -136,11 +138,11 @@ fun AddEditIdentityScreen(
                             Icon(
                                 imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
                                 contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = MaterialTheme.colorScheme.primary,
                             )
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
 
@@ -150,20 +152,20 @@ fun AddEditIdentityScreen(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Button(
                     onClick = {
                         val keyPair = SSHKeyGenerator.generateEd25519KeyPair()
-                        viewModel.updateState { 
+                        viewModel.updateState {
                             it.copy(
                                 publicKey = SSHKeyGenerator.encodePublicKey(keyPair),
                                 privateKey = SSHKeyGenerator.encodePrivateKey(keyPair),
-                                authType = AuthType.KEY
-                            ) 
+                                authType = AuthType.KEY,
+                            )
                         }
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     Icon(Icons.Default.Lock, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
@@ -173,15 +175,15 @@ fun AddEditIdentityScreen(
                 Button(
                     onClick = {
                         val keyPair = SSHKeyGenerator.generateRSAKeyPair()
-                        viewModel.updateState { 
+                        viewModel.updateState {
                             it.copy(
                                 publicKey = SSHKeyGenerator.encodePublicKey(keyPair),
                                 privateKey = SSHKeyGenerator.encodePrivateKey(keyPair),
-                                authType = AuthType.KEY
-                            ) 
+                                authType = AuthType.KEY,
+                            )
                         }
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     Icon(Icons.Default.Lock, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
@@ -191,7 +193,7 @@ fun AddEditIdentityScreen(
 
             Button(
                 onClick = { viewModel.updateState { it.copy(manualKeyEntry = !it.manualKeyEntry) } },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Icon(Icons.Default.Lock, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -201,18 +203,18 @@ fun AddEditIdentityScreen(
             if (uiState.manualKeyEntry) {
                 OutlinedTextField(
                     value = uiState.manualPrivKey,
-                    onValueChange = { newKey -> 
-                        viewModel.updateState { 
+                    onValueChange = { newKey ->
+                        viewModel.updateState {
                             it.copy(
                                 manualPrivKey = newKey,
                                 privateKey = if (newKey.isNotEmpty()) newKey.toByteArray(Charsets.UTF_8) else null,
-                                authType = if (newKey.isNotEmpty()) AuthType.KEY else it.authType
-                            ) 
+                                authType = if (newKey.isNotEmpty()) AuthType.KEY else it.authType,
+                            )
                         }
                     },
                     label = { Text("Paste Private Key (PEM format)") },
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 5
+                    maxLines = 5,
                 )
             }
 
@@ -223,12 +225,12 @@ fun AddEditIdentityScreen(
                     label = { Text("Public Key") },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 5,
-                    readOnly = true
+                    readOnly = true,
                 )
-                
+
                 Button(
                     onClick = { showInjectDialog = true },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Icon(Icons.Default.Send, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
@@ -238,7 +240,7 @@ fun AddEditIdentityScreen(
                 Text(
                     "Private key is stored securely and will not be displayed.",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.secondary,
                 )
             }
         }
@@ -260,7 +262,7 @@ fun AddEditIdentityScreen(
                         port = port,
                         username = uiState.username,
                         authType = AuthType.PASSWORD,
-                        password = tempPassword.toByteArray()
+                        password = tempPassword.toByteArray(),
                     )
                     val success = manager.injectPublicKey(tempProfile, uiState.publicKey)
                     if (success) {
@@ -269,7 +271,7 @@ fun AddEditIdentityScreen(
                         UiEventBus.publish(UiEvent.ShowSnackbar("Failed to inject key. Check logs."))
                     }
                 }
-            }
+            },
         )
     }
 }

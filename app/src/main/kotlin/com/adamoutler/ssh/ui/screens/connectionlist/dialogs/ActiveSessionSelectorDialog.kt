@@ -18,7 +18,7 @@ fun ActiveSessionSelectorDialog(
     profiles: List<ConnectionProfile>,
     onSelectSession: (String) -> Unit,
     onStartNew: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -31,8 +31,8 @@ fun ActiveSessionSelectorDialog(
                     items(activeConnections.size) { index ->
                         val profileId = activeConnections.toList()[index]
                         val profile = profiles.find { it.id == profileId }
-                        TextButton(onClick = { 
-                            onSelectSession(profileId) 
+                        TextButton(onClick = {
+                            onSelectSession(profileId)
                         }) {
                             Text(profile?.nickname ?: profileId)
                         }
@@ -44,6 +44,6 @@ fun ActiveSessionSelectorDialog(
             TextButton(onClick = onStartNew) {
                 Text("Start New")
             }
-        }
+        },
     )
 }

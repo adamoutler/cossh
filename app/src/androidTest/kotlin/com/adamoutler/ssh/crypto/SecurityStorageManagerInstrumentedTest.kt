@@ -31,15 +31,15 @@ class SecurityStorageManagerInstrumentedTest {
             port = 22,
             username = "root",
             authType = AuthType.PASSWORD,
-            password = "nativepassword".toByteArray()
+            password = "nativepassword".toByteArray(),
         )
 
         storageManager.saveProfile(profile)
-        
+
         val retrieved = storageManager.getProfile("native-id-1")
         assertNotNull(retrieved)
         assertEquals(profile.nickname, retrieved?.nickname)
-        
+
         // Clean up
         storageManager.deleteProfile("native-id-1")
         assertNull(storageManager.getProfile("native-id-1"))
@@ -52,7 +52,7 @@ class SecurityStorageManagerInstrumentedTest {
         val backupManager = com.adamoutler.ssh.backup.BackupManager(
             app,
             storageManager,
-            identityStorageManager
+            identityStorageManager,
         )
         val profile = ConnectionProfile(
             id = "backup-id-1",
@@ -61,13 +61,13 @@ class SecurityStorageManagerInstrumentedTest {
             port = 22,
             username = "root",
             authType = AuthType.PASSWORD,
-            password = "backup-password".toByteArray()
+            password = "backup-password".toByteArray(),
         )
         storageManager.saveProfile(profile)
 
         val backupFile = java.io.File(
             androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>().cacheDir,
-            "espressotest_backup.zip"
+            "espressotest_backup.zip",
         )
         val uri = android.net.Uri.fromFile(backupFile)
         val password = "espresso-password".toCharArray()

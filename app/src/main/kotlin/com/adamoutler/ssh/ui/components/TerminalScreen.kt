@@ -1,45 +1,45 @@
 package com.adamoutler.ssh.ui.components
 
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.ui.platform.testTag
-import com.adamoutler.ssh.network.ConnectionStateRepository
-import com.adamoutler.ssh.ui.screens.TerminalViewModel
-import com.termux.terminal.TerminalSession
-import com.termux.view.TerminalView
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import java.lang.Exception
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
-import android.util.Log
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.adamoutler.ssh.network.ConnectionStateRepository
+import com.adamoutler.ssh.ui.screens.TerminalViewModel
+import com.termux.terminal.TerminalSession
+import com.termux.view.TerminalView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.lang.Exception
 
 fun isBleedThroughEvent(e: android.view.KeyEvent?, connectionStartTime: Long): Boolean {
     if (e == null) return false
@@ -47,7 +47,9 @@ fun isBleedThroughEvent(e: android.view.KeyEvent?, connectionStartTime: Long): B
 }
 
 enum class TerminalInputState {
-    NONE, KEYBOARD, KEYBOARD_AND_BUTTONS
+    NONE,
+    KEYBOARD,
+    KEYBOARD_AND_BUTTONS,
 }
 
 /**
@@ -55,13 +57,16 @@ enum class TerminalInputState {
  * - INACTIVE: Normal behavior.
  * - STICKY: Modified next keypress, then automatically returns to INACTIVE.
  * - LOCKED: Persists across multiple keypresses until manually toggled back to INACTIVE.
- * 
+ *
  * NOTE TO FUTURE AGENTS: Do NOT remove the STICKY -> INACTIVE transition in key handlers.
  * This latching behavior is intentional to support both one-shot modifiers (mobile standard)
  * and persistent modifiers (power-user workflows).
  */
 enum class ModifierState {
-    INACTIVE, STICKY, LOCKED;
+    INACTIVE,
+    STICKY,
+    LOCKED,
+    ;
 
     fun next(): ModifierState = when (this) {
         INACTIVE -> STICKY
@@ -78,15 +83,15 @@ fun TerminalScreen(
     sessionId: String? = null,
     modifier: Modifier = Modifier,
     terminalViewModel: TerminalViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    
+
     // Resolve session ID or get the first active one
     val actualSessionId = remember(sessionId, profileId) {
         sessionId ?: ConnectionStateRepository.sessions.values.firstOrNull { it.profileId == profileId }?.sessionId ?: java.util.UUID.randomUUID().toString()
     }
-    
+
     val session = remember(actualSessionId) { terminalViewModel.getOrCreateSession(actualSessionId, context) }
     val activeSession = remember(actualSessionId) { ConnectionStateRepository.getOrCreateSession(profileId, actualSessionId) }
     val currentFontSize by terminalViewModel.fontSizeFlow.collectAsState()
@@ -102,10 +107,10 @@ fun TerminalScreen(
     val connectionStates by ConnectionStateRepository.connectionStates.collectAsState()
     val errorStateEntry = connectionStates.entries.firstOrNull { it.key == profileId && it.value is com.adamoutler.ssh.network.ConnectionState.Error }
     val errorMessage = (errorStateEntry?.value as? com.adamoutler.ssh.network.ConnectionState.Error)?.message
-    
+
     val terminatedStateEntry = connectionStates.entries.firstOrNull { it.key == profileId && it.value is com.adamoutler.ssh.network.ConnectionState.Terminated }
     val isTerminated = terminatedStateEntry != null
-    
+
     val disconnectedStateEntry = connectionStates.entries.firstOrNull { it.key == profileId && (it.value is com.adamoutler.ssh.network.ConnectionState.Disconnected || it.value is com.adamoutler.ssh.network.ConnectionState.Disconnecting) }
     val isDisconnected = disconnectedStateEntry != null
 
@@ -127,14 +132,14 @@ fun TerminalScreen(
         errorMessage = errorMessage,
         onUpdateFontSize = { terminalViewModel.updateFontSize(it) },
         onNavigateBack = onNavigateBack,
-        onClearError = { 
+        onClearError = {
             errorStateEntry?.key?.let { ConnectionStateRepository.clearConnectionState(it) }
             terminatedStateEntry?.key?.let { ConnectionStateRepository.clearConnectionState(it) }
         },
         profile = remember(profileId) {
             com.adamoutler.ssh.crypto.SecurityStorageManager(context).getProfile(profileId)
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -152,12 +157,13 @@ fun TerminalScreenContent(
     onNavigateBack: () -> Unit,
     onClearError: () -> Unit,
     profile: com.adamoutler.ssh.data.ConnectionProfile? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
     val context = androidx.compose.ui.platform.LocalContext.current
 
-    androidx.compose.runtime.LaunchedEffect(sessionId) {        val processBytes = { bytes: ByteArray ->
+    androidx.compose.runtime.LaunchedEffect(sessionId) {
+        val processBytes = { bytes: ByteArray ->
             if (ConnectionStateRepository.isHeadlessTest) {
                 val newText = String(bytes, Charsets.UTF_8)
                 val current = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: ""
@@ -232,7 +238,7 @@ fun TerminalScreenContent(
                     onClearError()
                     onNavigateBack()
                 }) { Text("OK") }
-            }
+            },
         )
     }
 
@@ -290,7 +296,7 @@ fun TerminalScreenContent(
                     }
                     onNavigateBack()
                 }) { Text("Terminate") }
-            }
+            },
         )
     }
 
@@ -318,12 +324,12 @@ fun TerminalScreenContent(
                 androidx.compose.material3.TextButton(onClick = {
                     showTerminateConfirmDialog = false
                 }) { Text("Cancel") }
-            }
+            },
         )
     }
     if (showDisconnectedOverlay) {
         androidx.compose.material3.AlertDialog(
-            onDismissRequest = { 
+            onDismissRequest = {
                 showDisconnectedOverlay = false
                 onNavigateBack()
             },
@@ -334,7 +340,7 @@ fun TerminalScreenContent(
                     showDisconnectedOverlay = false
                     onNavigateBack()
                 }) { Text("OK") }
-            }
+            },
         )
     }
 
@@ -366,7 +372,7 @@ fun TerminalScreenContent(
 
     androidx.compose.foundation.layout.Column(
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxSize(),
     ) {
         val currentFontSizeState = androidx.compose.runtime.rememberUpdatedState(currentFontSize)
         val onUpdateFontSizeState = androidx.compose.runtime.rememberUpdatedState(onUpdateFontSize)
@@ -374,22 +380,22 @@ fun TerminalScreenContent(
         if (profile?.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
             androidx.compose.material3.Surface(
                 color = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 androidx.compose.foundation.layout.Row(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                 ) {
                     androidx.compose.material3.Icon(
                         imageVector = Icons.Default.Warning,
                         contentDescription = "Insecure Protocol Warning",
-                        tint = Color(0xFFE65100)
+                        tint = Color(0xFFE65100),
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     androidx.compose.material3.Text(
                         text = "${profile.nickname} (Telnet: Unencrypted)",
                         color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = androidx.compose.material3.MaterialTheme.typography.titleMedium
+                        style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
                     )
                 }
             }
@@ -402,7 +408,7 @@ fun TerminalScreenContent(
                     Text(
                         text = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: "Welcome to CoSSH Terminal",
                         color = Color.Green,
-                        fontFamily = FontFamily.Monospace
+                        fontFamily = FontFamily.Monospace,
                     )
                 }
             } else {
@@ -430,14 +436,14 @@ fun TerminalScreenContent(
                         terminalView.setTextSize(currentFontSize)
                         terminalView.layoutParams = FrameLayout.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
+                            ViewGroup.LayoutParams.MATCH_PARENT,
                         )
                         terminalView.isFocusable = true
                         terminalView.isFocusableInTouchMode = true
 
                         terminalView.setTerminalViewClient(object : com.termux.view.TerminalViewClient {
                             override fun onScale(scale: Float): Float = scale
-                            
+
                             override fun onSingleTapUp(e: android.view.MotionEvent?) {
                                 showOverlayButtons = true
                                 if (terminalInputState == 0) {
@@ -447,7 +453,7 @@ fun TerminalScreenContent(
                                 } else {
                                     terminalInputState = 0
                                 }
-                                
+
                                 terminalView.requestFocus()
                                 val window = (ctx as? android.app.Activity)?.window
                                 if (terminalInputState != 0) {
@@ -468,23 +474,23 @@ fun TerminalScreenContent(
                                     }
                                 }
                             }
-                            
+
                             override fun shouldBackButtonBeMappedToEscape(): Boolean = false
                             override fun shouldEnforceCharBasedInput(): Boolean = false
                             override fun shouldUseCtrlSpaceWorkaround(): Boolean = false
                             override fun isTerminalViewSelected(): Boolean = true
                             override fun copyModeChanged(b: Boolean) {}
-                            
+
                             override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, s: TerminalSession?): Boolean {
                                 if (e?.action != android.view.KeyEvent.ACTION_DOWN) return false
                                 if (keyCode == android.view.KeyEvent.KEYCODE_BACK) return false
-                                
+
                                 // Prevent bleed-through key events from previous screens (like hitting Enter to connect)
                                 if (isBleedThroughEvent(e, connectionStartTime)) {
                                     Log.d("TerminalScreen", "Ignoring bleed-through key event: keyCode=$keyCode")
                                     return true // Consume it so it doesn't propagate
                                 }
-                                
+
                                 if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP) {
                                     onUpdateFontSizeState.value(currentFontSizeState.value + 1)
                                     return true
@@ -575,7 +581,7 @@ fun TerminalScreenContent(
                                             ctrlState.value = ModifierState.INACTIVE
                                         }
                                     }
-                                    
+
                                     val chars = Character.toChars(cp)
                                     val bytes = String(chars).toByteArray(Charsets.UTF_8)
                                     if (superState.value == ModifierState.STICKY) superState.value = ModifierState.INACTIVE
@@ -629,14 +635,14 @@ fun TerminalScreenContent(
                     },
                     update = { view ->
                         view.setTextSize((currentFontSize * view.context.resources.displayMetrics.scaledDensity).toInt())
-                    }
+                    },
                 )
             }
-            
+
             androidx.compose.animation.AnimatedVisibility(
                 visible = showOverlayButtons,
                 enter = androidx.compose.animation.fadeIn(),
-                exit = androidx.compose.animation.fadeOut()
+                exit = androidx.compose.animation.fadeOut(),
             ) {
                 TerminalOverlayButtons(
                     onBackground = { onNavigateBack() },
@@ -652,7 +658,7 @@ fun TerminalScreenContent(
                         }
                         onNavigateBack()
                     },
-                    profile = profile
+                    profile = profile,
                 )
             }
         }
@@ -708,7 +714,7 @@ fun TerminalScreenContent(
                         android.util.Log.d("TerminalScreen", "Sending extra key bytes: ${bytes.joinToString(",") { String.format("0x%02X", it) }}")
                         sendToTerminal(bytes)
                     }
-                }
+                },
             )
         }
     }
@@ -719,55 +725,55 @@ fun TerminalOverlayButtons(
     onBackground: () -> Unit,
     onTerminate: () -> Unit,
     profile: com.adamoutler.ssh.data.ConnectionProfile?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     androidx.compose.foundation.layout.Column(modifier = modifier.fillMaxWidth()) {
         if (profile?.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
             androidx.compose.material3.Surface(
                 color = Color(0xFFE65100),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 androidx.compose.foundation.layout.Row(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                 ) {
                     androidx.compose.material3.Icon(
                         imageVector = Icons.Default.Warning,
                         contentDescription = "Insecure Protocol Warning",
-                        tint = Color.White
+                        tint = Color.White,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     androidx.compose.material3.Text(
                         text = "Telnet: Unencrypted Connection",
                         color = Color.White,
-                        style = androidx.compose.material3.MaterialTheme.typography.labelMedium
+                        style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
                     )
                 }
             }
         }
         androidx.compose.foundation.layout.Row(
             modifier = Modifier.fillMaxWidth().padding(8.dp),
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
         ) {
             androidx.compose.material3.IconButton(
                 onClick = onBackground,
-                modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), shape = androidx.compose.foundation.shape.CircleShape)
+                modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), shape = androidx.compose.foundation.shape.CircleShape),
             ) {
                 androidx.compose.material3.Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Background Session",
-                    tint = Color.White
+                    tint = Color.White,
                 )
             }
 
             androidx.compose.material3.IconButton(
                 onClick = onTerminate,
-                modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), shape = androidx.compose.foundation.shape.CircleShape)
+                modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), shape = androidx.compose.foundation.shape.CircleShape),
             ) {
                 androidx.compose.material3.Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Terminate Session",
-                    tint = Color.White
+                    tint = Color.White,
                 )
             }
         }

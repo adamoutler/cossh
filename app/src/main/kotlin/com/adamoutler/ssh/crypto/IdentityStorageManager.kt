@@ -35,15 +35,21 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
                     "secret_ssh_identities",
                     masterKey,
                     EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
                 )
             } catch (e: Exception) {
                 val isRobolectric = System.getProperty("robolectric.logging") != null || android.os.Build.FINGERPRINT.contains("robolectric")
                 if (isRobolectric) {
-                    android.util.Log.e("IdentityStorageManager", "Failed to create EncryptedSharedPreferences, falling back to regular SharedPreferences for Robolectric testing only", e)
+                    android.util.Log.e(
+                        "IdentityStorageManager",
+                        "Failed to create EncryptedSharedPreferences, falling back to regular SharedPreferences for Robolectric",
+                        e,
+                    )
                     return@run context.getSharedPreferences("secret_ssh_identities_fallback", Context.MODE_PRIVATE)
                 }
-                e.handleKeystoreExceptions("Failed to create EncryptedSharedPreferences. Hardware Keystore may be corrupted.")
+                e.handleKeystoreExceptions(
+                    "Failed to create EncryptedSharedPreferences. Hardware Keystore may be corrupted.",
+                )
             }
         }
     }
@@ -76,7 +82,7 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
             val jsonString = Json.encodeToString(identity)
             val editor = encryptedPrefs.edit()
             editor.putString(identity.id, jsonString)
-            
+
             // Encrypt and save password
             if (identity.password != null) {
                 editor.putString("${identity.id}_pwd", Base64.getEncoder().encodeToString(identity.password!!))
@@ -90,7 +96,7 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
             } else {
                 editor.remove("${identity.id}_key")
             }
-            
+
             editor.commit()
         } catch (e: Exception) {
             if (e is CryptoException) throw e

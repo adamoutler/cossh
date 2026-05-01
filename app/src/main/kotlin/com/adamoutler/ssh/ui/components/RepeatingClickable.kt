@@ -5,8 +5,6 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -20,7 +18,7 @@ fun Modifier.repeatingClickable(
     enabled: Boolean = true,
     initialDelayMillis: Long = 500,
     repeatDelayMillis: Long = 50,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ): Modifier = composed {
     val currentClickListener by androidx.compose.runtime.rememberUpdatedState(onClick)
     val coroutineScope = rememberCoroutineScope()

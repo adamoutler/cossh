@@ -32,18 +32,25 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
 
                 EncryptedSharedPreferences.create(
                     context,
-                    "secret_ssh_profiles", // Matches data_extraction_rules exclusion
+                    // Matches data_extraction_rules exclusion
+                    "secret_ssh_profiles",
                     masterKey,
                     EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
                 )
             } catch (e: Exception) {
                 val isRobolectric = System.getProperty("robolectric.logging") != null || android.os.Build.FINGERPRINT.contains("robolectric")
                 if (isRobolectric) {
-                    android.util.Log.e("SecurityStorageManager", "Failed to create EncryptedSharedPreferences, falling back to regular SharedPreferences for Robolectric testing only", e)
+                    android.util.Log.e(
+                        "SecurityStorageManager",
+                        "Failed to create EncryptedSharedPreferences, falling back to regular SharedPreferences for Robolectric",
+                        e,
+                    )
                     return@run context.getSharedPreferences("secret_ssh_profiles_fallback", Context.MODE_PRIVATE)
                 }
-                e.handleKeystoreExceptions("Failed to create EncryptedSharedPreferences. Hardware Keystore may be corrupted.")
+                e.handleKeystoreExceptions(
+                    "Failed to create EncryptedSharedPreferences. Hardware Keystore may be corrupted.",
+                )
             }
         }
     }
@@ -71,7 +78,7 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
             val jsonString = Json.encodeToString(profile)
             val editor = encryptedPrefs.edit()
             editor.putString(profile.id, jsonString)
-            
+
             if (profile.password != null) {
                 val base64Password = java.util.Base64.getEncoder().encodeToString(profile.password!!)
                 editor.putString("${profile.id}_pwd", base64Password)

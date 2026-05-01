@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun InjectKeyDialog(
     onDismiss: () -> Unit,
-    onInject: (String, Int, String) -> Unit
+    onInject: (String, Int, String) -> Unit,
 ) {
     var host by remember { mutableStateOf("") }
     var port by remember { mutableStateOf("22") }
@@ -33,14 +33,14 @@ fun InjectKeyDialog(
                     value = host,
                     onValueChange = { host = it },
                     label = { Text("Host") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 OutlinedTextField(
                     value = port,
                     onValueChange = { port = it },
                     label = { Text("Port") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 OutlinedTextField(
                     value = password,
@@ -52,18 +52,18 @@ fun InjectKeyDialog(
                             Icon(
                                 imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
                                 contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = MaterialTheme.colorScheme.primary,
                             )
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         },
         confirmButton = {
             Button(
                 onClick = { onInject(host, port.toIntOrNull() ?: 22, password) },
-                enabled = host.isNotEmpty() && password.isNotEmpty()
+                enabled = host.isNotEmpty() && password.isNotEmpty(),
             ) {
                 Text("Inject")
             }
@@ -72,6 +72,6 @@ fun InjectKeyDialog(
             TextButton(onClick = onDismiss) {
                 Text("Cancel")
             }
-        }
+        },
     )
 }

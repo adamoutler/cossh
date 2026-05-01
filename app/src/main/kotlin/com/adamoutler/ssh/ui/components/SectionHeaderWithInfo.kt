@@ -22,31 +22,32 @@ import androidx.compose.ui.semantics.semantics
 fun SectionHeaderWithInfo(
     title: String,
     infoUri: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val uriHandler = LocalUriHandler.current
-    
+
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
         IconButton(
             onClick = { uriHandler.openUri(infoUri) },
             modifier = Modifier.semantics {
                 contentDescription = "Learn more about $title. Opens external browser."
                 role = Role.Button
-            }
+            },
         ) {
             Icon(
                 imageVector = Icons.Outlined.Info,
-                contentDescription = null, // Handled by semantics above
-                tint = MaterialTheme.colorScheme.primary
+                // Handled by semantics above
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
             )
         }
     }

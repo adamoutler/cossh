@@ -5,8 +5,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.click
 import androidx.test.espresso.Espresso.pressBackUnconditionally
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertTrue
@@ -28,7 +26,7 @@ class TerminalScreenInstrumentedTest {
         com.adamoutler.ssh.network.SshSessionProvider.activeConnectionCounts.value.keys.forEach {
             com.adamoutler.ssh.network.SshSessionProvider.removeConnection(it)
         }
-        
+
         val latch = CountDownLatch(1)
         var backNavigationCalled = false
 
@@ -39,11 +37,11 @@ class TerminalScreenInstrumentedTest {
                     onNavigateBack = {
                         backNavigationCalled = true
                         latch.countDown()
-                    }
+                    },
                 )
             }
         }
-        
+
         composeTestRule.waitForIdle()
 
         // Wait a few seconds to allow external screenshot capture
@@ -51,13 +49,13 @@ class TerminalScreenInstrumentedTest {
 
         // By default, terminalInputState is 0 (keyboard hidden).
         // Pressing back should trigger the onNavigateBack callback.
-        
+
         // Use espresso back press to trigger the Activity's OnBackPressedDispatcher
         pressBackUnconditionally()
-        
+
         // Wait for the callback to be invoked
         val navigated = latch.await(2, TimeUnit.SECONDS)
-        
+
         assertTrue("Back navigation was not called when keyboard was hidden", navigated || backNavigationCalled)
     }
 
@@ -73,10 +71,10 @@ class TerminalScreenInstrumentedTest {
                 profileId = "test-id",
                 onNavigateBack = {
                     backNavigationCalled = true
-                }
+                },
             )
         }
-        
+
         composeTestRule.waitForIdle()
 
         // 1. Back button triggers the dialogue
@@ -84,7 +82,7 @@ class TerminalScreenInstrumentedTest {
         composeTestRule.waitForIdle()
         Thread.sleep(500)
         composeTestRule.onNodeWithText("Keep Session Alive?").assertExists()
-        
+
         // 2. Second back press dismisses the dialogue
         pressBackUnconditionally()
         composeTestRule.waitForIdle()
@@ -118,10 +116,10 @@ class TerminalScreenInstrumentedTest {
                 profileId = "test-id",
                 onNavigateBack = {
                     backNavigationCalled = true
-                }
+                },
             )
         }
-        
+
         composeTestRule.waitForIdle()
 
         // Connection drops
@@ -147,7 +145,7 @@ class TerminalScreenInstrumentedTest {
                 profileId = "testProfileSigwinch",
                 onNavigateBack = {
                     backNavigationCalled = true
-                }
+                },
             )
         }
         composeTestRule.waitForIdle()
@@ -163,7 +161,7 @@ class TerminalScreenInstrumentedTest {
                 profileId = "test-id",
                 onNavigateBack = {
                     backNavigationCalled = true
-                }
+                },
             )
         }
         composeTestRule.waitForIdle()

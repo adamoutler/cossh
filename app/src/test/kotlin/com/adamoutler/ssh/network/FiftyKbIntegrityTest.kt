@@ -1,19 +1,18 @@
 package com.adamoutler.ssh.network
 
-import androidx.test.core.app.ApplicationProvider
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Before
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
 import java.io.File
 import java.security.MessageDigest
 import kotlin.random.Random
@@ -33,12 +32,12 @@ class FiftyKbIntegrityTest {
         testPort = currentPort++
         var mockScript = File("mock_sshd.py")
         if (!mockScript.exists()) {
-             mockScript = File("../../mock_sshd.py")
+            mockScript = File("../../mock_sshd.py")
         }
         if (!mockScript.exists()) {
-             mockScript = File("../mock_sshd.py")
+            mockScript = File("../mock_sshd.py")
         }
-        
+
         println("Starting mock_sshd from: ${mockScript.absolutePath} on port $testPort")
         try {
             val pb = ProcessBuilder("python3", mockScript.absolutePath, testPort.toString())
@@ -75,11 +74,11 @@ class FiftyKbIntegrityTest {
 
     @Test(timeout = 300000L)
     fun test50KbDataIntegrity() = runBlocking {
-        ConnectionStateRepository.isHeadlessTest = true 
+        ConnectionStateRepository.isHeadlessTest = true
         ConnectionStateRepository.clearSession("id_50kb")
         val sessionData = ConnectionStateRepository.getOrCreateSession("id_50kb")
         ConnectionStateRepository.mockTestTranscripts["id_50kb"] = ""
-        
+
         val profile = ConnectionProfile(
             id = "id_50kb",
             nickname = "IntegrityServer",
@@ -87,11 +86,11 @@ class FiftyKbIntegrityTest {
             port = testPort,
             username = "user",
             authType = AuthType.PASSWORD,
-            password = "password".toByteArray()
+            password = "password".toByteArray(),
         )
 
         val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
-        
+
         val job = launch(Dispatchers.IO) {
             try {
                 manager.connectPty(
@@ -104,7 +103,7 @@ class FiftyKbIntegrityTest {
                         val outStr = String(bytes, 0, length)
                         val current = ConnectionStateRepository.mockTestTranscripts["id_50kb"] ?: ""
                         ConnectionStateRepository.mockTestTranscripts["id_50kb"] = current + outStr
-                    }
+                    },
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -112,7 +111,7 @@ class FiftyKbIntegrityTest {
         }
 
         var retries = 0
-        while (sessionData.ptyOutputStream == null && retries < 150) { 
+        while (sessionData.ptyOutputStream == null && retries < 150) {
             delay(100)
             retries++
         }
@@ -150,7 +149,7 @@ class FiftyKbIntegrityTest {
 
         retries = 0
         var remoteData = ""
-        while (retries < 300) { 
+        while (retries < 300) {
             val transcript = ConnectionStateRepository.mockTestTranscripts["id_50kb"] ?: ""
             if (transcript.length >= generatedData.length) {
                 // mock_sshd.py might send Windows newlines (\r\n) or we might have some extra bytes
@@ -165,7 +164,7 @@ class FiftyKbIntegrityTest {
         val outputFile = File("docs/qa/SSH-50-output.txt")
         outputFile.parentFile?.mkdirs()
         outputFile.writeText(remoteData)
-        
+
         val actualHash = sha256(remoteData)
         println("Data received and written to ${outputFile.absolutePath}. Remote SHA256: $actualHash")
 

@@ -12,14 +12,13 @@ import androidx.test.uiautomator.UiSelector
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
-import com.adamoutler.ssh.network.SshSessionProvider
 import com.adamoutler.ssh.network.SshService
+import com.adamoutler.ssh.network.SshSessionProvider
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import com.adamoutler.ssh.annotations.FullTest
 import java.io.File
 
 @RunWith(AndroidJUnit4::class)
@@ -28,7 +27,7 @@ class ConnectionResumeE2ETest {
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
         android.Manifest.permission.POST_NOTIFICATIONS,
         android.Manifest.permission.FOREGROUND_SERVICE,
-        android.Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE
+        android.Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE,
     )
 
     @Test(timeout = 180000L)
@@ -48,7 +47,7 @@ class ConnectionResumeE2ETest {
             host = "192.168.1.115",
             username = "test",
             authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
-            port = 32222
+            port = 32222,
         )
         profile.password = java.util.UUID.randomUUID().toString().toByteArray()
         storageManager.saveProfile(profile)
@@ -83,7 +82,7 @@ class ConnectionResumeE2ETest {
                 Thread.sleep(500)
             }
             assertTrue("Must connect", connected)
-            
+
             Thread.sleep(3000)
             SshSessionProvider.ptyOutputStream?.write("echo 'Hello Resume'\n".toByteArray())
             SshSessionProvider.ptyOutputStream?.flush()
@@ -108,7 +107,7 @@ class ConnectionResumeE2ETest {
 
             // 8. Press back to return to main menu
             device.pressBack()
-            
+
             // Handle keep-alive dialog if present
             val keepAliveBtn = device.findObject(UiSelector().textMatches("(?i)keep alive"))
             if (keepAliveBtn.waitForExists(2000)) {
@@ -119,7 +118,7 @@ class ConnectionResumeE2ETest {
 
             // 9. Tap connection again
             profileNode.click()
-            
+
             // 10. Observe dialogue "Resume" or "Start New"
             val startNewBtn = device.findObject(UiSelector().textMatches("(?i)start new"))
             assertTrue("Start New button must be present", startNewBtn.waitForExists(2000))
@@ -127,7 +126,7 @@ class ConnectionResumeE2ETest {
             // 11. Press "Start New"
             startNewBtn.click()
             device.waitForIdle()
-            
+
             // Wait for second connection
             Thread.sleep(3000)
 
@@ -164,12 +163,11 @@ class ConnectionResumeE2ETest {
             if (keepAliveBtn.waitForExists(1000)) keepAliveBtn.click()
             device.waitForIdle()
             Thread.sleep(1000)
-            
+
             // Find badge "2" (it's tricky with UiAutomator, but we can take a screenshot)
             val screenshotFile = File(context.getExternalFilesDir(null), "resume_e2e_screenshot.png")
             device.takeScreenshot(screenshotFile)
             println("📸 Screenshot saved: ${screenshotFile.absolutePath}")
-
         } finally {
             storageManager.deleteProfile(profileId)
             val stopIntent = Intent(context, SshService::class.java).apply {

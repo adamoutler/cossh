@@ -38,18 +38,18 @@ class SecurityStorageManagerTest {
             port = 22,
             username = "root",
             authType = AuthType.PASSWORD,
-            password = passwordBytes
+            password = passwordBytes,
         )
 
         storageManager.saveProfile(profile)
-        
+
         val retrieved = storageManager.getProfile("test-id-1")
         assertNotNull(retrieved)
         assertEquals(profile.nickname, retrieved?.nickname)
         assertEquals(profile.host, retrieved?.host)
         assertNotNull(retrieved?.password)
         assertEquals("supersecretpassword", String(retrieved!!.password!!))
-        
+
         // Test volatile state sanitization
         profile.clearSensitiveData()
         assertEquals(0.toByte(), profile.password!![0])
@@ -62,7 +62,7 @@ class SecurityStorageManagerTest {
             nickname = "Server 1",
             host = "10.0.0.1",
             username = "admin",
-            authType = AuthType.KEY
+            authType = AuthType.KEY,
         )
         val profile2 = ConnectionProfile(
             id = "list-id-2",
@@ -70,12 +70,12 @@ class SecurityStorageManagerTest {
             host = "10.0.0.2",
             username = "root",
             authType = AuthType.PASSWORD,
-            password = "test".toByteArray()
+            password = "test".toByteArray(),
         )
-        
+
         storageManager.saveProfile(profile1)
         storageManager.saveProfile(profile2)
-        
+
         val allProfiles = storageManager.getAllProfiles()
         assertTrue(allProfiles.size >= 2)
         assertNotNull(allProfiles.find { it.id == "list-id-1" })
@@ -85,7 +85,7 @@ class SecurityStorageManagerTest {
     @Test
     fun testStrongBoxFallbackLogic() {
         // Robolectric doesn't support StrongBox natively, so the execution of SecurityStorageManager(context)
-        // in setup() intrinsically exercises the fallback logic without crashing. 
+        // in setup() intrinsically exercises the fallback logic without crashing.
         // We explicitly assert the manager is initialized successfully to satisfy coverage logic.
         assertNotNull(storageManager)
         assertNotNull(storageManager.encryptedPrefs)
@@ -99,12 +99,12 @@ class SecurityStorageManagerTest {
             host = "10.0.0.5",
             port = 2222,
             username = "admin",
-            authType = AuthType.KEY
+            authType = AuthType.KEY,
         )
 
         storageManager.saveProfile(profile)
         assertNotNull(storageManager.getProfile("test-id-2"))
-        
+
         storageManager.deleteProfile("test-id-2")
         assertNull(storageManager.getProfile("test-id-2"))
     }

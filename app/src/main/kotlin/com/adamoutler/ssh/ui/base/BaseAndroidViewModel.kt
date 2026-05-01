@@ -27,7 +27,7 @@ abstract class BaseAndroidViewModel(application: Application) : AndroidViewModel
 
     protected fun launchWithHandler(
         context: CoroutineContext = EmptyCoroutineContext,
-        block: suspend CoroutineScope.() -> Unit
+        block: suspend CoroutineScope.() -> Unit,
     ) {
         viewModelScope.launch(context + exceptionHandler) {
             block()

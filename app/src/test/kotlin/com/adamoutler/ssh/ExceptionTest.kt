@@ -1,8 +1,8 @@
 package com.adamoutler.ssh
 
-import org.junit.Test
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
+import org.junit.Test
 
 class ExceptionTest {
     @Test

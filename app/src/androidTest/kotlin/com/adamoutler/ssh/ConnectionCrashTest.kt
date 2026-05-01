@@ -1,27 +1,22 @@
 package com.adamoutler.ssh
 
+import android.content.Context
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
+import com.adamoutler.ssh.annotations.FullTest
+import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
-import com.adamoutler.ssh.crypto.SecurityStorageManager
-import androidx.test.core.app.ApplicationProvider
-import android.content.Context
-import androidx.compose.ui.test.junit4.createEmptyComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiSelector
 import org.junit.runner.RunWith
-import kotlinx.coroutines.runBlocking
-import androidx.test.core.app.ActivityScenario
-import com.adamoutler.ssh.annotations.FullTest
-import org.junit.experimental.categories.Category
 
 @RunWith(AndroidJUnit4::class)
 @FullTest
@@ -30,7 +25,7 @@ class ConnectionCrashTest {
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
         android.Manifest.permission.POST_NOTIFICATIONS,
         android.Manifest.permission.FOREGROUND_SERVICE,
-        android.Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE
+        android.Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE,
     )
 
     @Test(timeout = 300000L)
@@ -40,14 +35,14 @@ class ConnectionCrashTest {
             val device = UiDevice.getInstance(instrumentation)
             val context = ApplicationProvider.getApplicationContext<Context>()
             val storageManager = SecurityStorageManager(context)
-            
+
             // Set headless mode for Android 16/API 35 16KB JNI bypass
             com.adamoutler.ssh.network.SshSessionProvider.isHeadlessTest = true
             com.adamoutler.ssh.network.SshSessionProvider.mockTestTranscript = null
-            
+
             // Apply hack to prevent org.apache.sshd ExceptionInInitializerError on Android
             System.setProperty("user.home", context.filesDir.absolutePath)
-            
+
             // Add a mock profile pointing to the live integration testing environment
             val profile = ConnectionProfile(
                 id = "mock-id-ui-crash-test",
@@ -55,11 +50,11 @@ class ConnectionCrashTest {
                 host = "mock.hackedyour.info",
                 username = "test",
                 authType = AuthType.PASSWORD,
-                port = 32222
+                port = 32222,
             )
             profile.password = java.util.UUID.randomUUID().toString().toByteArray()
             storageManager.saveProfile(profile)
-            
+
             // Start the activity NOW, after profile is in storage
             val scenario = ActivityScenario.launch(MainActivity::class.java)
 
@@ -67,7 +62,7 @@ class ConnectionCrashTest {
             device.waitForIdle()
             val textOkButton = device.findObject(UiSelector().textMatches("(?i)ok|continue|got it|close"))
             val resOkButton = device.findObject(UiSelector().resourceId("android:id/button1"))
-            
+
             if (textOkButton.waitForExists(1500)) {
                 textOkButton.click()
                 device.waitForIdle()
@@ -83,7 +78,7 @@ class ConnectionCrashTest {
             // Click the profile using UiAutomator
             val profileSelector = UiSelector().textContains("UI Crash Test")
             var profileNode = device.findObject(profileSelector)
-            
+
             if (!profileNode.waitForExists(10000)) {
                 try {
                     val scrollable = androidx.test.uiautomator.UiScrollable(UiSelector().scrollable(true))
@@ -94,7 +89,7 @@ class ConnectionCrashTest {
                 profileNode = device.findObject(profileSelector)
             }
             assertTrue("Profile node should exist. Text on screen was not found.", profileNode.exists())
-            
+
             val bounds = profileNode.bounds
             val clicked = device.click(device.displayWidth / 2, bounds.centerY())
             assertTrue("Device should click the profile list item", clicked)
@@ -119,7 +114,7 @@ class ConnectionCrashTest {
             // Send multiple requests directly to the PTY
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("test1\n".toByteArray())
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
-            
+
             Thread.sleep(1500)
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("test2\n".toByteArray())
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
@@ -138,25 +133,25 @@ class ConnectionCrashTest {
             println("=======================")
 
             assertTrue(
-                "Terminal should echo 'test1'", 
-                terminalContent.contains("test1")
+                "Terminal should echo 'test1'",
+                terminalContent.contains("test1"),
             )
             assertTrue(
-                "Terminal should echo 'test2'", 
-                terminalContent.contains("test2")
+                "Terminal should echo 'test2'",
+                terminalContent.contains("test2"),
             )
 
             // Ensure the connection was actually dropped server-side
             assertTrue(
                 "Terminal output stream should be null once closed by remote exit",
-                com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream == null || 
-                terminalContent.contains("Connection closed")
+                com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream == null ||
+                    terminalContent.contains("Connection closed"),
             )
 
             // Clean up
             com.adamoutler.ssh.network.SshSessionProvider.isHeadlessTest = false
             storageManager.deleteProfile(profile.id)
-            
+
             val stopIntent = android.content.Intent(context, com.adamoutler.ssh.network.SshService::class.java).apply {
                 action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
             }

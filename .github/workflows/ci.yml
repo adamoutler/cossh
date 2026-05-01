@@ -27,8 +27,15 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew assembleDebug
 
+      - name: Parse Compose Metrics
+        run: |
+          grep -i "unstable" app/build/compose_metrics/*-classes.txt || echo "No unstable classes"
+
       - name: Run Lint
         run: ./gradlew lint
+
+      - name: Build Release (ProGuard Check)
+        run: ./gradlew assembleRelease
 
       - name: Submit Dependency Graph
         uses: gradle/actions/dependency-submission@v4
@@ -50,3 +57,18 @@ jobs:
         run: |
           echo "==== TEST RESULTS FOR REALITY CHECKER ===="
           grep -i "PASSED" build-test.log
+
+  security_scan:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-debug
+          path: .
+      - name: Run MobSF Analysis
+        uses: MobSF/mobsf-action@main
+        with:
+          file_name: app-debug.apk

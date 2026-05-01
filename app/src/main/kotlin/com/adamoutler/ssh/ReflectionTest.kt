@@ -1,7 +1,7 @@
 package com.adamoutler.ssh
 
-import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalEmulator
+import com.termux.terminal.TerminalSession
 
 class ReflectionTest {
     fun printMethods() {

@@ -33,17 +33,17 @@ class SshServiceForegroundTest {
         // Start the service
         val serviceController = Robolectric.buildService(SshService::class.java, intent)
         serviceController.create().startCommand(0, 1)
-        
+
         org.robolectric.shadows.ShadowLooper.idleMainLooper()
 
         val service = serviceController.get()
         val shadowService = shadowOf(service)
-        
+
         // Assert that startForeground was called.
         // It throws MissingForegroundServiceTypeException if not correctly typed internally in real Android.
         val notification = shadowService.lastForegroundNotification
         assertNotNull("Foreground notification should be present", notification)
-        
+
         println("Service started successfully without MissingForegroundServiceTypeException on API 34.")
     }
 
@@ -51,7 +51,7 @@ class SshServiceForegroundTest {
     fun `test service connection state transitions to error on failure`() = kotlinx.coroutines.runBlocking {
         val app = ApplicationProvider.getApplicationContext<android.app.Application>()
         val storageManager = SecurityStorageManager(app, app.getSharedPreferences("test_fgs_error", 0))
-        
+
         // This profile points to a non-existent local server, ensuring a failure
         val p1 = ConnectionProfile("id-fail", "FailServer", "127.0.0.1", port = 65535, username = "u1", authType = AuthType.PASSWORD, password = "pwd".toByteArray())
         storageManager.saveProfile(p1)
@@ -78,7 +78,7 @@ class SshServiceForegroundTest {
             kotlinx.coroutines.delay(100)
             retries++
         }
-        
+
         org.junit.Assert.assertTrue("State should transition to Error", currentState is ConnectionState.Error)
     }
 
@@ -86,7 +86,7 @@ class SshServiceForegroundTest {
     fun `test service intentional disconnect does not transition to error`() = kotlinx.coroutines.runBlocking {
         val app = ApplicationProvider.getApplicationContext<android.app.Application>()
         val storageManager = SecurityStorageManager(app, app.getSharedPreferences("test_fgs_disconnect", 0))
-        
+
         // This profile points to a non-existent local server, but we will cancel it before it errors, or we can use a mock server
         val p1 = ConnectionProfile("id-disc", "DisconnectServer", "127.0.0.1", port = 65535, username = "u1", authType = AuthType.PASSWORD, password = "pwd".toByteArray())
         storageManager.saveProfile(p1)
@@ -123,7 +123,7 @@ class SshServiceForegroundTest {
             kotlinx.coroutines.delay(100)
             retries++
         }
-        
+
         org.junit.Assert.assertFalse("State should not transition to Error", currentState is ConnectionState.Error)
     }
 }

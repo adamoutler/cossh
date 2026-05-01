@@ -1,18 +1,18 @@
 package com.adamoutler.ssh.ui.components
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.Modifier
 import app.cash.paparazzi.DeviceConfig.Companion.PIXEL_5
 import app.cash.paparazzi.Paparazzi
 import org.junit.Rule
 import org.junit.Test
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.ui.Modifier
 
 class TerminalExtraKeysScreenshotTest {
 
     @get:Rule
     val paparazzi = Paparazzi(
         deviceConfig = PIXEL_5,
-        theme = "android:Theme.Material.Light.NoActionBar"
+        theme = "android:Theme.Material.Light.NoActionBar",
     )
 
     @Test
@@ -25,7 +25,7 @@ class TerminalExtraKeysScreenshotTest {
                 menuState = ModifierState.INACTIVE,
                 onKeyToggle = {},
                 onKeyPress = {},
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
@@ -40,7 +40,7 @@ class TerminalExtraKeysScreenshotTest {
                 menuState = ModifierState.INACTIVE,
                 onKeyToggle = {},
                 onKeyPress = {},
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
@@ -56,7 +56,7 @@ class TerminalExtraKeysScreenshotTest {
                 onKeyToggle = {},
                 onKeyPress = {},
                 modifier = Modifier.fillMaxWidth(),
-                initialPage = 2
+                initialPage = 2,
             )
         }
     }

@@ -1,8 +1,8 @@
 package com.adamoutler.ssh
 
 import android.app.Application
-import org.junit.Test
 import com.adamoutler.ssh.ui.screens.ConnectionListViewModel
+import org.junit.Test
 
 class ViewModelReflectionTest {
     @Test

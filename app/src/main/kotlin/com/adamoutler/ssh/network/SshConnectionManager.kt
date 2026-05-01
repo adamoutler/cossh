@@ -4,18 +4,16 @@ import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.HostKeyVerifier
 import net.schmizz.sshj.transport.verification.OpenSSHKnownHosts
-import java.security.KeyPair
-import java.security.KeyFactory
-import java.security.spec.PKCS8EncodedKeySpec
-import java.security.PublicKey
 import java.io.File
+import java.security.KeyPair
+import java.security.PublicKey
 
 class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(knownHostsFile) {
     override fun verify(hostname: String, port: Int, key: PublicKey): Boolean {
@@ -64,7 +62,7 @@ class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(
                 hostname = formattedHost,
                 expectedFingerprint = oldFingerprint,
                 receivedFingerprint = receivedFingerprint,
-                isKeyChanged = hostExists
+                isKeyChanged = hostExists,
             )
         }
 
@@ -88,10 +86,18 @@ class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(
             } else {
                 knownHostsFile.appendText(newEntry)
             }
-            try { android.util.Log.i("TofuHostKeyVerifier", "Host $hostname key accepted and saved.") } catch (e: Throwable) { println("Host $hostname key accepted and saved.") }
+            try {
+                android.util.Log.i("TofuHostKeyVerifier", "Host $hostname key accepted and saved.")
+            } catch (e: Throwable) {
+                println("Host $hostname key accepted and saved.")
+            }
             return true
         } else {
-            try { android.util.Log.e("TofuHostKeyVerifier", "Host key for $hostname rejected by user. Connection aborted.") } catch (e: Throwable) { println("Host key rejected by user.") }
+            try {
+                android.util.Log.e("TofuHostKeyVerifier", "Host key for $hostname rejected by user. Connection aborted.")
+            } catch (e: Throwable) {
+                println("Host key rejected by user.")
+            }
             return false
         }
     }
@@ -100,7 +106,7 @@ class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(
 class SshConnectionManager(
     private val hostKeyVerifier: HostKeyVerifier? = null,
     private val identityStorageManager: IdentityStorageManager? = null,
-    private val context: android.content.Context? = null
+    private val context: android.content.Context? = null,
 ) {
     private var client: SSHClient? = null
     private var telnetClient: org.apache.commons.net.telnet.TelnetClient? = null
@@ -141,11 +147,11 @@ class SshConnectionManager(
     private fun getAuthenticator(
         profile: ConnectionProfile,
         keyPair: KeyPair?,
-        identity: IdentityProfile? = null
+        identity: IdentityProfile? = null,
     ): SshAuthenticator {
         if (identity != null) {
             val authenticators = mutableListOf<SshAuthenticator>()
-            
+
             // Try key auth if a private key exists
             if (identity.privateKey != null || keyPair != null) {
                 try {
@@ -172,7 +178,7 @@ class SshConnectionManager(
             if (authenticators.isNotEmpty()) {
                 return CompositeAuthenticator(authenticators)
             }
-            
+
             throw IllegalArgumentException("Identity has neither valid password nor complete private/public key")
         }
 
@@ -187,7 +193,7 @@ class SshConnectionManager(
 
     private fun loadKeyPairFromIdentity(identity: IdentityProfile): KeyPair {
         val privateKeyBytes = identity.privateKey ?: throw IllegalArgumentException("Identity has no private key")
-        
+
         var publicKey: java.security.PublicKey? = null
         try {
             val pubKeyStr = identity.publicKey
@@ -244,7 +250,9 @@ class SshConnectionManager(
                         } catch (e: Exception) {
                             android.util.Log.e("SshConnectionManager", "Local port forwarder error", e)
                         } finally {
-                            try { serverSocket.close() } catch (e: Exception) {}
+                            try {
+                                serverSocket.close()
+                            } catch (e: Exception) {}
                         }
                     }
                 } else if (config.type == com.adamoutler.ssh.data.PortForwardType.REMOTE) {
@@ -266,7 +274,7 @@ class SshConnectionManager(
         // Aggressive timeouts per security invariant
         client.connectTimeout = 10000
         client.timeout = 10000
-        
+
         val identity = resolveIdentity(profile)
 
         try {
@@ -274,8 +282,11 @@ class SshConnectionManager(
 
             client.connect(profile.host, profile.port)
 
-            val effectiveProfile = if (identity != null) {                profile.copy(username = identity.username, password = identity.password)
-            } else profile
+            val effectiveProfile = if (identity != null) {
+                profile.copy(username = identity.username, password = identity.password)
+            } else {
+                profile
+            }
 
             getAuthenticator(profile, keyPair, identity).authenticate(client, effectiveProfile)
 
@@ -299,7 +310,7 @@ class SshConnectionManager(
         profile: ConnectionProfile,
         keyPair: KeyPair? = null,
         onOutput: suspend (ByteArray, Int) -> Unit,
-        onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit
+        onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit,
     ) = withContext(Dispatchers.IO) {
         if (profile.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
             connectTelnet(profile, onOutput, onConnect)
@@ -310,7 +321,7 @@ class SshConnectionManager(
         this@SshConnectionManager.client = client
         client.connectTimeout = 10000
         client.timeout = 10000
-        
+
         val identity = resolveIdentity(profile)
 
         try {
@@ -329,7 +340,9 @@ class SshConnectionManager(
 
             val effectiveProfile = if (identity != null) {
                 profile.copy(username = identity.username, password = identity.password)
-            } else profile
+            } else {
+                profile
+            }
 
             getAuthenticator(profile, keyPair, identity).authenticate(client, effectiveProfile)
 
@@ -345,7 +358,7 @@ class SshConnectionManager(
                 }
                 session.allocatePTY("xterm-256color", 80, 24, 0, 0, emptyMap())
                 val shell = session.startShell()
-                
+
                 onConnect(shell.outputStream, shell)
 
                 val bridge = PtyStreamBridge(shell.inputStream, onOutput)
@@ -364,27 +377,27 @@ class SshConnectionManager(
     private suspend fun connectTelnet(
         profile: ConnectionProfile,
         onOutput: suspend (ByteArray, Int) -> Unit,
-        onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit
+        onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit,
     ): Unit = withContext(Dispatchers.IO) {
         val tc = org.apache.commons.net.telnet.TelnetClient()
         this@SshConnectionManager.telnetClient = tc
         tc.connectTimeout = 10000
-        
+
         try {
             tc.addOptionHandler(org.apache.commons.net.telnet.TerminalTypeOptionHandler("xterm-256color", false, false, true, false))
             tc.addOptionHandler(org.apache.commons.net.telnet.EchoOptionHandler(false, true, false, true))
             tc.addOptionHandler(org.apache.commons.net.telnet.SuppressGAOptionHandler(true, true, true, true))
 
             tc.connect(profile.host, profile.port)
-            
+
             val writeChannel = kotlinx.coroutines.channels.Channel<ByteArray>(kotlinx.coroutines.channels.Channel.UNLIMITED)
-            
+
             val ioJob = kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
                 for (bytes in writeChannel) {
                     try {
                         tc.outputStream.write(bytes)
                         tc.outputStream.flush()
-                    } catch(e: Exception) {
+                    } catch (e: Exception) {
                         android.util.Log.e("SshConnectionManager", "Error writing to telnet stream", e)
                         break
                     }
@@ -401,7 +414,9 @@ class SshConnectionManager(
                     } else if (byteVal == '\n'.code.toByte()) {
                         val res = if (!lastWasCr) {
                             writeChannel.trySend(byteArrayOf('\r'.code.toByte(), '\n'.code.toByte()))
-                        } else null
+                        } else {
+                            null
+                        }
                         lastWasCr = false
                         res
                     } else {
@@ -423,21 +438,23 @@ class SshConnectionManager(
                         translateAndSend(b[i].toInt())
                     }
                 }
-                override fun flush() {} 
+                override fun flush() {}
                 override fun close() {
                     writeChannel.close()
                     ioJob.cancel()
-                    try { tc.outputStream.close() } catch (e: Exception) {}
+                    try {
+                        tc.outputStream.close()
+                    } catch (e: Exception) {}
                 }
             }
-            
+
             onConnect(autoFlushingStream, null)
-            
+
             val bridgeJob = kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
                 val bridge = PtyStreamBridge(tc.inputStream, onOutput)
                 bridge.startBridge()
             }
-            
+
             try {
                 kotlinx.coroutines.awaitCancellation()
             } finally {
@@ -458,7 +475,7 @@ class SshConnectionManager(
      */
     suspend fun injectPublicKey(
         profile: ConnectionProfile,
-        publicKey: String
+        publicKey: String,
     ): Boolean = withContext(Dispatchers.IO) {
         // Validate public key to prevent shell injection
         val regex = Regex("^[a-zA-Z0-9+/= \\-_@]+$")
@@ -468,7 +485,7 @@ class SshConnectionManager(
         }
 
         val injectionCommand = "mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo \"$publicKey\" >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
-        
+
         try {
             connectAndExecute(profile, injectionCommand)
             true

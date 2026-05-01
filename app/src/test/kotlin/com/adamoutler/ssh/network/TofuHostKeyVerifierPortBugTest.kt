@@ -1,10 +1,9 @@
 package com.adamoutler.ssh.network
 
 import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.assertTrue
-import org.junit.Assert.assertFalse
 import java.io.File
 import java.security.KeyPairGenerator
 
@@ -40,7 +39,7 @@ class TofuHostKeyVerifierPortBugTest {
             ConnectionStateRepository.resolvePrompt(true)
         }.start()
         verifier.verify("192.168.1.115", 22, key22)
-        
+
         // Assert port 22 is in file
         assertTrue(knownHostsFile.readText().contains("192.168.1.115 ssh-rsa"))
 
@@ -55,7 +54,7 @@ class TofuHostKeyVerifierPortBugTest {
 
         val content = knownHostsFile.readText()
         println("File content after port 32222: \n" + content)
-        
+
         // Assert BOTH are in file!
         assertTrue("Port 32222 should be in file", content.contains("[192.168.1.115]:32222 ssh-rsa"))
         assertTrue("Port 22 should STILL be in file", content.contains("192.168.1.115 ssh-rsa"))

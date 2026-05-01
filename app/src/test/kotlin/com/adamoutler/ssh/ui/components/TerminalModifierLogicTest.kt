@@ -11,7 +11,7 @@ class TerminalModifierLogicTest {
     fun testCtrlC_Encoding() {
         val codePoint = 'c'.code
         var cp = codePoint
-        
+
         // Apply Ctrl Logic as seen in TerminalScreen.kt
         if (cp in 'a'.code..'z'.code) {
             cp = cp - 'a'.code + 1
@@ -31,7 +31,7 @@ class TerminalModifierLogicTest {
 
         val chars = Character.toChars(cp)
         val bytes = String(chars).toByteArray(Charsets.UTF_8)
-        
+
         // Expecting 0x03 for Ctrl+C
         assertArrayEquals(byteArrayOf(0x03), bytes)
     }
@@ -40,7 +40,7 @@ class TerminalModifierLogicTest {
     fun testAltA_Encoding() {
         val baseBytes = "A".toByteArray()
         val altBytes = byteArrayOf(0x1B) + baseBytes
-        
+
         assertArrayEquals(byteArrayOf(0x1B, 0x41), altBytes)
     }
 
@@ -48,7 +48,7 @@ class TerminalModifierLogicTest {
     fun testTerminalInputLockout() {
         val showDisconnectedOverlay = true
         var bytesSent: ByteArray? = null
-        
+
         val sendToTerminal: (ByteArray) -> Unit = { bytes ->
             if (showDisconnectedOverlay) {
                 println("Log.d(TerminalScreen, Input locked: session disconnected.)")
@@ -56,9 +56,9 @@ class TerminalModifierLogicTest {
                 bytesSent = bytes
             }
         }
-        
+
         sendToTerminal(byteArrayOf(0x03))
-        
+
         org.junit.Assert.assertNull("Bytes should not be sent when terminal is locked", bytesSent)
     }
 }

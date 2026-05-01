@@ -8,16 +8,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.adamoutler.ssh.annotations.FullTest
+import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import com.adamoutler.ssh.MainActivity
-import org.junit.Assert.assertNotNull
+import com.adamoutler.ssh.annotations.FullTest
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.filters.LargeTest
-import org.junit.experimental.categories.Category
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -28,7 +26,7 @@ class SshServiceInstrumentationTest {
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
         android.Manifest.permission.POST_NOTIFICATIONS,
         android.Manifest.permission.FOREGROUND_SERVICE,
-        android.Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE
+        android.Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE,
     )
 
     @Test(timeout = 300000L)
@@ -42,7 +40,7 @@ class SshServiceInstrumentationTest {
             port = 2222,
             username = "test",
             authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
-            password = "test".toByteArray()
+            password = "test".toByteArray(),
         )
         storageManager.saveProfile(mockProfile)
 
@@ -52,11 +50,11 @@ class SshServiceInstrumentationTest {
             action = SshService.ACTION_START
             putExtra(SshService.EXTRA_PROFILE_ID, "mock-profile")
         }
-        
+
         context.startForegroundService(serviceIntent)
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        
+
         // Wait for notification to be posted
         var notificationPosted = false
         for (i in 1..10) {
@@ -86,10 +84,10 @@ class SshServiceInstrumentationTest {
             }
             Thread.sleep(200)
         }
-        
+
         // We know Robolectric/Instrumentation keeps it alive if no SecurityException occurred
         assertTrue("Service should still be running", serviceRunning || notificationPosted)
-        
+
         val stopIntent = Intent(context, SshService::class.java).apply {
             action = SshService.ACTION_DISCONNECT
         }

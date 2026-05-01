@@ -1,13 +1,14 @@
 package com.adamoutler.ssh.network
 
-import com.adamoutler.ssh.network.ConnectionStateRepository
 import java.io.OutputStream
 
 // Compatibility layer for tests
 object SshSessionProvider {
     var isHeadlessTest: Boolean
         get() = ConnectionStateRepository.isHeadlessTest
-        set(value) { ConnectionStateRepository.isHeadlessTest = value }
+        set(value) {
+            ConnectionStateRepository.isHeadlessTest = value
+        }
 
     val activeConnectionCounts: kotlinx.coroutines.flow.StateFlow<Map<String, Int>>
         get() = ConnectionStateRepository.activeConnectionCounts

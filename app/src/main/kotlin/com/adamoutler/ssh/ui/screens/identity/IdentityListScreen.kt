@@ -23,7 +23,7 @@ fun IdentityListScreen(
     viewModel: IdentityViewModel = viewModel(),
     onAddIdentity: () -> Unit,
     onEditIdentity: (String) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     val identities by viewModel.identities.collectAsState()
 
@@ -51,22 +51,22 @@ fun IdentityListScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ),
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddIdentity) {
                 Icon(Icons.Default.Add, contentDescription = "Add Identity")
             }
-        }
+        },
     ) { padding ->
         if (identities.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text("No identities found. Add one to get started.")
             }
@@ -76,13 +76,13 @@ fun IdentityListScreen(
                     .fillMaxSize()
                     .padding(padding),
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(identities) { identity ->
                     IdentityItem(
                         identity = identity,
                         onClick = { onEditIdentity(identity.id) },
-                        onDelete = { viewModel.deleteIdentity(identity.id) }
+                        onDelete = { viewModel.deleteIdentity(identity.id) },
                     )
                 }
             }
@@ -94,18 +94,18 @@ fun IdentityListScreen(
 fun IdentityItem(
     identity: IdentityProfile,
     onClick: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
 ) {
     Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Person, contentDescription = null)

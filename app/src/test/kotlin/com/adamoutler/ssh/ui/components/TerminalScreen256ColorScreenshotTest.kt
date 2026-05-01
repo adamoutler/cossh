@@ -1,5 +1,9 @@
 package com.adamoutler.ssh.ui.components
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.adamoutler.ssh.network.ConnectionStateRepository
@@ -7,24 +11,20 @@ import com.adamoutler.ssh.ui.theme.CoSSHTheme
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import androidx.compose.material3.Surface
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Modifier
 
 class TerminalScreen256ColorScreenshotTest {
 
     @get:Rule
     val paparazzi = Paparazzi(
         deviceConfig = DeviceConfig.PIXEL_5,
-        theme = "android:Theme.Material.Light.NoActionBar"
+        theme = "android:Theme.Material.Light.NoActionBar",
     )
 
     @Before
     fun setup() {
         ConnectionStateRepository.clearSession("test256")
         ConnectionStateRepository.isHeadlessTest = true
-        
+
         val sb = java.lang.StringBuilder()
         sb.append("xterm-256color Support Proof\r\n")
         sb.append("System Colors:\r\n")
@@ -47,7 +47,7 @@ class TerminalScreen256ColorScreenshotTest {
             sb.append("\u001b[48;5;${i}m \u2588\u2588 ")
         }
         sb.append("\u001b[0m\r\n")
-        
+
         ConnectionStateRepository.mockTestTranscripts["test256"] = sb.toString()
     }
 
@@ -57,12 +57,17 @@ class TerminalScreen256ColorScreenshotTest {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     TerminalScreenContent(
                         profileId = "test256",
                         session = com.termux.terminal.TerminalSession(
-                            "/system/bin/sh", "/", arrayOf(), arrayOf(), 0, object : com.termux.terminal.TerminalSessionClient {
+                            "/system/bin/sh",
+                            "/",
+                            arrayOf(),
+                            arrayOf(),
+                            0,
+                            object : com.termux.terminal.TerminalSessionClient {
                                 override fun onTextChanged(session: com.termux.terminal.TerminalSession) {}
                                 override fun onTitleChanged(session: com.termux.terminal.TerminalSession) {}
                                 override fun onSessionFinished(session: com.termux.terminal.TerminalSession) {}
@@ -79,7 +84,7 @@ class TerminalScreen256ColorScreenshotTest {
                                 override fun logVerbose(tag: String?, msg: String?) {}
                                 override fun logStackTraceWithMessage(tag: String?, msg: String?, e: java.lang.Exception?) {}
                                 override fun logStackTrace(tag: String?, e: java.lang.Exception?) {}
-                            }
+                            },
                         ),
                         activeSession = com.adamoutler.ssh.network.ActiveSessionState(profileId = "test256"),
                         currentFontSize = 10,
@@ -88,7 +93,7 @@ class TerminalScreen256ColorScreenshotTest {
                         errorMessage = null,
                         onUpdateFontSize = {},
                         onNavigateBack = {},
-                        onClearError = {}
+                        onClearError = {},
                     )
                 }
             }

@@ -16,13 +16,13 @@ import kotlinx.coroutines.withContext
 class ConnectionListViewModel(
     application: Application,
     private val storageManager: SecurityStorageManager,
-    private val backupManager: BackupManager
+    private val backupManager: BackupManager,
 ) : BaseAndroidViewModel(application) {
 
     constructor(application: Application) : this(
         application,
         SecurityStorageManager(application),
-        BackupManager(application, SecurityStorageManager(application), com.adamoutler.ssh.crypto.IdentityStorageManager(application))
+        BackupManager(application, SecurityStorageManager(application), com.adamoutler.ssh.crypto.IdentityStorageManager(application)),
     )
 
     private val _profiles = MutableStateFlow<List<ConnectionProfile>>(emptyList())
@@ -49,12 +49,13 @@ QyNTUxOQAAACAMXP6JRs0AflZ1/nV7BZlO3n84+gn/KdyLpEI4ISLuyQAAAJiQ30JXkN9C
 VwAAAAtzc2gtZWQyNTUxOQAAACAMXP6JRs0AflZ1/nV7BZlO3n84+gn/KdyLpEI4ISLuyQ
 AAAEBzoFMNN4gntE6K7Rb+DhpiP1cJZMhWhu6q+AYVLSg1vQxc/olGzQB+VnX+dXsFmU7e
 fzj6Cf8p3IukQjghIu7JAAAAE2FkYW1vdXRsZXJASExBQi1BMjUBAg==
------END OPENSSH PRIVATE KEY-----""".trimIndent()
+-----END OPENSSH PRIVATE KEY-----
+                """.trimIndent()
                 val mockIdentity = com.adamoutler.ssh.data.IdentityProfile(
                     id = "mock_identity",
                     name = "Mock Server Key",
                     username = "test",
-                    privateKey = wellKnownKey.toByteArray()
+                    privateKey = wellKnownKey.toByteArray(),
                 )
                 identityStorage.saveIdentity(mockIdentity)
 
@@ -65,11 +66,11 @@ fzj6Cf8p3IukQjghIu7JAAAAE2FkYW1vdXRsZXJASExBQi1BMjUBAg==
                     username = "test",
                     authType = com.adamoutler.ssh.data.AuthType.KEY,
                     port = 32222,
-                    identityId = mockIdentity.id
+                    identityId = mockIdentity.id,
                 )
                 storageManager.saveProfile(testProfile)
             }
-            
+
             val all = storageManager.getAllProfiles().sortedBy { it.sortOrder }
             val query = _searchQuery.value
             val filtered = if (query.isBlank()) {
@@ -77,7 +78,7 @@ fzj6Cf8p3IukQjghIu7JAAAAE2FkYW1vdXRsZXJASExBQi1BMjUBAg==
             } else {
                 all.filter {
                     it.nickname.contains(query, ignoreCase = true) ||
-                    it.host.contains(query, ignoreCase = true)
+                        it.host.contains(query, ignoreCase = true)
                 }
             }
             _profiles.value = filtered

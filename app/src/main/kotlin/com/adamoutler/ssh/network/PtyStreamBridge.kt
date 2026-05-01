@@ -1,13 +1,12 @@
 package com.adamoutler.ssh.network
 
-import java.io.InputStream
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.delay
+import java.io.InputStream
 
 class PtyStreamBridge(
     private val inputStream: InputStream,
-    private val onOutput: suspend (ByteArray, Int) -> Unit
+    private val onOutput: suspend (ByteArray, Int) -> Unit,
 ) {
     suspend fun startBridge() {
         val buffer = ByteArray(4096)

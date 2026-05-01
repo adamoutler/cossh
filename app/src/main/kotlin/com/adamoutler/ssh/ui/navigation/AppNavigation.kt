@@ -1,39 +1,39 @@
 package com.adamoutler.ssh.ui.navigation
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.adamoutler.ssh.ui.screens.ConnectionListScreen
-import com.adamoutler.ssh.ui.screens.AddEditProfileScreen
-import com.adamoutler.ssh.ui.keys.KeyManagementScreen
-import com.adamoutler.ssh.ui.components.TerminalScreen
-import com.adamoutler.ssh.ui.screens.identity.IdentityListScreen
-import com.adamoutler.ssh.ui.screens.identity.AddEditIdentityScreen
 import com.adamoutler.ssh.billing.BillingManager
-import com.adamoutler.ssh.sync.DriveSyncManager
-import com.adamoutler.ssh.ui.screens.SettingsScreen
-import com.adamoutler.ssh.ui.components.KeystoreInvalidatedDialog
 import com.adamoutler.ssh.crypto.SecurityStorageManager
+import com.adamoutler.ssh.sync.DriveSyncManager
+import com.adamoutler.ssh.ui.components.KeystoreInvalidatedDialog
+import com.adamoutler.ssh.ui.components.TerminalScreen
+import com.adamoutler.ssh.ui.keys.KeyManagementScreen
+import com.adamoutler.ssh.ui.screens.AddEditProfileScreen
+import com.adamoutler.ssh.ui.screens.ConnectionListScreen
+import com.adamoutler.ssh.ui.screens.SettingsScreen
+import com.adamoutler.ssh.ui.screens.identity.AddEditIdentityScreen
+import com.adamoutler.ssh.ui.screens.identity.IdentityListScreen
 
 @Composable
 fun AppNavigation() {
@@ -52,9 +52,9 @@ fun AppNavigation() {
                 val profileId = intent.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID)
                 val sessionId = intent.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID)
                 if (profileId != null && sessionId != null) {
-                    navController.navigate("terminal?profileId=$profileId&sessionId=$sessionId") { 
+                    navController.navigate("terminal?profileId=$profileId&sessionId=$sessionId") {
                         popUpTo("connectionList") { inclusive = false }
-                        launchSingleTop = true 
+                        launchSingleTop = true
                     }
                 }
             }
@@ -72,9 +72,9 @@ fun AppNavigation() {
             val sessionId = intent.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID)
             activity.intent = android.content.Intent() // Clear the intent so it isn't re-processed
             if (profileId != null && sessionId != null) {
-                navController.navigate("terminal?profileId=$profileId&sessionId=$sessionId") { 
+                navController.navigate("terminal?profileId=$profileId&sessionId=$sessionId") {
                     popUpTo("connectionList") { inclusive = false }
-                    launchSingleTop = true 
+                    launchSingleTop = true
                 }
             }
         }
@@ -101,7 +101,7 @@ fun AppNavigation() {
             },
             onDismissApp = {
                 activity?.finishAffinity()
-            }
+            },
         )
     }
 
@@ -118,97 +118,105 @@ fun AppNavigation() {
                     }
                 },
                 onSettingsRequested = { navController.navigate("settings") },
-                onManageIdentitiesRequested = { navController.navigate("identityList") }
+                onManageIdentitiesRequested = { navController.navigate("identityList") },
             )
         }
         composable("settings") {
             SettingsScreen(
                 billingManager = billingManager,
                 driveSyncManager = driveSyncManager,
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
             )
         }
         composable(
             route = "addEditProfile?profileId={profileId}",
-            arguments = listOf(navArgument("profileId") { 
-                type = NavType.StringType 
-                nullable = true
-                defaultValue = null
-            })
+            arguments = listOf(
+                navArgument("profileId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+            ),
         ) { backStackEntry ->
             val profileId = backStackEntry.arguments?.getString("profileId")
             AddEditProfileScreen(
                 profileId = profileId,
                 onNavigateBack = { navController.popBackStack() },
-                onManageIdentities = { navController.navigate("identityList") }
+                onManageIdentities = { navController.navigate("identityList") },
             )
         }
         composable(
             route = "terminal?profileId={profileId}&sessionId={sessionId}",
             arguments = listOf(
                 navArgument("profileId") { type = NavType.StringType },
-                navArgument("sessionId") { type = NavType.StringType; nullable = true; defaultValue = null }
-            )
+                navArgument("sessionId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+            ),
         ) { backStackEntry ->
             val profileId = backStackEntry.arguments?.getString("profileId") ?: ""
             val sessionId = backStackEntry.arguments?.getString("sessionId")
-            
+
             val activity = LocalContext.current as androidx.activity.ComponentActivity
             val terminalViewModel: com.adamoutler.ssh.ui.screens.TerminalViewModel = androidx.lifecycle.viewmodel.compose.viewModel(activity)
-            
+
             TerminalScreen(
                 profileId = profileId,
                 sessionId = sessionId,
                 terminalViewModel = terminalViewModel,
-                onNavigateBack = { 
+                onNavigateBack = {
                     // Prevent double-pop race condition which causes a black screen
                     // when the terminal is terminated and popBackStack is called twice.
                     if (navController.previousBackStackEntry != null) {
                         navController.popBackStack()
                     }
-                }
+                },
             )
         }
         composable("identityList") {
             IdentityListScreen(
                 onAddIdentity = { navController.navigate("addEditIdentity") },
                 onEditIdentity = { identityId -> navController.navigate("addEditIdentity?identityId=$identityId") },
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
             )
         }
         composable(
             route = "addEditIdentity?identityId={identityId}",
-            arguments = listOf(navArgument("identityId") {
-                type = NavType.StringType
-                nullable = true
-                defaultValue = null
-            })
+            arguments = listOf(
+                navArgument("identityId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+            ),
         ) { backStackEntry ->
             val identityId = backStackEntry.arguments?.getString("identityId")
             AddEditIdentityScreen(
                 identityId = identityId,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
             )
         }
         composable("keyManagement") {
             KeyManagementScreen()
         }
     }
-    
+
     HostKeyPromptDialog()
 }
 
 @Composable
 fun PasswordPromptDialog() {
     val promptRequest by com.adamoutler.ssh.network.ConnectionStateRepository.passwordPromptRequest.collectAsState()
-    
+
     promptRequest?.let { request ->
         val passwordBuffer = androidx.compose.runtime.remember { java.util.concurrent.atomic.AtomicReference(CharArray(0)) }
 
         androidx.compose.material3.AlertDialog(
-            onDismissRequest = { 
+            onDismissRequest = {
                 passwordBuffer.get().fill('\u0000')
-                com.adamoutler.ssh.network.ConnectionStateRepository.resolvePasswordPrompt(null) 
+                com.adamoutler.ssh.network.ConnectionStateRepository.resolvePasswordPrompt(null)
             },
             title = { androidx.compose.material3.Text("Password Required") },
             text = {
@@ -220,7 +228,7 @@ fun PasswordPromptDialog() {
                         onPasswordChanged = {
                             passwordBuffer.get().fill('\u0000')
                             passwordBuffer.set(it)
-                        }
+                        },
                     )
                 }
             },
@@ -240,7 +248,7 @@ fun PasswordPromptDialog() {
                 }) {
                     androidx.compose.material3.Text("Cancel")
                 }
-            }
+            },
         )
     }
 }
@@ -255,53 +263,54 @@ fun HostKeyPromptDialog() {
             title = {
                 androidx.compose.foundation.layout.Row(
                     verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
                 ) {
                     androidx.compose.material3.Icon(
                         imageVector = androidx.compose.material.icons.Icons.Filled.Warning,
                         contentDescription = null,
                         tint = androidx.compose.material3.MaterialTheme.colorScheme.error,
-                        modifier = androidx.compose.ui.Modifier.size(24.dp)
+                        modifier = androidx.compose.ui.Modifier.size(24.dp),
                     )
                     androidx.compose.material3.Text(
                         text = if (request.isKeyChanged) "Security Alert" else "Unknown Host",
-                        style = androidx.compose.material3.MaterialTheme.typography.titleMedium
+                        style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
                     )
                 }
             },
             text = {
                 androidx.compose.foundation.layout.Column(
-                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
                 ) {
                     androidx.compose.material3.Text(
-                        text = if (request.isKeyChanged) 
-                            "Host identification changed! This could be a Man-in-the-Middle attack." 
-                        else 
-                            "Establishing trust with ${request.hostname}",
-                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall
+                        text = if (request.isKeyChanged) {
+                            "Host identification changed! This could be a Man-in-the-Middle attack."
+                        } else {
+                            "Establishing trust with ${request.hostname}"
+                        },
+                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
                     )
-                    
+
                     androidx.compose.foundation.layout.Column(
                         modifier = androidx.compose.ui.Modifier
                             .fillMaxWidth()
                             .background(
                                 androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
-                                androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
+                                androidx.compose.foundation.shape.RoundedCornerShape(4.dp),
                             )
-                            .padding(8.dp)
+                            .padding(8.dp),
                     ) {
                         if (request.expectedFingerprint != null) {
                             androidx.compose.material3.Text(
-                                "Exp: ${request.expectedFingerprint}", 
-                                style = androidx.compose.material3.MaterialTheme.typography.labelSmall, 
-                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                                "Exp: ${request.expectedFingerprint}",
+                                style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                             )
                             androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(4.dp))
                         }
                         androidx.compose.material3.Text(
-                            "Rec: ${request.receivedFingerprint}", 
-                            style = androidx.compose.material3.MaterialTheme.typography.labelSmall, 
-                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                            "Rec: ${request.receivedFingerprint}",
+                            style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                         )
                     }
                 }
@@ -310,11 +319,11 @@ fun HostKeyPromptDialog() {
                 if (request.isKeyChanged) {
                     com.adamoutler.ssh.ui.components.HoldToConfirmButton(
                         onConfirm = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) },
-                        modifier = androidx.compose.ui.Modifier.defaultMinSize(minHeight = 48.dp)
+                        modifier = androidx.compose.ui.Modifier.defaultMinSize(minHeight = 48.dp),
                     )
                 } else {
                     androidx.compose.material3.TextButton(
-                        onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) }
+                        onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) },
                     ) {
                         androidx.compose.material3.Text("Accept")
                     }
@@ -322,11 +331,11 @@ fun HostKeyPromptDialog() {
             },
             dismissButton = {
                 androidx.compose.material3.TextButton(
-                    onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(false) }
+                    onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(false) },
                 ) {
                     androidx.compose.material3.Text("Abort", color = androidx.compose.material3.MaterialTheme.colorScheme.error)
                 }
-            }
+            },
         )
     }
 }

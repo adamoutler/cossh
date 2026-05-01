@@ -5,26 +5,23 @@ import android.content.Intent
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
+import com.adamoutler.ssh.annotations.FullTest
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
-import com.adamoutler.ssh.network.SshSessionProvider
 import com.adamoutler.ssh.network.SshService
+import com.adamoutler.ssh.network.SshSessionProvider
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import com.adamoutler.ssh.annotations.FullTest
 import java.io.File
 import java.security.MessageDigest
-import org.junit.experimental.categories.Category
 
 /**
  * # DeterministicMultiTurnTest — The Golden Path E2E Verification
@@ -113,11 +110,11 @@ class DeterministicMultiTurnTest {
         private const val MOCK_PASS = "password"
 
         /** Timing constants (milliseconds) */
-        private const val INTER_COMMAND_DELAY_MS = 1500L  // Server rate-limits to 1/s; add buffer
-        private const val CONNECTION_TIMEOUT_S = 20        // Max seconds to wait for SSH connection
-        private const val MOTD_WAIT_MS = 3000L             // Wait for welcome message to render
-        private const val POST_EXIT_WAIT_MS = 2000L        // Wait for Goodbye to render
-        private const val FINAL_RENDER_WAIT_MS = 2000L     // Wait for final frame before screenshot
+        private const val INTER_COMMAND_DELAY_MS = 1500L // Server rate-limits to 1/s; add buffer
+        private const val CONNECTION_TIMEOUT_S = 20 // Max seconds to wait for SSH connection
+        private const val MOTD_WAIT_MS = 3000L // Wait for welcome message to render
+        private const val POST_EXIT_WAIT_MS = 2000L // Wait for Goodbye to render
+        private const val FINAL_RENDER_WAIT_MS = 2000L // Wait for final frame before screenshot
 
         /** Alphanumeric character pool for pseudorandom payload generation */
         private const val ALPHANUM = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -127,7 +124,7 @@ class DeterministicMultiTurnTest {
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
         android.Manifest.permission.POST_NOTIFICATIONS,
         android.Manifest.permission.FOREGROUND_SERVICE,
-        android.Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE
+        android.Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE,
     )
 
     // ──────────────────────────────────────────────────────────────────────
@@ -159,10 +156,14 @@ class DeterministicMultiTurnTest {
     private fun buildPayloadSequence(): List<Pair<String, String>> {
         val rng = java.util.Random(PRNG_SEED)
         val payloads = listOf(
-            "a",                            // Single character baseline
-            "bbb",                          // Multi-character
-            randomAlphanumeric(rng, 8),     // 8-char pseudorandom
-            randomAlphanumeric(rng, 16)     // 16-char pseudorandom
+            // Single character baseline
+            "a",
+            // Multi-character
+            "bbb",
+            // 8-char pseudorandom
+            randomAlphanumeric(rng, 8),
+            // 16-char pseudorandom
+            randomAlphanumeric(rng, 16),
         )
 
         return payloads.mapIndexed { index, payload ->
@@ -226,7 +227,7 @@ class DeterministicMultiTurnTest {
                 host = MOCK_HOST,
                 username = MOCK_USER,
                 authType = AuthType.PASSWORD,
-                port = MOCK_PORT
+                port = MOCK_PORT,
             )
             profile.password = MOCK_PASS.toByteArray()
             storageManager.saveProfile(profile)
@@ -249,7 +250,7 @@ class DeterministicMultiTurnTest {
                     // Try scrolling to find it
                     try {
                         val scrollable = androidx.test.uiautomator.UiScrollable(
-                            UiSelector().scrollable(true)
+                            UiSelector().scrollable(true),
                         )
                         scrollable.scrollTextIntoView("E2E Deterministic Test")
                     } catch (e: Exception) {
@@ -259,8 +260,8 @@ class DeterministicMultiTurnTest {
                 }
                 assertTrue(
                     "Profile 'E2E Deterministic Test' must be visible on screen. " +
-                    "Check that the app launched correctly and the connection list is shown.",
-                    profileNode.exists()
+                        "Check that the app launched correctly and the connection list is shown.",
+                    profileNode.exists(),
                 )
 
                 // Tap the profile row to initiate connection
@@ -291,8 +292,8 @@ class DeterministicMultiTurnTest {
                 }
                 assertTrue(
                     "SSH connection to $MOCK_HOST:$MOCK_PORT must be established within " +
-                    "${CONNECTION_TIMEOUT_S}s. Check network connectivity and mock server status.",
-                    connected
+                        "${CONNECTION_TIMEOUT_S}s. Check network connectivity and mock server status.",
+                    connected,
                 )
                 println("✓ SSH connection established")
 
@@ -335,20 +336,20 @@ class DeterministicMultiTurnTest {
                     verificationResults.add("CMD $cmdNum ($payload): $status")
                     assertTrue(
                         "CMD $cmdNum: Expected terminal to contain:\n" +
-                        "  \"$expectedResponse\"\n" +
-                        "but the terminal screen buffer did not contain this text.\n" +
-                        "Screen content (non-blank lines):\n" +
-                        screenContent.lines()
-                            .filter { it.isNotBlank() }
-                            .joinToString("\n") { "  │ $it" },
-                        found
+                            "  \"$expectedResponse\"\n" +
+                            "but the terminal screen buffer did not contain this text.\n" +
+                            "Screen content (non-blank lines):\n" +
+                            screenContent.lines()
+                                .filter { it.isNotBlank() }
+                                .joinToString("\n") { "  │ $it" },
+                        found,
                     )
                 }
 
                 // ── KEYBOARD TOGGLE & RAPID FIRE TEST ──
                 println("→ Capturing pre-keyboard screenshot")
                 device.takeScreenshot(File(context.filesDir, "pre_keyboard.png"))
-                
+
                 println("→ Tapping screen to toggle keyboard on")
                 device.click(device.displayWidth / 2, device.displayHeight / 2)
                 Thread.sleep(1500)
@@ -386,7 +387,7 @@ class DeterministicMultiTurnTest {
                         device.displayHeight / 4,
                         device.displayWidth / 2,
                         device.displayHeight * 3 / 4,
-                        10
+                        10,
                     )
                     Thread.sleep(500)
                 }
@@ -401,8 +402,8 @@ class DeterministicMultiTurnTest {
                 SshSessionProvider.ptyOutputStream?.write("exit\n".toByteArray())
                 SshSessionProvider.ptyOutputStream?.flush()
                 println("→ Sent: exit")
-                
-                // We don't verify "Goodbye" visually because the session disconnects 
+
+                // We don't verify "Goodbye" visually because the session disconnects
                 // and the PTY buffer is destroyed instantly, which we WANT to happen!
                 Thread.sleep(1000)
                 println("✓ Sent exit command — session terminating")
@@ -411,13 +412,13 @@ class DeterministicMultiTurnTest {
                 Thread.sleep(FINAL_RENDER_WAIT_MS)
                 val screenshotFile = File(
                     context.getExternalFilesDir(null),
-                    "deterministic_e2e_screenshot.png"
+                    "deterministic_e2e_screenshot.png",
                 )
                 if (screenshotFile.exists()) screenshotFile.delete()
                 device.takeScreenshot(screenshotFile)
                 assertTrue(
                     "Screenshot must be captured to ${screenshotFile.absolutePath}",
-                    screenshotFile.exists()
+                    screenshotFile.exists(),
                 )
                 println("📸 Screenshot saved: ${screenshotFile.absolutePath}")
 
@@ -431,7 +432,6 @@ class DeterministicMultiTurnTest {
                 println("═══════════════════════════════════════════════════════════════")
                 println("  ALL ${payloadSequence.size} PAYLOADS VERIFIED ✓")
                 println("═══════════════════════════════════════════════════════════════")
-
             } finally {
                 // ── CLEANUP: Always clean up, even on failure ──
                 storageManager.deleteProfile(profileId)
@@ -451,10 +451,10 @@ class DeterministicMultiTurnTest {
      */
     private fun dismissCompatibilityDialogs(device: UiDevice) {
         val textOkButton = device.findObject(
-            UiSelector().textMatches("(?i)ok|continue|got it|close")
+            UiSelector().textMatches("(?i)ok|continue|got it|close"),
         )
         val resOkButton = device.findObject(
-            UiSelector().resourceId("android:id/button1")
+            UiSelector().resourceId("android:id/button1"),
         )
 
         if (textOkButton.waitForExists(1500)) {
@@ -464,7 +464,7 @@ class DeterministicMultiTurnTest {
             resOkButton.click()
             device.waitForIdle()
         } else if (device.findObject(
-                UiSelector().textContains("Android App Compatibility")
+                UiSelector().textContains("Android App Compatibility"),
             ).exists()
         ) {
             device.pressBack()

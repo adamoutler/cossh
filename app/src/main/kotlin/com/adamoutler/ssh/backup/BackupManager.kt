@@ -2,13 +2,13 @@ package com.adamoutler.ssh.backup
 
 import android.content.Context
 import android.net.Uri
-import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.crypto.IdentityStorageManager
+import com.adamoutler.ssh.crypto.SecurityStorageManager
 
 class BackupManager(
     private val context: Context,
     private val securityStorageManager: SecurityStorageManager,
-    private val identityStorageManager: IdentityStorageManager
+    private val identityStorageManager: IdentityStorageManager,
 ) {
 
     fun exportBackup(uri: Uri, password: CharArray) {

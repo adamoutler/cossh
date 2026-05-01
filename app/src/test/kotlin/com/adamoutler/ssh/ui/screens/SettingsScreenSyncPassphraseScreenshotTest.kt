@@ -1,24 +1,23 @@
 package com.adamoutler.ssh.ui.screens
 
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig.Companion.PIXEL_5
 import app.cash.paparazzi.Paparazzi
 import org.junit.Rule
 import org.junit.Test
-import org.robolectric.annotation.Config
 
 class SettingsScreenSyncPassphraseScreenshotTest {
 
     @get:Rule
     val paparazzi = Paparazzi(
         deviceConfig = PIXEL_5,
-        theme = "android:Theme.Material.Light.NoActionBar"
+        theme = "android:Theme.Material.Light.NoActionBar",
     )
 
     @Test
@@ -35,7 +34,7 @@ class SettingsScreenSyncPassphraseScreenshotTest {
                         onPurchaseCloudSync = {},
                         onAuthenticateGoogle = {},
                         onResetPassphrase = {},
-                        onNavigateBack = {}
+                        onNavigateBack = {},
                     )
                     // The easiest way to force the dialog in a screenshot test without mocking the parent state
                     // is to just render the AlertDialog directly over the surface.
@@ -52,7 +51,7 @@ class SettingsScreenSyncPassphraseScreenshotTest {
                                     onValueChange = { },
                                     label = { androidx.compose.material3.Text("Passphrase") },
                                     singleLine = true,
-                                    modifier = androidx.compose.ui.Modifier.fillMaxWidth()
+                                    modifier = androidx.compose.ui.Modifier.fillMaxWidth(),
                                 )
                             }
                         },
@@ -65,7 +64,7 @@ class SettingsScreenSyncPassphraseScreenshotTest {
                             androidx.compose.material3.TextButton(onClick = { }) {
                                 androidx.compose.material3.Text("Cancel")
                             }
-                        }
+                        },
                     )
                 }
             }

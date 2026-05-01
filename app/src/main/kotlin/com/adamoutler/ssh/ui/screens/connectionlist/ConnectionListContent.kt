@@ -13,11 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.ui.screens.connectionlist.components.ConnectionListTopBar
-import com.adamoutler.ssh.ui.screens.connectionlist.components.GroupedConnectionList
-import com.adamoutler.ssh.ui.screens.connectionlist.components.SearchBar
-import com.adamoutler.ssh.ui.screens.connectionlist.components.MoveToFolderBottomSheet
-
 import com.adamoutler.ssh.ui.screens.connectionlist.components.DraggableConnectionList
+import com.adamoutler.ssh.ui.screens.connectionlist.components.GroupedConnectionList
+import com.adamoutler.ssh.ui.screens.connectionlist.components.MoveToFolderBottomSheet
+import com.adamoutler.ssh.ui.screens.connectionlist.components.SearchBar
 
 @Composable
 fun ConnectionListContent(
@@ -38,7 +37,7 @@ fun ConnectionListContent(
     onManageIdentitiesRequested: () -> Unit = {},
     initialMenuExpanded: Boolean = false,
     isReorderingPreview: Boolean = false,
-    defaultGroupName: String = com.adamoutler.ssh.crypto.SettingsManager(androidx.compose.ui.platform.LocalContext.current).defaultGroupName
+    defaultGroupName: String = com.adamoutler.ssh.crypto.SettingsManager(androidx.compose.ui.platform.LocalContext.current).defaultGroupName,
 ) {
     var profileIdMovingToFolder by remember { mutableStateOf<String?>(null) }
     var isReordering by remember { mutableStateOf(isReorderingPreview) }
@@ -53,7 +52,7 @@ fun ConnectionListContent(
                 onReorderRequested = { isReordering = true },
                 onReorderDone = { isReordering = false },
                 isReordering = isReordering,
-                initialMenuExpanded = initialMenuExpanded
+                initialMenuExpanded = initialMenuExpanded,
             )
         },
         floatingActionButton = {
@@ -62,18 +61,18 @@ fun ConnectionListContent(
                     Icon(Icons.Filled.Add, contentDescription = "Add Connection")
                 }
             }
-        }
+        },
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(padding),
         ) {
             if (!isReordering) {
                 SearchBar(
                     searchQuery = searchQuery,
                     onSearchQueryChange = onSearchQueryChange,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
                 )
 
                 GroupedConnectionList(
@@ -83,7 +82,7 @@ fun ConnectionListContent(
                     onEditConnection = onEditConnection,
                     onDeleteConnection = onDeleteConnection,
                     onMoveToFolder = { profileId -> profileIdMovingToFolder = profileId },
-                    defaultGroupName = defaultGroupName
+                    defaultGroupName = defaultGroupName,
                 )
             } else {
                 DraggableConnectionList(
@@ -91,7 +90,7 @@ fun ConnectionListContent(
                     activeConnectionCounts = activeConnectionCounts,
                     onMoveProfile = onMoveProfile,
                     onConnect = {}, // disable connecting while reordering
-                    onEditConnection = {} // disable editing while reordering
+                    onEditConnection = {}, // disable editing while reordering
                 )
             }
         }
@@ -105,7 +104,7 @@ fun ConnectionListContent(
                 onMoveToFolder(profileIdMovingToFolder!!, folderId)
                 profileIdMovingToFolder = null
             },
-            onDismiss = { profileIdMovingToFolder = null }
+            onDismiss = { profileIdMovingToFolder = null },
         )
     }
 }

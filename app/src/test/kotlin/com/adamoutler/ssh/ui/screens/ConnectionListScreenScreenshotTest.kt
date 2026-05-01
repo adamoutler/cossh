@@ -1,27 +1,27 @@
 package com.adamoutler.ssh.ui.screens
 
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
-import com.adamoutler.ssh.ui.theme.CoSSHTheme
-import com.adamoutler.ssh.data.ConnectionProfile
-import com.adamoutler.ssh.data.AuthType
-import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
-import com.adamoutler.ssh.ui.screens.connectionlist.components.ConnectionItem
-import org.junit.Rule
-import org.junit.Test
-import androidx.compose.material3.Surface
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.padding
+import app.cash.paparazzi.DeviceConfig
+import app.cash.paparazzi.Paparazzi
+import com.adamoutler.ssh.data.AuthType
+import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
+import com.adamoutler.ssh.ui.screens.connectionlist.components.ConnectionItem
+import com.adamoutler.ssh.ui.theme.CoSSHTheme
+import org.junit.Rule
+import org.junit.Test
 
 class ConnectionListScreenScreenshotTest {
 
     @get:Rule
     val paparazzi = Paparazzi(
         deviceConfig = DeviceConfig.PIXEL_5,
-        theme = "android:Theme.Material.Light.NoActionBar"
+        theme = "android:Theme.Material.Light.NoActionBar",
     )
 
     @Test
@@ -34,7 +34,7 @@ class ConnectionListScreenScreenshotTest {
                 port = 22,
                 username = "admin",
                 authType = AuthType.KEY,
-                sshKeyPasswordReferenceId = "mock-key-1"
+                sshKeyPasswordReferenceId = "mock-key-1",
             ),
             ConnectionProfile(
                 id = "2",
@@ -42,7 +42,7 @@ class ConnectionListScreenScreenshotTest {
                 host = "staging.example.com",
                 port = 2222,
                 username = "dev",
-                authType = AuthType.PASSWORD
+                authType = AuthType.PASSWORD,
             ),
             ConnectionProfile(
                 id = "3",
@@ -52,14 +52,14 @@ class ConnectionListScreenScreenshotTest {
                 username = "admin",
                 authType = AuthType.PASSWORD,
                 protocol = com.adamoutler.ssh.data.Protocol.TELNET,
-                password = "password".toByteArray()
-            )
+                password = "password".toByteArray(),
+            ),
         )
         paparazzi.snapshot {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
@@ -69,7 +69,7 @@ class ConnectionListScreenScreenshotTest {
                         onAddConnection = {},
                         onEditConnection = {},
                         onDeleteConnection = {},
-                        onConnect = {}
+                        onConnect = {},
                     )
                 }
             }
@@ -86,14 +86,14 @@ class ConnectionListScreenScreenshotTest {
                 port = 22,
                 username = "admin",
                 authType = AuthType.KEY,
-                sshKeyPasswordReferenceId = "mock-key-1"
-            )
+                sshKeyPasswordReferenceId = "mock-key-1",
+            ),
         )
         paparazzi.snapshot {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
@@ -104,7 +104,7 @@ class ConnectionListScreenScreenshotTest {
                         onEditConnection = {},
                         onDeleteConnection = {},
                         onConnect = {},
-                        initialMenuExpanded = true
+                        initialMenuExpanded = true,
                     )
                 }
             }
@@ -120,20 +120,20 @@ class ConnectionListScreenScreenshotTest {
             port = 22,
             username = "root",
             authType = AuthType.PASSWORD,
-            password = "password".toByteArray()
+            password = "password".toByteArray(),
         )
         paparazzi.snapshot {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     androidx.compose.foundation.layout.Box(modifier = Modifier.padding(16.dp)) {
                         ConnectionItem(
                             profile = mockProfile,
                             elevation = 8.dp,
                             onClick = {},
-                            onEdit = {}
+                            onEdit = {},
                         )
                     }
                 }
@@ -151,14 +151,14 @@ class ConnectionListScreenScreenshotTest {
                 port = 22,
                 username = "admin",
                 authType = AuthType.KEY,
-                sshKeyPasswordReferenceId = "mock-key-1"
-            )
+                sshKeyPasswordReferenceId = "mock-key-1",
+            ),
         )
         paparazzi.snapshot {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
@@ -169,7 +169,7 @@ class ConnectionListScreenScreenshotTest {
                         onAddConnection = {},
                         onEditConnection = {},
                         onDeleteConnection = {},
-                        onConnect = {}
+                        onConnect = {},
                     )
                 }
             }
@@ -187,14 +187,14 @@ class ConnectionListScreenScreenshotTest {
                 username = "admin",
                 authType = AuthType.KEY,
                 sshKeyPasswordReferenceId = "mock-key-1",
-                folderId = null // Explicitly uncategorized
-            )
+                folderId = null, // Explicitly uncategorized
+            ),
         )
         paparazzi.snapshot {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
@@ -205,7 +205,7 @@ class ConnectionListScreenScreenshotTest {
                         onEditConnection = {},
                         onDeleteConnection = {},
                         onConnect = {},
-                        defaultGroupName = "My Custom Group"
+                        defaultGroupName = "My Custom Group",
                     )
                 }
             }
@@ -222,7 +222,7 @@ class ConnectionListScreenScreenshotTest {
                 port = 22,
                 username = "admin",
                 authType = AuthType.KEY,
-                sshKeyPasswordReferenceId = "mock-key-1"
+                sshKeyPasswordReferenceId = "mock-key-1",
             ),
             ConnectionProfile(
                 id = "2",
@@ -230,14 +230,14 @@ class ConnectionListScreenScreenshotTest {
                 host = "staging.example.com",
                 port = 2222,
                 username = "dev",
-                authType = AuthType.PASSWORD
-            )
+                authType = AuthType.PASSWORD,
+            ),
         )
         paparazzi.snapshot {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
@@ -248,7 +248,7 @@ class ConnectionListScreenScreenshotTest {
                         onEditConnection = {},
                         onDeleteConnection = {},
                         onConnect = {},
-                        isReorderingPreview = true
+                        isReorderingPreview = true,
                     )
                 }
             }

@@ -25,15 +25,15 @@ class ConnectionListViewModelDragDropTest {
     fun setup() {
         val app = ApplicationProvider.getApplicationContext<Application>()
         storageManager = SecurityStorageManager(app, app.getSharedPreferences("test_prefs_drag_drop", 0))
-        
+
         val p1 = ConnectionProfile("id1", "Nick1", "host1", username = "u1", authType = AuthType.PASSWORD, sortOrder = 0)
         val p2 = ConnectionProfile("id2", "Nick2", "host2", username = "u2", authType = AuthType.PASSWORD, sortOrder = 1)
         val p3 = ConnectionProfile("id3", "Nick3", "host3", username = "u3", authType = AuthType.PASSWORD, sortOrder = 2)
-        
+
         storageManager.saveProfile(p1)
         storageManager.saveProfile(p2)
         storageManager.saveProfile(p3)
-        
+
         viewModel = ConnectionListViewModel(app, storageManager, BackupManager(app, storageManager, com.adamoutler.ssh.crypto.IdentityStorageManager(app)))
     }
 
@@ -51,15 +51,15 @@ class ConnectionListViewModelDragDropTest {
 
         // Drag profile index 0 to index 1
         viewModel.moveProfile(0, 1)
-        
+
         // Give coroutines time to launch and save
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
         Thread.sleep(100)
-        
+
         // Let's reload a brand new view model to prove storage persistency
         val app = ApplicationProvider.getApplicationContext<Application>()
         val newViewModel = ConnectionListViewModel(app, storageManager, BackupManager(app, storageManager, com.adamoutler.ssh.crypto.IdentityStorageManager(app)))
-        
+
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
         Thread.sleep(100)
 
@@ -67,7 +67,7 @@ class ConnectionListViewModelDragDropTest {
         assertEquals("id2", newViewModel.profiles.value[0].id)
         assertEquals("id1", newViewModel.profiles.value[1].id)
         assertEquals("id3", newViewModel.profiles.value[2].id)
-        
+
         println("SUCCESS: Reorder correctly preserved across reloads")
     }
 }

@@ -3,16 +3,16 @@ package com.adamoutler.ssh.sync
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.adamoutler.ssh.backup.BackupCryptoManager
 import com.adamoutler.ssh.billing.BillingManager
 import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.crypto.SecurityStorageManager
-import com.adamoutler.ssh.backup.BackupCryptoManager
 import kotlinx.coroutines.flow.first
 import java.io.ByteArrayOutputStream
 
 class SyncWorker(
     appContext: Context,
-    workerParams: WorkerParameters
+    workerParams: WorkerParameters,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -32,16 +32,16 @@ class SyncWorker(
 
             val profiles = securityStorageManager.getAllProfiles()
             val identities = identityStorageManager.getAllIdentities()
-            
+
             val outputStream = ByteArrayOutputStream()
             BackupCryptoManager.exportProfilesToZip(profiles, identities, pass, outputStream)
             val payload = outputStream.toByteArray()
 
             driveSyncManager.uploadBackup(payload, pass)
-            
+
             // Scrub password array after use per security guidelines
             pass.fill('\u0000')
-            
+
             Result.success()
         } catch (e: Exception) {
             Result.retry()

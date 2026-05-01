@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 fun SearchBar(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     OutlinedTextField(
         value = searchQuery,
@@ -21,6 +21,6 @@ fun SearchBar(
         modifier = modifier.fillMaxWidth(),
         placeholder = { Text("Search connections...") },
         leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Search") },
-        singleLine = true
+        singleLine = true,
     )
 }

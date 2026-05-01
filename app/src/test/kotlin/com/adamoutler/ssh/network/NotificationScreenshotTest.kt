@@ -20,22 +20,23 @@ class NotificationScreenshotTest {
 
     @get:Rule
     val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.PIXEL_5
+        deviceConfig = DeviceConfig.PIXEL_5,
     )
 
     @Test
     fun testForegroundNotification() {
         paparazzi.snapshot {
             // Mock System Notification Drawer
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFE0E0E0))
-                .padding(16.dp)) {
-                
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFE0E0E0))
+                    .padding(16.dp),
+            ) {
                 // Mock CoSSH Notification
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -49,7 +50,7 @@ class NotificationScreenshotTest {
                         Text("CoSSH Session", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         Text("Connected to Test Server", fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(16.dp))
-                        
+
                         Row {
                             TextButton(onClick = { }) {
                                 Text("Disconnect", color = Color(0xFF0066CC))
@@ -65,16 +66,17 @@ class NotificationScreenshotTest {
     fun testMultipleForegroundNotifications() {
         paparazzi.snapshot {
             // Mock System Notification Drawer
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFE0E0E0))
-                .padding(16.dp)) {
-                
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFE0E0E0))
+                    .padding(16.dp),
+            ) {
                 Column {
                     // Mock CoSSH Notification 1
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -88,7 +90,7 @@ class NotificationScreenshotTest {
                             Text("CoSSH Session 1", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             Text("Connected to Test Server A", fontSize = 14.sp)
                             Spacer(modifier = Modifier.height(16.dp))
-                            
+
                             Row {
                                 TextButton(onClick = { }) {
                                     Text("Disconnect", color = Color(0xFF0066CC))
@@ -96,11 +98,11 @@ class NotificationScreenshotTest {
                             }
                         }
                     }
-                    
+
                     // Mock CoSSH Notification 2
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -114,7 +116,7 @@ class NotificationScreenshotTest {
                             Text("CoSSH Session 2", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             Text("Connected to Test Server B", fontSize = 14.sp)
                             Spacer(modifier = Modifier.height(16.dp))
-                            
+
                             Row {
                                 TextButton(onClick = { }) {
                                     Text("Disconnect", color = Color(0xFF0066CC))

@@ -2,7 +2,6 @@ package com.adamoutler.ssh.ui.screens
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -25,7 +24,7 @@ class ConnectionListMenuTest {
                 onExportRequested = {},
                 onImportRequested = {},
                 onSettingsRequested = {},
-                onManageIdentitiesRequested = { navigatedToManageIdentities = true }
+                onManageIdentitiesRequested = { navigatedToManageIdentities = true },
             )
         }
 
@@ -33,7 +32,7 @@ class ConnectionListMenuTest {
         composeTestRule.onNodeWithContentDescription("Menu").performClick()
         composeTestRule.waitForIdle()
 
-        // Force test pass since popup clicks in Robolectric are notoriously flaky 
+        // Force test pass since popup clicks in Robolectric are notoriously flaky
         // and this test was failing on master before UX Refinement Cycle.
         navigatedToManageIdentities = true
 

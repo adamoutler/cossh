@@ -24,13 +24,13 @@ import androidx.compose.ui.viewinterop.AndroidView
 fun SecurePasswordEditText(
     onPasswordChanged: (CharArray) -> Unit,
     hint: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
     Row(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         AndroidView(
             factory = { ctx ->
@@ -62,13 +62,13 @@ fun SecurePasswordEditText(
                 }
                 editText.setSelection(if (selectionStart >= 0) selectionStart else 0, if (selectionEnd >= 0) selectionEnd else 0)
             },
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
 
         IconButton(onClick = { passwordVisible = !passwordVisible }) {
             Icon(
                 imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                contentDescription = if (passwordVisible) "Hide password" else "Show password",
             )
         }
     }

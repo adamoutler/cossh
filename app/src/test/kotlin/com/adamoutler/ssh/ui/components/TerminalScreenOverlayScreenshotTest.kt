@@ -15,7 +15,7 @@ class TerminalScreenOverlayScreenshotTest {
     @get:Rule
     val paparazzi = Paparazzi(
         deviceConfig = PIXEL_5,
-        theme = "android:Theme.Material.Light.NoActionBar"
+        theme = "android:Theme.Material.Light.NoActionBar",
     )
 
     @Test
@@ -25,7 +25,7 @@ class TerminalScreenOverlayScreenshotTest {
                 TerminalOverlayButtons(
                     onBackground = {},
                     onTerminate = {},
-                    profile = null
+                    profile = null,
                 )
             }
         }
@@ -42,8 +42,8 @@ class TerminalScreenOverlayScreenshotTest {
                         id = "1",
                         nickname = "Telnet Server",
                         host = "mock.hackedyour.info",
-                        protocol = com.adamoutler.ssh.data.Protocol.TELNET
-                    )
+                        protocol = com.adamoutler.ssh.data.Protocol.TELNET,
+                    ),
                 )
             }
         }

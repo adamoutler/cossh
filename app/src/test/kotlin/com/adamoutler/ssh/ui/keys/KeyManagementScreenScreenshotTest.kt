@@ -11,7 +11,7 @@ class KeyManagementScreenScreenshotTest {
     @get:Rule
     val paparazzi = Paparazzi(
         deviceConfig = DeviceConfig.PIXEL_5,
-        theme = "android:Theme.Material.Light.NoActionBar"
+        theme = "android:Theme.Material.Light.NoActionBar",
     )
 
     @Test
@@ -29,8 +29,8 @@ class KeyManagementScreenScreenshotTest {
             SshKeyDisplay(
                 id = "key-1",
                 algorithm = "Ed25519",
-                publicKeyBase64 = "AAAAC3NzaC1lZDI1NTE5AAAAIJGzP736vWqH6WbO0D9Z3Y5P5xZ1mP6B6+N4r5v8fR"
-            )
+                publicKeyBase64 = "AAAAC3NzaC1lZDI1NTE5AAAAIJGzP736vWqH6WbO0D9Z3Y5P5xZ1mP6B6+N4r5v8fR",
+            ),
         )
         paparazzi.snapshot {
             CoSSHTheme {

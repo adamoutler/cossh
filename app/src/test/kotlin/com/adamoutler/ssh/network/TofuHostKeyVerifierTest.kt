@@ -1,10 +1,9 @@
 package com.adamoutler.ssh.network
 
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.After
-import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.io.File
@@ -53,7 +52,7 @@ class TofuHostKeyVerifierTest {
         // 1. Initial connection with Key A
         val keyA = generateKey()
         logFile.appendText("Initial connection with Key A...\n")
-        
+
         // In a real scenario, runBlocking would block until deferred is resolved. We just pre-resolve it.
         Thread {
             while (ConnectionStateRepository.promptRequest.value == null) {
@@ -70,7 +69,7 @@ class TofuHostKeyVerifierTest {
         // 2. Subsequent connection with Key B (MITM / Changed Key)
         val keyB = generateKey()
         logFile.appendText("\nDetecting changed host key! MITM Warning triggered...\n")
-        
+
         // User clicks "Hold to Accept Risk"
         Thread {
             while (ConnectionStateRepository.promptRequest.value == null) {

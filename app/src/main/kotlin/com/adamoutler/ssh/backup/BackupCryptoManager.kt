@@ -26,7 +26,7 @@ data class BackupPayload(
     val profilePasswords: Map<String, String>,
     val identities: List<IdentityProfile> = emptyList(),
     val identityPasswords: Map<String, String> = emptyMap(),
-    val identityPrivateKeys: Map<String, String> = emptyMap()
+    val identityPrivateKeys: Map<String, String> = emptyMap(),
 )
 
 object BackupCryptoManager {
@@ -40,7 +40,7 @@ object BackupCryptoManager {
         profiles: List<ConnectionProfile>,
         identities: List<IdentityProfile>,
         password: CharArray,
-        outputStream: OutputStream
+        outputStream: OutputStream,
     ) {
         val passwordsMap = mutableMapOf<String, String>()
         for (profile in profiles) {
@@ -48,7 +48,7 @@ object BackupCryptoManager {
                 passwordsMap[profile.id] = Base64.getEncoder().encodeToString(pwdBytes)
             }
         }
-        
+
         val identityPasswordsMap = mutableMapOf<String, String>()
         val identityPrivateKeysMap = mutableMapOf<String, String>()
         for (identity in identities) {
@@ -59,16 +59,16 @@ object BackupCryptoManager {
                 identityPrivateKeysMap[identity.id] = Base64.getEncoder().encodeToString(it)
             }
         }
-        
+
         val payload = BackupPayload(
             version = 2,
-            profiles = profiles, 
+            profiles = profiles,
             profilePasswords = passwordsMap,
             identities = identities,
             identityPasswords = identityPasswordsMap,
-            identityPrivateKeys = identityPrivateKeysMap
+            identityPrivateKeys = identityPrivateKeysMap,
         )
-        
+
         val jsonString = Json.encodeToString(payload)
         val plainTextBytes = jsonString.toByteArray(Charsets.UTF_8)
 
@@ -137,7 +137,7 @@ object BackupCryptoManager {
         val jsonString = String(plainTextBytes, Charsets.UTF_8)
 
         val payload = Json { ignoreUnknownKeys = true }.decodeFromString<BackupPayload>(jsonString)
-        
+
         for (profile in payload.profiles) {
             payload.profilePasswords[profile.id]?.let { pwdStr ->
                 profile.password = Base64.getDecoder().decode(pwdStr)
@@ -151,7 +151,7 @@ object BackupCryptoManager {
                 identity.privateKey = Base64.getDecoder().decode(pkStr)
             }
         }
-        
+
         return Pair(payload.profiles, payload.identities)
     }
 }

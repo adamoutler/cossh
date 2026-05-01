@@ -32,12 +32,11 @@ class UserJourneyIntegrationTest {
     fun testUserJourney_AddProfileAndSeeInList() {
         // 1. App starts on Connection List (empty initially)
 
-
         settleUI()
 
         // 2. Click Add button and fill form
         composeTestRule.onNodeWithContentDescription("Add Connection").performClick()
-        
+
         settleUI()
 
         composeTestRule.onNodeWithTag("NicknameInput").performTextInput("My Test Server")
@@ -49,7 +48,7 @@ class UserJourneyIntegrationTest {
 
         // 3. Save the profile
         composeTestRule.onNodeWithContentDescription("Save Profile").performClick()
-        
+
         settleUI()
 
         // 4. Verify we are back on the Connection List and the profile exists
@@ -60,8 +59,6 @@ class UserJourneyIntegrationTest {
 
     @Test
     fun testUserJourney_ConnectionResumeAndConcurrentSessions() {
-
-
         settleUI()
 
         composeTestRule.onNodeWithContentDescription("Add Connection").performClick()
@@ -82,7 +79,7 @@ class UserJourneyIntegrationTest {
 
         // 9. Go back
         // (Skipped UI interactions in Robolectric for brevity, see Paparazzi for full UI proof)
-        
+
         // Manually update ConnectionStateRepository since SshService is async in Robolectric
         val profileId = kotlinx.coroutines.runBlocking { com.adamoutler.ssh.crypto.SecurityStorageManager(androidx.test.core.app.ApplicationProvider.getApplicationContext()).getAllProfiles().firstOrNull { it.host == "10.0.0.2" }?.id ?: "unknown" }
         ConnectionStateRepository.addConnection(profileId)

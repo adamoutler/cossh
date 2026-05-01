@@ -1,6 +1,8 @@
 package com.adamoutler.ssh.ui.theme
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -15,9 +17,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-import android.content.Context
-import android.content.ContextWrapper
-
 tailrec fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this
     is ContextWrapper -> baseContext.findActivity()
@@ -29,7 +28,7 @@ private val DarkColorScheme = darkColorScheme(
     secondary = CobaltBlueGrey80,
     tertiary = CobaltBlueAccent80,
     primaryContainer = CobaltBlue40,
-    onPrimaryContainer = androidx.compose.ui.graphics.Color.White
+    onPrimaryContainer = androidx.compose.ui.graphics.Color.White,
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -37,7 +36,7 @@ private val LightColorScheme = lightColorScheme(
     secondary = CobaltBlueGrey40,
     tertiary = CobaltBlueAccent40,
     primaryContainer = CobaltBlue40,
-    onPrimaryContainer = androidx.compose.ui.graphics.Color.White
+    onPrimaryContainer = androidx.compose.ui.graphics.Color.White,
 )
 
 @Composable
@@ -45,7 +44,7 @@ fun CoSSHTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -69,6 +68,6 @@ fun CoSSHTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
-        content = content
+        content = content,
     )
 }

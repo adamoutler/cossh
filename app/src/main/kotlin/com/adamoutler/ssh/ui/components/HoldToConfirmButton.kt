@@ -38,7 +38,7 @@ fun HoldToConfirmButton(
     durationMillis: Int = 1500,
     text: String = "Hold to Accept Risk",
     baseColor: Color = MaterialTheme.colorScheme.errorContainer,
-    fillColor: Color = MaterialTheme.colorScheme.error
+    fillColor: Color = MaterialTheme.colorScheme.error,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val progress = remember { Animatable(0f) }
@@ -62,7 +62,7 @@ fun HoldToConfirmButton(
                 if (progress.value > 0f) {
                     drawRect(
                         color = fillColor,
-                        size = size.copy(width = size.width * progress.value)
+                        size = size.copy(width = size.width * progress.value),
                     )
                 }
             }
@@ -70,11 +70,11 @@ fun HoldToConfirmButton(
                 awaitEachGesture {
                     awaitFirstDown()
                     if (isConfirmed) return@awaitEachGesture
-                    
+
                     val job = coroutineScope.launch {
                         progress.animateTo(
                             targetValue = 1f,
-                            animationSpec = tween(durationMillis, easing = LinearEasing)
+                            animationSpec = tween(durationMillis, easing = LinearEasing),
                         )
                     }
 
@@ -89,13 +89,13 @@ fun HoldToConfirmButton(
                         coroutineScope.launch {
                             progress.animateTo(
                                 targetValue = 0f,
-                                animationSpec = tween(300, easing = LinearEasing)
+                                animationSpec = tween(300, easing = LinearEasing),
                             )
                         }
                     }
                 }
             },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         // The text on top
         Text(
@@ -103,7 +103,7 @@ fun HoldToConfirmButton(
             color = MaterialTheme.colorScheme.onErrorContainer,
             modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
             style = MaterialTheme.typography.labelLarge,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }

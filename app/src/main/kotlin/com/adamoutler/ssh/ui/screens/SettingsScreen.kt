@@ -9,22 +9,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import com.adamoutler.ssh.billing.BillingManager
-import com.adamoutler.ssh.crypto.SettingsManager
-import com.adamoutler.ssh.crypto.SecurityStorageManager
-import com.adamoutler.ssh.sync.DriveSyncManager
-import kotlinx.coroutines.launch
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.adamoutler.ssh.billing.BillingManager
+import com.adamoutler.ssh.crypto.SecurityStorageManager
+import com.adamoutler.ssh.crypto.SettingsManager
+import com.adamoutler.ssh.sync.DriveSyncManager
 import com.adamoutler.ssh.sync.SyncWorker
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
     billingManager: BillingManager,
     driveSyncManager: DriveSyncManager,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
@@ -53,7 +53,7 @@ fun SettingsScreen(
                         label = { Text("Passphrase") },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             },
@@ -68,14 +68,14 @@ fun SettingsScreen(
                             try {
                                 activity?.let { driveSyncManager.authenticate(it) }
                                 WorkManager.getInstance(context).enqueue(
-                                    OneTimeWorkRequestBuilder<SyncWorker>().build()
+                                    OneTimeWorkRequestBuilder<SyncWorker>().build(),
                                 )
                             } finally {
                                 isSyncing = false
                             }
                         }
                     },
-                    enabled = passphrase.isNotBlank()
+                    enabled = passphrase.isNotBlank(),
                 ) {
                     Text("Save & Sync")
                 }
@@ -84,7 +84,7 @@ fun SettingsScreen(
                 TextButton(onClick = { showPassphraseDialog = false }) {
                     Text("Cancel")
                 }
-            }
+            },
         )
     }
 
@@ -109,7 +109,7 @@ fun SettingsScreen(
                     try {
                         activity?.let { driveSyncManager.authenticate(it) }
                         WorkManager.getInstance(context).enqueue(
-                            OneTimeWorkRequestBuilder<SyncWorker>().build()
+                            OneTimeWorkRequestBuilder<SyncWorker>().build(),
                         )
                     } finally {
                         isSyncing = false
@@ -120,7 +120,7 @@ fun SettingsScreen(
         onResetPassphrase = {
             showPassphraseDialog = true
         },
-        onNavigateBack = onNavigateBack
+        onNavigateBack = onNavigateBack,
     )
 }
 
@@ -135,7 +135,7 @@ fun SettingsScreenContent(
     onPurchaseCloudSync: () -> Unit,
     onAuthenticateGoogle: () -> Unit,
     onResetPassphrase: () -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -148,54 +148,54 @@ fun SettingsScreenContent(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ),
             )
-        }
+        },
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(text = "General Settings", style = MaterialTheme.typography.titleMedium)
                     OutlinedTextField(
                         value = defaultGroupName,
                         onValueChange = onDefaultGroupNameChange,
                         label = { Text("Default Group Name") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(text = "Cloud Sync & Backup", style = MaterialTheme.typography.titleMedium)
                     Text(
                         text = "Securely sync your encrypted profiles across devices using your hidden Google Drive App Data folder.",
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
 
                     if (!isCloudSyncEnabled) {
                         Button(
                             onClick = onPurchaseCloudSync,
-                            modifier = Modifier.align(Alignment.End)
+                            modifier = Modifier.align(Alignment.End),
                         ) {
                             Text("Unlock Cloud Sync ($10.00)")
                         }
@@ -203,19 +203,19 @@ fun SettingsScreenContent(
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
                             Text("Cloud Sync Enabled", style = MaterialTheme.typography.bodyLarge)
                             Switch(
                                 checked = true,
-                                onCheckedChange = { /* TODO Disable sync */ }
+                                onCheckedChange = { /* TODO Disable sync */ },
                             )
                         }
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             if (isPassphraseSet) {
                                 TextButton(onClick = onResetPassphrase) {
@@ -224,10 +224,10 @@ fun SettingsScreenContent(
                             } else {
                                 Spacer(modifier = Modifier.width(8.dp))
                             }
-                            
+
                             Button(
                                 onClick = onAuthenticateGoogle,
-                                enabled = !isSyncing
+                                enabled = !isSyncing,
                             ) {
                                 Text(if (isSyncing) "Authenticating..." else "Authenticate with Google")
                             }

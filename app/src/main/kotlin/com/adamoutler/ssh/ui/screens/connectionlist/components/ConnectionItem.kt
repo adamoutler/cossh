@@ -3,19 +3,18 @@ package com.adamoutler.ssh.ui.screens.connectionlist.components
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.adamoutler.ssh.data.ConnectionProfile
-
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.ui.graphics.Color
 import com.adamoutler.ssh.data.Protocol
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -25,7 +24,7 @@ fun ConnectionItem(
     activeCount: Int = 0,
     onClick: () -> Unit,
     onEdit: () -> Unit,
-    elevation: Dp = 2.dp
+    elevation: Dp = 2.dp,
 ) {
     Card(
         modifier = Modifier
@@ -34,23 +33,23 @@ fun ConnectionItem(
             .testTag("ConnectionItem_${profile.id}")
             .combinedClickable(
                 onClick = onClick,
-                onLongClick = onEdit
+                onLongClick = onEdit,
             ),
-        elevation = CardDefaults.cardElevation(defaultElevation = elevation)
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                 Icon(
                     imageVector = if (profile.protocol == Protocol.TELNET) Icons.Filled.LockOpen else Icons.Filled.Lock,
                     contentDescription = if (profile.protocol == Protocol.TELNET) "Telnet Unencrypted" else "SSH Encrypted",
                     tint = if (profile.protocol == Protocol.TELNET) Color(0xFFE65100) else Color(0xFF388E3C),
-                    modifier = Modifier.size(32.dp).padding(end = 8.dp)
+                    modifier = Modifier.size(32.dp).padding(end = 8.dp),
                 )
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -63,7 +62,7 @@ fun ConnectionItem(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "${profile.username}@${profile.host}:${profile.port} (${profile.protocol.name})",
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
             }

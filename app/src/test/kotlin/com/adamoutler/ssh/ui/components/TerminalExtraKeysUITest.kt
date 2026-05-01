@@ -1,6 +1,7 @@
 package com.adamoutler.ssh.ui.components
 
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -11,7 +12,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import androidx.activity.compose.setContent
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -35,7 +35,7 @@ class TerminalExtraKeysUITest {
                         menuState = ModifierState.INACTIVE,
                         onKeyToggle = {},
                         onKeyPress = { key -> dispatchedKey = key },
-                        initialPage = 2
+                        initialPage = 2,
                     )
                 }
             }

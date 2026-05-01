@@ -5,7 +5,6 @@ import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.IdentityProfile
 import com.adamoutler.ssh.ui.base.BaseAndroidViewModel
-import java.util.UUID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,17 +21,17 @@ data class IdentityFormState(
     val privateKey: ByteArray? = null,
     val manualKeyEntry: Boolean = false,
     val manualPrivKey: String = "",
-    val isLoaded: Boolean = false
+    val isLoaded: Boolean = false,
 )
 
 class IdentityViewModel(
     application: Application,
-    private val storageManager: IdentityStorageManager
+    private val storageManager: IdentityStorageManager,
 ) : BaseAndroidViewModel(application) {
 
     constructor(application: Application) : this(
         application,
-        IdentityStorageManager(application)
+        IdentityStorageManager(application),
     )
 
     private val _identities = MutableStateFlow<List<IdentityProfile>>(emptyList())
@@ -63,7 +62,7 @@ class IdentityViewModel(
                         isPasswordLocked = identity.password != null,
                         publicKey = identity.publicKey ?: "",
                         privateKey = identity.privateKey,
-                        isLoaded = true
+                        isLoaded = true,
                     )
                 }
             }

@@ -1,6 +1,5 @@
 package com.adamoutler.ssh.billing
 
-import android.content.Context
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.Purchase
@@ -20,9 +19,9 @@ class BillingManagerTest {
     fun testProcessPurchases_UnlockCloudSync() {
         val context = RuntimeEnvironment.getApplication()
         val billingManager = BillingManager(context)
-        
+
         assertFalse(billingManager.isCloudSyncEnabled.value)
-        
+
         // Construct a Purchase using JSON
         val purchaseJson = """
             {
@@ -35,15 +34,15 @@ class BillingManagerTest {
               "acknowledged": true
             }
         """.trimIndent()
-        
+
         val purchase = Purchase(purchaseJson, "signature")
-        
+
         val billingResult = BillingResult.newBuilder()
             .setResponseCode(BillingClient.BillingResponseCode.OK)
             .build()
-        
+
         billingManager.onPurchasesUpdated(billingResult, mutableListOf(purchase))
-        
+
         println("TEST-METRIC: BillingManager processed PURCHASED event. isCloudSyncEnabled = ${billingManager.isCloudSyncEnabled.value}")
         assertTrue(billingManager.isCloudSyncEnabled.value)
     }

@@ -11,7 +11,7 @@ class KeystoreInvalidatedDialogScreenshotTest {
     @get:Rule
     val paparazzi = Paparazzi(
         deviceConfig = DeviceConfig.PIXEL_5,
-        theme = "android:Theme.Material.Light.NoActionBar"
+        theme = "android:Theme.Material.Light.NoActionBar",
     )
 
     @Test
@@ -20,7 +20,7 @@ class KeystoreInvalidatedDialogScreenshotTest {
             CoSSHTheme {
                 KeystoreInvalidatedDialog(
                     onConfirmReset = {},
-                    onDismissApp = {}
+                    onDismissApp = {},
                 )
             }
         }

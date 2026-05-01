@@ -26,7 +26,7 @@ object SSHKeyGenerator {
         val keyPairGenerator = KeyPairGenerator.getInstance("RSA")
         val spec = RSAKeyGenParameterSpec(4096, RSAKeyGenParameterSpec.F4)
         val secureRandom = SecureRandom()
-        
+
         keyPairGenerator.initialize(spec, secureRandom)
         return keyPairGenerator.generateKeyPair()
     }
@@ -52,7 +52,7 @@ object SSHKeyGenerator {
                 val rsaPubKey = publicKey as RSAPublicKey
                 val type = "ssh-rsa"
                 val encoded = Base64.getEncoder().encodeToString(
-                    writeSshBytes(type, rsaPubKey.publicExponent.toByteArray(), rsaPubKey.modulus.toByteArray())
+                    writeSshBytes(type, rsaPubKey.publicExponent.toByteArray(), rsaPubKey.modulus.toByteArray()),
                 )
                 "$type $encoded"
             }

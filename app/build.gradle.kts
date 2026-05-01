@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.paparazzi)
+    id("com.diffplug.spotless")
 }
 
 val gitCommitCount = try {
@@ -38,6 +39,12 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+    }
+
+    lint {
+        warningsAsErrors = true
+        abortOnError = true
+        baseline = file("lint-baseline.xml")
     }
 
     // Link the termux native C code. Re-compiling locally is mandatory
@@ -242,5 +249,18 @@ afterEvaluate {
                 isIgnoreExitValue = true
             }
         }
+    }
+}
+
+spotless {
+    kotlin {
+        target("**/*.kt")
+        ktlint().editorConfigOverride(mapOf(
+            "ktlint_standard_function-naming" to "disabled",
+            "ktlint_standard_no-wildcard-imports" to "disabled",
+            "ktlint_standard_value-argument-comment" to "disabled",
+            "ktlint_standard_value-parameter-comment" to "disabled",
+            "ktlint_standard_max-line-length" to "disabled"
+        ))
     }
 }

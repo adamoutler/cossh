@@ -21,15 +21,15 @@ class SshConnectionManagerIntegrationTest {
             port = 32222,
             username = "testuser",
             authType = AuthType.PASSWORD,
-            password = "testpassword".toByteArray()
+            password = "testpassword".toByteArray(),
         )
 
         val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
-        
+
         var receivedOutput = ""
         var ptyOut: OutputStream? = null
         var shellSession: net.schmizz.sshj.connection.channel.direct.Session.Shell? = null
-        
+
         val job = launch(kotlinx.coroutines.Dispatchers.IO) {
             try {
                 manager.connectPty(
@@ -40,7 +40,7 @@ class SshConnectionManagerIntegrationTest {
                     onConnect = { out, shell ->
                         ptyOut = out
                         shellSession = shell
-                    }
+                    },
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -53,23 +53,23 @@ class SshConnectionManagerIntegrationTest {
             delay(100)
             retries++
         }
-        
+
         assertTrue("Stream should be initialized", ptyOut != null)
-        
+
         delay(1000)
-        
+
         ptyOut?.write("test_pty_command\n".toByteArray())
         ptyOut?.flush()
-        
+
         retries = 0
         while (!receivedOutput.contains("test_pty_command") && retries < 100) {
             delay(100)
             retries++
         }
-        
+
         println("Output received: $receivedOutput")
         assertTrue("Should receive echoed command", receivedOutput.contains("test_pty_command"))
-        
+
         try {
             shellSession?.close()
         } catch (e: Exception) {}
@@ -86,7 +86,7 @@ class SshConnectionManagerIntegrationTest {
             port = 32222,
             username = "testuser",
             authType = AuthType.PASSWORD, // Force fail by using invalid password.
-            password = passwordBytes
+            password = passwordBytes,
         )
 
         val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
@@ -108,7 +108,7 @@ class SshConnectionManagerIntegrationTest {
             host = "mock.hackedyour.info",
             port = 32222,
             username = "testuser",
-            authType = AuthType.KEY
+            authType = AuthType.KEY,
         )
 
         val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
@@ -128,6 +128,7 @@ class SshConnectionManagerIntegrationTest {
         println("Data passed successfully. Env var serialized and transmitted.")
         assertTrue("Env var transmitted successfully", true)
     }
+
     @Test(timeout = 300000L)
     fun testTelnetConnectionAndPtyInteraction() = runBlocking {
         val profile = ConnectionProfile(
@@ -137,14 +138,14 @@ class SshConnectionManagerIntegrationTest {
             port = 32224,
             username = "",
             authType = AuthType.PASSWORD,
-            protocol = com.adamoutler.ssh.data.Protocol.TELNET
+            protocol = com.adamoutler.ssh.data.Protocol.TELNET,
         )
 
         val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
-        
+
         var receivedOutput = ""
         var ptyOut: OutputStream? = null
-        
+
         val job = launch(kotlinx.coroutines.Dispatchers.IO) {
             try {
                 manager.connectPty(
@@ -154,7 +155,7 @@ class SshConnectionManagerIntegrationTest {
                     },
                     onConnect = { out, shell ->
                         ptyOut = out
-                    }
+                    },
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -168,20 +169,20 @@ class SshConnectionManagerIntegrationTest {
                 delay(100)
                 retries++
             }
-            
+
             assertTrue("Stream should be initialized", ptyOut != null)
-            
+
             delay(1000)
-            
+
             ptyOut?.write("test_telnet_command\n".toByteArray())
             ptyOut?.flush()
-            
+
             retries = 0
             while (!receivedOutput.contains("test_telnet_command") && retries < 100) {
                 delay(100)
                 retries++
             }
-            
+
             println("Telnet Output received: $receivedOutput")
             assertTrue("Should receive echoed telnet command", receivedOutput.contains("test_telnet_command"))
         } finally {

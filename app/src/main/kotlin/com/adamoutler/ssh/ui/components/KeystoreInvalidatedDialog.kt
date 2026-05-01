@@ -15,7 +15,7 @@ import androidx.compose.ui.window.DialogProperties
 @Composable
 fun KeystoreInvalidatedDialog(
     onConfirmReset: () -> Unit,
-    onDismissApp: () -> Unit
+    onDismissApp: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = { /* Empty to make it non-cancelable by tapping outside */ },
@@ -23,19 +23,19 @@ fun KeystoreInvalidatedDialog(
             Icon(
                 imageVector = Icons.Default.Warning,
                 contentDescription = "Security Warning",
-                tint = MaterialTheme.colorScheme.error
+                tint = MaterialTheme.colorScheme.error,
             )
         },
         title = {
             Text(
                 text = "Security Reset Required",
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
             )
         },
         text = {
             Text(
                 text = "A change to your device's security settings (such as a new fingerprint) has locked your secure storage.\n\nTo protect your data, your secure storage must be reset. All saved data will be wiped.",
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
             )
         },
         confirmButton = {
@@ -43,8 +43,8 @@ fun KeystoreInvalidatedDialog(
                 onClick = onConfirmReset,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError
-                )
+                    contentColor = MaterialTheme.colorScheme.onError,
+                ),
             ) {
                 Text("Wipe Storage & Reset")
             }
@@ -56,7 +56,7 @@ fun KeystoreInvalidatedDialog(
         },
         properties = DialogProperties(
             dismissOnBackPress = false,
-            dismissOnClickOutside = false
-        )
+            dismissOnClickOutside = false,
+        ),
     )
 }

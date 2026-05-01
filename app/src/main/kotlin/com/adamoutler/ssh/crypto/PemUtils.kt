@@ -4,15 +4,15 @@ import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.asn1.pkcs.RSAPrivateKey
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
-import org.bouncycastle.crypto.util.OpenSSHPrivateKeyUtil
-import org.bouncycastle.crypto.util.PrivateKeyInfoFactory
-import org.bouncycastle.crypto.util.SubjectPublicKeyInfoFactory
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters
 import org.bouncycastle.crypto.params.RSAKeyParameters
 import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters
+import org.bouncycastle.crypto.util.OpenSSHPrivateKeyUtil
+import org.bouncycastle.crypto.util.PrivateKeyInfoFactory
+import org.bouncycastle.crypto.util.SubjectPublicKeyInfoFactory
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter
-import java.security.KeyPair
 import java.security.KeyFactory
+import java.security.KeyPair
 import java.security.spec.PKCS8EncodedKeySpec
 import java.util.Base64
 
@@ -23,7 +23,7 @@ object PemUtils {
      */
     fun parsePemToKeyPair(pemBytes: ByteArray, existingPublicKey: java.security.PublicKey? = null): KeyPair {
         val startBytes = "-----BEGIN".toByteArray(Charsets.UTF_8)
-        
+
         var startIndex = -1
         for (i in 0..pemBytes.size - startBytes.size) {
             var match = true
@@ -105,7 +105,7 @@ object PemUtils {
                         val keyParameter = OpenSSHPrivateKeyUtil.parsePrivateKeyBlob(rawKeyBlob)
                         val privateKeyInfo = PrivateKeyInfoFactory.createPrivateKeyInfo(keyParameter)
                         val privKey = converter.getPrivateKey(privateKeyInfo)
-                        
+
                         var pubKey = existingPublicKey
                         if (pubKey == null) {
                             try {
@@ -131,16 +131,22 @@ object PemUtils {
                     val rsaPrivateKey = RSAPrivateKey.getInstance(rawKeyBlob)
                     val privateKeyInfo = PrivateKeyInfo(
                         AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, org.bouncycastle.asn1.DERNull.INSTANCE),
-                        rsaPrivateKey
+                        rsaPrivateKey,
                     )
                     val privKey = converter.getPrivateKey(privateKeyInfo)
-                    
+
                     var pubKey = existingPublicKey
                     if (pubKey == null) {
                         try {
                             val rsaCrt = org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters(
-                                rsaPrivateKey.modulus, rsaPrivateKey.publicExponent, rsaPrivateKey.privateExponent,
-                                rsaPrivateKey.prime1, rsaPrivateKey.prime2, rsaPrivateKey.exponent1, rsaPrivateKey.exponent2, rsaPrivateKey.coefficient
+                                rsaPrivateKey.modulus,
+                                rsaPrivateKey.publicExponent,
+                                rsaPrivateKey.privateExponent,
+                                rsaPrivateKey.prime1,
+                                rsaPrivateKey.prime2,
+                                rsaPrivateKey.exponent1,
+                                rsaPrivateKey.exponent2,
+                                rsaPrivateKey.coefficient,
                             )
                             val pubParams = RSAKeyParameters(false, rsaCrt.modulus, rsaCrt.publicExponent)
                             val pubInfo = SubjectPublicKeyInfoFactory.createSubjectPublicKeyInfo(pubParams)

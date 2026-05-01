@@ -1,8 +1,8 @@
 package com.adamoutler.ssh.ui.screens
 
+import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
-import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
@@ -17,9 +17,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -35,13 +35,13 @@ fun ConnectionListScreen(
     onEditConnection: (String) -> Unit,
     onConnect: (String, String?) -> Unit,
     onSettingsRequested: () -> Unit,
-    onManageIdentitiesRequested: () -> Unit
+    onManageIdentitiesRequested: () -> Unit,
 ) {
     val groupedProfiles by viewModel.groupedProfiles.collectAsState()
     val profiles by viewModel.profiles.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val activeConnectionCounts by ConnectionStateRepository.activeConnectionCounts.collectAsState()
-    
+
     androidx.compose.runtime.LaunchedEffect(Unit) {
         viewModel.loadProfiles()
     }
@@ -50,7 +50,7 @@ fun ConnectionListScreen(
     var showImportPasswordDialog by remember { mutableStateOf<Uri?>(null) }
 
     val exportLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument("application/octet-stream")
+        ActivityResultContracts.CreateDocument("application/octet-stream"),
     ) { uri ->
         if (uri != null) {
             showExportPasswordDialog = uri
@@ -58,7 +58,7 @@ fun ConnectionListScreen(
     }
 
     val importLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument()
+        ActivityResultContracts.OpenDocument(),
     ) { uri ->
         if (uri != null) {
             showImportPasswordDialog = uri
@@ -72,7 +72,7 @@ fun ConnectionListScreen(
         val confirmPasswordBuffer = remember { java.util.concurrent.atomic.AtomicReference(CharArray(0)) }
         var isPasswordStrong by remember { mutableStateOf(false) }
         var doPasswordsMatch by remember { mutableStateOf(false) }
-        
+
         val isFormValid = isPasswordStrong && doPasswordsMatch
 
         val checkForm = {
@@ -83,7 +83,7 @@ fun ConnectionListScreen(
         }
 
         AlertDialog(
-            onDismissRequest = { 
+            onDismissRequest = {
                 showExportPasswordDialog = null
                 passwordBuffer.get().fill('\u0000')
                 confirmPasswordBuffer.get().fill('\u0000')
@@ -93,34 +93,34 @@ fun ConnectionListScreen(
                 Column {
                     Text(
                         "Create a strong password to encrypt your connection profiles. You will need this to restore your backup.",
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     com.adamoutler.ssh.ui.components.SecurePasswordEditText(
                         hint = "Backup Password",
-                        onPasswordChanged = { 
+                        onPasswordChanged = {
                             passwordBuffer.get().fill('\u0000')
                             passwordBuffer.set(it)
                             checkForm()
-                        }
+                        },
                     )
-                    
+
                     if (!isPasswordStrong && passwordBuffer.get().isNotEmpty()) {
                         Text("Password must be at least 8 characters", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                     }
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     com.adamoutler.ssh.ui.components.SecurePasswordEditText(
                         hint = "Confirm Password",
-                        onPasswordChanged = { 
+                        onPasswordChanged = {
                             confirmPasswordBuffer.get().fill('\u0000')
                             confirmPasswordBuffer.set(it)
                             checkForm()
-                        }
+                        },
                     )
-                    
+
                     if (!doPasswordsMatch && confirmPasswordBuffer.get().isNotEmpty()) {
                         Text("Passwords do not match", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                     }
@@ -131,7 +131,7 @@ fun ConnectionListScreen(
                     onClick = {
                         val uri = showExportPasswordDialog!!
                         val pass = passwordBuffer.get()
-                        
+
                         viewModel.exportBackup(uri, pass) { success ->
                             pass.fill('\u0000')
                             confirmPasswordBuffer.get().fill('\u0000')
@@ -143,27 +143,27 @@ fun ConnectionListScreen(
                         }
                         showExportPasswordDialog = null
                     },
-                    enabled = isFormValid
-                ) { 
-                    Text("Export Encrypted Backup") 
+                    enabled = isFormValid,
+                ) {
+                    Text("Export Encrypted Backup")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { 
+                TextButton(onClick = {
                     showExportPasswordDialog = null
                     passwordBuffer.get().fill('\u0000')
                     confirmPasswordBuffer.get().fill('\u0000')
                 }) { Text("Cancel") }
-            }
+            },
         )
     }
 
     if (showImportPasswordDialog != null) {
         val passwordBuffer = remember { java.util.concurrent.atomic.AtomicReference(CharArray(0)) }
         var hasPassword by remember { mutableStateOf(false) }
-        
+
         AlertDialog(
-            onDismissRequest = { 
+            onDismissRequest = {
                 showImportPasswordDialog = null
                 passwordBuffer.get().fill('\u0000')
             },
@@ -172,16 +172,16 @@ fun ConnectionListScreen(
                 Column {
                     Text(
                         "Enter the password used to encrypt this backup.",
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     com.adamoutler.ssh.ui.components.SecurePasswordEditText(
                         hint = "Password",
-                        onPasswordChanged = { 
+                        onPasswordChanged = {
                             passwordBuffer.get().fill('\u0000')
                             passwordBuffer.set(it)
                             hasPassword = it.isNotEmpty()
-                        }
+                        },
                     )
                 }
             },
@@ -190,7 +190,7 @@ fun ConnectionListScreen(
                     onClick = {
                         val uri = showImportPasswordDialog!!
                         val pass = passwordBuffer.get()
-                        
+
                         viewModel.importBackup(uri, pass) { success ->
                             pass.fill('\u0000')
                             if (success) {
@@ -201,15 +201,15 @@ fun ConnectionListScreen(
                         }
                         showImportPasswordDialog = null
                     },
-                    enabled = hasPassword
+                    enabled = hasPassword,
                 ) { Text("Import Backup") }
             },
             dismissButton = {
-                TextButton(onClick = { 
+                TextButton(onClick = {
                     showImportPasswordDialog = null
                     passwordBuffer.get().fill('\u0000')
                 }) { Text("Cancel") }
-            }
+            },
         )
     }
 
@@ -228,7 +228,7 @@ fun ConnectionListScreen(
             val activeSessions = ConnectionStateRepository.sessions.values
                 .filter { it.profileId == profileIdToConnect }
                 .sortedBy { it.connectedAt }
-            
+
             AlertDialog(
                 onDismissRequest = { profileIdToConnect = null },
                 title = { Text("Active Sessions: $profileName") },
@@ -243,8 +243,8 @@ fun ConnectionListScreen(
                                 TextButton(onClick = {
                                     onConnect(profileIdToConnect!!, session.sessionId)
                                     profileIdToConnect = null
-                                }) { 
-                                    Text("Resume Session ${index + 1} ($dateStr)") 
+                                }) {
+                                    Text("Resume Session ${index + 1} ($dateStr)")
                                 }
                             }
                         }
@@ -270,7 +270,7 @@ fun ConnectionListScreen(
                 },
                 dismissButton = {
                     TextButton(onClick = { profileIdToConnect = null }) { Text("Cancel") }
-                }
+                },
             )
         } else {
             val newSessionId = java.util.UUID.randomUUID().toString()
@@ -304,6 +304,6 @@ fun ConnectionListScreen(
         onExportRequested = { exportLauncher.launch("connections_and_identities.cossh") },
         onImportRequested = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) },
         onSettingsRequested = onSettingsRequested,
-        onManageIdentitiesRequested = onManageIdentitiesRequested
+        onManageIdentitiesRequested = onManageIdentitiesRequested,
     )
 }

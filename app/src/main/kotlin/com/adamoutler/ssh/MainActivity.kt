@@ -1,43 +1,39 @@
 package com.adamoutler.ssh
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.core.view.WindowCompat
+import com.adamoutler.ssh.sync.DriveSyncManager
 import com.adamoutler.ssh.ui.events.UiEvent
 import com.adamoutler.ssh.ui.events.UiEventBus
-import com.adamoutler.ssh.ui.theme.CoSSHTheme
 import com.adamoutler.ssh.ui.navigation.AppNavigation
+import com.adamoutler.ssh.ui.theme.CoSSHTheme
 import kotlinx.coroutines.flow.collectLatest
-import android.content.Intent
-import android.os.Build
-import com.adamoutler.ssh.network.SshService
-
-import com.adamoutler.ssh.sync.DriveSyncManager
-
-import androidx.core.view.WindowCompat
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.systemBarsPadding
 
 class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
+        ActivityResultContracts.RequestPermission(),
     ) { isGranted: Boolean ->
         // Handle permission result if needed
     }
@@ -49,7 +45,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -66,7 +62,7 @@ class MainActivity : ComponentActivity() {
                             is UiEvent.ShowSnackbar -> {
                                 snackbarHostState.showSnackbar(
                                     message = event.message,
-                                    actionLabel = event.actionLabel
+                                    actionLabel = event.actionLabel,
                                 )
                             }
                             is UiEvent.ShowToast -> {
@@ -79,13 +75,13 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize().systemBarsPadding().imePadding(),
-                    snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+                    snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
                 ) { innerPadding ->
                     Surface(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),
-                        color = MaterialTheme.colorScheme.background
+                        color = MaterialTheme.colorScheme.background,
                     ) {
                         AppNavigation()
                     }
@@ -99,7 +95,7 @@ class MainActivity : ComponentActivity() {
 fun PlaceholderScreen() {
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(text = "Welcome to CoSSH: Cobalt Secure Shell!")
     }

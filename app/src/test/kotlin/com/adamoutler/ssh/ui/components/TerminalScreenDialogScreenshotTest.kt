@@ -1,24 +1,24 @@
 package com.adamoutler.ssh.ui.components
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.Modifier
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.adamoutler.ssh.ui.theme.CoSSHTheme
 import org.junit.Rule
 import org.junit.Test
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 
 class TerminalScreenDialogScreenshotTest {
 
     @get:Rule
     val paparazzi = Paparazzi(
         deviceConfig = DeviceConfig.PIXEL_5,
-        theme = "android:Theme.Material.Light.NoActionBar"
+        theme = "android:Theme.Material.Light.NoActionBar",
     )
 
     @Test
@@ -27,7 +27,7 @@ class TerminalScreenDialogScreenshotTest {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     AlertDialog(
                         onDismissRequest = { },
@@ -35,7 +35,7 @@ class TerminalScreenDialogScreenshotTest {
                         text = { Text("The SSH session has ended or the connection was lost.") },
                         confirmButton = {
                             TextButton(onClick = { }) { Text("OK") }
-                        }
+                        },
                     )
                 }
             }
@@ -48,7 +48,7 @@ class TerminalScreenDialogScreenshotTest {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     AlertDialog(
                         onDismissRequest = { },
@@ -59,7 +59,7 @@ class TerminalScreenDialogScreenshotTest {
                         },
                         dismissButton = {
                             TextButton(onClick = { }) { Text("Terminate") }
-                        }
+                        },
                     )
                 }
             }
@@ -72,7 +72,7 @@ class TerminalScreenDialogScreenshotTest {
             CoSSHTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     AlertDialog(
                         onDismissRequest = { },
@@ -80,7 +80,7 @@ class TerminalScreenDialogScreenshotTest {
                         text = { Text("Error: Connection failed") },
                         confirmButton = {
                             TextButton(onClick = { }) { Text("OK") }
-                        }
+                        },
                     )
                 }
             }

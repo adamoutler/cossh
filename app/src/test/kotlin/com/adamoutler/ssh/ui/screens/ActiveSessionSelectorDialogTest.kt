@@ -35,7 +35,7 @@ class ActiveSessionSelectorDialogTest {
                 profiles = listOf(profile1),
                 onSelectSession = { selectedSession = it },
                 onStartNew = { startNewClicked = true },
-                onDismiss = { dismissClicked = true }
+                onDismiss = { dismissClicked = true },
             )
         }
 
@@ -65,7 +65,7 @@ class ActiveSessionSelectorDialogTest {
                 profiles = listOf(profile1),
                 onSelectSession = { selectedSession = it },
                 onStartNew = { startNewClicked = true },
-                onDismiss = { dismissClicked = true }
+                onDismiss = { dismissClicked = true },
             )
         }
 

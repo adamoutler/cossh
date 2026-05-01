@@ -1,19 +1,18 @@
 package com.adamoutler.ssh.ui.screens
 
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.longClick
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.click
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
-import org.junit.Assert.assertTrue
 
 @RunWith(androidx.test.ext.junit.runners.AndroidJUnit4::class)
 class ConnectionListScreenInstrumentedTest {
@@ -31,7 +30,7 @@ class ConnectionListScreenInstrumentedTest {
             port = 22,
             username = "admin",
             authType = AuthType.PASSWORD,
-            password = "password".toByteArray()
+            password = "password".toByteArray(),
         )
 
         composeTestRule.setContent {
@@ -41,11 +40,11 @@ class ConnectionListScreenInstrumentedTest {
                 activeConnectionCounts = emptyMap(),
                 onSearchQueryChange = {},
                 onAddConnection = {},
-                onEditConnection = { 
+                onEditConnection = {
                     onEditCalled = true
                 },
                 onDeleteConnection = {},
-                onConnect = {}
+                onConnect = {},
             )
         }
 
@@ -62,7 +61,7 @@ class ConnectionListScreenInstrumentedTest {
     fun tapTriggersConnect() {
         var onConnectCalled = false
         var capturedIntent: android.content.Intent? = null
-        
+
         val mockProfile = ConnectionProfile(
             id = "1",
             nickname = "Production Server",
@@ -70,7 +69,7 @@ class ConnectionListScreenInstrumentedTest {
             port = 22,
             username = "admin",
             authType = AuthType.PASSWORD,
-            password = "password".toByteArray()
+            password = "password".toByteArray(),
         )
 
         composeTestRule.setContent {
@@ -89,7 +88,7 @@ class ConnectionListScreenInstrumentedTest {
             }
 
             androidx.compose.runtime.CompositionLocalProvider(
-                androidx.compose.ui.platform.LocalContext provides contextWrapper
+                androidx.compose.ui.platform.LocalContext provides contextWrapper,
             ) {
                 ConnectionListContent(
                     groupedProfiles = mapOf(null to listOf(mockProfile)),
@@ -101,7 +100,7 @@ class ConnectionListScreenInstrumentedTest {
                     onDeleteConnection = {},
                     onConnect = {
                         onConnectCalled = true
-                    }
+                    },
                 )
             }
         }
@@ -124,7 +123,7 @@ class ConnectionListScreenInstrumentedTest {
             port = 22,
             username = "admin",
             authType = AuthType.PASSWORD,
-            password = "password".toByteArray()
+            password = "password".toByteArray(),
         )
         composeTestRule.setContent {
             ConnectionListContent(
@@ -135,7 +134,7 @@ class ConnectionListScreenInstrumentedTest {
                 onAddConnection = {},
                 onEditConnection = {},
                 onDeleteConnection = {},
-                onConnect = {}
+                onConnect = {},
             )
         }
         composeTestRule.onNodeWithText("3").assertExists()

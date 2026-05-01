@@ -2,8 +2,6 @@ package com.adamoutler.ssh.network
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -45,16 +43,16 @@ class ConnectionStateRepositoryTest {
 
         // Now attach UI
         val bufferedBytes = ConnectionStateRepository.attachUiAndGetBuffer(session.sessionId)
-        
+
         // Ensure bufferedBytes contains the 3 chunks
         assertEquals(3, bufferedBytes.size)
         assertEquals("Chunk1", String(bufferedBytes[0]))
         assertEquals("Chunk2", String(bufferedBytes[1]))
         assertEquals("Chunk3", String(bufferedBytes[2]))
-        
+
         // Ensure buffer is drained
         assertEquals(0, session.outputBuffer.size)
-        
+
         // Now emit a 4th chunk and verify it does NOT go to buffer
         ConnectionStateRepository.emitOutput(profileId, "Chunk4".toByteArray())
         assertEquals(0, session.outputBuffer.size)

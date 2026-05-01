@@ -2,6 +2,7 @@ package com.adamoutler.ssh.sync
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -12,10 +13,12 @@ import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.io.ByteArrayOutputStream
-import java.io.InputStream
 import java.io.IOException
+import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.security.SecureRandom
@@ -25,17 +28,14 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
-import org.json.JSONObject
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import android.util.Log
 
 class DriveSyncManager(private val context: Context) {
     private val credentialManager = CredentialManager.create(context)
     private val webClientId = "255929341577-6e1405jlnio601o2em8mr7n7dins7ni9.apps.googleusercontent.com"
     private var oauthToken: String? = null
-    
+
     // We request the strictly restricted appdata scope
     private val scopes = listOf("https://www.googleapis.com/auth/drive.appdata")
 
@@ -81,7 +81,7 @@ class DriveSyncManager(private val context: Context) {
         try {
             val result: GetCredentialResponse = credentialManager.getCredential(
                 request = request,
-                context = activity
+                context = activity,
             )
             val credential = result.credential
             if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
@@ -107,7 +107,12 @@ class DriveSyncManager(private val context: Context) {
                         authorizationContinuation = continuation
                         activity.startIntentSenderForResult(
                             authorizationResult.pendingIntent?.intentSender,
-                            1001, null, 0, 0, 0, null
+                            1001,
+                            null,
+                            0,
+                            0,
+                            0,
+                            null,
                         )
                     } catch (e: Exception) {
                         authorizationContinuation = null
@@ -125,7 +130,7 @@ class DriveSyncManager(private val context: Context) {
                 continuation.resumeWithException(e)
             }
     }
-    
+
     // We must handle the result of the intent sender in the Activity and pass the token here.
     fun setOAuthToken(token: String?) {
         this.oauthToken = token
@@ -165,14 +170,13 @@ class DriveSyncManager(private val context: Context) {
                 } else {
                     Log.d("DriveSyncManager", "Backup uploaded successfully: HTTP 200")
                 }
-                
+
                 if (fileId == null) {
                     // Update metadata to put it in appDataFolder
                     val responseStr = connection.inputStream.bufferedReader().readText()
                     fileId = JSONObject(responseStr).getString("id")
                     updateFileMetadata(fileId)
                 }
-
             } finally {
                 // Scrub volatile state
                 oauthToken = null
@@ -190,11 +194,11 @@ class DriveSyncManager(private val context: Context) {
         connection.connectTimeout = 10000
         connection.readTimeout = 10000
         connection.doOutput = true
-        
+
         val metadata = JSONObject()
         metadata.put("name", "cossh_backup.enc")
         metadata.put("parents", org.json.JSONArray().put("appDataFolder"))
-        
+
         connection.outputStream.use { it.write(metadata.toString().toByteArray()) }
         if (connection.responseCode !in 200..299) {
             throw IOException("Failed to update metadata: ${connection.responseCode}")
@@ -208,7 +212,7 @@ class DriveSyncManager(private val context: Context) {
         connection.setRequestProperty("Authorization", "Bearer $oauthToken")
         connection.connectTimeout = 10000
         connection.readTimeout = 10000
-        
+
         if (connection.responseCode in 200..299) {
             val responseStr = connection.inputStream.bufferedReader().readText()
             val files = JSONObject(responseStr).optJSONArray("files")
@@ -249,7 +253,7 @@ class DriveSyncManager(private val context: Context) {
             }
         }
     }
-    
+
     private fun readFully(inputStream: InputStream): ByteArray {
         val baos = ByteArrayOutputStream()
         val buffer = ByteArray(1024)
@@ -282,7 +286,7 @@ class DriveSyncManager(private val context: Context) {
         System.arraycopy(salt, 0, result, 0, salt.size)
         System.arraycopy(iv, 0, result, salt.size, iv.size)
         System.arraycopy(encrypted, 0, result, salt.size + iv.size, encrypted.size)
-        
+
         return result
     }
 

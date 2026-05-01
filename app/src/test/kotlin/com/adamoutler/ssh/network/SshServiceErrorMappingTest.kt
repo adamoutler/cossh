@@ -9,10 +9,10 @@ class SshServiceErrorMappingTest {
     fun testAuthenticationExhaustedMapping() {
         val originalException = Exception("Exhausted available authentication methods")
         val mappedMessage = SshService.mapExceptionMessage(originalException)
-        
+
         assertEquals(
-            "Connection failed", 
-            mappedMessage
+            "Connection failed",
+            mappedMessage,
         )
     }
 
@@ -20,10 +20,10 @@ class SshServiceErrorMappingTest {
     fun testOtherExceptionMapping() {
         val originalException = Exception("Connection refused")
         val mappedMessage = SshService.mapExceptionMessage(originalException)
-        
+
         assertEquals(
-            "Connection refused", 
-            mappedMessage
+            "Connection refused",
+            mappedMessage,
         )
     }
 }

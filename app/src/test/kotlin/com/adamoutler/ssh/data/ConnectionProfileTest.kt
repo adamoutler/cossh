@@ -1,9 +1,9 @@
 package com.adamoutler.ssh.data
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
 
 class ConnectionProfileTest {
 
@@ -17,7 +17,7 @@ class ConnectionProfileTest {
             username = "admin",
             authType = AuthType.PASSWORD,
             protocol = Protocol.TELNET,
-            password = "password123".toByteArray() // @Transient field
+            password = "password123".toByteArray(), // @Transient field
         )
 
         // Serialize
@@ -32,7 +32,7 @@ class ConnectionProfileTest {
         assertEquals("10.0.0.1", restoredProfile.host)
         assertEquals(23, restoredProfile.port)
         assertEquals(AuthType.PASSWORD, restoredProfile.authType)
-        
+
         // Assert the new protocol does not break existing data
         assertEquals(originalProfile.id, restoredProfile.id)
     }

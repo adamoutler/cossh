@@ -54,7 +54,7 @@ class ConnectionListDialogIntegrationTest {
                     selectedSessionId = s
                 },
                 onSettingsRequested = {},
-                onManageIdentitiesRequested = {}
+                onManageIdentitiesRequested = {},
             )
         }
 

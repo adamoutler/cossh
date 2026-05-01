@@ -7,7 +7,6 @@ import com.adamoutler.ssh.data.IdentityProfile
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -36,7 +35,7 @@ class IdentityViewModelTest {
     fun testSaveAndLoadIdentities() = runTest {
         val identity = IdentityProfile(name = "Test Identity", username = "testuser")
         viewModel.saveIdentity(identity)
-        
+
         val identities = viewModel.identities.first()
         assertTrue("Should contain the saved identity", identities.any { it.name == "Test Identity" })
     }
@@ -45,12 +44,12 @@ class IdentityViewModelTest {
     fun testDeleteIdentity() = runTest {
         val identity = IdentityProfile(id = "to-delete", name = "Delete Me", username = "gone")
         viewModel.saveIdentity(identity)
-        
+
         var identities = viewModel.identities.first()
         assertTrue(identities.any { it.id == "to-delete" })
-        
+
         viewModel.deleteIdentity("to-delete")
-        
+
         identities = viewModel.identities.first()
         assertTrue(identities.none { it.id == "to-delete" })
     }

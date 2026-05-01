@@ -45,7 +45,7 @@ class BaseViewModelTest {
     @Test
     fun testCoroutineExceptionIsCaughtAndEmitsUiEvent() = runTest {
         val viewModel = TestViewModel()
-        
+
         val events = mutableListOf<UiEvent>()
         val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             UiEventBus.events.collect { events.add(it) }
@@ -59,7 +59,7 @@ class BaseViewModelTest {
         val event = events.first()
         assertTrue(event is UiEvent.ShowSnackbar)
         assertEquals("Test Coroutine Exception", (event as UiEvent.ShowSnackbar).message)
-        
+
         job.cancel()
     }
 }

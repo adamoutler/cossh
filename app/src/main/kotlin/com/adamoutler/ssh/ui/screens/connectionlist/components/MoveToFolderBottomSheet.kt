@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
@@ -18,7 +17,7 @@ import androidx.compose.ui.unit.dp
 fun MoveToFolderBottomSheet(
     folders: List<String?>,
     onFolderSelected: (String?) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     var newFolderName by remember { mutableStateOf("") }
     var isAddingNewFolder by remember { mutableStateOf(false) }
@@ -28,7 +27,7 @@ fun MoveToFolderBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .padding(bottom = 32.dp)
+                .padding(bottom = 32.dp),
         ) {
             Text("Move to Folder", style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(16.dp))
@@ -47,7 +46,7 @@ fun MoveToFolderBottomSheet(
                         }) {
                             Icon(Icons.Default.Add, contentDescription = "Create")
                         }
-                    }
+                    },
                 )
                 TextButton(onClick = { isAddingNewFolder = false }) {
                     Text("Cancel")
@@ -58,14 +57,14 @@ fun MoveToFolderBottomSheet(
                         ListItem(
                             headlineContent = { Text("New Folder...") },
                             leadingContent = { Icon(Icons.Default.Add, contentDescription = null) },
-                            modifier = Modifier.clickable { isAddingNewFolder = true }
+                            modifier = Modifier.clickable { isAddingNewFolder = true },
                         )
                     }
                     items(folders) { folderId ->
                         ListItem(
                             headlineContent = { Text(folderId ?: com.adamoutler.ssh.crypto.SettingsManager(androidx.compose.ui.platform.LocalContext.current).defaultGroupName) },
                             leadingContent = { Icon(Icons.Default.List, contentDescription = null) },
-                            modifier = Modifier.clickable { onFolderSelected(folderId) }
+                            modifier = Modifier.clickable { onFolderSelected(folderId) },
                         )
                     }
                 }

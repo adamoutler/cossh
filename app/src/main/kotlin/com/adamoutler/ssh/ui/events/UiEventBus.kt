@@ -9,7 +9,7 @@ object UiEventBus {
     private val _events = MutableSharedFlow<UiEvent>(
         replay = 0,
         extraBufferCapacity = 10,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
     val events: SharedFlow<UiEvent> = _events.asSharedFlow()
 

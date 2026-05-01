@@ -85,8 +85,8 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
                     QueryProductDetailsParams.Product.newBuilder()
                         .setProductId("lifetimecloudsync")
                         .setProductType(BillingClient.ProductType.INAPP)
-                        .build()
-                )
+                        .build(),
+                ),
             )
             .build()
 
@@ -96,7 +96,7 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
                 val productDetailsParamsList = listOf(
                     BillingFlowParams.ProductDetailsParams.newBuilder()
                         .setProductDetails(productDetails)
-                        .build()
+                        .build(),
                 )
 
                 val billingFlowParams = BillingFlowParams.newBuilder()

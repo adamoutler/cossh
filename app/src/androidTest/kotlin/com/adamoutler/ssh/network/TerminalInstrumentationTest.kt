@@ -2,14 +2,11 @@ package com.adamoutler.ssh.network
 
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
 import com.adamoutler.ssh.MainActivity
-import org.junit.Assert.assertTrue
+import com.adamoutler.ssh.annotations.FullTest
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
-import com.adamoutler.ssh.annotations.FullTest
-import org.junit.experimental.categories.Category
 
 @RunWith(AndroidJUnit4::class)
 @FullTest
@@ -25,7 +22,7 @@ class TerminalInstrumentationTest {
 
         // Ensure the Activity and the enclosed TerminalView are active
         assertNotNull("Activity scenario should be valid and UI should have loaded.", scenario)
-        
+
         scenario.close()
     }
 }

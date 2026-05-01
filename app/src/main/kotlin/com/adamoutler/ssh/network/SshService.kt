@@ -5,7 +5,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
@@ -25,7 +24,7 @@ class SshService : Service() {
 
     private val serviceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
-    
+
     private val sshManagers = ConcurrentHashMap<String, SshConnectionManager>()
     private val connectionJobs = ConcurrentHashMap<String, Job>()
 
@@ -57,7 +56,7 @@ class SshService : Service() {
         val action = intent?.action
         val profileId = intent?.getStringExtra(EXTRA_PROFILE_ID)
         val sessionId = intent?.getStringExtra(EXTRA_SESSION_ID) ?: java.util.UUID.randomUUID().toString()
-        
+
         when (action) {
             ACTION_START -> {
                 if (profileId != null) {
@@ -72,7 +71,7 @@ class SshService : Service() {
                 } else if (profileId != null) {
                     // Disconnect all sessions for this profile? The prompt said stopSshConnection to take sessionId.
                     // If no sessionId provided but we want to disconnect, maybe stop all?
-                    // Let's just iterate and stop sessions matching profileId if we really need to, 
+                    // Let's just iterate and stop sessions matching profileId if we really need to,
                     // but the new intent will have EXTRA_SESSION_ID.
                     val sessionsToStop = ConnectionStateRepository.sessions.values.filter { it.profileId == profileId }.map { it.sessionId }
                     sessionsToStop.forEach { stopSshConnection(it) }
@@ -91,9 +90,9 @@ class SshService : Service() {
         val notification = createSummaryNotification()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(
-                SUMMARY_NOTIFICATION_ID, 
-                notification, 
-                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                SUMMARY_NOTIFICATION_ID,
+                notification,
+                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
             )
         } else {
             startForeground(SUMMARY_NOTIFICATION_ID, notification)
@@ -112,7 +111,7 @@ class SshService : Service() {
                     updateSessionNotification(profileId, sessionId, profile.nickname, "Connecting...")
                     val manager = SshConnectionManager(identityStorageManager = identityStorageManager, context = applicationContext)
                     sshManagers[sessionId] = manager
-                    
+
                     manager.connectPty(
                         profile = profile,
                         onConnect = { outStream, session ->
@@ -130,16 +129,16 @@ class SshService : Service() {
                                 val current = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: ""
                                 ConnectionStateRepository.mockTestTranscripts[sessionId] = current + newText
                             }
-                            
+
                             // Send bytes to UI via shared flow
                             val copyBytes = bytes.copyOf(length)
                             ConnectionStateRepository.emitOutput(sessionId, copyBytes)
-                            
+
                             if (!activeSession.firstSshOutputReceived) {
                                 activeSession.firstSshOutputReceived = true
                                 Log.d("SshService", "First SSH output received for $sessionId")
                             }
-                        }
+                        },
                     )
                     Log.d("SshService", "SSH Session disconnected normally for $profileId (Session: $sessionId)")
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnected)
@@ -148,10 +147,10 @@ class SshService : Service() {
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error("Profile not found"))
                 }
             } catch (e: Exception) {
-                val isNormalClosure = e is kotlinx.coroutines.CancellationException || 
-                                     e.message?.contains("Disconnected", ignoreCase = true) == true ||
-                                     e.message?.contains("Socket closed", ignoreCase = true) == true ||
-                                     e.message?.contains("EOF", ignoreCase = true) == true
+                val isNormalClosure = e is kotlinx.coroutines.CancellationException ||
+                    e.message?.contains("Disconnected", ignoreCase = true) == true ||
+                    e.message?.contains("Socket closed", ignoreCase = true) == true ||
+                    e.message?.contains("EOF", ignoreCase = true) == true
 
                 if (!isNormalClosure) {
                     Log.e("SshService", "SSH Connection failed for $profileId (Session: $sessionId)", e)
@@ -169,15 +168,15 @@ class SshService : Service() {
                 if (currentState !is ConnectionState.Error && currentState !is ConnectionState.Terminated && currentState !is ConnectionState.Disconnected && activeCount == 0) {
                     ConnectionStateRepository.clearConnectionState(profileId)
                 }
-                
+
                 ConnectionStateRepository.clearSession(sessionId)
-                
+
                 val notificationManager = getSystemService(NotificationManager::class.java)
                 notificationManager.cancel(getNotificationId(sessionId))
-                
+
                 connectionJobs.remove(sessionId)
                 sshManagers.remove(sessionId)
-                
+
                 if (connectionJobs.isEmpty()) {
                     stopForeground(STOP_FOREGROUND_REMOVE)
                     stopSelf()
@@ -231,8 +230,10 @@ class SshService : Service() {
                 notificationIntent.putExtra(EXTRA_PROFILE_ID, profileId)
                 notificationIntent.putExtra(EXTRA_SESSION_ID, sessionId)
                 PendingIntent.getActivity(
-                    this, sessionId.hashCode(), notificationIntent,
-                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                    this,
+                    sessionId.hashCode(),
+                    notificationIntent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
                 )
             }
 
@@ -243,8 +244,10 @@ class SshService : Service() {
         }
         val disconnectPendingIntent: PendingIntent =
             PendingIntent.getService(
-                this, sessionId.hashCode(), disconnectIntent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                this,
+                sessionId.hashCode(),
+                disconnectIntent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
@@ -269,7 +272,7 @@ class SshService : Service() {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID,
                 "SSH Service Channel",
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_LOW,
             )
             val manager = getSystemService(NotificationManager::class.java)
             manager?.createNotificationChannel(serviceChannel)

@@ -1,10 +1,10 @@
 package com.adamoutler.ssh.network
 
 import com.adamoutler.ssh.data.ConnectionProfile
+import kotlinx.coroutines.runBlocking
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.userauth.password.PasswordFinder
 import net.schmizz.sshj.userauth.password.Resource
-import kotlinx.coroutines.runBlocking
 
 class PasswordAuthenticator : SshAuthenticator {
     override fun authenticate(client: SSHClient, profile: ConnectionProfile) {

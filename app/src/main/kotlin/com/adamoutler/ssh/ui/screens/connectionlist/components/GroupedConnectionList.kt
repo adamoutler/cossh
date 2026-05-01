@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,17 +27,17 @@ fun GroupedConnectionList(
     onDeleteConnection: (String) -> Unit,
     onMoveToFolder: (String) -> Unit,
     modifier: Modifier = Modifier,
-    defaultGroupName: String = com.adamoutler.ssh.crypto.SettingsManager(LocalContext.current).defaultGroupName
+    defaultGroupName: String = com.adamoutler.ssh.crypto.SettingsManager(LocalContext.current).defaultGroupName,
 ) {
     val context = LocalContext.current
     var profileToDelete by remember { mutableStateOf<ConnectionProfile?>(null) }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         val showHeaders = groupedProfiles.size > 1 || groupedProfiles.keys.firstOrNull() != null
-        
+
         groupedProfiles.forEach { (folderId, profiles) ->
             if (showHeaders) {
                 stickyHeader {
@@ -45,12 +45,12 @@ fun GroupedConnectionList(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                     ) {
                         Text(
                             text = folderId ?: defaultGroupName,
                             style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -63,7 +63,7 @@ fun GroupedConnectionList(
                         profile = profile,
                         activeCount = activeCount,
                         onClick = { onConnect(profile.id) },
-                        onEdit = { onEditConnection(profile.id) }
+                        onEdit = { onEditConnection(profile.id) },
                     )
                 } else {
                     val currentConfig = androidx.compose.ui.platform.LocalViewConfiguration.current
@@ -75,10 +75,10 @@ fun GroupedConnectionList(
                     }
 
                     androidx.compose.runtime.CompositionLocalProvider(
-                        androidx.compose.ui.platform.LocalViewConfiguration provides customConfig
+                        androidx.compose.ui.platform.LocalViewConfiguration provides customConfig,
                     ) {
                         val dismissState = rememberSwipeToDismissBoxState()
-                        
+
                         LaunchedEffect(dismissState.currentValue) {
                             if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
                                 profileToDelete = profile
@@ -102,21 +102,21 @@ fun GroupedConnectionList(
                                         .fillMaxSize()
                                         .padding(horizontal = 16.dp, vertical = 8.dp)
                                         .background(color, shape = MaterialTheme.shapes.medium),
-                                    contentAlignment = if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) Alignment.CenterStart else Alignment.CenterEnd
+                                    contentAlignment = if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) Alignment.CenterStart else Alignment.CenterEnd,
                                 ) {
                                     if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
                                         Icon(
                                             Icons.AutoMirrored.Filled.ArrowForward,
                                             contentDescription = "Move",
                                             modifier = Modifier.padding(start = 16.dp),
-                                            tint = Color.White
+                                            tint = Color.White,
                                         )
                                     } else {
                                         Icon(
                                             Icons.Default.Delete,
                                             contentDescription = "Delete",
                                             modifier = Modifier.padding(end = 16.dp),
-                                            tint = Color.White
+                                            tint = Color.White,
                                         )
                                     }
                                 }
@@ -126,9 +126,9 @@ fun GroupedConnectionList(
                                     profile = profile,
                                     activeCount = activeCount,
                                     onClick = { onConnect(profile.id) },
-                                    onEdit = { onEditConnection(profile.id) }
+                                    onEdit = { onEditConnection(profile.id) },
                                 )
-                            }
+                            },
                         )
                     }
                 }
@@ -146,7 +146,7 @@ fun GroupedConnectionList(
                     onClick = {
                         profileToDelete?.id?.let { onDeleteConnection(it) }
                         profileToDelete = null
-                    }
+                    },
                 ) {
                     Text("Delete", color = MaterialTheme.colorScheme.error)
                 }
@@ -155,7 +155,7 @@ fun GroupedConnectionList(
                 TextButton(onClick = { profileToDelete = null }) {
                     Text("Cancel")
                 }
-            }
+            },
         )
     }
 }

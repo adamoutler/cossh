@@ -1,7 +1,7 @@
 package com.adamoutler.ssh.data
 
 import kotlinx.serialization.Serializable
-import java.util.*
+import java.util.UUID
 
 /**
  * IdentityProfile represents a reusable set of credentials (username, password, SSH keys).
@@ -16,7 +16,7 @@ data class IdentityProfile(
     @kotlinx.serialization.Transient
     var privateKey: ByteArray? = null,
     val publicKey: String? = null,
-    val authType: AuthType = AuthType.PASSWORD
+    val authType: AuthType = AuthType.PASSWORD,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -30,11 +30,15 @@ data class IdentityProfile(
         if (password != null) {
             if (other.password == null) return false
             if (!password.contentEquals(other.password)) return false
-        } else if (other.password != null) return false
+        } else if (other.password != null) {
+            return false
+        }
         if (privateKey != null) {
             if (other.privateKey == null) return false
             if (!privateKey.contentEquals(other.privateKey)) return false
-        } else if (other.privateKey != null) return false
+        } else if (other.privateKey != null) {
+            return false
+        }
         if (publicKey != other.publicKey) return false
         if (authType != other.authType) return false
 

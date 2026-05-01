@@ -1,14 +1,14 @@
 package com.adamoutler.ssh.network
 
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import net.schmizz.sshj.connection.channel.direct.Session.Shell
 import java.io.OutputStream
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import net.schmizz.sshj.connection.channel.direct.Session.Shell
 
 sealed interface ConnectionState {
     object Connecting : ConnectionState
@@ -21,15 +21,17 @@ sealed interface ConnectionState {
 
 data class HostKeyPromptRequest(
     val hostname: String,
-    val expectedFingerprint: String?, // Null if completely new host
+    // Null if completely new host
+    val expectedFingerprint: String?,
     val receivedFingerprint: String,
-    val isKeyChanged: Boolean, // True if MITM warning
-    val deferred: kotlinx.coroutines.CompletableDeferred<Boolean>
+    // True if MITM warning
+    val isKeyChanged: Boolean,
+    val deferred: kotlinx.coroutines.CompletableDeferred<Boolean>,
 )
 
 data class PasswordPromptRequest(
     val profileId: String,
-    val deferred: kotlinx.coroutines.CompletableDeferred<CharArray?>
+    val deferred: kotlinx.coroutines.CompletableDeferred<CharArray?>,
 )
 
 data class ActiveSessionState(
@@ -41,7 +43,7 @@ data class ActiveSessionState(
     val connectedAt: Long = System.currentTimeMillis(),
     var isUiAttached: Boolean = false,
     val outputBuffer: ConcurrentLinkedQueue<ByteArray> = ConcurrentLinkedQueue(),
-    val bufferLock: Any = Any()
+    val bufferLock: Any = Any(),
 )
 
 object ConnectionStateRepository {

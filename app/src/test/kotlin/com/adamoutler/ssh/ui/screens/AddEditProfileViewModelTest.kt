@@ -29,7 +29,7 @@ class AddEditProfileViewModelTest {
             username = "root",
             authType = AuthType.PASSWORD,
             password = "testpassword".toByteArray(),
-            keyReference = null
+            keyReference = null,
         )
 
         val profile = viewModel.getProfile("test-id-123")

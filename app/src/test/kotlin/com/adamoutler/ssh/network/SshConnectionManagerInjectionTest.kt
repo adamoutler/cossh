@@ -3,18 +3,15 @@ package com.adamoutler.ssh.network
 import com.adamoutler.ssh.crypto.SSHKeyGenerator
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Before
-import org.junit.Assert.assertTrue
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
 import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
@@ -33,12 +30,12 @@ class SshConnectionManagerInjectionTest {
         testPort = currentPort++
         var mockScript = File("mock_sshd.py")
         if (!mockScript.exists()) {
-             mockScript = File("../../mock_sshd.py")
+            mockScript = File("../../mock_sshd.py")
         }
         if (!mockScript.exists()) {
-             mockScript = File("../mock_sshd.py")
+            mockScript = File("../mock_sshd.py")
         }
-        
+
         println("Starting mock_sshd from: ${mockScript.absolutePath} on port $testPort")
         try {
             val pb = ProcessBuilder("python3", mockScript.absolutePath, testPort.toString())
@@ -73,20 +70,20 @@ class SshConnectionManagerInjectionTest {
             port = testPort,
             username = "user",
             authType = AuthType.PASSWORD,
-            password = "password".toByteArray()
+            password = "password".toByteArray(),
         )
-        
+
         // Invalid characters in public key (shell injection attempt)
         val maliciousKey = "ssh-ed25519 AAAA; rm -rf /; #"
         val result = manager.injectPublicKey(profile, maliciousKey)
-        
+
         assertFalse("Should fail regex validation for malicious key", result)
     }
 
     @Test(timeout = 60000L)
     fun testInjectPublicKey_ValidKey_AttemptConnect() = runBlocking {
         val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
-        
+
         val passwordProfile = ConnectionProfile(
             id = "test_pass",
             nickname = "test_pass",
@@ -94,17 +91,17 @@ class SshConnectionManagerInjectionTest {
             port = testPort,
             username = "user",
             authType = AuthType.PASSWORD,
-            password = "password".toByteArray()
+            password = "password".toByteArray(),
         )
-        
+
         // Generate a new key
         val keyPair = SSHKeyGenerator.generateRSAKeyPair()
         val publicKeyString = SSHKeyGenerator.encodePublicKey(keyPair)
-        
+
         // 1. Inject the key using password authentication
         val injectResult = manager.injectPublicKey(passwordProfile, publicKeyString)
         assertTrue("Should successfully inject the public key", injectResult)
-        
+
         // 2. Re-authenticate using the newly injected key
         val keyProfile = ConnectionProfile(
             id = "test_key",
@@ -112,9 +109,9 @@ class SshConnectionManagerInjectionTest {
             host = "127.0.0.1",
             port = testPort,
             username = "user",
-            authType = AuthType.KEY
+            authType = AuthType.KEY,
         )
-        
+
         // This will connect and execute a command using public key authentication.
         // If it throws an exception, the test will fail, proving the key wasn't accepted.
         try {

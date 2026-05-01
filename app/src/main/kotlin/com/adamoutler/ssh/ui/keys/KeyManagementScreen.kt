@@ -26,7 +26,7 @@ fun KeyManagementScreen(initialKeys: List<SshKeyDisplay> = emptyList()) {
         val window = (context as? ComponentActivity)?.window
         window?.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
-            WindowManager.LayoutParams.FLAG_SECURE
+            WindowManager.LayoutParams.FLAG_SECURE,
         )
         onDispose {
             window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
@@ -44,15 +44,15 @@ fun KeyManagementScreen(initialKeys: List<SshKeyDisplay> = emptyList()) {
                 title = { Text("Key Management") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ),
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
                 Icon(Icons.Filled.Add, contentDescription = "Generate New Key")
             }
-        }
+        },
     ) { padding ->
         if (showDialog) {
             AlertDialog(
@@ -65,7 +65,7 @@ fun KeyManagementScreen(initialKeys: List<SshKeyDisplay> = emptyList()) {
                         val newKey = SshKeyDisplay(
                             id = "key-${keys.size + 1}",
                             algorithm = "Ed25519",
-                            publicKeyBase64 = SSHKeyGenerator.encodePublicKey(keyPair)
+                            publicKeyBase64 = SSHKeyGenerator.encodePublicKey(keyPair),
                         )
                         keys = keys + newKey
                         showDialog = false
@@ -79,28 +79,28 @@ fun KeyManagementScreen(initialKeys: List<SshKeyDisplay> = emptyList()) {
                         val newKey = SshKeyDisplay(
                             id = "key-${keys.size + 1}",
                             algorithm = "RSA-4096",
-                            publicKeyBase64 = SSHKeyGenerator.encodePublicKey(keyPair)
+                            publicKeyBase64 = SSHKeyGenerator.encodePublicKey(keyPair),
                         )
                         keys = keys + newKey
                         showDialog = false
                     }) {
                         Text("RSA-4096")
                     }
-                }
+                },
             )
         }
 
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(padding),
         ) {
             items(keys) { key ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = "Algorithm: ${key.algorithm}", style = MaterialTheme.typography.titleMedium)
@@ -109,7 +109,7 @@ fun KeyManagementScreen(initialKeys: List<SshKeyDisplay> = emptyList()) {
                             text = key.publicKeyBase64,
                             style = MaterialTheme.typography.bodySmall,
                             fontFamily = FontFamily.Monospace,
-                            maxLines = 3
+                            maxLines = 3,
                         )
                     }
                 }
