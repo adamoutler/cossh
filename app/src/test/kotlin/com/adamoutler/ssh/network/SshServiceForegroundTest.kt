@@ -48,7 +48,7 @@ class SshServiceForegroundTest {
     }
 
     @Test
-    fun `test service connection state transitions to error on failure`() = kotlinx.coroutines.runBlocking {
+    fun `test service connection state transitions to error on failure`() = kotlinx.coroutines.runBlocking<Unit> {
         val app = ApplicationProvider.getApplicationContext<android.app.Application>()
         val storageManager = SecurityStorageManager(app, app.getSharedPreferences("test_fgs_error", 0))
 
@@ -84,7 +84,7 @@ class SshServiceForegroundTest {
     }
 
     @Test
-    fun `test service intentional disconnect does not transition to error`() = kotlinx.coroutines.runBlocking {
+    fun `test service intentional disconnect does not transition to error`() = kotlinx.coroutines.runBlocking<Unit> {
         val app = ApplicationProvider.getApplicationContext<android.app.Application>()
         val storageManager = SecurityStorageManager(app, app.getSharedPreferences("test_fgs_disconnect", 0))
 
