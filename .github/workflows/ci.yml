@@ -60,3 +60,12 @@ jobs:
         run: |
           echo "==== TEST RESULTS FOR REALITY CHECKER ===="
           grep -i "PASSED" build-test.log
+
+  security_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run MobSF Static Analysis
+        uses: MobSF/mobsfscan@main
+        with:
+          args: '. --sarif --output results.sarif || true'
