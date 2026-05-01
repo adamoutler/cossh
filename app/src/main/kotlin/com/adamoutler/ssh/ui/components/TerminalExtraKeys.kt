@@ -86,14 +86,12 @@ fun TerminalExtraKeys(
     }
 }
 
-private fun getModifierState(key: String, ctrlState: ModifierState, altState: ModifierState, superState: ModifierState, menuState: ModifierState): ModifierState {
-    return when (key) {
-        "Ctrl" -> ctrlState
-        "Alt" -> altState
-        "Super" -> superState
-        "Menu" -> menuState
-        else -> ModifierState.INACTIVE
-    }
+private fun getModifierState(key: String, ctrlState: ModifierState, altState: ModifierState, superState: ModifierState, menuState: ModifierState): ModifierState = when (key) {
+    "Ctrl" -> ctrlState
+    "Alt" -> altState
+    "Super" -> superState
+    "Menu" -> menuState
+    else -> ModifierState.INACTIVE
 }
 
 private fun handleKey(key: String, onKeyToggle: (String) -> Unit, onKeyPress: (String) -> Unit) {

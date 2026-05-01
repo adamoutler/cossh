@@ -348,7 +348,7 @@ fun TerminalScreenContent(
     val connectionStartTime = androidx.compose.runtime.remember { android.os.SystemClock.uptimeMillis() }
 
     val writeChannel = androidx.compose.runtime.remember { kotlinx.coroutines.channels.Channel<ByteArray>(kotlinx.coroutines.channels.Channel.UNLIMITED) }
-    
+
     androidx.compose.runtime.LaunchedEffect(activeSession) {
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
             for (bytes in writeChannel) {
@@ -428,10 +428,12 @@ fun TerminalScreenContent(
                                     onUpdateFontSize(currentFontSize + 1)
                                     true
                                 }
+
                                 Key.VolumeDown -> {
                                     onUpdateFontSize(currentFontSize - 1)
                                     true
                                 }
+
                                 else -> false
                             }
                         } else {
@@ -510,12 +512,19 @@ fun TerminalScreenContent(
 
                                 val bytesToSend = when (keyCode) {
                                     android.view.KeyEvent.KEYCODE_ENTER -> "\r".toByteArray()
+
                                     android.view.KeyEvent.KEYCODE_DEL -> byteArrayOf(0x7F)
+
                                     android.view.KeyEvent.KEYCODE_TAB -> "\t".toByteArray()
+
                                     android.view.KeyEvent.KEYCODE_DPAD_UP -> byteArrayOf(0x1B, '['.code.toByte(), 'A'.code.toByte())
+
                                     android.view.KeyEvent.KEYCODE_DPAD_DOWN -> byteArrayOf(0x1B, '['.code.toByte(), 'B'.code.toByte())
+
                                     android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> byteArrayOf(0x1B, '['.code.toByte(), 'C'.code.toByte())
+
                                     android.view.KeyEvent.KEYCODE_DPAD_LEFT -> byteArrayOf(0x1B, '['.code.toByte(), 'D'.code.toByte())
+
                                     else -> {
                                         val unicodeChar = e.unicodeChar
                                         if (unicodeChar != 0) {

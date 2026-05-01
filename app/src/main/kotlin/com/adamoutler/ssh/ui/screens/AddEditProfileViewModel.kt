@@ -116,15 +116,9 @@ class AddEditProfileViewModel(
         resetState()
     }
 
-    fun getProfile(id: String): ConnectionProfile? {
-        return storageManager.getProfile(id)
-    }
+    fun getProfile(id: String): ConnectionProfile? = storageManager.getProfile(id)
 
-    fun getAvailableKeys(): List<String> {
-        return storageManager.getAllKeys()
-    }
+    fun getAvailableKeys(): List<String> = storageManager.getAllKeys()
 
-    fun getIdentities(): List<IdentityProfile> {
-        return identityStorageManager.getAllIdentities()
-    }
+    fun getIdentities(): List<IdentityProfile> = identityStorageManager.getAllIdentities()
 }

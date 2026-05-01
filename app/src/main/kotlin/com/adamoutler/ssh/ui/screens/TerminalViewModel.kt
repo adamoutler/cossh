@@ -16,7 +16,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
-class TerminalViewModel(application: Application) : AndroidViewModel(application), TerminalSessionClient {
+class TerminalViewModel(application: Application) :
+    AndroidViewModel(application),
+    TerminalSessionClient {
     private val sessions = mutableMapOf<String, TerminalSession>()
     var getContext: (() -> Context)? = null
 

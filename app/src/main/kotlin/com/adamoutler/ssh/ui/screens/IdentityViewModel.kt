@@ -95,7 +95,5 @@ class IdentityViewModel(
         }
     }
 
-    fun getIdentity(id: String): IdentityProfile? {
-        return storageManager.getIdentity(id)
-    }
+    fun getIdentity(id: String): IdentityProfile? = storageManager.getIdentity(id)
 }
