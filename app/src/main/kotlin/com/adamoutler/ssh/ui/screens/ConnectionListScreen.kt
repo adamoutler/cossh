@@ -38,6 +38,7 @@ fun ConnectionListScreen(
     onManageIdentitiesRequested: () -> Unit
 ) {
     val groupedProfiles by viewModel.groupedProfiles.collectAsState()
+    val profiles by viewModel.profiles.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val activeConnectionCounts by ConnectionStateRepository.activeConnectionCounts.collectAsState()
     
@@ -290,6 +291,7 @@ fun ConnectionListScreen(
 
     ConnectionListContent(
         groupedProfiles = groupedProfiles,
+        profiles = profiles,
         searchQuery = searchQuery,
         activeConnectionCounts = activeConnectionCounts,
         onSearchQueryChange = { viewModel.updateSearchQuery(it) },
@@ -297,6 +299,7 @@ fun ConnectionListScreen(
         onEditConnection = onEditConnection,
         onDeleteConnection = { viewModel.deleteProfile(it) },
         onConnect = { profileId -> profileIdToConnect = profileId },
+        onMoveProfile = { fromIndex, toIndex -> viewModel.moveProfile(fromIndex, toIndex) },
         onMoveToFolder = { profileId, folderId -> viewModel.moveToFolder(profileId, folderId) },
         onExportRequested = { exportLauncher.launch("connections_and_identities.cossh") },
         onImportRequested = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) },

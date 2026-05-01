@@ -17,9 +17,12 @@ import com.adamoutler.ssh.ui.screens.connectionlist.components.GroupedConnection
 import com.adamoutler.ssh.ui.screens.connectionlist.components.SearchBar
 import com.adamoutler.ssh.ui.screens.connectionlist.components.MoveToFolderBottomSheet
 
+import com.adamoutler.ssh.ui.screens.connectionlist.components.DraggableConnectionList
+
 @Composable
 fun ConnectionListContent(
     groupedProfiles: Map<String?, List<ConnectionProfile>>,
+    profiles: List<ConnectionProfile>,
     searchQuery: String,
     activeConnectionCounts: Map<String, Int> = emptyMap(),
     onSearchQueryChange: (String) -> Unit,
@@ -27,15 +30,18 @@ fun ConnectionListContent(
     onEditConnection: (String) -> Unit,
     onDeleteConnection: (String) -> Unit,
     onConnect: (String) -> Unit,
+    onMoveProfile: (Int, Int) -> Unit = { _, _ -> },
     onMoveToFolder: (String, String?) -> Unit = { _, _ -> },
     onExportRequested: () -> Unit = {},
     onImportRequested: () -> Unit = {},
     onSettingsRequested: () -> Unit = {},
     onManageIdentitiesRequested: () -> Unit = {},
     initialMenuExpanded: Boolean = false,
+    isReorderingPreview: Boolean = false,
     defaultGroupName: String = com.adamoutler.ssh.crypto.SettingsManager(androidx.compose.ui.platform.LocalContext.current).defaultGroupName
 ) {
     var profileIdMovingToFolder by remember { mutableStateOf<String?>(null) }
+    var isReordering by remember { mutableStateOf(isReorderingPreview) }
 
     Scaffold(
         topBar = {
@@ -44,12 +50,17 @@ fun ConnectionListContent(
                 onImportRequested = onImportRequested,
                 onSettingsRequested = onSettingsRequested,
                 onManageIdentitiesRequested = onManageIdentitiesRequested,
+                onReorderRequested = { isReordering = true },
+                onReorderDone = { isReordering = false },
+                isReordering = isReordering,
                 initialMenuExpanded = initialMenuExpanded
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddConnection) {
-                Icon(Icons.Filled.Add, contentDescription = "Add Connection")
+            if (!isReordering) {
+                FloatingActionButton(onClick = onAddConnection) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add Connection")
+                }
             }
         }
     ) { padding ->
@@ -58,21 +69,31 @@ fun ConnectionListContent(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            SearchBar(
-                searchQuery = searchQuery,
-                onSearchQueryChange = onSearchQueryChange,
-                modifier = Modifier.padding(16.dp)
-            )
+            if (!isReordering) {
+                SearchBar(
+                    searchQuery = searchQuery,
+                    onSearchQueryChange = onSearchQueryChange,
+                    modifier = Modifier.padding(16.dp)
+                )
 
-            GroupedConnectionList(
-                groupedProfiles = groupedProfiles,
-                activeConnectionCounts = activeConnectionCounts,
-                onConnect = onConnect,
-                onEditConnection = onEditConnection,
-                onDeleteConnection = onDeleteConnection,
-                onMoveToFolder = { profileId -> profileIdMovingToFolder = profileId },
-                defaultGroupName = defaultGroupName
-            )
+                GroupedConnectionList(
+                    groupedProfiles = groupedProfiles,
+                    activeConnectionCounts = activeConnectionCounts,
+                    onConnect = onConnect,
+                    onEditConnection = onEditConnection,
+                    onDeleteConnection = onDeleteConnection,
+                    onMoveToFolder = { profileId -> profileIdMovingToFolder = profileId },
+                    defaultGroupName = defaultGroupName
+                )
+            } else {
+                DraggableConnectionList(
+                    profiles = profiles,
+                    activeConnectionCounts = activeConnectionCounts,
+                    onMoveProfile = onMoveProfile,
+                    onConnect = {}, // disable connecting while reordering
+                    onEditConnection = {} // disable editing while reordering
+                )
+            }
         }
     }
 

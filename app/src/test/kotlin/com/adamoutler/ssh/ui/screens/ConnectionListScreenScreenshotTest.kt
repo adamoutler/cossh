@@ -63,6 +63,7 @@ class ConnectionListScreenScreenshotTest {
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
+                        profiles = mockProfiles,
                         searchQuery = "",
                         onSearchQueryChange = {},
                         onAddConnection = {},
@@ -96,6 +97,7 @@ class ConnectionListScreenScreenshotTest {
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
+                        profiles = mockProfiles,
                         searchQuery = "",
                         onSearchQueryChange = {},
                         onAddConnection = {},
@@ -160,6 +162,7 @@ class ConnectionListScreenScreenshotTest {
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
+                        profiles = mockProfiles,
                         searchQuery = "",
                         activeConnectionCounts = mapOf("1" to 3),
                         onSearchQueryChange = {},
@@ -195,6 +198,7 @@ class ConnectionListScreenScreenshotTest {
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
+                        profiles = mockProfiles,
                         searchQuery = "",
                         onSearchQueryChange = {},
                         onAddConnection = {},
@@ -202,6 +206,49 @@ class ConnectionListScreenScreenshotTest {
                         onDeleteConnection = {},
                         onConnect = {},
                         defaultGroupName = "My Custom Group"
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun reorderModeScreen() {
+        val mockProfiles = listOf(
+            ConnectionProfile(
+                id = "1",
+                nickname = "Production Server",
+                host = "192.168.1.10",
+                port = 22,
+                username = "admin",
+                authType = AuthType.KEY,
+                sshKeyPasswordReferenceId = "mock-key-1"
+            ),
+            ConnectionProfile(
+                id = "2",
+                nickname = "Staging Server",
+                host = "staging.example.com",
+                port = 2222,
+                username = "dev",
+                authType = AuthType.PASSWORD
+            )
+        )
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    ConnectionListContent(
+                        groupedProfiles = mockProfiles.groupBy { it.folderId },
+                        profiles = mockProfiles,
+                        searchQuery = "",
+                        onSearchQueryChange = {},
+                        onAddConnection = {},
+                        onEditConnection = {},
+                        onDeleteConnection = {},
+                        onConnect = {},
+                        isReorderingPreview = true
                     )
                 }
             }
