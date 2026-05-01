@@ -27,6 +27,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -320,8 +324,16 @@ fun AddEditProfileScreenContent(
                             },
                             trailingIcon = {
                                 val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
-                                IconButton(onClick = { uriHandler.openUri("https://github.com/adamoutler/ssh/wiki") }) {
-                                    Icon(Icons.Outlined.Info, contentDescription = "Learn more about Manage Identities", tint = MaterialTheme.colorScheme.primary)
+                                IconButton(
+                                    onClick = { uriHandler.openUri("https://github.com/adamoutler/ssh/wiki") },
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clearAndSetSemantics {
+                                            contentDescription = "Learn more about Manage Identities. Opens external browser."
+                                            role = Role.Button
+                                        }
+                                ) {
+                                    Icon(Icons.Outlined.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                                 }
                             }
                         )
@@ -462,14 +474,15 @@ fun AddEditProfileScreenContent(
 
             Text("Advanced Configuration", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
+            SectionHeaderWithInfo(title = "Environment Variables", topic = "Environment Variables")
             OutlinedTextField(
                 value = envVarsText,
                 onValueChange = onEnvVarsTextChange,
-                label = { Text("Environment Variables (VAR=val,...)") },
+                label = { Text("VAR=val,...") },
                 modifier = Modifier.fillMaxWidth().testTag("EnvVarsInput")
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Port Forwarding", style = MaterialTheme.typography.titleSmall)
+            SectionHeaderWithInfo(title = "Port Forwarding", topic = "Port Forwarding")
             Spacer(modifier = Modifier.height(8.dp))
             
             portForwards.forEach { pf ->
@@ -607,6 +620,33 @@ fun AddEditProfileScreenContent(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Add Port Forward")
             }
+        }
+    }
+}
+
+@Composable
+fun SectionHeaderWithInfo(title: String, topic: String, modifier: Modifier = Modifier) {
+    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        Text(title, style = MaterialTheme.typography.titleSmall)
+        IconButton(
+            onClick = { uriHandler.openUri("https://github.com/adamoutler/ssh/wiki") },
+            modifier = Modifier
+                .size(48.dp)
+                .clearAndSetSemantics {
+                    contentDescription = "Learn more about $topic. Opens external browser."
+                    role = Role.Button
+                }
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }

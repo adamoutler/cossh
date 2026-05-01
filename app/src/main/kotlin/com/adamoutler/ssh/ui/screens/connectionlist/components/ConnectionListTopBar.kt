@@ -6,6 +6,12 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.platform.testTag
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,8 +45,16 @@ fun ConnectionListTopBar(
                         onManageIdentitiesRequested()
                     },
                     trailingIcon = {
-                        IconButton(onClick = { uriHandler.openUri("https://github.com/adamoutler/ssh/wiki") }) {
-                            Icon(Icons.Outlined.Info, contentDescription = "Learn more about Manage Identities", tint = MaterialTheme.colorScheme.primary)
+                        IconButton(
+                            onClick = { uriHandler.openUri("https://github.com/adamoutler/ssh/wiki") },
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clearAndSetSemantics {
+                                    contentDescription = "Learn more about Manage Identities. Opens external browser."
+                                    role = Role.Button
+                                }
+                        ) {
+                            Icon(Icons.Outlined.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         }
                     }
                 )
