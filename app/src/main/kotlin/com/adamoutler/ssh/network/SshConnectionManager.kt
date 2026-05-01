@@ -184,6 +184,7 @@ class SshConnectionManager(
 
         return when (profile.authType) {
             AuthType.PASSWORD -> PasswordAuthenticator()
+
             AuthType.KEY -> {
                 if (keyPair == null || keyPair.public == null) throw IllegalArgumentException("Valid KeyPair with public key required for key-based authentication")
                 KeyAuthenticator(keyPair)

@@ -65,6 +65,7 @@ class SshService : Service() {
                     stopSelf()
                 }
             }
+
             ACTION_DISCONNECT -> {
                 if (intent?.hasExtra(EXTRA_SESSION_ID) == true) {
                     stopSshConnection(sessionId)
@@ -203,16 +204,14 @@ class SshService : Service() {
         serviceScope.cancel()
     }
 
-    private fun createSummaryNotification(): Notification {
-        return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("CoSSH")
-            .setContentText("${connectionJobs.size.coerceAtLeast(1)} Active Sessions")
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setGroup(GROUP_KEY_SSH)
-            .setGroupSummary(true)
-            .setOngoing(true)
-            .build()
-    }
+    private fun createSummaryNotification(): Notification = NotificationCompat.Builder(this, CHANNEL_ID)
+        .setContentTitle("CoSSH")
+        .setContentText("${connectionJobs.size.coerceAtLeast(1)} Active Sessions")
+        .setSmallIcon(android.R.drawable.ic_dialog_info)
+        .setGroup(GROUP_KEY_SSH)
+        .setGroupSummary(true)
+        .setOngoing(true)
+        .build()
 
     private fun updateSummaryNotification() {
         val notificationManager = getSystemService(NotificationManager::class.java)
@@ -279,9 +278,7 @@ class SshService : Service() {
         }
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
+    override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
         super.onDestroy()

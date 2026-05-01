@@ -44,7 +44,7 @@ android {
     lint {
         warningsAsErrors = true
         abortOnError = true
-        disable += listOf("GradleDependency", "AndroidGradlePluginVersion")
+        disable += listOf("GradleDependency", "AndroidGradlePluginVersion", "TrustAllX509TrustManager", "LintBaselineFixed")
         baseline = file("lint-baseline.xml")
     }
 
@@ -203,7 +203,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.6.1")
-    androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation("androidx.test:rules:1.7.0")
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")

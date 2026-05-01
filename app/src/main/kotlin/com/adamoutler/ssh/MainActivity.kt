@@ -65,9 +65,11 @@ class MainActivity : ComponentActivity() {
                                     actionLabel = event.actionLabel,
                                 )
                             }
+
                             is UiEvent.ShowToast -> {
                                 Toast.makeText(this@MainActivity, event.message, Toast.LENGTH_LONG).show()
                             }
+
                             else -> { /* Navigate events should ideally be handled where navController is available */ }
                         }
                     }
