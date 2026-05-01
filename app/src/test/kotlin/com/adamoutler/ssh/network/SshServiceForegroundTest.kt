@@ -47,7 +47,6 @@ class SshServiceForegroundTest {
         println("Service started successfully without MissingForegroundServiceTypeException on API 34.")
     }
 
-    @org.junit.Ignore("Flaky on CI due to TempDirectory NoSuchFileException")
     @Test
     fun `test service connection state transitions to error on failure`() = kotlinx.coroutines.runBlocking {
         val app = ApplicationProvider.getApplicationContext<android.app.Application>()
@@ -81,6 +80,7 @@ class SshServiceForegroundTest {
         }
 
         org.junit.Assert.assertTrue("State should transition to Error", currentState is ConnectionState.Error)
+        serviceController.destroy()
     }
 
     @Test
@@ -126,5 +126,6 @@ class SshServiceForegroundTest {
         }
 
         org.junit.Assert.assertFalse("State should not transition to Error", currentState is ConnectionState.Error)
+        serviceController.destroy()
     }
 }

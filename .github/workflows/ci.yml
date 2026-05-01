@@ -68,4 +68,4 @@ jobs:
       - name: Run MobSF Static Analysis
         uses: MobSF/mobsfscan@main
         with:
-          args: '. --sarif --output results.sarif || true'
+          args: '. --sarif --output results.sarif'
