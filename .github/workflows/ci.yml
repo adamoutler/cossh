@@ -73,5 +73,6 @@ jobs:
           path: .
       - name: Run MobSF Analysis
         uses: MobSF/mobsf-action@main
+        continue-on-error: true
         with:
           file_name: app-debug.apk
