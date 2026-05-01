@@ -347,26 +347,34 @@ fun TerminalScreenContent(
     val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
     val connectionStartTime = androidx.compose.runtime.remember { android.os.SystemClock.uptimeMillis() }
 
+    val writeChannel = androidx.compose.runtime.remember { kotlinx.coroutines.channels.Channel<ByteArray>(kotlinx.coroutines.channels.Channel.UNLIMITED) }
+    
+    androidx.compose.runtime.LaunchedEffect(activeSession) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            for (bytes in writeChannel) {
+                try {
+                    activeSession.ptyOutputStream?.write(bytes)
+                    activeSession.ptyOutputStream?.flush()
+                } catch (ex: Exception) {
+                    android.util.Log.e("TerminalScreen", "Failed to write to SSH PTY", ex)
+                }
+            }
+        }
+    }
+
     val sendToTerminal: (ByteArray) -> Unit = { bytes ->
         if (showDisconnectedOverlay) {
             Log.d("TerminalScreen", "Input locked: session disconnected.")
         } else {
-            coroutineScope.launch(Dispatchers.IO) {
-                try {
-                    var finalBytes = bytes
-                    // Apply Alt modifier by prepending ESC (0x1B)
-                    if (altState.value.isActive && bytes.size == 1) {
-                        finalBytes = byteArrayOf(0x1B) + finalBytes
-                        if (altState.value == ModifierState.STICKY) {
-                            altState.value = ModifierState.INACTIVE
-                        }
-                    }
-                    activeSession.ptyOutputStream?.write(finalBytes)
-                    activeSession.ptyOutputStream?.flush()
-                } catch (ex: Exception) {
-                    Log.e("TerminalScreen", "Failed to write to SSH PTY", ex)
+            var finalBytes = bytes
+            // Apply Alt modifier by prepending ESC (0x1B)
+            if (altState.value.isActive && bytes.size == 1) {
+                finalBytes = byteArrayOf(0x1B) + finalBytes
+                if (altState.value == ModifierState.STICKY) {
+                    altState.value = ModifierState.INACTIVE
                 }
             }
+            writeChannel.trySend(finalBytes)
         }
     }
 

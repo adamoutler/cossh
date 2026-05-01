@@ -66,7 +66,7 @@ class TerminalViewModel(application: Application) : AndroidViewModel(application
             TerminalSession(
                 "/system/bin/sh",
                 "/",
-                arrayOf("sh", "-c", "exec sleep 2147483647"),
+                arrayOf("sh", "-c", "stty -echo 2>/dev/null; exec sleep 2147483647"),
                 arrayOf("TERM=xterm-256color"),
                 0,
                 this,
