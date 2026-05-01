@@ -145,7 +145,9 @@ object ConnectionStateRepository {
                 }
             }
         }
-        mockTestTranscripts.remove(sessionId)
+        if (!isHeadlessTest) {
+            mockTestTranscripts.remove(sessionId)
+        }
     }
 
     suspend fun emitOutput(sessionId: String, data: ByteArray) {

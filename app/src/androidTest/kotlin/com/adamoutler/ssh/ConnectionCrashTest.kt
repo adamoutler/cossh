@@ -39,6 +39,7 @@ class ConnectionCrashTest {
             // Set headless mode for Android 16/API 35 16KB JNI bypass
             com.adamoutler.ssh.network.SshSessionProvider.isHeadlessTest = true
             com.adamoutler.ssh.network.SshSessionProvider.mockTestTranscript = null
+            com.adamoutler.ssh.network.ConnectionStateRepository.sessions.clear()
 
             // Apply hack to prevent org.apache.sshd ExceptionInInitializerError on Android
             System.setProperty("user.home", context.filesDir.absolutePath)
@@ -47,10 +48,10 @@ class ConnectionCrashTest {
             val profile = ConnectionProfile(
                 id = "mock-id-ui-crash-test",
                 nickname = "UI Crash Test Profile",
-                host = "mock.hackedyour.info",
+                host = "10.0.2.2",
                 username = "test",
                 authType = AuthType.PASSWORD,
-                port = 32222,
+                port = 41111,
             )
             profile.password = java.util.UUID.randomUUID().toString().toByteArray()
             storageManager.saveProfile(profile)
@@ -133,11 +134,11 @@ class ConnectionCrashTest {
             println("=======================")
 
             assertTrue(
-                "Terminal should echo 'test1'",
+                "Terminal should echo 'test1', actual: '$terminalContent'",
                 terminalContent.contains("test1"),
             )
             assertTrue(
-                "Terminal should echo 'test2'",
+                "Terminal should echo 'test2', actual: '$terminalContent'",
                 terminalContent.contains("test2"),
             )
 
@@ -157,6 +158,7 @@ class ConnectionCrashTest {
             }
             context.startService(stopIntent)
             scenario.close()
+            println("=== CONNECTION CRASH TEST PASSED ===")
         }
     }
 }

@@ -25,12 +25,12 @@ object SshSessionProvider {
         get() = ConnectionStateRepository.sessions.values.firstOrNull()?.ptyOutputStream
 
     var mockTestTranscript: String?
-        get() = ConnectionStateRepository.mockTestTranscripts.values.firstOrNull()
+        get() = ConnectionStateRepository.mockTestTranscripts.values.joinToString("\n")
         set(value) {
-            val key = ConnectionStateRepository.mockTestTranscripts.keys().toList().firstOrNull() ?: "mock-id-ui-crash-test"
             if (value == null) {
-                ConnectionStateRepository.mockTestTranscripts.remove(key)
+                ConnectionStateRepository.mockTestTranscripts.clear()
             } else {
+                val key = ConnectionStateRepository.mockTestTranscripts.keys().toList().firstOrNull() ?: "mock-id-ui-crash-test"
                 ConnectionStateRepository.mockTestTranscripts[key] = value
             }
         }

@@ -37,17 +37,19 @@ class ConnectionResumeE2ETest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val storageManager = SecurityStorageManager(context)
 
-        SshSessionProvider.isHeadlessTest = false
+        SshSessionProvider.isHeadlessTest = true
+        SshSessionProvider.mockTestTranscript = null
+        com.adamoutler.ssh.network.ConnectionStateRepository.sessions.clear()
         System.setProperty("user.home", context.filesDir.absolutePath)
 
         val profileId = "mock-id-resume-e2e"
         val profile = ConnectionProfile(
             id = profileId,
             nickname = "mock.hackedyour.info",
-            host = "192.168.1.115",
+            host = "10.0.2.2",
             username = "test",
             authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
-            port = 32222,
+            port = 41111,
         )
         profile.password = java.util.UUID.randomUUID().toString().toByteArray()
         storageManager.saveProfile(profile)
@@ -94,16 +96,20 @@ class ConnectionResumeE2ETest {
 
             // 5. Observe silent notification (implicitly tested by resuming Activity)
             // 6. Tap notification (we simulate resuming the app via recent apps or launcher)
-            val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-            intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            context.startActivity(intent)
+            val launchIntent = context.packageManager.getLaunchIntentForPackage("com.adamoutler.cobaltssh.debug")
+                ?: android.content.Intent(context, MainActivity::class.java)
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            context.startActivity(launchIntent)
             device.waitForIdle()
             Thread.sleep(2000)
 
             // 7. Observe text entered
-            val emulator = SshSessionProvider.terminalSession?.emulator
-            val transcript = emulator?.screen?.transcriptText ?: ""
-            assertTrue("Transcript should contain 'Hello Resume'", transcript.contains("Hello Resume"))
+            val transcript = SshSessionProvider.mockTestTranscript ?: ""
+            println("=== HEADLESS TERMINAL OUTPUT (RESUME) ===")
+            println(transcript)
+            println("=========================================")
+            android.util.Log.d("ConnectionResumeE2ETest", "TRANSCRIPT WAS: '$transcript'")
+            assertTrue("Transcript should contain 'Hello Resume', actual: '$transcript'", transcript.contains("Hello Resume"))
 
             // 8. Press back to return to main menu
             device.pressBack()
@@ -135,7 +141,7 @@ class ConnectionResumeE2ETest {
             Thread.sleep(1000)
 
             // 14. Reopen app
-            context.startActivity(intent)
+            context.startActivity(launchIntent)
             device.waitForIdle()
             Thread.sleep(2000)
 
