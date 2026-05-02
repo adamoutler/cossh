@@ -1,6 +1,5 @@
 package com.adamoutler.ssh.ui.screens.connectionlist.components
 
-import android.util.Log
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,11 +10,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.adamoutler.ssh.data.ConnectionProfile
-import com.adamoutler.ssh.network.SshService
 
 @Composable
 fun DraggableConnectionList(
@@ -26,7 +23,6 @@ fun DraggableConnectionList(
     onEditConnection: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
     val listState = rememberLazyListState()
     var draggedItemIndex by remember { mutableStateOf<Int?>(null) }
     var dragOffset by remember { mutableStateOf(0f) }
@@ -91,16 +87,6 @@ fun DraggableConnectionList(
                     activeCount = activeConnectionCounts[profile.id] ?: 0,
                     elevation = if (isDragging) 8.dp else 2.dp,
                     onClick = {
-                        Log.d("ConnectionListScreen", "Connecting to \${profile.nickname} (\${profile.host})")
-                        val intent = android.content.Intent(context, SshService::class.java).apply {
-                            action = SshService.ACTION_START
-                            putExtra(SshService.EXTRA_PROFILE_ID, profile.id)
-                        }
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                            context.startForegroundService(intent)
-                        } else {
-                            context.startService(intent)
-                        }
                         onConnect(profile.id)
                     },
                     onEdit = { onEditConnection(profile.id) },
