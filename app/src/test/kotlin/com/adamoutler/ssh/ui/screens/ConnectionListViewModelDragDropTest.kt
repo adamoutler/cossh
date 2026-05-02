@@ -43,14 +43,18 @@ class ConnectionListViewModelDragDropTest {
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
         Thread.sleep(100)
 
-        // Verify initial order
-        assertEquals(3, viewModel.profiles.value.size)
-        assertEquals("id1", viewModel.profiles.value[0].id)
-        assertEquals("id2", viewModel.profiles.value[1].id)
-        assertEquals("id3", viewModel.profiles.value[2].id)
+        // Verify initial order (3 Profiles, 0 Headers because showHeaders is false for single null group)
+        assertEquals(3, viewModel.flatItems.value.size)
+        val initialP1 = viewModel.flatItems.value[0] as ConnectionListItem.Profile
+        val initialP2 = viewModel.flatItems.value[1] as ConnectionListItem.Profile
+        val initialP3 = viewModel.flatItems.value[2] as ConnectionListItem.Profile
 
-        // Drag profile index 0 to index 1
-        viewModel.moveProfile(0, 1)
+        assertEquals("id1", initialP1.profile.id)
+        assertEquals("id2", initialP2.profile.id)
+        assertEquals("id3", initialP3.profile.id)
+
+        // Drag profile from flat list index 0 to index 1
+        viewModel.moveProfileInFlatList(0, 1)
 
         // Give coroutines time to launch and save
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
@@ -64,9 +68,13 @@ class ConnectionListViewModelDragDropTest {
         Thread.sleep(100)
 
         // Verify new order is successfully loaded into the UI layer from local storage
-        assertEquals("id2", newViewModel.profiles.value[0].id)
-        assertEquals("id1", newViewModel.profiles.value[1].id)
-        assertEquals("id3", newViewModel.profiles.value[2].id)
+        val newP1 = newViewModel.flatItems.value[0] as ConnectionListItem.Profile
+        val newP2 = newViewModel.flatItems.value[1] as ConnectionListItem.Profile
+        val newP3 = newViewModel.flatItems.value[2] as ConnectionListItem.Profile
+
+        assertEquals("id2", newP1.profile.id)
+        assertEquals("id1", newP2.profile.id)
+        assertEquals("id3", newP3.profile.id)
 
         println("SUCCESS: Reorder correctly preserved across reloads")
     }
