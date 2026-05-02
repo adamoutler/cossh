@@ -3,11 +3,6 @@ isRunning
 reset
 write
 getPid
-updateSize
-getTitle
-initializeEmulator
-writeCodePoint
-getEmulator
 finishIfRunning
 titleChanged
 getExitStatus
@@ -17,6 +12,11 @@ onBell
 onColorsChanged
 getCwd
 updateTerminalSessionClient
+updateSize
+getTitle
+initializeEmulator
+writeCodePoint
+getEmulator
 write
 equals
 toString
@@ -32,6 +32,7 @@ reset
 toString
 append
 resize
+updateTerminalSessionClient
 getTitle
 getScreen
 isAlternateBufferActive
@@ -49,7 +50,6 @@ isKeypadApplicationMode
 isCursorKeysApplicationMode
 isMouseTrackingActive
 processCodePoint
-updateTerminalSessionClient
 doDecSetOrReset
 getScrollCounter
 clearScrollCounter
