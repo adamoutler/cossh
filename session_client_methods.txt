@@ -1,6 +1,9 @@
 TerminalSessionClient:
-onTerminalCursorStateChange
 onBell
+logDebug
+logVerbose
+logStackTraceWithMessage
+logStackTrace
 onTextChanged
 onTitleChanged
 onSessionFinished
@@ -11,7 +14,4 @@ getTerminalCursorStyle
 logError
 logWarn
 logInfo
-logDebug
-logVerbose
-logStackTraceWithMessage
-logStackTrace
+onTerminalCursorStateChange
