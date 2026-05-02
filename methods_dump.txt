@@ -5,7 +5,6 @@ write
 getPid
 updateSize
 getTitle
-updateTerminalSessionClient
 initializeEmulator
 writeCodePoint
 getEmulator
@@ -17,6 +16,7 @@ onPasteTextFromClipboard
 onBell
 onColorsChanged
 getCwd
+updateTerminalSessionClient
 write
 equals
 toString

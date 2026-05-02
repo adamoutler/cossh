@@ -29,6 +29,7 @@ data class ProfileFormState(
     val identityId: String? = null,
     val envVarsText: String = "",
     val portForwards: List<PortForwardConfig> = emptyList(),
+    val initialDirectory: String = "",
     val isLoaded: Boolean = false,
 )
 
@@ -70,6 +71,7 @@ class AddEditProfileViewModel(
                         identityId = profile.identityId,
                         envVarsText = profile.envVars.entries.joinToString(",") { entry -> "${entry.key}=${entry.value}" },
                         portForwards = profile.portForwards,
+                        initialDirectory = profile.initialDirectory ?: "",
                         isLoaded = true,
                     )
                 }
@@ -96,6 +98,7 @@ class AddEditProfileViewModel(
         identityId: String? = null,
         envVars: Map<String, String> = emptyMap(),
         portForwards: List<PortForwardConfig> = emptyList(),
+        initialDirectory: String? = null,
     ) {
         val profileId = id ?: UUID.randomUUID().toString()
         val profile = ConnectionProfile(
@@ -111,6 +114,7 @@ class AddEditProfileViewModel(
             identityId = identityId,
             envVars = envVars,
             portForwards = portForwards,
+            initialDirectory = initialDirectory?.takeIf { it.isNotBlank() },
         )
         storageManager.saveProfile(profile)
         resetState()

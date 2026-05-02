@@ -360,6 +360,13 @@ class SshConnectionManager(
                 session.allocatePTY("xterm-256color", 80, 24, 0, 0, emptyMap())
                 val shell = session.startShell()
 
+                if (!effectiveProfile.initialDirectory.isNullOrEmpty()) {
+                    val escapedDir = effectiveProfile.initialDirectory.replace("'", "'\\''")
+                    val cdCmd = "cd '$escapedDir'\r\n"
+                    shell.outputStream.write(cdCmd.toByteArray(Charsets.UTF_8))
+                    shell.outputStream.flush()
+                }
+
                 onConnect(shell.outputStream, shell)
 
                 val bridge = PtyStreamBridge(shell.inputStream, onOutput)
@@ -447,6 +454,13 @@ class SshConnectionManager(
                         tc.outputStream.close()
                     } catch (e: Exception) {}
                 }
+            }
+
+            if (!profile.initialDirectory.isNullOrEmpty()) {
+                val escapedDir = profile.initialDirectory.replace("'", "'\\''")
+                val cdCmd = "cd '$escapedDir'\r\n"
+                autoFlushingStream.write(cdCmd.toByteArray(Charsets.UTF_8))
+                autoFlushingStream.flush()
             }
 
             onConnect(autoFlushingStream, null)

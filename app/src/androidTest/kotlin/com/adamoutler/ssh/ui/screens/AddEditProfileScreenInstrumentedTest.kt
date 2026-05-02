@@ -55,6 +55,8 @@ class AddEditProfileScreenInstrumentedTest {
                 onEnvVarsTextChange = {},
                 portForwards = emptyList(),
                 onPortForwardsChange = {},
+                initialDirectory = "",
+                onInitialDirectoryChange = {},
             )
         }
 
