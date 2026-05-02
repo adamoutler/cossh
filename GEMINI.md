@@ -2,7 +2,8 @@
 
 ## Project Context
 - **Application:** CoSSH is a native, highly secure Android SSH terminal client designed to replace legacy applications. It features a cobalt-blue aesthetic, one-touch connectivity, local Keystore encryption, and Google Drive cloud sync (gated by Play Billing/Promo codes).
-- **Workspace Constraints:** Tickets follow the standard Kanban format defined by the project slug. To discover the project slug, call `mcp_kanban_search_tickets` with `project_slug='help'`.
+- **Workspace Constraints:** Tickets follow the standard Kanban format defined by the project slug.
+- **Initialization Mandate:** At the start of every new session or before interacting with any Kanban tasks, you MUST call `mcp_kanban_search_tickets` with `project_slug='help'` to refresh your context on the available projects and slugs.
 
 ## Operational Rules & Tool Governance
 
