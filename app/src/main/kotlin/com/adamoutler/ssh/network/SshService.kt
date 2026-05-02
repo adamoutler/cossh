@@ -129,6 +129,7 @@ class SshService : Service() {
                                 val newText = String(bytes, 0, length, Charsets.UTF_8)
                                 val current = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: ""
                                 ConnectionStateRepository.mockTestTranscripts[sessionId] = current + newText
+                                Log.d("SshService", "Headless mock updated: $newText")
                             }
 
                             // Send bytes to UI via shared flow

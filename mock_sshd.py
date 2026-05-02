@@ -82,6 +82,10 @@ def handle_client(client_socket):
                 break
             print(f"Received bytes from SSH client: {[hex(b) for b in data]}", flush=True)
             channel.send(data)
+            if b"exit" in data:
+                print("Exit command received. Closing channel.")
+                channel.send_exit_status(0)
+                break
         except Exception:
             break
     channel.close()

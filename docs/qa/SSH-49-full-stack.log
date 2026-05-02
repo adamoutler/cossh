@@ -28,9 +28,7 @@
 > Task :app:generateDebugAndroidTestResources UP-TO-DATE
 > Task :app:mergeDebugAndroidTestResources UP-TO-DATE
 > Task :app:processDebugAndroidTestResources UP-TO-DATE
-> Task :app:compileDebugAndroidTestKotlin UP-TO-DATE
 > Task :app:javaPreCompileDebugAndroidTest UP-TO-DATE
-> Task :app:compileDebugAndroidTestJavaWithJavac UP-TO-DATE
 > Task :app:mergeDebugShaders UP-TO-DATE
 > Task :app:compileDebugShaders NO-SOURCE
 > Task :app:generateDebugAssets UP-TO-DATE
@@ -67,52 +65,22 @@
 > Task :app:mergeDebugAndroidTestAssets UP-TO-DATE
 > Task :app:compressDebugAndroidTestAssets UP-TO-DATE
 > Task :app:desugarDebugAndroidTestFileDependencies UP-TO-DATE
-> Task :app:dexBuilderDebugAndroidTest UP-TO-DATE
-> Task :app:mergeDebugAndroidTestGlobalSynthetics UP-TO-DATE
-> Task :app:processDebugAndroidTestJavaRes UP-TO-DATE
-> Task :app:mergeDebugAndroidTestJavaResource UP-TO-DATE
 > Task :app:checkDebugAndroidTestDuplicateClasses UP-TO-DATE
 > Task :app:mergeExtDexDebugAndroidTest UP-TO-DATE
 > Task :app:mergeLibDexDebugAndroidTest UP-TO-DATE
-> Task :app:mergeProjectDexDebugAndroidTest UP-TO-DATE
 > Task :app:mergeDebugAndroidTestJniLibFolders UP-TO-DATE
 > Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
 > Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
 > Task :app:validateSigningDebugAndroidTest UP-TO-DATE
 > Task :app:writeDebugAndroidTestSigningConfigVersions UP-TO-DATE
-> Task :app:packageDebugAndroidTest UP-TO-DATE
+> Task :app:compileDebugAndroidTestKotlin
+> Task :app:compileDebugAndroidTestJavaWithJavac UP-TO-DATE
+> Task :app:dexBuilderDebugAndroidTest
+> Task :app:mergeDebugAndroidTestGlobalSynthetics UP-TO-DATE
+> Task :app:processDebugAndroidTestJavaRes UP-TO-DATE
+> Task :app:mergeDebugAndroidTestJavaResource UP-TO-DATE
+> Task :app:mergeProjectDexDebugAndroidTest
+> Task :app:packageDebugAndroidTest
 > Task :app:createDebugAndroidTestApkListingFileRedirect UP-TO-DATE
-
-> Task :app:connectedDebugAndroidTest
-Starting 18 tests on Agent_Device(AVD) - 14
-
-Agent_Device(AVD) - 14 Tests 0/18 completed. (0 skipped) (0 failed)
-
-> Task :app:connectedDebugAndroidTest
-
-com.adamoutler.ssh.ConnectionCrashTest > testConnectionAndDataTransmission[Agent_Device(AVD) - 14] [31mFAILED [0m
-
-
-Agent_Device(AVD) - 14 Tests 1/18 completed. (0 skipped) (1 failed)
-Finished 1 tests on Agent_Device(AVD) - 14
-
-> Task :app:connectedDebugAndroidTest
-Tests on Agent_Device(AVD) - 14 failed: There was 1 failure(s).
-Test run failed to complete. Instrumentation run failed due to Process crashed.
-
 > Task :app:connectedDebugAndroidTest FAILED
-
-FAILURE: Build failed with an exception.
-
-* What went wrong:
-Execution failed for task ':app:connectedDebugAndroidTest'.
-> There were failing tests. See the report at: file:///home/adamoutler/git/ssh/app/build/reports/androidTests/connected/debug/index.html
-
-* Try:
-> Run with --stacktrace option to get the stack trace.
-> Run with --info or --debug option to get more log output.
-> Run with --scan to get full insights.
-> Get more help at https://help.gradle.org.
-
-BUILD FAILED in 45s
-76 actionable tasks: 10 executed, 66 up-to-date
+76 actionable tasks: 14 executed, 62 up-to-date

@@ -193,6 +193,17 @@ class TerminalScreenInstrumentedTest {
         assertTrue("Navigate back should be called when backgrounding", backNavigationCalled)
         backNavigationCalled = false // Reset
 
+        // Re-open overlay
+        androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom(com.termux.view.TerminalView::class.java))
+            .perform(object : androidx.test.espresso.ViewAction {
+                override fun getConstraints() = androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom(com.termux.view.TerminalView::class.java)
+                override fun getDescription() = "Invoke onSingleTapUp"
+                override fun perform(uiController: androidx.test.espresso.UiController?, view: android.view.View?) {
+                    (view as? com.termux.view.TerminalView)?.mClient?.onSingleTapUp(null)
+                }
+            })
+        composeTestRule.waitForIdle()
+
         // State machine might transition or buttons might stay. Let's just click 'X' now.
         composeTestRule.onNode(androidx.compose.ui.test.hasContentDescription("Terminate Session")).performClick()
         composeTestRule.waitForIdle()

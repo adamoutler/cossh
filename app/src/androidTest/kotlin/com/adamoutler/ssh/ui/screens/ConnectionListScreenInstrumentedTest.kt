@@ -36,6 +36,7 @@ class ConnectionListScreenInstrumentedTest {
         composeTestRule.setContent {
             ConnectionListContent(
                 groupedProfiles = mapOf(null to listOf(mockProfile)),
+                profiles = listOf(mockProfile),
                 searchQuery = "",
                 activeConnectionCounts = emptyMap(),
                 onSearchQueryChange = {},
@@ -92,6 +93,7 @@ class ConnectionListScreenInstrumentedTest {
             ) {
                 ConnectionListContent(
                     groupedProfiles = mapOf(null to listOf(mockProfile)),
+                    profiles = listOf(mockProfile),
                     searchQuery = "",
                     activeConnectionCounts = emptyMap(),
                     onSearchQueryChange = {},
@@ -128,6 +130,7 @@ class ConnectionListScreenInstrumentedTest {
         composeTestRule.setContent {
             ConnectionListContent(
                 groupedProfiles = mapOf(null to listOf(mockProfile)),
+                profiles = listOf(mockProfile),
                 searchQuery = "",
                 activeConnectionCounts = mapOf("1" to 3),
                 onSearchQueryChange = {},
