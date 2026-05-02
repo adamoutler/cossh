@@ -35,17 +35,15 @@ class SshServiceInstrumentationTest {
         android.Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE,
     )
 
-    @org.junit.Ignore("Temporarily ignored for CI stability")
     @Test(timeout = 300000L)
     fun testForegroundServiceSurvivesActivityBackgrounding() = kotlinx.coroutines.runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val storageManager = com.adamoutler.ssh.crypto.SecurityStorageManager(context)
-        storageManager.getAllProfiles().forEach { storageManager.deleteProfile(it.id) }
         val mockProfile = com.adamoutler.ssh.data.ConnectionProfile(
             id = "mock-profile",
             nickname = "Test",
             host = "10.0.2.2",
-            port = 41111,
+            port = 2222,
             username = "test",
             authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
             password = "test".toByteArray(),
@@ -65,7 +63,7 @@ class SshServiceInstrumentationTest {
 
         // Wait for notification to be posted
         var notificationPosted = false
-        for (i in 1..50) {
+        for (i in 1..10) {
             val activeNotifications = notificationManager.activeNotifications
             if (activeNotifications.any { it.id == 1 }) { // NOTIFICATION_ID is 1
                 notificationPosted = true
