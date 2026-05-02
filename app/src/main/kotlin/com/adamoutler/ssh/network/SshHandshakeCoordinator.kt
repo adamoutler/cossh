@@ -106,7 +106,8 @@ class SshHandshakeCoordinator(
         }
     }
 
-    private fun loadKeyPairFromIdentity(identity: IdentityProfile): KeyPair {
+    @PublishedApi
+    internal fun loadKeyPairFromIdentity(identity: IdentityProfile): KeyPair {
         val privateKeyBytes = identity.privateKey ?: throw IllegalArgumentException("Identity has no private key")
 
         var publicKey: PublicKey? = null

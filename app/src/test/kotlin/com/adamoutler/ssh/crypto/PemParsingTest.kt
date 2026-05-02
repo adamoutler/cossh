@@ -26,11 +26,9 @@ class PemParsingTest {
         val pem = sw.toString()
 
         val identity = IdentityProfile(name = "test", username = "test", privateKey = pem.toByteArray())
-        val manager = SshConnectionManager(context = ApplicationProvider.getApplicationContext())
+        val manager = com.adamoutler.ssh.network.SshHandshakeCoordinator(context = ApplicationProvider.getApplicationContext())
         try {
-            val method = manager.javaClass.getDeclaredMethod("loadKeyPairFromIdentity", IdentityProfile::class.java)
-            method.isAccessible = true
-            val parsedKp = method.invoke(manager, identity) as java.security.KeyPair
+            val parsedKp = manager.loadKeyPairFromIdentity(identity)
             assertNotNull(parsedKp)
             assertNotNull(parsedKp.private)
         } catch (e: Exception) {
@@ -50,10 +48,8 @@ AAAEBKiLMDOccl0BWyiGJ1QQUyW0PznmjKtml2gwOymx/MBKc3GTSItQK4BpGtNhwEtC7x
 3Awp5q84eMudn9C7Y580AAAAE2FkYW1vdXRsZXJASExBQi1BMjUBAg==
 -----END OPENSSH PRIVATE KEY-----"""
         val identity = IdentityProfile(name = "test", username = "test", privateKey = pem.toByteArray())
-        val manager = SshConnectionManager(context = ApplicationProvider.getApplicationContext())
-        val method = manager.javaClass.getDeclaredMethod("loadKeyPairFromIdentity", IdentityProfile::class.java)
-        method.isAccessible = true
-        val parsedKp = method.invoke(manager, identity) as java.security.KeyPair
+        val manager = com.adamoutler.ssh.network.SshHandshakeCoordinator(context = ApplicationProvider.getApplicationContext())
+        val parsedKp = manager.loadKeyPairFromIdentity(identity)
         assertNotNull(parsedKp)
         assertNotNull(parsedKp.private)
     }
