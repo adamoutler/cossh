@@ -22,6 +22,7 @@ import com.adamoutler.ssh.data.Protocol
 @Composable
 fun ConnectionItem(
     profile: ConnectionProfile,
+    modifier: Modifier = Modifier,
     activeCount: Int = 0,
     isReordering: Boolean = false,
     dragHandleModifier: Modifier = Modifier,
@@ -30,7 +31,7 @@ fun ConnectionItem(
     elevation: Dp = 2.dp,
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .testTag("ConnectionItem_${profile.id}")
