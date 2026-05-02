@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material3.*
@@ -22,6 +23,8 @@ import com.adamoutler.ssh.data.Protocol
 fun ConnectionItem(
     profile: ConnectionProfile,
     activeCount: Int = 0,
+    isReordering: Boolean = false,
+    dragHandleModifier: Modifier = Modifier,
     onClick: () -> Unit,
     onEdit: () -> Unit,
     elevation: Dp = 2.dp,
@@ -32,8 +35,8 @@ fun ConnectionItem(
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .testTag("ConnectionItem_${profile.id}")
             .combinedClickable(
-                onClick = onClick,
-                onLongClick = onEdit,
+                onClick = { if (!isReordering) onClick() },
+                onLongClick = { if (!isReordering) onEdit() },
             ),
         elevation = CardDefaults.cardElevation(defaultElevation = elevation),
     ) {
@@ -65,6 +68,16 @@ fun ConnectionItem(
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
+            }
+            if (isReordering) {
+                Icon(
+                    imageVector = Icons.Default.DragHandle,
+                    contentDescription = "Reorder",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = dragHandleModifier
+                        .padding(start = 16.dp)
+                        .size(32.dp),
+                )
             }
         }
     }
