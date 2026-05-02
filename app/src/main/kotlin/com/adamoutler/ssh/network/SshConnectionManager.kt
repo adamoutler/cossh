@@ -1,9 +1,7 @@
 package com.adamoutler.ssh.network
 
 import com.adamoutler.ssh.crypto.IdentityStorageManager
-import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
-import com.adamoutler.ssh.data.IdentityProfile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -14,6 +12,7 @@ import net.schmizz.sshj.transport.verification.OpenSSHKnownHosts
 import java.io.File
 import java.security.KeyPair
 import java.security.PublicKey
+import kotlinx.coroutines.awaitCancellation
 
 class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(knownHostsFile) {
     override fun verify(hostname: String, port: Int, key: PublicKey): Boolean {
@@ -112,115 +111,6 @@ class SshConnectionManager(
     private var telnetClient: org.apache.commons.net.telnet.TelnetClient? = null
     private val localServerSockets = mutableListOf<java.net.ServerSocket>()
 
-    private fun configureHostKeyVerifier() {
-        if (hostKeyVerifier != null) {
-            client?.addHostKeyVerifier(hostKeyVerifier)
-        } else {
-            val knownHostsFile = context?.let { File(it.filesDir, "ssh_known_hosts") }
-            if (knownHostsFile != null) {
-                if (!knownHostsFile.exists()) knownHostsFile.createNewFile()
-                client?.addHostKeyVerifier(TofuHostKeyVerifier(knownHostsFile))
-            } else {
-                throw java.io.IOException("No Context provided for TOFU verifier and no HostKeyVerifier configured. Refusing to connect insecurely.")
-            }
-        }
-    }
-
-    private class CompositeAuthenticator(private val authenticators: List<SshAuthenticator>) : SshAuthenticator {
-        override fun authenticate(client: SSHClient, profile: ConnectionProfile) {
-            var lastException: Exception? = null
-            for (authenticator in authenticators) {
-                try {
-                    authenticator.authenticate(client, profile)
-                    if (client.isAuthenticated) {
-                        return
-                    }
-                } catch (e: Exception) {
-                    lastException = e
-                    android.util.Log.w("CompositeAuthenticator", "Authentication failed with ${authenticator::class.java.simpleName}, trying next", e)
-                }
-            }
-            throw net.schmizz.sshj.userauth.UserAuthException("All authentication methods failed", lastException)
-        }
-    }
-
-    private fun getAuthenticator(
-        profile: ConnectionProfile,
-        keyPair: KeyPair?,
-        identity: IdentityProfile? = null,
-    ): SshAuthenticator {
-        if (identity != null) {
-            val authenticators = mutableListOf<SshAuthenticator>()
-
-            // Try key auth if a private key exists
-            if (identity.privateKey != null || keyPair != null) {
-                try {
-                    val resolvedKeyPair = if (identity.privateKey != null) {
-                        loadKeyPairFromIdentity(identity)
-                    } else {
-                        keyPair
-                    }
-                    if (resolvedKeyPair?.public != null) {
-                        authenticators.add(KeyAuthenticator(resolvedKeyPair))
-                    } else {
-                        android.util.Log.w("SshConnectionManager", "Public key is null, skipping KeyAuthenticator")
-                    }
-                } catch (e: Exception) {
-                    android.util.Log.e("SshConnectionManager", "Failed to initialize keypair", e)
-                }
-            }
-
-            // Try password auth if a password exists or if authType is PASSWORD
-            if (identity.password != null || profile.authType == AuthType.PASSWORD) {
-                authenticators.add(PasswordAuthenticator())
-            }
-
-            if (authenticators.isNotEmpty()) {
-                return CompositeAuthenticator(authenticators)
-            }
-
-            throw IllegalArgumentException("Identity has neither valid password nor complete private/public key")
-        }
-
-        return when (profile.authType) {
-            AuthType.PASSWORD -> PasswordAuthenticator()
-
-            AuthType.KEY -> {
-                if (keyPair == null || keyPair.public == null) throw IllegalArgumentException("Valid KeyPair with public key required for key-based authentication")
-                KeyAuthenticator(keyPair)
-            }
-        }
-    }
-
-    private fun loadKeyPairFromIdentity(identity: IdentityProfile): KeyPair {
-        val privateKeyBytes = identity.privateKey ?: throw IllegalArgumentException("Identity has no private key")
-
-        var publicKey: java.security.PublicKey? = null
-        try {
-            val pubKeyStr = identity.publicKey
-            if (!pubKeyStr.isNullOrEmpty()) {
-                val parts = pubKeyStr.split(" ")
-                if (parts.size >= 2) {
-                    val type = parts[0]
-                    val base64 = parts[1]
-                    val decoded = java.util.Base64.getDecoder().decode(base64)
-                    val buffer = net.schmizz.sshj.common.Buffer.PlainBuffer(decoded)
-                    buffer.readString() // Read algorithm name
-                    publicKey = net.schmizz.sshj.common.KeyType.fromString(type).readPubKeyFromBuffer(buffer)
-                }
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("SshConnectionManager", "Failed to parse public key from identity", e)
-        }
-
-        return com.adamoutler.ssh.crypto.PemUtils.parsePemToKeyPair(privateKeyBytes, publicKey)
-    }
-
-    private fun resolveIdentity(profile: ConnectionProfile): IdentityProfile? {
-        val id = profile.identityId ?: return null
-        return identityStorageManager?.getIdentity(id)
-    }
-
     fun disconnect() {
         try {
             client?.disconnect()
@@ -272,30 +162,16 @@ class SshConnectionManager(
     suspend fun connectAndExecute(profile: ConnectionProfile, command: String, keyPair: KeyPair? = null): String = withContext(Dispatchers.IO) {
         val client = SSHClient(net.schmizz.sshj.AndroidConfig())
         this@SshConnectionManager.client = client
-        // Aggressive timeouts per security invariant
-        client.connectTimeout = 10000
-        client.timeout = 10000
-
-        val identity = resolveIdentity(profile)
+        val handshakeCoordinator = SshHandshakeCoordinator(hostKeyVerifier, identityStorageManager, context)
 
         try {
-            configureHostKeyVerifier()
-
-            client.connect(profile.host, profile.port)
-
-            val effectiveProfile = if (identity != null) {
-                profile.copy(username = identity.username, password = identity.password)
-            } else {
-                profile
-            }
-
-            getAuthenticator(profile, keyPair, identity).authenticate(client, effectiveProfile)
-
-            client.startSession().use { session ->
-                val cmd = session.exec(command)
-                val result = cmd.inputStream.bufferedReader().use { it.readText() }
-                cmd.join()
-                return@withContext result
+            handshakeCoordinator.executeWithConnection(client, profile, keyPair) { effectiveProfile ->
+                client.startSession().use { session ->
+                    val cmd = session.exec(command)
+                    val result = cmd.inputStream.bufferedReader().use { it.readText() }
+                    cmd.join()
+                    return@withContext result
+                }
             }
         } finally {
             try {
@@ -303,7 +179,6 @@ class SshConnectionManager(
             } catch (e: Exception) {
                 android.util.Log.e("SshConnectionManager", "Error during disconnect", e)
             }
-            identity?.clearSensitiveData()
         }
     }
 
@@ -320,57 +195,35 @@ class SshConnectionManager(
 
         val client = SSHClient(net.schmizz.sshj.AndroidConfig())
         this@SshConnectionManager.client = client
-        client.connectTimeout = 10000
-        client.timeout = 10000
-
-        val identity = resolveIdentity(profile)
+        val handshakeCoordinator = SshHandshakeCoordinator(hostKeyVerifier, identityStorageManager, context)
 
         try {
-            if (hostKeyVerifier != null) {
-                client.addHostKeyVerifier(hostKeyVerifier)
-            } else {
-                val knownHostsFile = context?.let { File(it.filesDir, "ssh_known_hosts") }
-                if (knownHostsFile != null) {
-                    if (!knownHostsFile.exists()) knownHostsFile.createNewFile()
-                    client.addHostKeyVerifier(TofuHostKeyVerifier(knownHostsFile))
-                } else {
-                    throw java.io.IOException("No Context provided for TOFU verifier and no HostKeyVerifier configured. Refusing to connect insecurely.")
-                }
-            }
-            client.connect(profile.host, profile.port)
+            handshakeCoordinator.executeWithConnection(client, profile, keyPair) { effectiveProfile ->
+                startPortForwards(client, effectiveProfile)
 
-            val effectiveProfile = if (identity != null) {
-                profile.copy(username = identity.username, password = identity.password)
-            } else {
-                profile
-            }
-
-            getAuthenticator(profile, keyPair, identity).authenticate(client, effectiveProfile)
-
-            startPortForwards(client, effectiveProfile)
-
-            client.startSession().use { session ->
-                effectiveProfile.envVars.forEach { (key, value) ->
-                    try {
-                        session.setEnvVar(key, value)
-                    } catch (e: Exception) {
-                        android.util.Log.w("SshConnectionManager", "Failed to set env var $key", e)
+                client.startSession().use { session ->
+                    effectiveProfile.envVars.forEach { (key, value) ->
+                        try {
+                            session.setEnvVar(key, value)
+                        } catch (e: Exception) {
+                            android.util.Log.w("SshConnectionManager", "Failed to set env var $key", e)
+                        }
                     }
+                    session.allocatePTY("xterm-256color", 80, 24, 0, 0, emptyMap())
+                    val shell = session.startShell()
+
+                    if (!effectiveProfile.initialDirectory.isNullOrEmpty()) {
+                        val escapedDir = effectiveProfile.initialDirectory.replace("'", "'\\''")
+                        val cdCmd = "cd '$escapedDir'\r\n"
+                        shell.outputStream.write(cdCmd.toByteArray(Charsets.UTF_8))
+                        shell.outputStream.flush()
+                    }
+
+                    onConnect(shell.outputStream, shell)
+
+                    val bridge = PtyStreamBridge(shell.inputStream, onOutput)
+                    bridge.startBridge()
                 }
-                session.allocatePTY("xterm-256color", 80, 24, 0, 0, emptyMap())
-                val shell = session.startShell()
-
-                if (!effectiveProfile.initialDirectory.isNullOrEmpty()) {
-                    val escapedDir = effectiveProfile.initialDirectory.replace("'", "'\\''")
-                    val cdCmd = "cd '$escapedDir'\r\n"
-                    shell.outputStream.write(cdCmd.toByteArray(Charsets.UTF_8))
-                    shell.outputStream.flush()
-                }
-
-                onConnect(shell.outputStream, shell)
-
-                val bridge = PtyStreamBridge(shell.inputStream, onOutput)
-                bridge.startBridge()
             }
         } finally {
             try {
@@ -378,7 +231,6 @@ class SshConnectionManager(
             } catch (e: Exception) {
                 android.util.Log.e("SshConnectionManager", "Error during disconnect", e)
             }
-            identity?.clearSensitiveData()
         }
     }
 
