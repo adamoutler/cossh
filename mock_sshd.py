@@ -89,10 +89,6 @@ def handle_client(client_socket):
         except Exception:
             break
     channel.close()
-    try:
-        transport.close()
-    except Exception:
-        pass
 
 import sys
 port = int(sys.argv[1]) if len(sys.argv) > 1 else 2222
