@@ -21,6 +21,12 @@ import java.io.File
 import java.security.MessageDigest
 import java.util.UUID
 
+/**
+ * @FullTest Note (SSH-49):
+ * This is a long-running integration test excluded from the standard fast CI/CD pipeline.
+ * To execute this test locally, use the fullTestRun property:
+ * ./gradlew connectedAndroidTest -PfullTestRun
+ */
 @RunWith(AndroidJUnit4::class)
 @FullTest
 class OcrVerificationTest {
@@ -56,10 +62,10 @@ class OcrVerificationTest {
             val profile = ConnectionProfile(
                 id = "mock-id-ui-ocr-test",
                 nickname = "UI OCR Test Profile",
-                host = "mock.hackedyour.info",
+                host = "10.0.2.2",
                 username = "test",
                 authType = AuthType.PASSWORD,
-                port = 32222,
+                port = 41111,
             )
             profile.password = "password".toByteArray()
             storageManager.saveProfile(profile)

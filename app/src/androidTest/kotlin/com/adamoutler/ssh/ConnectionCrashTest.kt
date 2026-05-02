@@ -18,6 +18,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+/**
+ * @FullTest Note (SSH-49):
+ * This is a long-running integration test excluded from the standard fast CI/CD pipeline.
+ * To execute this test locally, use the fullTestRun property:
+ * ./gradlew connectedAndroidTest -PfullTestRun
+ */
 @RunWith(AndroidJUnit4::class)
 @FullTest
 class ConnectionCrashTest {
