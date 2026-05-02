@@ -247,6 +247,8 @@ fun AddEditIdentityScreen(
     }
 
     val context = androidx.compose.ui.platform.LocalContext.current
+    val profiles = remember { com.adamoutler.ssh.crypto.SecurityStorageManager(context).getAllProfiles() }
+    
     if (showInjectDialog) {
         InjectKeyDialog(
             onDismiss = { showInjectDialog = false },
@@ -272,6 +274,7 @@ fun AddEditIdentityScreen(
                     }
                 }
             },
+            profiles = profiles
         )
     }
 }

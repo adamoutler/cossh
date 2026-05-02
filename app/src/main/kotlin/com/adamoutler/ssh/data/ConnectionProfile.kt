@@ -57,6 +57,7 @@ data class ConnectionProfile(
     val folderId: String? = null,
     val envVars: Map<String, String> = emptyMap(),
     val portForwards: List<PortForwardConfig> = emptyList(),
+    val initialDirectory: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

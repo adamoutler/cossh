@@ -109,6 +109,8 @@ fun AddEditProfileScreen(
         onEnvVarsTextChange = { newEnv -> viewModel.updateState { it.copy(envVarsText = newEnv) } },
         portForwards = uiState.portForwards,
         onPortForwardsChange = { newPF -> viewModel.updateState { it.copy(portForwards = newPF) } },
+        initialDirectory = uiState.initialDirectory,
+        onInitialDirectoryChange = { newInitialDirectory -> viewModel.updateState { it.copy(initialDirectory = newInitialDirectory) } },
         onSave = {
             val selectedIdent = identities.find { it.id == uiState.identityId }
             val finalUsername = if (selectedIdent != null && uiState.protocol == Protocol.SSH) selectedIdent.username else uiState.username
@@ -148,6 +150,7 @@ fun AddEditProfileScreen(
                 identityId = if (uiState.protocol == Protocol.SSH) uiState.identityId else null,
                 envVars = parsedEnvVars,
                 portForwards = uiState.portForwards,
+                initialDirectory = uiState.initialDirectory,
             )
             onNavigateBack()
         },
@@ -189,6 +192,8 @@ fun AddEditProfileScreenContent(
     onEnvVarsTextChange: (String) -> Unit,
     portForwards: List<PortForwardConfig>,
     onPortForwardsChange: (List<PortForwardConfig>) -> Unit,
+    initialDirectory: String,
+    onInitialDirectoryChange: (String) -> Unit,
     onSave: () -> Unit,
     onNavigateBack: () -> Unit,
     defaultPasswordVisible: Boolean = false,
@@ -482,6 +487,27 @@ fun AddEditProfileScreenContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Advanced Configuration", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = initialDirectory,
+                onValueChange = onInitialDirectoryChange,
+                label = { Text("Initial Directory (CWD)") },
+                placeholder = { Text("e.g. /home/user") },
+                modifier = Modifier.fillMaxWidth().testTag("InitialDirectoryInput"),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Uri, 
+                    autoCorrect = false 
+                ),
+                supportingText = {
+                    Text(
+                        text = "Executes 'cd' upon connection. Note: This hides the server's Message of the Day (MOTD).",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            )
+
             Spacer(modifier = Modifier.height(8.dp))
             SectionHeaderWithInfo(title = "Environment Variables", topic = "Environment Variables")
             OutlinedTextField(
