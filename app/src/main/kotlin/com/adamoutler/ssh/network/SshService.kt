@@ -125,7 +125,7 @@ class SshService : Service() {
                         },
                         onOutput = { bytes, length ->
                             val activeSession = ConnectionStateRepository.getOrCreateSession(profileId, sessionId)
-                            
+
                             // Always update mock transcript for tests, even if UI is rendering
                             val newText = String(bytes, 0, length, Charsets.UTF_8)
                             val current = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: ""

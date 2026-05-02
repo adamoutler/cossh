@@ -39,17 +39,17 @@ fun InjectKeyDialog(
                 modifier = Modifier
                     .verticalScroll(scrollState)
                     .imePadding(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
                     text = "Enter the remote server details and password to inject your public key.",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
 
                 ExposedDropdownMenuBox(
                     expanded = expanded,
                     onExpandedChange = { expanded = it },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     OutlinedTextField(
                         value = host,
@@ -66,18 +66,18 @@ fun InjectKeyDialog(
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                         },
-                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                     )
 
                     val filteredProfiles = profiles.filter {
                         it.nickname.contains(host, ignoreCase = true) ||
-                        it.host.contains(host, ignoreCase = true)
+                            it.host.contains(host, ignoreCase = true)
                     }
 
                     if (filteredProfiles.isNotEmpty()) {
                         ExposedDropdownMenu(
                             expanded = expanded,
-                            onDismissRequest = { expanded = false }
+                            onDismissRequest = { expanded = false },
                         ) {
                             filteredProfiles.forEach { profile ->
                                 DropdownMenuItem(
@@ -86,7 +86,7 @@ fun InjectKeyDialog(
                                         host = profile.host
                                         port = profile.port.toString()
                                         expanded = false
-                                    }
+                                    },
                                 )
                             }
                         }
@@ -120,9 +120,9 @@ fun InjectKeyDialog(
         },
         confirmButton = {
             Button(
-                onClick = { 
+                onClick = {
                     val finalHost = if (host.isBlank()) "127.0.0.1" else host
-                    onInject(finalHost, port.toIntOrNull() ?: 22, password) 
+                    onInject(finalHost, port.toIntOrNull() ?: 22, password)
                 },
                 enabled = password.isNotEmpty(),
             ) {

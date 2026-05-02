@@ -35,13 +35,13 @@ class ConnectionListClickTest {
                 onEditConnection = {},
                 onDeleteConnection = {},
                 onConnect = { connectedId = it },
-                isReorderingPreview = true // Enable reorder mode immediately
+                isReorderingPreview = true, // Enable reorder mode immediately
             )
         }
 
         // Tap the connection
         composeTestRule.onNodeWithText("Test Server").performClick()
-        
+
         // Assert it did not connect
         assertTrue("onConnect should not be called in reorder mode", connectedId == null)
         println("Reorder mode correctly ignored click.")
@@ -63,13 +63,13 @@ class ConnectionListClickTest {
                 onEditConnection = {},
                 onDeleteConnection = {},
                 onConnect = { connectedId = it },
-                isReorderingPreview = false // Normal mode
+                isReorderingPreview = false, // Normal mode
             )
         }
 
         // Tap the connection
         composeTestRule.onNodeWithText("Test Server").performClick()
-        
+
         // Assert it connected
         assertTrue("onConnect should be called in normal mode", connectedId == "test-1")
         println("Normal mode correctly triggered connection.")

@@ -121,13 +121,13 @@ class ConnectionResumeE2ETest {
             assertTrue("Transcript should contain 'Hello Resume', actual: '$transcript'", transcript.contains("Hello Resume"))
             // 8. Press back to return to main menu
             device.pressBack()
-            
+
             // Wait for either the main menu or the keep-alive dialog
             val keepAliveBtn = device.findObject(UiSelector().textMatches("(?i)keep alive"))
-            
+
             val fabAdd = device.findObject(UiSelector().descriptionContains("Add"))
             var isAtMainMenu = fabAdd.waitForExists(2000)
-            
+
             if (!isAtMainMenu && !keepAliveBtn.exists()) {
                 // We likely just dismissed the keyboard, press back again to exit terminal.
                 device.pressBack()
@@ -136,7 +136,7 @@ class ConnectionResumeE2ETest {
             if (keepAliveBtn.waitForExists(2000)) {
                 keepAliveBtn.click()
             }
-            
+
             // Ensure we are completely on the main menu before proceeding
             assertTrue("Main menu should be visible", fabAdd.waitForExists(5000))
             device.waitForIdle()
@@ -169,7 +169,7 @@ class ConnectionResumeE2ETest {
 
             // 15. Press back button
             device.pressBack()
-            
+
             var isAtMainMenu2 = fabAdd.waitForExists(2000)
             if (!isAtMainMenu2 && !keepAliveBtn.exists()) {
                 device.pressBack()

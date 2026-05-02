@@ -496,16 +496,16 @@ fun AddEditProfileScreenContent(
                 placeholder = { Text("e.g. /home/user") },
                 modifier = Modifier.fillMaxWidth().testTag("InitialDirectoryInput"),
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Uri, 
-                    autoCorrect = false 
+                    keyboardType = KeyboardType.Uri,
+                    autoCorrect = false,
                 ),
                 supportingText = {
                     Text(
                         text = "Executes 'cd' upon connection. Note: This hides the server's Message of the Day (MOTD).",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                }
+                },
             )
 
             Spacer(modifier = Modifier.height(8.dp))
