@@ -39,11 +39,13 @@ class SshServiceInstrumentationTest {
     fun testForegroundServiceSurvivesActivityBackgrounding() = kotlinx.coroutines.runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val storageManager = com.adamoutler.ssh.crypto.SecurityStorageManager(context)
+        storageManager.getAllProfiles().forEach { storageManager.deleteProfile(it.id) }
+        com.adamoutler.ssh.network.ConnectionStateRepository.sessions.clear()
         val mockProfile = com.adamoutler.ssh.data.ConnectionProfile(
             id = "mock-profile",
             nickname = "Test",
             host = "10.0.2.2",
-            port = 2222,
+            port = 41111,
             username = "test",
             authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
             password = "test".toByteArray(),
@@ -63,9 +65,9 @@ class SshServiceInstrumentationTest {
 
         // Wait for notification to be posted
         var notificationPosted = false
-        for (i in 1..10) {
+        for (i in 1..50) {
             val activeNotifications = notificationManager.activeNotifications
-            if (activeNotifications.any { it.id == 1 }) { // NOTIFICATION_ID is 1
+            if (activeNotifications.any { it.id == 1000 }) { // SUMMARY_NOTIFICATION_ID is 1000
                 notificationPosted = true
                 println("REAL LOG: Notification successfully posted to NotificationManager.")
                 break

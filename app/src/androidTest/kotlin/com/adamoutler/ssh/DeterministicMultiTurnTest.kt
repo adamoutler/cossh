@@ -202,6 +202,8 @@ class DeterministicMultiTurnTest {
 
             // ── VISUAL MODE: We want to prove the real terminal renders correctly ──
             SshSessionProvider.isHeadlessTest = false
+            SshSessionProvider.mockTestTranscript = null
+            com.adamoutler.ssh.network.ConnectionStateRepository.sessions.clear()
 
             // Workaround: Apache SSHD needs user.home on Android
             System.setProperty("user.home", context.filesDir.absolutePath)
@@ -314,14 +316,14 @@ class DeterministicMultiTurnTest {
                     println("→ Sent CMD $cmdNum: \"$payload\"")
 
                     // Wait for server rate limit + render buffer
-                    Thread.sleep(INTER_COMMAND_DELAY_MS)
-
-                    // Read the terminal screen content
-                    val screenContent = readTerminalScreenContent()
-                    println("  Screen content length: ${screenContent.length} chars")
-
-                    // Verify the expected response appears in the terminal
-                    val found = screenContent.contains(expectedResponse)
+                    var screenContent = ""
+                    var found = false
+                    for (retry in 1..5) {
+                        Thread.sleep(1000)
+                        screenContent = readTerminalScreenContent()
+                        found = screenContent.contains(expectedResponse)
+                        if (found) break
+                    }
                     val status = if (found) "✓ PASS" else "✗ FAIL"
                     println("  $status: CMD $cmdNum expected \"$expectedResponse\"")
 

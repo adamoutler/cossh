@@ -36,8 +36,9 @@ class ConnectionResumeE2ETest {
         val device = UiDevice.getInstance(instrumentation)
         val context = ApplicationProvider.getApplicationContext<Context>()
         val storageManager = SecurityStorageManager(context)
+        storageManager.getAllProfiles().forEach { storageManager.deleteProfile(it.id) }
 
-        SshSessionProvider.isHeadlessTest = true
+        SshSessionProvider.isHeadlessTest = false
         SshSessionProvider.mockTestTranscript = null
         com.adamoutler.ssh.network.ConnectionStateRepository.sessions.clear()
         System.setProperty("user.home", context.filesDir.absolutePath)
@@ -85,7 +86,9 @@ class ConnectionResumeE2ETest {
             }
             assertTrue("Must connect", connected)
 
-            Thread.sleep(3000)
+            // Wait for TerminalView to be measured and initialize its emulator
+            Thread.sleep(2000)
+
             SshSessionProvider.ptyOutputStream?.write("echo 'Hello Resume'\n".toByteArray())
             SshSessionProvider.ptyOutputStream?.flush()
             Thread.sleep(2000)
@@ -104,26 +107,45 @@ class ConnectionResumeE2ETest {
             Thread.sleep(2000)
 
             // 7. Observe text entered
-            val transcript = SshSessionProvider.mockTestTranscript ?: ""
-            println("=== HEADLESS TERMINAL OUTPUT (RESUME) ===")
+            var transcript = ""
+            for (retry in 1..5) {
+                val session = SshSessionProvider.terminalSession
+                transcript = session?.emulator?.screen?.transcriptText?.trim() ?: ""
+                if (transcript.contains("Hello Resume")) break
+                Thread.sleep(1000)
+            }
+            println("=== TERMINAL OUTPUT (RESUME) ===")
             println(transcript)
             println("=========================================")
             android.util.Log.d("ConnectionResumeE2ETest", "TRANSCRIPT WAS: '$transcript'")
             assertTrue("Transcript should contain 'Hello Resume', actual: '$transcript'", transcript.contains("Hello Resume"))
-
             // 8. Press back to return to main menu
             device.pressBack()
-
-            // Handle keep-alive dialog if present
+            
+            // Wait for either the main menu or the keep-alive dialog
             val keepAliveBtn = device.findObject(UiSelector().textMatches("(?i)keep alive"))
+            
+            val fabAdd = device.findObject(UiSelector().descriptionContains("Add"))
+            var isAtMainMenu = fabAdd.waitForExists(2000)
+            
+            if (!isAtMainMenu && !keepAliveBtn.exists()) {
+                // We likely just dismissed the keyboard, press back again to exit terminal.
+                device.pressBack()
+            }
+
             if (keepAliveBtn.waitForExists(2000)) {
                 keepAliveBtn.click()
             }
+            
+            // Ensure we are completely on the main menu before proceeding
+            assertTrue("Main menu should be visible", fabAdd.waitForExists(5000))
             device.waitForIdle()
             Thread.sleep(1000)
 
             // 9. Tap connection again
-            profileNode.click()
+            val profileNode2 = device.findObject(profileSelector)
+            assertTrue("Profile must be visible again", profileNode2.waitForExists(5000))
+            profileNode2.click()
 
             // 10. Observe dialogue "Resume" or "Start New"
             val startNewBtn = device.findObject(UiSelector().textMatches("(?i)start new"))
@@ -147,12 +169,23 @@ class ConnectionResumeE2ETest {
 
             // 15. Press back button
             device.pressBack()
-            if (keepAliveBtn.waitForExists(1000)) keepAliveBtn.click()
+            
+            var isAtMainMenu2 = fabAdd.waitForExists(2000)
+            if (!isAtMainMenu2 && !keepAliveBtn.exists()) {
+                device.pressBack()
+            }
+
+            if (keepAliveBtn.waitForExists(2000)) {
+                keepAliveBtn.click()
+            }
+            assertTrue("Main menu should be visible at end", fabAdd.waitForExists(5000))
             device.waitForIdle()
             Thread.sleep(1000)
 
             // 16. Tap connection
-            profileNode.click()
+            val profileNode3 = device.findObject(profileSelector)
+            assertTrue("Profile must be visible for step 16", profileNode3.waitForExists(5000))
+            profileNode3.click()
 
             // 17. Observe dialogue
             val resumeBtn = device.findObject(UiSelector().textContains("Resume Session 1"))
