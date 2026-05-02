@@ -10,6 +10,7 @@ import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.ui.screens.ConnectionListItem
 import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
 import com.adamoutler.ssh.ui.screens.connectionlist.components.ConnectionItem
 import com.adamoutler.ssh.ui.theme.CoSSHTheme
@@ -63,7 +64,7 @@ class ConnectionListScreenScreenshotTest {
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
-                        profiles = mockProfiles,
+                        flatItems = mockProfiles.map { ConnectionListItem.Profile(it) },
                         searchQuery = "",
                         onSearchQueryChange = {},
                         onAddConnection = {},
@@ -97,7 +98,7 @@ class ConnectionListScreenScreenshotTest {
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
-                        profiles = mockProfiles,
+                        flatItems = mockProfiles.map { ConnectionListItem.Profile(it) },
                         searchQuery = "",
                         onSearchQueryChange = {},
                         onAddConnection = {},
@@ -162,7 +163,7 @@ class ConnectionListScreenScreenshotTest {
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
-                        profiles = mockProfiles,
+                        flatItems = mockProfiles.map { ConnectionListItem.Profile(it) },
                         searchQuery = "",
                         activeConnectionCounts = mapOf("1" to 3),
                         onSearchQueryChange = {},
@@ -198,7 +199,7 @@ class ConnectionListScreenScreenshotTest {
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
-                        profiles = mockProfiles,
+                        flatItems = mockProfiles.map { ConnectionListItem.Profile(it) },
                         searchQuery = "",
                         onSearchQueryChange = {},
                         onAddConnection = {},
@@ -241,7 +242,7 @@ class ConnectionListScreenScreenshotTest {
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
-                        profiles = mockProfiles,
+                        flatItems = mockProfiles.map { ConnectionListItem.Profile(it) },
                         searchQuery = "",
                         onSearchQueryChange = {},
                         onAddConnection = {},

@@ -50,11 +50,17 @@ fun GroupedConnectionList(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        val showHeaders = groupedProfiles.size > 1 || groupedProfiles.keys.firstOrNull() != null
-
-        groupedProfiles.forEach { (folderId, profiles) ->
-            if (showHeaders) {
-                stickyHeader(key = "header_${folderId ?: "default"}") {
+        items(
+            count = flatItems.size,
+            key = { index ->
+                when (val item = flatItems[index]) {
+                    is ConnectionListItem.Header -> "header_${item.folderId ?: "default"}"
+                    is ConnectionListItem.Profile -> item.profile.id
+                }
+            }
+        ) { index ->
+            when (val item = flatItems[index]) {
+                is ConnectionListItem.Header -> {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -62,137 +68,137 @@ fun GroupedConnectionList(
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                     ) {
                         Text(
-                            text = folderId ?: defaultGroupName,
+                            text = item.title,
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
-            }
+                is ConnectionListItem.Profile -> {
+                    val profile = item.profile
+                    val activeCount = activeConnectionCounts[profile.id] ?: 0
 
-            items(profiles, key = { it.id }) { profile ->
-                val activeCount = activeConnectionCounts[profile.id] ?: 0
+                    val isDragging = profile.id == draggedItemKey
+                    val translationY = if (isDragging) dragOffset else 0f
 
-                val isDragging = profile.id == draggedItemKey
-                val translationY = if (isDragging) dragOffset else 0f
-
-                val dragModifier = Modifier.pointerInput(isReordering) {
-                    if (!isReordering) return@pointerInput
-                    detectDragGestures(
-                        onDragStart = { _ ->
-                            draggedItemKey = profile.id
-                            dragOffset = 0f
-                        },
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            dragOffset += dragAmount.y
-                            val draggedItem = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggedItemKey }
-                            if (draggedItem != null) {
-                                val currentCenter = draggedItem.offset + dragOffset + (draggedItem.size / 2)
-                                val targetItem = listState.layoutInfo.visibleItemsInfo.firstOrNull {
-                                    it.key != draggedItemKey && currentCenter.toInt() in it.offset..(it.offset + it.size)
+                    val dragModifier = Modifier.pointerInput(isReordering) {
+                        if (!isReordering) return@pointerInput
+                        detectDragGestures(
+                            onDragStart = { _ ->
+                                draggedItemKey = profile.id
+                                dragOffset = 0f
+                            },
+                            onDrag = { change, dragAmount ->
+                                change.consume()
+                                dragOffset += dragAmount.y
+                                val draggedItem = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggedItemKey }
+                                if (draggedItem != null) {
+                                    val currentCenter = draggedItem.offset + dragOffset + (draggedItem.size / 2)
+                                    val targetItem = listState.layoutInfo.visibleItemsInfo.firstOrNull {
+                                        it.key != draggedItemKey && currentCenter.toInt() in it.offset..(it.offset + it.size)
+                                    }
+                                    if (targetItem != null) {
+                                        val targetGlobalIndex = targetItem.index
+                                        val sourceGlobalIndex = draggedItem.index
+                                        onMoveProfile(sourceGlobalIndex, targetGlobalIndex)
+                                        dragOffset = 0f
+                                    }
                                 }
-                                if (targetItem != null) {
-                                    val targetGlobalIndex = targetItem.index
-                                    val sourceGlobalIndex = draggedItem.index
-                                    onMoveProfile(sourceGlobalIndex, targetGlobalIndex)
-                                    dragOffset = 0f
-                                }
-                            }
-                        },
-                        onDragEnd = {
-                            draggedItemKey = null
-                            dragOffset = 0f
-                        },
-                        onDragCancel = {
-                            draggedItemKey = null
-                            dragOffset = 0f
-                        },
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .zIndex(if (isDragging) 1f else 0f)
-                        .graphicsLayer { this.translationY = translationY },
-                ) {
-                    if (isReordering || com.adamoutler.ssh.network.ConnectionStateRepository.isHeadlessTest) {
-                        ConnectionItem(
-                            profile = profile,
-                            activeCount = activeCount,
-                            isReordering = isReordering,
-                            dragHandleModifier = dragModifier,
-                            elevation = if (isDragging) 8.dp else 2.dp,
-                            onClick = { onConnect(profile.id) },
-                            onEdit = { onEditConnection(profile.id) },
+                            },
+                            onDragEnd = {
+                                draggedItemKey = null
+                                dragOffset = 0f
+                            },
+                            onDragCancel = {
+                                draggedItemKey = null
+                                dragOffset = 0f
+                            },
                         )
-                    } else {
-                        val currentConfig = androidx.compose.ui.platform.LocalViewConfiguration.current
-                        val customConfig = remember(currentConfig) {
-                            object : androidx.compose.ui.platform.ViewConfiguration by currentConfig {
-                                override val touchSlop: Float
-                                    get() = currentConfig.touchSlop * 2.5f
-                            }
-                        }
+                    }
 
-                        androidx.compose.runtime.CompositionLocalProvider(
-                            androidx.compose.ui.platform.LocalViewConfiguration provides customConfig,
-                        ) {
-                            val dismissState = rememberSwipeToDismissBoxState()
-
-                            LaunchedEffect(dismissState.currentValue) {
-                                if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
-                                    profileToDelete = profile
-                                    dismissState.reset()
-                                } else if (dismissState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
-                                    onMoveToFolder(profile.id)
-                                    dismissState.reset()
+                    Box(
+                        modifier = Modifier
+                            .zIndex(if (isDragging) 1f else 0f)
+                            .graphicsLayer { this.translationY = translationY },
+                    ) {
+                        if (isReordering || com.adamoutler.ssh.network.ConnectionStateRepository.isHeadlessTest) {
+                            ConnectionItem(
+                                profile = profile,
+                                activeCount = activeCount,
+                                isReordering = isReordering,
+                                dragHandleModifier = dragModifier,
+                                elevation = if (isDragging) 8.dp else 2.dp,
+                                onClick = { onConnect(profile.id) },
+                                onEdit = { onEditConnection(profile.id) },
+                            )
+                        } else {
+                            val currentConfig = androidx.compose.ui.platform.LocalViewConfiguration.current
+                            val customConfig = remember(currentConfig) {
+                                object : androidx.compose.ui.platform.ViewConfiguration by currentConfig {
+                                    override val touchSlop: Float
+                                        get() = currentConfig.touchSlop * 2.5f
                                 }
                             }
 
-                            SwipeToDismissBox(
-                                state = dismissState,
-                                backgroundContent = {
-                                    val color = when (dismissState.dismissDirection) {
-                                        SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.primary
-                                        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
-                                        else -> Color.Transparent
+                            androidx.compose.runtime.CompositionLocalProvider(
+                                androidx.compose.ui.platform.LocalViewConfiguration provides customConfig,
+                            ) {
+                                val dismissState = rememberSwipeToDismissBoxState()
+
+                                LaunchedEffect(dismissState.currentValue) {
+                                    if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+                                        profileToDelete = profile
+                                        dismissState.reset()
+                                    } else if (dismissState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
+                                        onMoveToFolder(profile.id)
+                                        dismissState.reset()
                                     }
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                                            .background(color, shape = MaterialTheme.shapes.medium),
-                                        contentAlignment = if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) Alignment.CenterStart else Alignment.CenterEnd,
-                                    ) {
-                                        if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
-                                            Icon(
-                                                Icons.AutoMirrored.Filled.ArrowForward,
-                                                contentDescription = "Move",
-                                                modifier = Modifier.padding(start = 16.dp),
-                                                tint = Color.White,
-                                            )
-                                        } else {
-                                            Icon(
-                                                Icons.Default.Delete,
-                                                contentDescription = "Delete",
-                                                modifier = Modifier.padding(end = 16.dp),
-                                                tint = Color.White,
-                                            )
+                                }
+
+                                SwipeToDismissBox(
+                                    state = dismissState,
+                                    backgroundContent = {
+                                        val color = when (dismissState.dismissDirection) {
+                                            SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.primary
+                                            SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
+                                            else -> Color.Transparent
                                         }
-                                    }
-                                },
-                                content = {
-                                    ConnectionItem(
-                                        profile = profile,
-                                        activeCount = activeCount,
-                                        isReordering = false,
-                                        elevation = 2.dp,
-                                        onClick = { onConnect(profile.id) },
-                                        onEdit = { onEditConnection(profile.id) },
-                                    )
-                                },
-                            )
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                                .background(color, shape = MaterialTheme.shapes.medium),
+                                            contentAlignment = if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) Alignment.CenterStart else Alignment.CenterEnd,
+                                        ) {
+                                            if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
+                                                Icon(
+                                                    Icons.AutoMirrored.Filled.ArrowForward,
+                                                    contentDescription = "Move",
+                                                    modifier = Modifier.padding(start = 16.dp),
+                                                    tint = Color.White,
+                                                )
+                                            } else {
+                                                Icon(
+                                                    Icons.Default.Delete,
+                                                    contentDescription = "Delete",
+                                                    modifier = Modifier.padding(end = 16.dp),
+                                                    tint = Color.White,
+                                                )
+                                            }
+                                        }
+                                    },
+                                    content = {
+                                        ConnectionItem(
+                                            profile = profile,
+                                            activeCount = activeCount,
+                                            isReordering = false,
+                                            elevation = 2.dp,
+                                            onClick = { onConnect(profile.id) },
+                                            onEdit = { onEditConnection(profile.id) },
+                                        )
+                                    },
+                                )
+                            }
                         }
                     }
                 }

@@ -10,6 +10,7 @@ import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.ui.screens.ConnectionListItem
 import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
 import com.adamoutler.ssh.ui.theme.CoSSHTheme
 import org.junit.Rule
@@ -54,7 +55,7 @@ class ConnectionListSessionSelectorScreenshotTest {
                 ) {
                     ConnectionListContent(
                         groupedProfiles = profiles.groupBy { it.folderId },
-                        profiles = profiles,
+                        flatItems = profiles.map { ConnectionListItem.Profile(it) },
                         searchQuery = "",
                         activeConnectionCounts = mapOf("1" to 1, "2" to 1),
                         onSearchQueryChange = {},
