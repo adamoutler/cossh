@@ -20,6 +20,12 @@ class TerminalViewModel(application: Application) :
     AndroidViewModel(application),
     TerminalSessionClient {
     private val sessions = mutableMapOf<String, TerminalSession>()
+    
+    companion object {
+        // Exposed for testing
+        var activeSessionsRef: Map<String, TerminalSession>? = null
+    }
+    
     var getContext: (() -> Context)? = null
 
     private val storageManager = SecurityStorageManager(application)
@@ -31,6 +37,7 @@ class TerminalViewModel(application: Application) :
     private var activeProfileId: String? = null
 
     init {
+        activeSessionsRef = sessions
         viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             _fontSizeFlow
                 .debounce(500)

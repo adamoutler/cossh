@@ -36,5 +36,5 @@ object SshSessionProvider {
         }
 
     val terminalSession: com.termux.terminal.TerminalSession?
-        get() = null // mock for tests
+        get() = com.adamoutler.ssh.ui.screens.TerminalViewModel.activeSessionsRef?.values?.firstOrNull()
 }

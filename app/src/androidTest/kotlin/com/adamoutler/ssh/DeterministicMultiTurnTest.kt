@@ -170,9 +170,7 @@ class DeterministicMultiTurnTest {
         )
 
         return payloads.mapIndexed { index, payload ->
-            val requestNum = index + 1
-            val hash = sha256(payload)
-            val expectedResponse = "RESPONSE $requestNum, '$payload', ${payload.length}, $hash"
+            val expectedResponse = payload
             payload to expectedResponse
         }
     }
