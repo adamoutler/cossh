@@ -155,7 +155,6 @@ fzj6Cf8p3IukQjghIu7JAAAAE2FkYW1vdXRsZXJASExBQi1BMjUBAg==
                 is ConnectionListItem.Header -> {
                     currentFolderId = flatItem.folderId
                 }
-
                 is ConnectionListItem.Profile -> {
                     val profile = flatItem.profile
                     if (profile.folderId != currentFolderId || profile.sortOrder != sortIndex) {
@@ -170,24 +169,6 @@ fzj6Cf8p3IukQjghIu7JAAAAE2FkYW1vdXRsZXJASExBQi1BMjUBAg==
         launchWithHandler(Dispatchers.IO) {
             updatedProfiles.forEach { storageManager.saveProfile(it) }
             loadProfiles()
-        }
-    }
-
-    fun moveProfile(fromIndex: Int, toIndex: Int) {
-        val currentList = _profiles.value.toMutableList()
-        if (fromIndex !in currentList.indices || toIndex !in currentList.indices) return
-
-        val item = currentList.removeAt(fromIndex)
-        currentList.add(toIndex, item)
-        _profiles.value = currentList
-
-        launchWithHandler(Dispatchers.IO) {
-            currentList.forEachIndexed { index, profile ->
-                if (profile.sortOrder != index) {
-                    profile.sortOrder = index
-                    storageManager.saveProfile(profile)
-                }
-            }
         }
     }
 
