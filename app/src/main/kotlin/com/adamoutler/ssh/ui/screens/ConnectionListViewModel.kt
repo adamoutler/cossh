@@ -13,6 +13,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 
+sealed class ConnectionListItem {
+    data class Header(val title: String, val folderId: String?) : ConnectionListItem()
+    data class Profile(val profile: ConnectionProfile) : ConnectionListItem()
+}
+
 class ConnectionListViewModel(
     application: Application,
     private val storageManager: SecurityStorageManager,
@@ -30,6 +35,9 @@ class ConnectionListViewModel(
 
     private val _groupedProfiles = MutableStateFlow<Map<String?, List<ConnectionProfile>>>(emptyMap())
     val groupedProfiles: StateFlow<Map<String?, List<ConnectionProfile>>> = _groupedProfiles.asStateFlow()
+
+    private val _flatItems = MutableStateFlow<List<ConnectionListItem>>(emptyList())
+    val flatItems: StateFlow<List<ConnectionListItem>> = _flatItems.asStateFlow()
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
@@ -82,7 +90,20 @@ fzj6Cf8p3IukQjghIu7JAAAAE2FkYW1vdXRsZXJASExBQi1BMjUBAg==
                 }
             }
             _profiles.value = filtered
-            _groupedProfiles.value = filtered.groupBy { it.folderId }
+
+            val grouped = filtered.groupBy { it.folderId }
+            _groupedProfiles.value = grouped
+
+            val defaultGroupName = com.adamoutler.ssh.crypto.SettingsManager(getApplication()).defaultGroupName
+            val flatList = mutableListOf<ConnectionListItem>()
+            val showHeaders = grouped.size > 1 || grouped.keys.firstOrNull() != null
+            grouped.forEach { (folderId, profs) ->
+                if (showHeaders) {
+                    flatList.add(ConnectionListItem.Header(folderId ?: defaultGroupName, folderId))
+                }
+                profs.forEach { flatList.add(ConnectionListItem.Profile(it)) }
+            }
+            _flatItems.value = flatList
         }
     }
 
@@ -104,6 +125,50 @@ fzj6Cf8p3IukQjghIu7JAAAAE2FkYW1vdXRsZXJASExBQi1BMjUBAg==
     fun deleteProfile(profileId: String) {
         launchWithHandler {
             storageManager.deleteProfile(profileId)
+            loadProfiles()
+        }
+    }
+
+    fun moveProfileInFlatList(fromIndex: Int, toIndex: Int) {
+        val currentList = _flatItems.value.toMutableList()
+        if (fromIndex !in currentList.indices || toIndex !in currentList.indices) return
+
+        val item = currentList[fromIndex]
+        if (item !is ConnectionListItem.Profile) return // Cannot drag headers
+
+        // Avoid dropping a profile before the very first header
+        var effectiveToIndex = toIndex
+        if (effectiveToIndex == 0 && currentList.firstOrNull() is ConnectionListItem.Header) {
+            effectiveToIndex = 1
+        }
+
+        currentList.removeAt(fromIndex)
+        currentList.add(effectiveToIndex, item)
+        _flatItems.value = currentList // Optimistic UI update
+
+        var currentFolderId: String? = null
+        val updatedProfiles = mutableListOf<ConnectionProfile>()
+        var sortIndex = 0
+
+        for (flatItem in currentList) {
+            when (flatItem) {
+                is ConnectionListItem.Header -> {
+                    currentFolderId = flatItem.folderId
+                }
+
+                is ConnectionListItem.Profile -> {
+                    val profile = flatItem.profile
+                    if (profile.folderId != currentFolderId || profile.sortOrder != sortIndex) {
+                        val updated = profile.copy(folderId = currentFolderId, sortOrder = sortIndex)
+                        updatedProfiles.add(updated)
+                    }
+                    sortIndex++
+                }
+            }
+        }
+
+        launchWithHandler(Dispatchers.IO) {
+            updatedProfiles.forEach { storageManager.saveProfile(it) }
             loadProfiles()
         }
     }
