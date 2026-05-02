@@ -20,12 +20,12 @@ class TerminalViewModel(application: Application) :
     AndroidViewModel(application),
     TerminalSessionClient {
     private val sessions = mutableMapOf<String, TerminalSession>()
-    
+
     companion object {
         // Exposed for testing
         var activeSessionsRef: Map<String, TerminalSession>? = null
     }
-    
+
     var getContext: (() -> Context)? = null
 
     private val storageManager = SecurityStorageManager(application)

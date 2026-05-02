@@ -35,7 +35,7 @@ class InjectKeyDialogScreenshotTest {
             protocol = Protocol.SSH,
             username = "root",
             authType = AuthType.PASSWORD,
-        )
+        ),
     )
 
     @Test
