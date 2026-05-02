@@ -125,12 +125,11 @@ class SshService : Service() {
                         },
                         onOutput = { bytes, length ->
                             val activeSession = ConnectionStateRepository.getOrCreateSession(profileId, sessionId)
-                            if (ConnectionStateRepository.isHeadlessTest) {
-                                val newText = String(bytes, 0, length, Charsets.UTF_8)
-                                val current = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: ""
-                                ConnectionStateRepository.mockTestTranscripts[sessionId] = current + newText
-                                Log.d("SshService", "Headless mock updated: $newText")
-                            }
+                            
+                            // Always update mock transcript for tests, even if UI is rendering
+                            val newText = String(bytes, 0, length, Charsets.UTF_8)
+                            val current = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: ""
+                            ConnectionStateRepository.mockTestTranscripts[sessionId] = current + newText
 
                             // Send bytes to UI via shared flow
                             val copyBytes = bytes.copyOf(length)

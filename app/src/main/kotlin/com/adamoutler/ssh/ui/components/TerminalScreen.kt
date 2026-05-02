@@ -168,18 +168,19 @@ fun TerminalScreenContent(
                 val newText = String(bytes, Charsets.UTF_8)
                 val current = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: ""
                 ConnectionStateRepository.mockTestTranscripts[sessionId] = current + newText
-            } else {
-                val emulator = session.emulator
-                if (emulator != null) {
-                    if (!activeSession.firstSshOutputReceived) {
-                        activeSession.firstSshOutputReceived = true
-                        emulator.screen.clearTranscript()
-                        val clearSeq = "\u001B[2J\u001B[H".toByteArray()
-                        emulator.append(clearSeq, clearSeq.size)
-                    }
-                    emulator.append(bytes, bytes.size)
-                    terminalViewRef?.onScreenUpdated()
+            }
+            // Always append to the emulator to ensure JNI library is properly initialized
+            // and doesn't crash on teardown, even during headless tests.
+            val emulator = session.emulator
+            if (emulator != null) {
+                if (!activeSession.firstSshOutputReceived) {
+                    activeSession.firstSshOutputReceived = true
+                    emulator.screen.clearTranscript()
+                    val clearSeq = "\u001B[2J\u001B[H".toByteArray()
+                    emulator.append(clearSeq, clearSeq.size)
                 }
+                emulator.append(bytes, bytes.size)
+                terminalViewRef?.onScreenUpdated()
             }
         }
 
