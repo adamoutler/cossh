@@ -41,6 +41,7 @@ class ConnectionCrashTest {
             val device = UiDevice.getInstance(instrumentation)
             val context = ApplicationProvider.getApplicationContext<Context>()
             val storageManager = SecurityStorageManager(context)
+            storageManager.getAllProfiles().forEach { storageManager.deleteProfile(it.id) }
 
             // Set headless mode for Android 16/API 35 16KB JNI bypass
             com.adamoutler.ssh.network.SshSessionProvider.isHeadlessTest = false

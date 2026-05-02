@@ -81,8 +81,10 @@ def handle_client(client_socket):
             if not data:
                 break
             print(f"Received bytes from SSH client: {[hex(b) for b in data]}", flush=True)
-            channel.send(data)
-            if b"exit" in data:
+            # PTYs typically echo \r\n for \n
+            echo_data = data.replace(b'\n', b'\r\n') if b'\n' in data else data
+            channel.send(echo_data)
+        except EOFError:
                 print("Exit command received. Closing channel.")
                 channel.send_exit_status(0)
                 break
