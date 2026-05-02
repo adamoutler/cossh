@@ -29,21 +29,20 @@ fun GroupedConnectionList(
     groupedProfiles: Map<String?, List<ConnectionProfile>>,
     flatItems: List<ConnectionListItem>,
     activeConnectionCounts: Map<String, Int>,
+    modifier: Modifier = Modifier,
     isReordering: Boolean = false,
     onMoveProfile: (Int, Int) -> Unit,
     onConnect: (String) -> Unit,
     onEditConnection: (String) -> Unit,
     onDeleteConnection: (String) -> Unit,
     onMoveToFolder: (String) -> Unit,
-    modifier: Modifier = Modifier,
     defaultGroupName: String = com.adamoutler.ssh.crypto.SettingsManager(LocalContext.current).defaultGroupName,
 ) {
-    val context = LocalContext.current
     var profileToDelete by remember { mutableStateOf<ConnectionProfile?>(null) }
 
     val listState = rememberLazyListState()
     var draggedItemKey by remember { mutableStateOf<Any?>(null) }
-    var dragOffset by remember { mutableStateOf(0f) }
+    var dragOffset by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
 
     LazyColumn(
         state = listState,
