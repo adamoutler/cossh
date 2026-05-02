@@ -94,6 +94,11 @@ import java.security.MessageDigest
  * - Physical devices on the local network (Pixel 9 Pro recommended)
  * - Jenkins CI on shark-wrangler (local network access)
  * It is NOT suitable for GitHub Actions (no route to 192.168.1.115).
+ *
+ * @FullTest Note (SSH-49):
+ * This is a long-running integration test excluded from the standard fast CI/CD pipeline.
+ * To execute this test locally, use the fullTestRun property:
+ * ./gradlew connectedAndroidTest -PfullTestRun
  */
 @RunWith(AndroidJUnit4::class)
 @FullTest
@@ -104,8 +109,8 @@ class DeterministicMultiTurnTest {
         private const val PRNG_SEED = 0xC0B417L
 
         /** Mock SSH server coordinates */
-        private const val MOCK_HOST = "192.168.1.115"
-        private const val MOCK_PORT = 32222
+        private const val MOCK_HOST = "10.0.2.2"
+        private const val MOCK_PORT = 41111
         private const val MOCK_USER = "test"
         private const val MOCK_PASS = "password"
 
