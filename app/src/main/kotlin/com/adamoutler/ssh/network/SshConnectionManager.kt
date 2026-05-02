@@ -386,8 +386,8 @@ class SshConnectionManager(
 
         try {
             tc.addOptionHandler(org.apache.commons.net.telnet.TerminalTypeOptionHandler("xterm-256color", false, false, true, false))
-            tc.addOptionHandler(org.apache.commons.net.telnet.EchoOptionHandler(false, true, false, true))
-            tc.addOptionHandler(org.apache.commons.net.telnet.SuppressGAOptionHandler(true, true, true, true))
+            tc.addOptionHandler(org.apache.commons.net.telnet.EchoOptionHandler(false, false, false, true))
+            tc.addOptionHandler(org.apache.commons.net.telnet.SuppressGAOptionHandler(false, false, true, true))
 
             tc.connect(profile.host, profile.port)
 
