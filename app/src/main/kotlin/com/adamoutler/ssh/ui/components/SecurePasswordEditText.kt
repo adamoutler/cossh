@@ -38,8 +38,12 @@ fun SecurePasswordEditText(
                     this.hint = hint
                     inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                     addTextChangedListener(object : TextWatcher {
-                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                            // No-op: Only reacting to afterTextChanged
+                        }
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                            // No-op: Only reacting to afterTextChanged
+                        }
                         override fun afterTextChanged(s: Editable?) {
                             if (s != null) {
                                 val chars = CharArray(s.length)

@@ -33,7 +33,6 @@ fun AddEditIdentityScreen(
 
     var passwordVisible by remember { mutableStateOf(false) }
     var showInjectDialog by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(identityId) {
         viewModel.loadIdentityIfNeeded(identityId)

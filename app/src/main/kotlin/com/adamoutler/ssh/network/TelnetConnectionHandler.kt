@@ -82,7 +82,9 @@ class TelnetConnectionHandler : ConnectionProtocol {
                         translateAndSend(b[i].toInt())
                     }
                 }
-                override fun flush() {}
+                override fun flush() {
+                    // No-op: OutputStream does not require explicit flushing
+                }
                 override fun close() {
                     writeChannel.close()
                     ioJob.cancel()

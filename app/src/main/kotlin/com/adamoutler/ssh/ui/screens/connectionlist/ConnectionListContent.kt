@@ -77,7 +77,6 @@ fun ConnectionListContent(
             }
 
             GroupedConnectionList(
-                groupedProfiles = groupedProfiles,
                 flatItems = flatItems,
                 activeConnectionCounts = activeConnectionCounts,
                 isReordering = isReordering,

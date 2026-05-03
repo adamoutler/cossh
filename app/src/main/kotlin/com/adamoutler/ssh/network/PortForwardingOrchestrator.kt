@@ -8,16 +8,20 @@ import java.net.ServerSocket
 import kotlin.concurrent.thread
 
 class PortForwardingOrchestrator {
+    companion object {
+        private const val LOCAL_HOST = "127.0.0.1"
+    }
+
     private val localServerSockets = mutableListOf<ServerSocket>()
 
     fun startPortForwards(client: SSHClient, profile: ConnectionProfile) {
         profile.portForwards.forEach { config ->
             try {
                 if (config.type == PortForwardType.LOCAL) {
-                    val params = net.schmizz.sshj.connection.channel.direct.Parameters("127.0.0.1", config.localPort, config.remoteHost, config.remotePort)
+                    val params = net.schmizz.sshj.connection.channel.direct.Parameters(LOCAL_HOST, config.localPort, config.remoteHost, config.remotePort)
                     val serverSocket = ServerSocket()
                     serverSocket.reuseAddress = true
-                    serverSocket.bind(InetSocketAddress("127.0.0.1", config.localPort))
+                    serverSocket.bind(InetSocketAddress(LOCAL_HOST, config.localPort))
                     localServerSockets.add(serverSocket)
                     val localPortForwarder = client.newLocalPortForwarder(params, serverSocket)
                     thread(name = "LocalPortForwarder_${config.localPort}") {
@@ -28,12 +32,14 @@ class PortForwardingOrchestrator {
                         } finally {
                             try {
                                 serverSocket.close()
-                            } catch (e: Exception) {}
+                            } catch (e: Exception) {
+                                // Ignore exception on close
+                            }
                         }
                     }
                 } else if (config.type == PortForwardType.REMOTE) {
                     val remoteForward = net.schmizz.sshj.connection.channel.forwarded.RemotePortForwarder.Forward(config.remotePort)
-                    val host = if (config.remoteHost.isEmpty()) "127.0.0.1" else config.remoteHost
+                    val host = if (config.remoteHost.isEmpty()) LOCAL_HOST else config.remoteHost
                     val localTargetAddress = InetSocketAddress(host, config.localPort)
                     val localListener = net.schmizz.sshj.connection.channel.forwarded.SocketForwardingConnectListener(localTargetAddress)
                     client.remotePortForwarder.bind(remoteForward, localListener)

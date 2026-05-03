@@ -562,14 +562,14 @@ fun TerminalScreenContent(
                                 return true
                             }
                             override fun onLongPress(e: android.view.MotionEvent?): Boolean = false
-                            override fun onEmulatorSet() {}
-                            override fun logError(tag: String?, msg: String?) {}
-                            override fun logWarn(tag: String?, msg: String?) {}
-                            override fun logInfo(tag: String?, msg: String?) {}
-                            override fun logDebug(tag: String?, msg: String?) {}
-                            override fun logVerbose(tag: String?, msg: String?) {}
-                            override fun logStackTraceWithMessage(tag: String?, msg: String?, e: Exception?) {}
-                            override fun logStackTrace(tag: String?, e: Exception?) {}
+                            override fun onEmulatorSet() { /* No-op */ }
+                            override fun logError(tag: String?, msg: String?) { /* No-op */ }
+                            override fun logWarn(tag: String?, msg: String?) { /* No-op */ }
+                            override fun logInfo(tag: String?, msg: String?) { /* No-op */ }
+                            override fun logDebug(tag: String?, msg: String?) { /* No-op */ }
+                            override fun logVerbose(tag: String?, msg: String?) { /* No-op */ }
+                            override fun logStackTraceWithMessage(tag: String?, msg: String?, e: Exception?) { /* No-op */ }
+                            override fun logStackTrace(tag: String?, e: Exception?) { /* No-op */ }
                         })
 
                         terminalView.addOnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->

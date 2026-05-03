@@ -83,9 +83,9 @@ class TerminalViewModel(application: Application) :
         }
     }
 
-    override fun onTextChanged(session: TerminalSession) {}
-    override fun onTitleChanged(session: TerminalSession) {}
-    override fun onSessionFinished(session: TerminalSession) {}
+    override fun onTextChanged(session: TerminalSession) { /* No-op */ }
+    override fun onTitleChanged(session: TerminalSession) { /* No-op */ }
+    override fun onSessionFinished(session: TerminalSession) { /* No-op */ }
 
     override fun onCopyTextToClipboard(session: TerminalSession, text: String) {
         val context = getContext?.invoke() ?: return
@@ -94,18 +94,18 @@ class TerminalViewModel(application: Application) :
         clipboard.setPrimaryClip(clip)
     }
 
-    override fun onPasteTextFromClipboard(session: TerminalSession) {}
-    override fun onBell(session: TerminalSession) {}
-    override fun onColorsChanged(session: TerminalSession) {}
-    override fun onTerminalCursorStateChange(state: Boolean) {}
+    override fun onPasteTextFromClipboard(session: TerminalSession) { /* No-op */ }
+    override fun onBell(session: TerminalSession) { /* No-op */ }
+    override fun onColorsChanged(session: TerminalSession) { /* No-op */ }
+    override fun onTerminalCursorStateChange(state: Boolean) { /* No-op */ }
     override fun getTerminalCursorStyle(): Int = 0
-    override fun logError(tag: String?, msg: String?) {}
-    override fun logWarn(tag: String?, msg: String?) {}
-    override fun logInfo(tag: String?, msg: String?) {}
-    override fun logDebug(tag: String?, msg: String?) {}
-    override fun logVerbose(tag: String?, msg: String?) {}
-    override fun logStackTraceWithMessage(tag: String?, msg: String?, e: java.lang.Exception?) {}
-    override fun logStackTrace(tag: String?, e: java.lang.Exception?) {}
+    override fun logError(tag: String?, msg: String?) { /* No-op */ }
+    override fun logWarn(tag: String?, msg: String?) { /* No-op */ }
+    override fun logInfo(tag: String?, msg: String?) { /* No-op */ }
+    override fun logDebug(tag: String?, msg: String?) { /* No-op */ }
+    override fun logVerbose(tag: String?, msg: String?) { /* No-op */ }
+    override fun logStackTraceWithMessage(tag: String?, msg: String?, e: java.lang.Exception?) { /* No-op */ }
+    override fun logStackTrace(tag: String?, e: java.lang.Exception?) { /* No-op */ }
 
     override fun onCleared() {
         super.onCleared()
