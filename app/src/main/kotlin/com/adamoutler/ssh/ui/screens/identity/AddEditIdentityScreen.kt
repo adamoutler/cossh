@@ -18,15 +18,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.adamoutler.ssh.crypto.SSHKeyGenerator
 import com.adamoutler.ssh.data.AuthType
-import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
-import com.adamoutler.ssh.network.SshConnectionManager
-import com.adamoutler.ssh.ui.events.UiEvent
-import com.adamoutler.ssh.ui.events.UiEventBus
 import com.adamoutler.ssh.ui.screens.IdentityViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -156,14 +150,7 @@ fun AddEditIdentityScreen(
             ) {
                 Button(
                     onClick = {
-                        val keyPair = SSHKeyGenerator.generateEd25519KeyPair()
-                        viewModel.updateState {
-                            it.copy(
-                                publicKey = SSHKeyGenerator.encodePublicKey(keyPair),
-                                privateKey = SSHKeyGenerator.encodePrivateKey(keyPair),
-                                authType = AuthType.KEY,
-                            )
-                        }
+                        viewModel.generateEd25519KeyPair()
                     },
                     modifier = Modifier.weight(1f),
                 ) {
@@ -174,14 +161,7 @@ fun AddEditIdentityScreen(
 
                 Button(
                     onClick = {
-                        val keyPair = SSHKeyGenerator.generateRSAKeyPair()
-                        viewModel.updateState {
-                            it.copy(
-                                publicKey = SSHKeyGenerator.encodePublicKey(keyPair),
-                                privateKey = SSHKeyGenerator.encodePrivateKey(keyPair),
-                                authType = AuthType.KEY,
-                            )
-                        }
+                        viewModel.generateRSAKeyPair()
                     },
                     modifier = Modifier.weight(1f),
                 ) {
@@ -254,25 +234,7 @@ fun AddEditIdentityScreen(
             onDismiss = { showInjectDialog = false },
             onInject = { host, port, tempPassword ->
                 showInjectDialog = false
-                coroutineScope.launch {
-                    UiEventBus.publish(UiEvent.ShowSnackbar("Injecting key..."))
-                    val manager = SshConnectionManager(context = context)
-                    val tempProfile = ConnectionProfile(
-                        id = "temp",
-                        nickname = "Temp",
-                        host = host,
-                        port = port,
-                        username = uiState.username,
-                        authType = AuthType.PASSWORD,
-                        password = tempPassword.toByteArray(),
-                    )
-                    val success = manager.injectPublicKey(tempProfile, uiState.publicKey)
-                    if (success) {
-                        UiEventBus.publish(UiEvent.ShowSnackbar("Key injected successfully!"))
-                    } else {
-                        UiEventBus.publish(UiEvent.ShowSnackbar("Failed to inject key. Check logs."))
-                    }
-                }
+                viewModel.injectPublicKey(host, port, tempPassword)
             },
             profiles = profiles,
         )

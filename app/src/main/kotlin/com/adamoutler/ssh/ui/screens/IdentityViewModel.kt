@@ -96,4 +96,52 @@ class IdentityViewModel(
     }
 
     fun getIdentity(id: String): IdentityProfile? = storageManager.getIdentity(id)
+
+    fun generateEd25519KeyPair() {
+        launchWithHandler(kotlinx.coroutines.Dispatchers.Default) {
+            val keyPair = com.adamoutler.ssh.crypto.SSHKeyGenerator.generateEd25519KeyPair()
+            _uiState.update {
+                it.copy(
+                    publicKey = com.adamoutler.ssh.crypto.SSHKeyGenerator.encodePublicKey(keyPair),
+                    privateKey = com.adamoutler.ssh.crypto.SSHKeyGenerator.encodePrivateKey(keyPair),
+                    authType = AuthType.KEY,
+                )
+            }
+        }
+    }
+
+    fun generateRSAKeyPair() {
+        launchWithHandler(kotlinx.coroutines.Dispatchers.Default) {
+            val keyPair = com.adamoutler.ssh.crypto.SSHKeyGenerator.generateRSAKeyPair()
+            _uiState.update {
+                it.copy(
+                    publicKey = com.adamoutler.ssh.crypto.SSHKeyGenerator.encodePublicKey(keyPair),
+                    privateKey = com.adamoutler.ssh.crypto.SSHKeyGenerator.encodePrivateKey(keyPair),
+                    authType = AuthType.KEY,
+                )
+            }
+        }
+    }
+
+    fun injectPublicKey(host: String, port: Int, tempPassword: String) {
+        launchWithHandler(kotlinx.coroutines.Dispatchers.IO) {
+            com.adamoutler.ssh.ui.events.UiEventBus.publish(com.adamoutler.ssh.ui.events.UiEvent.ShowSnackbar("Injecting key..."))
+            val manager = com.adamoutler.ssh.network.SshConnectionManager(context = getApplication())
+            val tempProfile = com.adamoutler.ssh.data.ConnectionProfile(
+                id = "temp",
+                nickname = "Temp",
+                host = host,
+                port = port,
+                username = _uiState.value.username,
+                authType = AuthType.PASSWORD,
+                password = tempPassword.toByteArray(),
+            )
+            val success = manager.injectPublicKey(tempProfile, _uiState.value.publicKey)
+            if (success) {
+                com.adamoutler.ssh.ui.events.UiEventBus.publish(com.adamoutler.ssh.ui.events.UiEvent.ShowSnackbar("Key injected successfully!"))
+            } else {
+                com.adamoutler.ssh.ui.events.UiEventBus.publish(com.adamoutler.ssh.ui.events.UiEvent.ShowSnackbar("Failed to inject key. Check logs."))
+            }
+        }
+    }
 }
