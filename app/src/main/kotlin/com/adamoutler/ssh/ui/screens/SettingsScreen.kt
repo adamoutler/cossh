@@ -1,6 +1,7 @@
 package com.adamoutler.ssh.ui.screens
 
 import android.app.Activity
+import android.app.Application
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -11,14 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.billing.BillingManager
-import com.adamoutler.ssh.crypto.SecurityStorageManager
-import com.adamoutler.ssh.crypto.SettingsManager
 import com.adamoutler.ssh.sync.DriveSyncManager
-import com.adamoutler.ssh.sync.SyncWorker
-import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
@@ -28,20 +26,28 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
-    val isCloudSyncEnabled by billingManager.isCloudSyncEnabled.collectAsState()
-    val scope = rememberCoroutineScope()
-    var isSyncing by remember { mutableStateOf(false) }
-    val settingsManager = remember { SettingsManager(context) }
-    val securityStorageManager = remember { SecurityStorageManager(context) }
-    var defaultGroupName by remember { mutableStateOf(settingsManager.defaultGroupName) }
-    var showPassphraseDialog by remember { mutableStateOf(false) }
-    var isPassphraseSet by remember { mutableStateOf(securityStorageManager.getSyncPassphrase() != null) }
+    
+    val factory = remember {
+        object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return SettingsViewModel(
+                    context.applicationContext as Application,
+                    billingManager,
+                    driveSyncManager
+                ) as T
+            }
+        }
+    }
+    
+    val viewModel: SettingsViewModel = viewModel(factory = factory)
+    val uiState by viewModel.uiState.collectAsState()
 
-    if (showPassphraseDialog) {
+    if (uiState.showPassphraseDialog) {
         var passphrase by remember { mutableStateOf("") }
         AlertDialog(
             modifier = Modifier.widthIn(max = 320.dp),
-            onDismissRequest = { showPassphraseDialog = false },
+            onDismissRequest = { viewModel.dismissPassphraseDialog() },
             title = { Text("Sync Passphrase") },
             text = {
                 Column {
@@ -60,20 +66,7 @@ fun SettingsScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        securityStorageManager.saveSyncPassphrase(passphrase.toCharArray())
-                        isPassphraseSet = true
-                        showPassphraseDialog = false
-                        scope.launch {
-                            isSyncing = true
-                            try {
-                                activity?.let { driveSyncManager.authenticate(it) }
-                                WorkManager.getInstance(context).enqueue(
-                                    OneTimeWorkRequestBuilder<SyncWorker>().build(),
-                                )
-                            } finally {
-                                isSyncing = false
-                            }
-                        }
+                        activity?.let { viewModel.savePassphraseAndSync(passphrase, it) }
                     },
                     enabled = passphrase.isNotBlank(),
                 ) {
@@ -81,7 +74,7 @@ fun SettingsScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showPassphraseDialog = false }) {
+                TextButton(onClick = { viewModel.dismissPassphraseDialog() }) {
                     Text("Cancel")
                 }
             },
@@ -89,37 +82,14 @@ fun SettingsScreen(
     }
 
     SettingsScreenContent(
-        isCloudSyncEnabled = isCloudSyncEnabled,
-        isSyncing = isSyncing,
-        defaultGroupName = defaultGroupName,
-        isPassphraseSet = isPassphraseSet,
-        onDefaultGroupNameChange = {
-            defaultGroupName = it
-            settingsManager.defaultGroupName = if (it.isBlank()) "Uncategorized" else it
-        },
-        onPurchaseCloudSync = {
-            activity?.let { billingManager.purchaseCloudSync(it) }
-        },
-        onAuthenticateGoogle = {
-            if (!isPassphraseSet) {
-                showPassphraseDialog = true
-            } else {
-                scope.launch {
-                    isSyncing = true
-                    try {
-                        activity?.let { driveSyncManager.authenticate(it) }
-                        WorkManager.getInstance(context).enqueue(
-                            OneTimeWorkRequestBuilder<SyncWorker>().build(),
-                        )
-                    } finally {
-                        isSyncing = false
-                    }
-                }
-            }
-        },
-        onResetPassphrase = {
-            showPassphraseDialog = true
-        },
+        isCloudSyncEnabled = uiState.isCloudSyncEnabled,
+        isSyncing = uiState.isSyncing,
+        defaultGroupName = uiState.defaultGroupName,
+        isPassphraseSet = uiState.isPassphraseSet,
+        onDefaultGroupNameChange = { viewModel.updateDefaultGroupName(it) },
+        onPurchaseCloudSync = { activity?.let { viewModel.purchaseCloudSync(it) } },
+        onAuthenticateGoogle = { activity?.let { viewModel.authenticateGoogle(it) } },
+        onResetPassphrase = { viewModel.showPassphraseDialog() },
         onNavigateBack = onNavigateBack,
     )
 }
