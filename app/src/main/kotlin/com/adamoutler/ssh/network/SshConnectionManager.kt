@@ -107,13 +107,19 @@ class SshConnectionManager(
     private val identityStorageManager: IdentityStorageManager? = null,
     private val context: android.content.Context? = null,
 ) {
-    private var client: SSHClient? = null
     private val portForwardingOrchestrator = PortForwardingOrchestrator()
     private val telnetConnectionHandler = TelnetConnectionHandler()
+    private val sshConnectionHandler = SshConnectionHandler(hostKeyVerifier, identityStorageManager, context, portForwardingOrchestrator)
+
+    private var activeProtocol: ConnectionProtocol? = null
+
+    // Exposed for tests or legacy code that might need the underlying client.
+    val client: SSHClient?
+        get() = sshConnectionHandler.client
 
     fun disconnect() {
         try {
-            client?.disconnect()
+            activeProtocol?.disconnect()
         } catch (e: Exception) {
             android.util.Log.e("SshConnectionManager", "Error during manual disconnect", e)
         }
@@ -122,12 +128,10 @@ class SshConnectionManager(
         } catch (e: Exception) {
             android.util.Log.e("SshConnectionManager", "Error closing local port forwarders", e)
         }
-        telnetConnectionHandler.disconnect()
     }
 
     suspend fun connectAndExecute(profile: ConnectionProfile, command: String, keyPair: KeyPair? = null): String = withContext(Dispatchers.IO) {
         val client = SSHClient(net.schmizz.sshj.AndroidConfig())
-        this@SshConnectionManager.client = client
         val handshakeCoordinator = SshHandshakeCoordinator(hostKeyVerifier, identityStorageManager, context)
 
         try {
@@ -154,50 +158,13 @@ class SshConnectionManager(
         onOutput: suspend (ByteArray, Int) -> Unit,
         onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit,
     ) = withContext(Dispatchers.IO) {
-        if (profile.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
-            telnetConnectionHandler.connect(profile, onOutput, onConnect)
-            return@withContext
+        activeProtocol = if (profile.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
+            telnetConnectionHandler
+        } else {
+            sshConnectionHandler
         }
 
-        val client = SSHClient(net.schmizz.sshj.AndroidConfig())
-        this@SshConnectionManager.client = client
-        val handshakeCoordinator = SshHandshakeCoordinator(hostKeyVerifier, identityStorageManager, context)
-
-        try {
-            handshakeCoordinator.executeWithConnection(client, profile, keyPair) { effectiveProfile ->
-                portForwardingOrchestrator.startPortForwards(client, effectiveProfile)
-
-                client.startSession().use { session ->
-                    effectiveProfile.envVars.forEach { (key, value) ->
-                        try {
-                            session.setEnvVar(key, value)
-                        } catch (e: Exception) {
-                            android.util.Log.w("SshConnectionManager", "Failed to set env var $key", e)
-                        }
-                    }
-                    session.allocatePTY("xterm-256color", 80, 24, 0, 0, emptyMap())
-                    val shell = session.startShell()
-
-                    if (!effectiveProfile.initialDirectory.isNullOrEmpty()) {
-                        val escapedDir = effectiveProfile.initialDirectory.replace("'", "'\\''")
-                        val cdCmd = "cd '$escapedDir'\r\n"
-                        shell.outputStream.write(cdCmd.toByteArray(Charsets.UTF_8))
-                        shell.outputStream.flush()
-                    }
-
-                    onConnect(shell.outputStream, shell)
-
-                    val bridge = PtyStreamBridge(shell.inputStream, onOutput)
-                    bridge.startBridge()
-                }
-            }
-        } finally {
-            try {
-                client.disconnect()
-            } catch (e: Exception) {
-                android.util.Log.e("SshConnectionManager", "Error during disconnect", e)
-            }
-        }
+        activeProtocol?.connect(profile, keyPair, onOutput, onConnect)
     }
 
     /**
