@@ -13,12 +13,13 @@ import org.apache.commons.net.telnet.TelnetClient
 import org.apache.commons.net.telnet.TerminalTypeOptionHandler
 import java.io.OutputStream
 
-class TelnetConnectionHandler {
+class TelnetConnectionHandler : ConnectionProtocol {
     var telnetClient: TelnetClient? = null
         private set
 
-    suspend fun connect(
+    override suspend fun connect(
         profile: ConnectionProfile,
+        keyPair: java.security.KeyPair?,
         onOutput: suspend (ByteArray, Int) -> Unit,
         onConnect: (OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit,
     ): Unit = withContext(Dispatchers.IO) {
@@ -119,7 +120,7 @@ class TelnetConnectionHandler {
         }
     }
 
-    fun disconnect() {
+    override fun disconnect() {
         try {
             telnetClient?.disconnect()
         } catch (e: Exception) {
