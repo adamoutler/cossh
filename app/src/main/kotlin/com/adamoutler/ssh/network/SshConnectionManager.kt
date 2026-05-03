@@ -108,8 +108,8 @@ class SshConnectionManager(
     private val context: android.content.Context? = null,
 ) {
     private var client: SSHClient? = null
-    private var telnetClient: org.apache.commons.net.telnet.TelnetClient? = null
-    private val localServerSockets = mutableListOf<java.net.ServerSocket>()
+    private val portForwardingOrchestrator = PortForwardingOrchestrator()
+    private val telnetConnectionHandler = TelnetConnectionHandler()
 
     fun disconnect() {
         try {
@@ -118,45 +118,11 @@ class SshConnectionManager(
             android.util.Log.e("SshConnectionManager", "Error during manual disconnect", e)
         }
         try {
-            localServerSockets.forEach { it.close() }
-            localServerSockets.clear()
+            portForwardingOrchestrator.stopAll()
         } catch (e: Exception) {
             android.util.Log.e("SshConnectionManager", "Error closing local port forwarders", e)
         }
-    }
-
-    private fun startPortForwards(client: SSHClient, profile: ConnectionProfile) {
-        profile.portForwards.forEach { config ->
-            try {
-                if (config.type == com.adamoutler.ssh.data.PortForwardType.LOCAL) {
-                    val params = net.schmizz.sshj.connection.channel.direct.Parameters("127.0.0.1", config.localPort, config.remoteHost, config.remotePort)
-                    val serverSocket = java.net.ServerSocket()
-                    serverSocket.reuseAddress = true
-                    serverSocket.bind(java.net.InetSocketAddress("127.0.0.1", config.localPort))
-                    localServerSockets.add(serverSocket)
-                    val localPortForwarder = client.newLocalPortForwarder(params, serverSocket)
-                    kotlin.concurrent.thread(name = "LocalPortForwarder_${config.localPort}") {
-                        try {
-                            localPortForwarder.listen()
-                        } catch (e: Exception) {
-                            android.util.Log.e("SshConnectionManager", "Local port forwarder error", e)
-                        } finally {
-                            try {
-                                serverSocket.close()
-                            } catch (e: Exception) {}
-                        }
-                    }
-                } else if (config.type == com.adamoutler.ssh.data.PortForwardType.REMOTE) {
-                    val remoteForward = net.schmizz.sshj.connection.channel.forwarded.RemotePortForwarder.Forward(config.remotePort)
-                    val host = if (config.remoteHost.isEmpty()) "127.0.0.1" else config.remoteHost
-                    val localTargetAddress = java.net.InetSocketAddress(host, config.localPort)
-                    val localListener = net.schmizz.sshj.connection.channel.forwarded.SocketForwardingConnectListener(localTargetAddress)
-                    client.remotePortForwarder.bind(remoteForward, localListener)
-                }
-            } catch (e: Exception) {
-                android.util.Log.e("SshConnectionManager", "Failed to setup port forward $config", e)
-            }
-        }
+        telnetConnectionHandler.disconnect()
     }
 
     suspend fun connectAndExecute(profile: ConnectionProfile, command: String, keyPair: KeyPair? = null): String = withContext(Dispatchers.IO) {
@@ -189,7 +155,7 @@ class SshConnectionManager(
         onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit,
     ) = withContext(Dispatchers.IO) {
         if (profile.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
-            connectTelnet(profile, onOutput, onConnect)
+            telnetConnectionHandler.connect(profile, onOutput, onConnect)
             return@withContext
         }
 
@@ -199,7 +165,7 @@ class SshConnectionManager(
 
         try {
             handshakeCoordinator.executeWithConnection(client, profile, keyPair) { effectiveProfile ->
-                startPortForwards(client, effectiveProfile)
+                portForwardingOrchestrator.startPortForwards(client, effectiveProfile)
 
                 client.startSession().use { session ->
                     effectiveProfile.envVars.forEach { (key, value) ->
@@ -230,108 +196,6 @@ class SshConnectionManager(
                 client.disconnect()
             } catch (e: Exception) {
                 android.util.Log.e("SshConnectionManager", "Error during disconnect", e)
-            }
-        }
-    }
-
-    private suspend fun connectTelnet(
-        profile: ConnectionProfile,
-        onOutput: suspend (ByteArray, Int) -> Unit,
-        onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit,
-    ): Unit = withContext(Dispatchers.IO) {
-        val tc = org.apache.commons.net.telnet.TelnetClient()
-        this@SshConnectionManager.telnetClient = tc
-        tc.connectTimeout = 10000
-
-        try {
-            tc.addOptionHandler(org.apache.commons.net.telnet.TerminalTypeOptionHandler("xterm-256color", false, false, true, false))
-            tc.addOptionHandler(org.apache.commons.net.telnet.EchoOptionHandler(false, false, false, true))
-            tc.addOptionHandler(org.apache.commons.net.telnet.SuppressGAOptionHandler(false, false, true, true))
-
-            tc.connect(profile.host, profile.port)
-
-            val writeChannel = kotlinx.coroutines.channels.Channel<ByteArray>(kotlinx.coroutines.channels.Channel.UNLIMITED)
-
-            val ioJob = kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
-                for (bytes in writeChannel) {
-                    try {
-                        tc.outputStream.write(bytes)
-                        tc.outputStream.flush()
-                    } catch (e: Exception) {
-                        android.util.Log.e("SshConnectionManager", "Error writing to telnet stream", e)
-                        break
-                    }
-                }
-            }
-
-            val autoFlushingStream = object : java.io.OutputStream() {
-                var lastWasCr = false
-                private fun translateAndSend(b: Int) {
-                    val byteVal = b.toByte()
-                    val result = if (byteVal == '\r'.code.toByte()) {
-                        lastWasCr = true
-                        writeChannel.trySend(byteArrayOf('\r'.code.toByte(), '\n'.code.toByte()))
-                    } else if (byteVal == '\n'.code.toByte()) {
-                        val res = if (!lastWasCr) {
-                            writeChannel.trySend(byteArrayOf('\r'.code.toByte(), '\n'.code.toByte()))
-                        } else {
-                            null
-                        }
-                        lastWasCr = false
-                        res
-                    } else {
-                        lastWasCr = false
-                        writeChannel.trySend(byteArrayOf(byteVal))
-                    }
-                    if (result?.isFailure == true) {
-                        android.util.Log.e("SshConnectionManager", "Failed to send to writeChannel")
-                    }
-                }
-                override fun write(b: Int) {
-                    translateAndSend(b)
-                }
-                override fun write(b: ByteArray) {
-                    write(b, 0, b.size)
-                }
-                override fun write(b: ByteArray, off: Int, len: Int) {
-                    for (i in off until off + len) {
-                        translateAndSend(b[i].toInt())
-                    }
-                }
-                override fun flush() {}
-                override fun close() {
-                    writeChannel.close()
-                    ioJob.cancel()
-                    try {
-                        tc.outputStream.close()
-                    } catch (e: Exception) {}
-                }
-            }
-
-            if (!profile.initialDirectory.isNullOrEmpty()) {
-                val escapedDir = profile.initialDirectory.replace("'", "'\\''")
-                val cdCmd = "cd '$escapedDir'\r\n"
-                autoFlushingStream.write(cdCmd.toByteArray(Charsets.UTF_8))
-                autoFlushingStream.flush()
-            }
-
-            onConnect(autoFlushingStream, null)
-
-            val bridgeJob = kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
-                val bridge = PtyStreamBridge(tc.inputStream, onOutput)
-                bridge.startBridge()
-            }
-
-            try {
-                kotlinx.coroutines.awaitCancellation()
-            } finally {
-                bridgeJob.cancel()
-            }
-        } finally {
-            try {
-                tc.disconnect()
-            } catch (e: Exception) {
-                android.util.Log.e("SshConnectionManager", "Error during telnet disconnect", e)
             }
         }
     }
