@@ -108,14 +108,13 @@ class SshConnectionManager(
     private val context: android.content.Context? = null,
 ) {
     private val portForwardingOrchestrator = PortForwardingOrchestrator()
-    private val telnetConnectionHandler = TelnetConnectionHandler()
-    private val sshConnectionHandler = SshConnectionHandler(hostKeyVerifier, identityStorageManager, context, portForwardingOrchestrator)
+    private val protocolFactory = ConnectionProtocolFactory(hostKeyVerifier, identityStorageManager, context, portForwardingOrchestrator)
 
     private var activeProtocol: ConnectionProtocol? = null
 
     // Exposed for tests or legacy code that might need the underlying client.
     val client: SSHClient?
-        get() = sshConnectionHandler.client
+        get() = (activeProtocol as? SshConnectionHandler)?.client
 
     fun disconnect() {
         try {
@@ -131,12 +130,12 @@ class SshConnectionManager(
     }
 
     suspend fun connectAndExecute(profile: ConnectionProfile, command: String, keyPair: KeyPair? = null): String = withContext(Dispatchers.IO) {
-        val client = SSHClient(net.schmizz.sshj.AndroidConfig())
+        val sshClient = SSHClient(net.schmizz.sshj.AndroidConfig())
         val handshakeCoordinator = SshHandshakeCoordinator(hostKeyVerifier, identityStorageManager, context)
 
         try {
-            handshakeCoordinator.executeWithConnection(client, profile, keyPair) { effectiveProfile ->
-                client.startSession().use { session ->
+            handshakeCoordinator.executeWithConnection(sshClient, profile, keyPair) { effectiveProfile ->
+                sshClient.startSession().use { session ->
                     val cmd = session.exec(command)
                     val result = cmd.inputStream.bufferedReader().use { it.readText() }
                     cmd.join()
@@ -145,7 +144,7 @@ class SshConnectionManager(
             }
         } finally {
             try {
-                client.disconnect()
+                sshClient.disconnect()
             } catch (e: Exception) {
                 android.util.Log.e("SshConnectionManager", "Error during disconnect", e)
             }
@@ -158,12 +157,7 @@ class SshConnectionManager(
         onOutput: suspend (ByteArray, Int) -> Unit,
         onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit,
     ) = withContext(Dispatchers.IO) {
-        activeProtocol = if (profile.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
-            telnetConnectionHandler
-        } else {
-            sshConnectionHandler
-        }
-
+        activeProtocol = protocolFactory.create(profile.protocol)
         activeProtocol?.connect(profile, keyPair, onOutput, onConnect)
     }
 
