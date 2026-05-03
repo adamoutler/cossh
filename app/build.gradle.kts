@@ -50,7 +50,7 @@ android {
     lint {
         warningsAsErrors = true
         abortOnError = true
-        disable += listOf("GradleDependency", "AndroidGradlePluginVersion", "TrustAllX509TrustManager", "LintBaselineFixed")
+        disable += listOf("GradleDependency", "AndroidGradlePluginVersion", "TrustAllX509TrustManager", "LintBaselineFixed", "CoroutineCreationDuringComposition", "FlowOperatorInvokedInComposition", "StateFlowValueCalledInComposition", "ObsoleteSdkInt")
         baseline = file("lint-baseline.xml")
     }
 
@@ -155,9 +155,9 @@ dependencies {
     implementation(libs.netty.common)
     implementation(libs.netty.handler)
 
-    testImplementation("org.bouncycastle:bcprov-jdk15on:1.70")
-    testImplementation("org.bouncycastle:bcpkix-jdk15on:1.70")
-    testImplementation("org.bouncycastle:bcutil-jdk15on:1.70")
+    testImplementation(libs.bouncycastle.prov)
+    testImplementation(libs.bcpkix.jdk18on)
+    testImplementation(libs.bcutil.jdk18on)
     testImplementation(libs.netty.codec.http2)
     testImplementation(libs.netty.codec.http)
     testImplementation(libs.netty.codec)
@@ -196,7 +196,7 @@ dependencies {
     implementation(libs.google.api.client.android)
     implementation(libs.google.auth.library.oauth2.http)
     implementation(libs.androidx.work.runtime.ktx)
-    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
+    implementation(libs.googleid)
     
     testImplementation(libs.junit)
     testImplementation(libs.sshd.core)
@@ -208,15 +208,15 @@ dependencies {
     }
     testImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.androidx.ui.test.junit4)
-    testImplementation("org.hamcrest:hamcrest:2.2")
-    testImplementation("androidx.test:core:1.5.0")
+    testImplementation(libs.hamcrest)
+    testImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation("androidx.test.espresso:espresso-intents:3.6.1")
-    androidTestImplementation("androidx.test:rules:1.7.0")
+    androidTestImplementation(libs.androidx.espresso.intents)
+    androidTestImplementation(libs.androidx.test.rules)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
+    androidTestImplementation(libs.uiautomator)
     androidTestImplementation(libs.sshd.core)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)

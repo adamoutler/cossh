@@ -31,8 +31,9 @@ import javax.crypto.spec.SecretKeySpec
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-class DriveSyncManager(private val context: Context) {
-    private val credentialManager = CredentialManager.create(context)
+class DriveSyncManager(context: Context) {
+    private val appContext = context.applicationContext
+    private val credentialManager = CredentialManager.create(appContext)
     private val webClientId = "255929341577-6e1405jlnio601o2em8mr7n7dins7ni9.apps.googleusercontent.com"
     private var oauthToken: String? = null
 
@@ -47,7 +48,7 @@ class DriveSyncManager(private val context: Context) {
             if (requestCode == 1001) {
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     try {
-                        val authResult = Identity.getAuthorizationClient(currentInstance?.context!!).getAuthorizationResultFromIntent(data)
+                        val authResult = Identity.getAuthorizationClient(currentInstance?.appContext!!).getAuthorizationResultFromIntent(data)
                         currentInstance?.oauthToken = authResult.accessToken
                         Log.d("DriveSyncManager", "OAuth Token received securely from intent")
                         authorizationContinuation?.resume(Unit)
@@ -85,6 +86,7 @@ class DriveSyncManager(private val context: Context) {
             )
             val credential = result.credential
             if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                 // Identity asserted. Now request OAuth scope for Drive.
                 authorizeScope(activity)
             }

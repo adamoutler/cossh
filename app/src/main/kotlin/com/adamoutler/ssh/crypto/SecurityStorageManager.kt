@@ -62,7 +62,7 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
                 keyStore.deleteEntry("_androidx_security_master_key_")
             }
             context.getSharedPreferences("secret_ssh_profiles", Context.MODE_PRIVATE)
-                .edit().clear().commit()
+                .edit().clear().apply()
         } catch (e: Exception) {
             android.util.Log.e("SecurityStorageManager", "Failed to reset Keystore", e)
         }
@@ -166,7 +166,7 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
 
     fun saveSyncPassphrase(passphrase: CharArray) {
         val base64Pass = java.util.Base64.getEncoder().encodeToString(String(passphrase).toByteArray(Charsets.UTF_8))
-        encryptedPrefs.edit().putString("sync_passphrase", base64Pass).commit()
+        encryptedPrefs.edit().putString("sync_passphrase", base64Pass).apply()
     }
 
     fun getSyncPassphrase(): CharArray? {
