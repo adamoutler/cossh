@@ -61,7 +61,7 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
                 keyStore.deleteEntry("_androidx_security_master_key_")
             }
             context.getSharedPreferences("secret_ssh_identities", Context.MODE_PRIVATE)
-                .edit().clear().commit()
+                .edit().clear().apply()
         } catch (e: Exception) {
             android.util.Log.e("IdentityStorageManager", "Failed to reset Keystore", e)
         }
@@ -97,7 +97,7 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
                 editor.remove("${identity.id}_key")
             }
 
-            editor.commit()
+            editor.apply()
         } catch (e: Exception) {
             if (e is CryptoException) throw e
             e.handleKeystoreExceptions("Failed to save identity due to Keystore error.")

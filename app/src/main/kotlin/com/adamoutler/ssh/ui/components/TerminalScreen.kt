@@ -80,8 +80,8 @@ enum class ModifierState {
 @Composable
 fun TerminalScreen(
     profileId: String,
-    sessionId: String? = null,
     modifier: Modifier = Modifier,
+    sessionId: String? = null,
     terminalViewModel: TerminalViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     onNavigateBack: () -> Unit = {},
 ) {
@@ -151,13 +151,13 @@ fun TerminalScreenContent(
     activeSession: com.adamoutler.ssh.network.ActiveSessionState,
     currentFontSize: Int,
     isConnectionActive: Boolean,
-    isTerminated: Boolean = false,
     errorMessage: String?,
     onUpdateFontSize: (Int) -> Unit,
     onNavigateBack: () -> Unit,
     onClearError: () -> Unit,
-    profile: com.adamoutler.ssh.data.ConnectionProfile? = null,
     modifier: Modifier = Modifier,
+    isTerminated: Boolean = false,
+    profile: com.adamoutler.ssh.data.ConnectionProfile? = null,
 ) {
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -206,7 +206,7 @@ fun TerminalScreenContent(
         }
     }
 
-    var terminalInputState by remember { mutableStateOf(0) }
+    var terminalInputState by remember { androidx.compose.runtime.mutableIntStateOf(0) }
     var showOverlayButtons by remember { mutableStateOf(false) }
     val ctrlState = remember { mutableStateOf(ModifierState.INACTIVE) }
     val altState = remember { mutableStateOf(ModifierState.INACTIVE) }
@@ -222,7 +222,7 @@ fun TerminalScreenContent(
 
     var showKeepAliveDialog by remember { mutableStateOf(false) }
     var showTerminateConfirmDialog by remember { mutableStateOf(false) }
-    var lastBackPressTime by remember { mutableStateOf(0L) }
+    var lastBackPressTime by remember { androidx.compose.runtime.mutableLongStateOf(0L) }
     var wasActive by remember { mutableStateOf(false) }
     var showDisconnectedOverlay by remember { mutableStateOf(false) }
 

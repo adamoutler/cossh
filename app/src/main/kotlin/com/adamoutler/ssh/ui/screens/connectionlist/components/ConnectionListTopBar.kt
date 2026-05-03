@@ -22,10 +22,10 @@ fun ConnectionListTopBar(
     onImportRequested: () -> Unit,
     onSettingsRequested: () -> Unit,
     onManageIdentitiesRequested: () -> Unit,
+    modifier: Modifier = Modifier,
     onReorderRequested: () -> Unit = {},
     onReorderDone: () -> Unit = {},
     isReordering: Boolean = false,
-    modifier: Modifier = Modifier,
     initialMenuExpanded: Boolean = false,
 ) {
     var menuExpanded by remember { mutableStateOf(initialMenuExpanded) }

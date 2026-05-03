@@ -1,12 +1,13 @@
 TerminalSession:
+isRunning
 reset
 write
 getPid
-isRunning
 updateSize
 getTitle
 initializeEmulator
 writeCodePoint
+updateTerminalSessionClient
 getEmulator
 finishIfRunning
 titleChanged
@@ -16,7 +17,6 @@ onPasteTextFromClipboard
 onBell
 onColorsChanged
 getCwd
-updateTerminalSessionClient
 write
 equals
 toString
@@ -32,9 +32,6 @@ reset
 toString
 append
 resize
-getScreen
-isAlternateBufferActive
-sendMouseEvent
 getCursorRow
 getCursorCol
 getCursorStyle
@@ -53,6 +50,9 @@ getScrollCounter
 clearScrollCounter
 getSelectedText
 paste
+getScreen
+isAlternateBufferActive
+sendMouseEvent
 getTitle
 updateTerminalSessionClient
 equals

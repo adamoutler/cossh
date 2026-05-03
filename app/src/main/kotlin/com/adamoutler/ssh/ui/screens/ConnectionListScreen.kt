@@ -259,11 +259,7 @@ fun ConnectionListScreen(
                             putExtra(SshService.EXTRA_PROFILE_ID, profileIdToConnect)
                             putExtra(SshService.EXTRA_SESSION_ID, newSessionId)
                         }
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                            context.startForegroundService(intent)
-                        } else {
-                            context.startService(intent)
-                        }
+                        context.startForegroundService(intent)
                         onConnect(profileIdToConnect!!, newSessionId)
                         profileIdToConnect = null
                     }) { Text("Start New") }
@@ -279,11 +275,7 @@ fun ConnectionListScreen(
                 putExtra(SshService.EXTRA_PROFILE_ID, profileIdToConnect)
                 putExtra(SshService.EXTRA_SESSION_ID, newSessionId)
             }
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
+            context.startForegroundService(intent)
             onConnect(profileIdToConnect!!, newSessionId)
             profileIdToConnect = null
         }
