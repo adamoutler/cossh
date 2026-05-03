@@ -224,6 +224,7 @@ dependencies {
 }
 
 tasks.withType<Test> {
+    maxHeapSize = "2048m"
     testLogging {
         events("passed", "skipped", "failed")
     }
