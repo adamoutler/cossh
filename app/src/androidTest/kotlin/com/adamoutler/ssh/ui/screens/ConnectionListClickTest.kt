@@ -7,7 +7,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -26,7 +25,7 @@ class ConnectionListClickTest {
 
         composeTestRule.setContent {
             ConnectionListContent(
-                profiles = listOf(profile),
+                flatItems = listOf(com.adamoutler.ssh.ui.screens.ConnectionListItem.Profile(profile)),
                 groupedProfiles = mapOf("Default" to listOf(profile)),
                 activeConnectionCounts = emptyMap(),
                 searchQuery = "",
@@ -54,7 +53,7 @@ class ConnectionListClickTest {
 
         composeTestRule.setContent {
             ConnectionListContent(
-                profiles = listOf(profile),
+                flatItems = listOf(com.adamoutler.ssh.ui.screens.ConnectionListItem.Profile(profile)),
                 groupedProfiles = mapOf("Default" to listOf(profile)),
                 activeConnectionCounts = emptyMap(),
                 searchQuery = "",

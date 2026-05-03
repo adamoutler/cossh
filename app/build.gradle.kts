@@ -4,6 +4,12 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.paparazzi)
     id("com.diffplug.spotless")
+    id("org.sonarqube")
+    jacoco
+}
+
+jacoco {
+    toolVersion = "0.8.11"
 }
 
 val gitCommitCount = try {
@@ -99,6 +105,10 @@ android {
         unitTests {
             isIncludeAndroidResources = true
             all {
+                it.extensions.configure<org.gradle.testing.jacoco.plugins.JacocoTaskExtension> {
+                    isIncludeNoLocationClasses = true
+                    excludes = listOf("jdk.internal.*")
+                }
                 if (name.contains("Release")) {
                     it.exclude("**/TerminalExtraKeysUITest.class")
                 }
@@ -263,5 +273,42 @@ spotless {
             "ktlint_standard_value-parameter-comment" to "disabled",
             "ktlint_standard_max-line-length" to "disabled"
         ))
+    }
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    val fileFilter = listOf(
+        "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
+        "**/*Test*.*", "android/**/*.*", "**/ui/theme/*.*"
+    )
+    val debugTree = fileTree(mapOf(
+        "dir" to layout.buildDirectory.dir("tmp/kotlin-classes/debug").get().asFile,
+        "excludes" to fileFilter
+    ))
+    val mainSrc = "${project.projectDir}/src/main/kotlin"
+
+    sourceDirectories.setFrom(files(mainSrc))
+    classDirectories.setFrom(files(debugTree))
+    executionData.setFrom(fileTree(mapOf(
+        "dir" to layout.buildDirectory.get().asFile,
+        "includes" to listOf(
+            "jacoco/testDebugUnitTest.exec",
+            "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"
+        )
+    )))
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "adamoutler_cossh")
+        property("sonar.organization", "adamoutler")
+        property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
     }
 }
