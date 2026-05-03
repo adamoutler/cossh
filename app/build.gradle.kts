@@ -225,6 +225,7 @@ dependencies {
 
 tasks.withType<Test> {
     maxHeapSize = "2048m"
+    systemProperty("java.security.egd", "file:/dev/./urandom")
     testLogging {
         events("passed", "skipped", "failed")
     }
