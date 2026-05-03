@@ -26,7 +26,6 @@ import com.adamoutler.ssh.ui.screens.ConnectionListItem
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun GroupedConnectionList(
-    groupedProfiles: Map<String?, List<ConnectionProfile>>,
     flatItems: List<ConnectionListItem>,
     activeConnectionCounts: Map<String, Int>,
     modifier: Modifier = Modifier,

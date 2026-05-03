@@ -134,7 +134,7 @@ class SshConnectionManager(
         val handshakeCoordinator = SshHandshakeCoordinator(hostKeyVerifier, identityStorageManager, context)
 
         try {
-            handshakeCoordinator.executeWithConnection(sshClient, profile, keyPair) { effectiveProfile ->
+            handshakeCoordinator.executeWithConnection(sshClient, profile, keyPair) { _ ->
                 sshClient.startSession().use { session ->
                     val cmd = session.exec(command)
                     val result = cmd.inputStream.bufferedReader().use { it.readText() }

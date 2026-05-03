@@ -100,8 +100,9 @@ class SshHandshakeCoordinator(
             AuthType.PASSWORD -> PasswordAuthenticator()
 
             AuthType.KEY -> {
-                if (keyPair == null || keyPair.public == null) throw IllegalArgumentException("Valid KeyPair with public key required for key-based authentication")
-                KeyAuthenticator(keyPair)
+                val validKeyPair = requireNotNull(keyPair) { "Valid KeyPair required for key-based authentication" }
+                requireNotNull(validKeyPair.public) { "Valid KeyPair with public key required for key-based authentication" }
+                KeyAuthenticator(validKeyPair)
             }
         }
     }

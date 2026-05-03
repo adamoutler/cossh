@@ -210,7 +210,7 @@ fun AppNavigation() {
 fun PasswordPromptDialog() {
     val promptRequest by com.adamoutler.ssh.network.ConnectionStateRepository.passwordPromptRequest.collectAsState()
 
-    promptRequest?.let { request ->
+    promptRequest?.let { _ ->
         val passwordBuffer = androidx.compose.runtime.remember { java.util.concurrent.atomic.AtomicReference(CharArray(0)) }
 
         androidx.compose.material3.AlertDialog(
