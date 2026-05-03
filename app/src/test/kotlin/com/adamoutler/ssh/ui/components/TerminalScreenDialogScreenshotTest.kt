@@ -29,14 +29,7 @@ class TerminalScreenDialogScreenshotTest {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    AlertDialog(
-                        onDismissRequest = { },
-                        title = { Text("Session Disconnected") },
-                        text = { Text("The SSH session has ended or the connection was lost.") },
-                        confirmButton = {
-                            TextButton(onClick = { }) { Text("OK") }
-                        },
-                    )
+                    SessionDisconnectedDialog(onDismiss = {})
                 }
             }
         }
@@ -50,16 +43,10 @@ class TerminalScreenDialogScreenshotTest {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    AlertDialog(
-                        onDismissRequest = { },
-                        title = { Text("Keep Session Alive?") },
-                        text = { Text("Do you want to keep this SSH session running in the background or terminate it?") },
-                        confirmButton = {
-                            TextButton(onClick = { }) { Text("Keep Alive") }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { }) { Text("Terminate") }
-                        },
+                    KeepAliveDialog(
+                        onDismiss = {},
+                        onKeepAlive = {},
+                        onTerminate = {},
                     )
                 }
             }
@@ -74,13 +61,26 @@ class TerminalScreenDialogScreenshotTest {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    AlertDialog(
-                        onDismissRequest = { },
-                        title = { Text("Connection Failed") },
-                        text = { Text("Error: Connection failed") },
-                        confirmButton = {
-                            TextButton(onClick = { }) { Text("OK") }
-                        },
+                    ConnectionFailedDialog(
+                        errorMessage = "Connection failed",
+                        onDismiss = {},
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun terminateConfirmDialogScreen() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    TerminateConfirmDialog(
+                        onDismiss = {},
+                        onTerminate = {},
                     )
                 }
             }

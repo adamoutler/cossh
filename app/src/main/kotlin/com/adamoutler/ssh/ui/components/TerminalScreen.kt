@@ -227,19 +227,12 @@ fun TerminalScreenContent(
     var showDisconnectedOverlay by remember { mutableStateOf(false) }
 
     if (errorMessage != null) {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = {
+        ConnectionFailedDialog(
+            errorMessage = errorMessage,
+            onDismiss = {
                 onClearError()
                 onNavigateBack()
-            },
-            title = { Text("Connection Failed") },
-            text = { Text("Error: $errorMessage") },
-            confirmButton = {
-                androidx.compose.material3.TextButton(onClick = {
-                    onClearError()
-                    onNavigateBack()
-                }) { Text("OK") }
-            },
+            }
         )
     }
 
@@ -273,75 +266,52 @@ fun TerminalScreenContent(
         }
     }
     if (showKeepAliveDialog) {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = { showKeepAliveDialog = false },
-            title = { Text("Keep Session Alive?") },
-            text = { Text("Do you want to keep this SSH session running in the background or terminate it?") },
-            confirmButton = {
-                androidx.compose.material3.TextButton(onClick = {
-                    showKeepAliveDialog = false
-                    onNavigateBack()
-                }) { Text("Keep Alive") }
+        KeepAliveDialog(
+            onDismiss = { showKeepAliveDialog = false },
+            onKeepAlive = {
+                showKeepAliveDialog = false
+                onNavigateBack()
             },
-            dismissButton = {
-                androidx.compose.material3.TextButton(onClick = {
-                    showKeepAliveDialog = false
-                    val ctx = terminalViewRef?.context
-                    if (ctx != null) {
-                        val intent = android.content.Intent(ctx, com.adamoutler.ssh.network.SshService::class.java).apply {
-                            action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
-                            putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profileId)
-                            putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, sessionId)
-                        }
-                        ctx.startService(intent)
+            onTerminate = {
+                showKeepAliveDialog = false
+                val ctx = terminalViewRef?.context
+                if (ctx != null) {
+                    val intent = android.content.Intent(ctx, com.adamoutler.ssh.network.SshService::class.java).apply {
+                        action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
+                        putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profileId)
+                        putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, sessionId)
                     }
-                    onNavigateBack()
-                }) { Text("Terminate") }
-            },
+                    ctx.startService(intent)
+                }
+                onNavigateBack()
+            }
         )
     }
 
     if (showTerminateConfirmDialog) {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = { showTerminateConfirmDialog = false },
-            title = { Text("Terminate Connection?") },
-            text = { Text("Are you sure you want to terminate this SSH session? All running processes will be killed.") },
-            confirmButton = {
-                androidx.compose.material3.TextButton(onClick = {
-                    showTerminateConfirmDialog = false
-                    val ctx = terminalViewRef?.context
-                    if (ctx != null) {
-                        val intent = android.content.Intent(ctx, com.adamoutler.ssh.network.SshService::class.java).apply {
-                            action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
-                            putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profileId)
-                            putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, sessionId)
-                        }
-                        ctx.startService(intent)
+        TerminateConfirmDialog(
+            onDismiss = { showTerminateConfirmDialog = false },
+            onTerminate = {
+                showTerminateConfirmDialog = false
+                val ctx = terminalViewRef?.context
+                if (ctx != null) {
+                    val intent = android.content.Intent(ctx, com.adamoutler.ssh.network.SshService::class.java).apply {
+                        action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
+                        putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profileId)
+                        putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, sessionId)
                     }
-                    onNavigateBack()
-                }) { Text("Terminate") }
-            },
-            dismissButton = {
-                androidx.compose.material3.TextButton(onClick = {
-                    showTerminateConfirmDialog = false
-                }) { Text("Cancel") }
-            },
+                    ctx.startService(intent)
+                }
+                onNavigateBack()
+            }
         )
     }
     if (showDisconnectedOverlay) {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = {
+        SessionDisconnectedDialog(
+            onDismiss = {
                 showDisconnectedOverlay = false
                 onNavigateBack()
-            },
-            title = { Text("Session Disconnected") },
-            text = { Text("The SSH session has ended or the connection was lost.") },
-            confirmButton = {
-                androidx.compose.material3.TextButton(onClick = {
-                    showDisconnectedOverlay = false
-                    onNavigateBack()
-                }) { Text("OK") }
-            },
+            }
         )
     }
 
@@ -387,27 +357,7 @@ fun TerminalScreenContent(
         val onUpdateFontSizeState = androidx.compose.runtime.rememberUpdatedState(onUpdateFontSize)
 
         if (profile?.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
-            androidx.compose.material3.Surface(
-                color = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                androidx.compose.foundation.layout.Row(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                ) {
-                    androidx.compose.material3.Icon(
-                        imageVector = Icons.Default.Warning,
-                        contentDescription = "Insecure Protocol Warning",
-                        tint = Color(0xFFE65100),
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    androidx.compose.material3.Text(
-                        text = "${profile.nickname} (Telnet: Unencrypted)",
-                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-                    )
-                }
-            }
+            TelnetInsecureWarning(nickname = profile.nickname)
         }
 
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -734,66 +684,6 @@ fun TerminalScreenContent(
                     }
                 },
             )
-        }
-    }
-}
-
-@Composable
-fun TerminalOverlayButtons(
-    onBackground: () -> Unit,
-    onTerminate: () -> Unit,
-    profile: com.adamoutler.ssh.data.ConnectionProfile?,
-    modifier: Modifier = Modifier,
-) {
-    androidx.compose.foundation.layout.Column(modifier = modifier.fillMaxWidth()) {
-        if (profile?.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
-            androidx.compose.material3.Surface(
-                color = Color(0xFFE65100),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                androidx.compose.foundation.layout.Row(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                ) {
-                    androidx.compose.material3.Icon(
-                        imageVector = Icons.Default.Warning,
-                        contentDescription = "Insecure Protocol Warning",
-                        tint = Color.White,
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    androidx.compose.material3.Text(
-                        text = "Telnet: Unencrypted Connection",
-                        color = Color.White,
-                        style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
-                    )
-                }
-            }
-        }
-        androidx.compose.foundation.layout.Row(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
-        ) {
-            androidx.compose.material3.IconButton(
-                onClick = onBackground,
-                modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), shape = androidx.compose.foundation.shape.CircleShape),
-            ) {
-                androidx.compose.material3.Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Background Session",
-                    tint = Color.White,
-                )
-            }
-
-            androidx.compose.material3.IconButton(
-                onClick = onTerminate,
-                modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), shape = androidx.compose.foundation.shape.CircleShape),
-            ) {
-                androidx.compose.material3.Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Terminate Session",
-                    tint = Color.White,
-                )
-            }
         }
     }
 }

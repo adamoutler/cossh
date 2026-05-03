@@ -1,12 +1,12 @@
 TerminalSessionClient:
-onTerminalCursorStateChange
 onBell
 onTextChanged
 onTitleChanged
 onSessionFinished
-onColorsChanged
+onTerminalCursorStateChange
 onCopyTextToClipboard
 onPasteTextFromClipboard
+onColorsChanged
 getTerminalCursorStyle
 logError
 logWarn
