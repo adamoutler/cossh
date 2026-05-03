@@ -53,4 +53,48 @@ class IdentityViewModelTest {
         identities = viewModel.identities.first()
         assertTrue(identities.none { it.id == "to-delete" })
     }
+
+    @Test
+    fun testGenerateEd25519KeyPair() = runTest {
+        viewModel.generateEd25519KeyPair()
+        
+        var state = viewModel.uiState.value
+        var attempts = 0
+        while (state.publicKey.isEmpty() && attempts < 50) {
+            Thread.sleep(100)
+            state = viewModel.uiState.value
+            attempts++
+        }
+        
+        val privKey = state.privateKey
+        assertTrue("Public key should not be empty", state.publicKey.isNotEmpty())
+        assertTrue("Private key should not be empty", privKey != null && privKey.isNotEmpty())
+        assertTrue("AuthType should be KEY", state.authType == com.adamoutler.ssh.data.AuthType.KEY)
+        assertTrue("Public key should start with ssh-ed25519", state.publicKey.startsWith("ssh-ed25519"))
+    }
+
+    @Test
+    fun testGenerateRSAKeyPair() = runTest {
+        viewModel.generateRSAKeyPair()
+        
+        var state = viewModel.uiState.value
+        var attempts = 0
+        while (state.publicKey.isEmpty() && attempts < 50) {
+            Thread.sleep(100)
+            state = viewModel.uiState.value
+            attempts++
+        }
+        
+        val privKey = state.privateKey
+        assertTrue("Public key should not be empty", state.publicKey.isNotEmpty())
+        assertTrue("Private key should not be empty", privKey != null && privKey.isNotEmpty())
+        assertTrue("AuthType should be KEY", state.authType == com.adamoutler.ssh.data.AuthType.KEY)
+        assertTrue("Public key should start with ssh-rsa", state.publicKey.startsWith("ssh-rsa"))
+    }
+
+    @Test
+    fun testInjectPublicKeyFailure() = runTest {
+        viewModel.injectPublicKey("127.0.0.1", 12345, "testpass")
+        Thread.sleep(500)
+    }
 }
