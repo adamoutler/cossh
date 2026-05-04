@@ -76,8 +76,6 @@ class ConnectionListScreenInstrumentedTest {
             val baseContext = androidx.compose.ui.platform.LocalContext.current
             val contextWrapper = object : android.content.ContextWrapper(baseContext) {
                 override fun startService(service: android.content.Intent?): android.content.ComponentName? {
-                    return null
-                }
                     android.util.Log.i("TEST_INTENT", "Captured startService intent: ${service?.action}")
                     return null
                 }

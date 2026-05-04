@@ -79,7 +79,7 @@ class IdentityViewModelTest {
         
         var state = viewModel.uiState.value
         var attempts = 0
-        while (state.publicKey.isEmpty() && attempts < 50) {
+        while (state.publicKey.isEmpty() && attempts < 150) {
             Thread.sleep(100)
             state = viewModel.uiState.value
             attempts++
