@@ -61,7 +61,6 @@ class ConnectionListScreenInstrumentedTest {
     @Test(timeout = 300000L)
     fun tapTriggersConnect() {
         var onConnectCalled = false
-        var capturedIntent: android.content.Intent? = null
 
         val mockProfile = ConnectionProfile(
             id = "1",
@@ -77,12 +76,12 @@ class ConnectionListScreenInstrumentedTest {
             val baseContext = androidx.compose.ui.platform.LocalContext.current
             val contextWrapper = object : android.content.ContextWrapper(baseContext) {
                 override fun startService(service: android.content.Intent?): android.content.ComponentName? {
-                    capturedIntent = service
+                    return null
+                }
                     android.util.Log.i("TEST_INTENT", "Captured startService intent: ${service?.action}")
                     return null
                 }
                 override fun startForegroundService(service: android.content.Intent?): android.content.ComponentName? {
-                    capturedIntent = service
                     android.util.Log.i("TEST_INTENT", "Captured startForegroundService intent: ${service?.action}")
                     return null
                 }

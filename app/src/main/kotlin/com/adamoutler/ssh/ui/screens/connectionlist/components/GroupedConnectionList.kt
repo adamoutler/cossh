@@ -35,7 +35,6 @@ fun GroupedConnectionList(
     onEditConnection: (String) -> Unit,
     onDeleteConnection: (String) -> Unit,
     onMoveToFolder: (String) -> Unit,
-    defaultGroupName: String = com.adamoutler.ssh.crypto.SettingsManager(LocalContext.current).defaultGroupName,
 ) {
     var profileToDelete by remember { mutableStateOf<ConnectionProfile?>(null) }
 

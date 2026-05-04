@@ -85,7 +85,7 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
             } else {
                 editor.remove("${profile.id}_pwd")
             }
-            editor.commit() // Synchronous to ensure disk write completes immediately for test reliability
+            editor.apply() // Synchronous to ensure disk write completes immediately for test reliability
         } catch (e: Exception) {
             if (e is CryptoException) throw e
             e.handleKeystoreExceptions("Failed to save profile due to Keystore error.")

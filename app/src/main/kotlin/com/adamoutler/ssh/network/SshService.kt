@@ -67,7 +67,7 @@ class SshService : Service() {
             }
 
             ACTION_DISCONNECT -> {
-                if (intent?.hasExtra(EXTRA_SESSION_ID) == true) {
+                if (intent.hasExtra(EXTRA_SESSION_ID) == true) {
                     stopSshConnection(sessionId)
                 } else if (profileId != null) {
                     // Disconnect all sessions for this profile? The prompt said stopSshConnection to take sessionId.

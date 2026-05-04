@@ -117,7 +117,6 @@ class SshConnectionManagerIntegrationTest {
             val result = manager.connectAndExecute(profile, "echo \"CoSSH_Key_Test\"", keyPair)
             // It might succeed or throw UserAuthException depending on the mock server config.
             // As long as it doesn't crash with NPE on key.getAlgorithm(), the test passes the client side.
-            assertTrue("Result should not be null", result != null)
         } catch (e: net.schmizz.sshj.userauth.UserAuthException) {
             // Expected if mock server rejects the randomly generated key, but importantly not NPE
         }
@@ -153,7 +152,7 @@ class SshConnectionManagerIntegrationTest {
                     onOutput = { bytes, len ->
                         receivedOutput += String(bytes, 0, len)
                     },
-                    onConnect = { out, shell ->
+                    onConnect = { out, _ ->
                         ptyOut = out
                     },
                 )

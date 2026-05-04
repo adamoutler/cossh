@@ -12,6 +12,6 @@ logDebug
 logVerbose
 logStackTraceWithMessage
 logStackTrace
-onTerminalCursorStateChange
-onTextChanged
 onBell
+onTextChanged
+onTerminalCursorStateChange

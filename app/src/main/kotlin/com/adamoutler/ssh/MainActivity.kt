@@ -38,9 +38,16 @@ class MainActivity : ComponentActivity() {
         // Handle permission result if needed
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        DriveSyncManager.handleAuthorizationResult(requestCode, resultCode, data)
+    private val authLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult(),
+    ) { result ->
+        com.adamoutler.ssh.sync.DriveSyncManager.handleAuthorizationResult(1001, result.resultCode, result.data)
+    }
+
+    fun startAuthFlow(intentSender: android.content.IntentSender?) {
+        intentSender?.let {
+            authLauncher.launch(androidx.activity.result.IntentSenderRequest.Builder(it).build())
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

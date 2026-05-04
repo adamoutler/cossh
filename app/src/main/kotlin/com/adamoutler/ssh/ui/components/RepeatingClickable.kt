@@ -26,7 +26,7 @@ fun Modifier.repeatingClickable(
     this.pointerInput(interactionSource, enabled) {
         if (!enabled) return@pointerInput
         awaitEachGesture {
-            val down = awaitFirstDown(requireUnconsumed = false)
+            awaitFirstDown(requireUnconsumed = false)
             currentClickListener() // Initial click
             val job = coroutineScope.launch {
                 delay(initialDelayMillis)

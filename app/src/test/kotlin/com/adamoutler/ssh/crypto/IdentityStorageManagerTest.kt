@@ -44,15 +44,15 @@ class IdentityStorageManagerTest {
 
         storageManager.saveIdentity(identity)
 
-        val retrieved = storageManager.getIdentity("identity-1")
+        val retrieved = storageManager.getIdentity("identity-1")!!
         assertNotNull(retrieved)
-        assertEquals(identity.name, retrieved?.name)
-        assertEquals(identity.username, retrieved?.username)
-        assertEquals(identity.publicKey, retrieved?.publicKey)
-        assertNotNull(retrieved?.password)
-        assertEquals("mypassword", String(retrieved!!.password!!))
-        assertNotNull(retrieved?.privateKey)
-        assertEquals("fake-private-key-data", String(retrieved!!.privateKey!!))
+        assertEquals(identity.name, retrieved.name)
+        assertEquals(identity.username, retrieved.username)
+        assertEquals(identity.publicKey, retrieved.publicKey)
+        assertNotNull(retrieved.password)
+        assertEquals("mypassword", String(retrieved.password!!))
+        assertNotNull(retrieved.privateKey)
+        assertEquals("fake-private-key-data", String(retrieved.privateKey!!))
 
         // Test volatile state sanitization
         identity.clearSensitiveData()

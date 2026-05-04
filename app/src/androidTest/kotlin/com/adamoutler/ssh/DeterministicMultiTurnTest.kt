@@ -169,7 +169,7 @@ class DeterministicMultiTurnTest {
             randomAlphanumeric(rng, 16),
         )
 
-        return payloads.mapIndexed { index, payload ->
+        return payloads.mapIndexed { _, payload ->
             val expectedResponse = payload
             payload to expectedResponse
         }

@@ -101,6 +101,11 @@ object ConnectionStateRepository {
         _connectionStates.value = newMap
     }
 
+    @androidx.annotation.VisibleForTesting
+    fun setPromptRequestForTest(request: HostKeyPromptRequest?) {
+        _promptRequest.value = request
+    }
+
     fun addConnection(profileId: String) {
         val currentCount = _activeConnectionCounts.value[profileId] ?: 0
         val newMap = _activeConnectionCounts.value.toMutableMap()
