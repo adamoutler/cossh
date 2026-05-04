@@ -69,6 +69,12 @@ jobs:
         run: pip install paramiko
       - name: Run Tests and Coverage
         run: ./gradlew testDebugUnitTest jacocoTestReport | tee build-test.log
+      - name: Upload Jacoco Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+          retention-days: 1
       - name: Echo Test Results for Reality Checker
         run: |
           echo "==== TEST RESULTS FOR REALITY CHECKER ===="
@@ -94,6 +100,7 @@ jobs:
           grep -i "unstable" app/build/compose_metrics/*-classes.txt || echo "No unstable classes"
 
   sonar:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -108,13 +115,16 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Install dependencies
-        run: pip install paramiko
+      - name: Download Jacoco Report
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-report
+          path: app/build/reports/jacoco/jacocoTestReport/
       - name: SonarCloud Scan & Quality Gate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew testDebugUnitTest jacocoTestReport sonar -Dsonar.projectKey=adamoutler_cossh -Dsonar.organization=adamoutler -Dsonar.host.url=https://sonarcloud.io -Dsonar.qualitygate.wait=true -Dsonar.c.file.suffixes=- -Dsonar.cpp.file.suffixes=- -Dsonar.objc.file.suffixes=-
+        run: ./gradlew sonar -Dsonar.projectKey=adamoutler_cossh -Dsonar.organization=adamoutler -Dsonar.host.url=https://sonarcloud.io -Dsonar.qualitygate.wait=true -Dsonar.c.file.suffixes=- -Dsonar.cpp.file.suffixes=- -Dsonar.objc.file.suffixes=-
 
   dependency-submission:
     runs-on: ubuntu-latest
