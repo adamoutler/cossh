@@ -1,6 +1,5 @@
 package com.adamoutler.ssh.sync
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.util.Log
@@ -69,7 +68,6 @@ class DriveSyncManager(context: Context) {
         currentInstance = this
     }
 
-    @SuppressLint("CredentialManagerSignInWithGoogle")
     suspend fun authenticate(activity: Activity) {
         val googleIdOption = GetSignInWithGoogleOption.Builder(webClientId)
             .build()
@@ -84,11 +82,28 @@ class DriveSyncManager(context: Context) {
                 context = activity,
             )
             val credential = result.credential
-            if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_SIWG_CREDENTIAL) {
-                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                Log.d("DriveSyncManager", "Auth successful for: ${googleIdTokenCredential.id}")
-                // Identity asserted. Now request OAuth scope for Drive.
-                authorizeScope(activity)
+            if (credential is CustomCredential) {
+                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    try {
+                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                        Log.d("DriveSyncManager", "Auth successful for: ${googleIdTokenCredential.id}")
+                        authorizeScope(activity)
+                    } catch (e: Exception) {
+                        Log.e("DriveSyncManager", "Received an invalid google id token response", e)
+                    }
+                } else if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_SIWG_CREDENTIAL) {
+                    try {
+                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                        Log.d("DriveSyncManager", "Auth successful for: ${googleIdTokenCredential.id}")
+                        authorizeScope(activity)
+                    } catch (e: Exception) {
+                        Log.e("DriveSyncManager", "Received an invalid google id token response", e)
+                    }
+                } else {
+                    Log.e("DriveSyncManager", "Unexpected type of credential")
+                }
+            } else {
+                Log.e("DriveSyncManager", "Unexpected type of credential")
             }
         } catch (e: GetCredentialException) {
             oauthToken = null

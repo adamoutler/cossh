@@ -18,6 +18,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.billing.BillingManager
 import com.adamoutler.ssh.sync.DriveSyncManager
 
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+
 @Composable
 fun SettingsScreen(
     billingManager: BillingManager,
@@ -28,14 +31,13 @@ fun SettingsScreen(
     val activity = context as? Activity
     
     val factory = remember {
-        object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return SettingsViewModel(
+        viewModelFactory {
+            initializer {
+                SettingsViewModel(
                     context.applicationContext as Application,
                     billingManager,
                     driveSyncManager
-                ) as T
+                )
             }
         }
     }
