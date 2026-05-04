@@ -1,5 +1,6 @@
 package com.adamoutler.ssh.sync
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.util.Log
@@ -68,6 +69,7 @@ class DriveSyncManager(context: Context) {
         currentInstance = this
     }
 
+    @SuppressLint("CredentialManagerSignInWithGoogle")
     suspend fun authenticate(activity: Activity) {
         val googleIdOption = GetSignInWithGoogleOption.Builder(webClientId)
             .build()
@@ -82,8 +84,9 @@ class DriveSyncManager(context: Context) {
                 context = activity,
             )
             val credential = result.credential
-            if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                GoogleIdTokenCredential.createFrom(credential.data)
+            if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_SIWG_CREDENTIAL) {
+                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                Log.d("DriveSyncManager", "Auth successful for: ${googleIdTokenCredential.id}")
                 // Identity asserted. Now request OAuth scope for Drive.
                 authorizeScope(activity)
             }
