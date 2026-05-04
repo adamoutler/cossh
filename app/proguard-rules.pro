@@ -1,2 +1,3 @@
 -dontwarn reactor.blockhound.**
 -dontwarn io.netty.**
+-keep class androidx.activity.ComponentActivity { *; }
