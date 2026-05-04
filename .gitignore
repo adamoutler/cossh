@@ -1,0 +1,5 @@
+.gradle/
+app/build/
+app/build_local/
+methods_dump.txt
+session_client_methods.txt
