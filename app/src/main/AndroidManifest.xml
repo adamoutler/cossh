@@ -9,6 +9,7 @@
     <application
         android:name=".CoSshApplication"
         android:allowBackup="false"
+        android:usesCleartextTraffic="false"
         android:fullBackupContent="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher"
