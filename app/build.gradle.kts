@@ -312,7 +312,9 @@ sonar {
         property("sonar.projectKey", "adamoutler_cossh")
         property("sonar.organization", "adamoutler")
         property("sonar.host.url", "https://sonarcloud.io")
-        property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
+        property("sonar.sources", "src/main/kotlin,src/main/java")
+        property("sonar.tests", "src/test/kotlin,src/test/java,src/androidTest/kotlin,src/androidTest/java")
+        property("sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
         
         // Suppress Sonar warnings for Jetpack Compose UI files where high parameter counts
         // and deep nesting (high cognitive complexity) are idiomatic patterns.
