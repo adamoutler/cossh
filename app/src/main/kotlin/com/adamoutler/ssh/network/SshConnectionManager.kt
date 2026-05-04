@@ -81,7 +81,10 @@ class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(
                         out.print(newEntry)
                     }
                 }
-                tempFile.renameTo(knownHostsFile)
+                val success = tempFile.renameTo(knownHostsFile)
+                if (!success) {
+                    android.util.Log.e("TofuHostKeyVerifier", "Failed to rename temp known_hosts file")
+                }
             } else {
                 knownHostsFile.appendText(newEntry)
             }

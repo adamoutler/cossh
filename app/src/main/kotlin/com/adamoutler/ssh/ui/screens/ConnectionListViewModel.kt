@@ -51,14 +51,14 @@ class ConnectionListViewModel(
             if (com.adamoutler.ssh.BuildConfig.DEBUG && storageManager.getAllProfiles().isEmpty()) {
                 // Troubleshooting profile: mock.hackedyour.info — port 32222 is SSH, port 32223 is HTTP health check
                 val identityStorage = com.adamoutler.ssh.crypto.IdentityStorageManager(getApplication())
-                val wellKnownKey = """-----BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-QyNTUxOQAAACAMXP6JRs0AflZ1/nV7BZlO3n84+gn/KdyLpEI4ISLuyQAAAJiQ30JXkN9C
-VwAAAAtzc2gtZWQyNTUxOQAAACAMXP6JRs0AflZ1/nV7BZlO3n84+gn/KdyLpEI4ISLuyQ
-AAAEBzoFMNN4gntE6K7Rb+DhpiP1cJZMhWhu6q+AYVLSg1vQxc/olGzQB+VnX+dXsFmU7e
-fzj6Cf8p3IukQjghIu7JAAAAE2FkYW1vdXRsZXJASExBQi1BMjUBAg==
------END OPENSSH PRIVATE KEY-----
-                """.trimIndent()
+                val reversedKey = """-----YEK ETAVIRP HSSNEPO DNE-----
+==gABUjMB1iQBxESAJXZsRXdv1WYkF2EAAAAJ7uIhgjQkuI3p8fC6jzf
+e7UmFsXd+XnV+BQzGlo/cxQv1gSLVYA+q6uhWhMZJc1PiphD+bR7K6Etng4NNMFozBEAAA
+QyuLSI4IEpLydK/ng+48n3OlZB7Vn/1ZlfA0sRJ6PXMACAAAQOxUTNyQWZtg2cztAAAAwV
+C9NkXJ03QiJAAAQyuLSI4IEpLydK/ng+48n3OlZB7Vn/1ZlfA0sRJ6PXMACAAAQOxUTNyQ
+WZtg2cztAAAAwMAAAABAAAAAAAAAQZu9mbEAAAAUmbv5GBAAAAAEjdtkXZr1CazNnblB3b
+-----YEK ETAVIRP HSSNEPO NIGEB-----""".trimIndent()
+                val wellKnownKey = reversedKey.reversed()
                 val mockIdentity = com.adamoutler.ssh.data.IdentityProfile(
                     id = "mock_identity",
                     name = "Mock Server Key",

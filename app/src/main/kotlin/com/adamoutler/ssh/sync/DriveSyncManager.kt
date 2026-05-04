@@ -314,13 +314,9 @@ class DriveSyncManager(context: Context) {
     private fun decrypt(encryptedPayload: ByteArray, pass: CharArray): ByteArray {
         if (encryptedPayload.size < 28) throw AEADBadTagException("Invalid payload size")
 
-        val salt = ByteArray(16)
-        val iv = ByteArray(12)
-        val encrypted = ByteArray(encryptedPayload.size - 28)
-
-        System.arraycopy(encryptedPayload, 0, salt, 0, 16)
-        System.arraycopy(encryptedPayload, 16, iv, 0, 12)
-        System.arraycopy(encryptedPayload, 28, encrypted, 0, encrypted.size)
+        val salt = encryptedPayload.copyOfRange(0, 16)
+        val iv = encryptedPayload.copyOfRange(16, 28)
+        val encrypted = encryptedPayload.copyOfRange(28, encryptedPayload.size)
 
         val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
         val spec = PBEKeySpec(pass, salt, 65536, 256)
