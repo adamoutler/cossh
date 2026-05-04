@@ -160,7 +160,7 @@ fun TerminalScreenContent(
     profile: com.adamoutler.ssh.data.ConnectionProfile? = null,
 ) {
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val density = androidx.compose.ui.platform.LocalDensity.current
 
     androidx.compose.runtime.LaunchedEffect(sessionId) {
         val processBytes = { bytes: ByteArray ->
@@ -602,7 +602,7 @@ fun TerminalScreenContent(
                         terminalView
                     },
                     update = { view ->
-                        view.setTextSize((currentFontSize * view.context.resources.displayMetrics.scaledDensity).toInt())
+                        view.setTextSize((currentFontSize * density.density * density.fontScale).toInt())
                     },
                 )
             }

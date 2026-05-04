@@ -25,10 +25,7 @@ class HostKeyPromptDialogScreenshotTest {
     )
 
     private fun setPromptRequest(request: com.adamoutler.ssh.network.HostKeyPromptRequest?) {
-        val field: Field = ConnectionStateRepository::class.java.getDeclaredField("_promptRequest")
-        field.isAccessible = true
-        val stateFlow = field.get(ConnectionStateRepository) as MutableStateFlow<com.adamoutler.ssh.network.HostKeyPromptRequest?>
-        stateFlow.value = request
+        ConnectionStateRepository.setPromptRequestForTest(request)
     }
 
     @After

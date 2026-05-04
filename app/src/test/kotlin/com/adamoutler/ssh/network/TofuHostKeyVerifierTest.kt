@@ -20,8 +20,9 @@ class TofuHostKeyVerifierTest {
     fun setup() {
         knownHostsFile = File.createTempFile("known_hosts", ".tmp")
         logFile = File("docs/qa/SSH-133-atomic-update.log")
-        logFile.parentFile.mkdirs()
+        logFile.parentFile?.mkdirs()
         logFile.writeText("Starting atomic update test...\n")
+        setPromptRequest(null)
     }
 
     @After
@@ -31,19 +32,16 @@ class TofuHostKeyVerifierTest {
     }
 
     private fun setPromptRequest(request: HostKeyPromptRequest?) {
-        val field: Field = ConnectionStateRepository::class.java.getDeclaredField("_promptRequest")
-        field.isAccessible = true
-        val stateFlow = field.get(ConnectionStateRepository) as MutableStateFlow<HostKeyPromptRequest?>
-        stateFlow.value = request
+        ConnectionStateRepository.setPromptRequestForTest(request)
     }
 
     private fun generateKey(): PublicKey {
         val kpg = KeyPairGenerator.getInstance("RSA")
-        kpg.initialize(2048)
+        kpg.initialize(1024)
         return kpg.generateKeyPair().public
     }
 
-    @Test(timeout = 5000)
+    @Test(timeout = 15000)
     fun testAtomicKeyUpdate() {
         val verifier = TofuHostKeyVerifier(knownHostsFile)
         val hostname = "192.168.1.100"

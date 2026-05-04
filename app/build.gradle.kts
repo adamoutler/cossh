@@ -13,7 +13,7 @@ jacoco {
 }
 
 val gitCommitCount = try {
-    Runtime.getRuntime().exec("git rev-list --count HEAD").inputStream.bufferedReader().readText().trim().toInt()
+    ProcessBuilder("git", "rev-list", "--count", "HEAD").start().inputStream.bufferedReader().readText().trim().toInt()
 } catch (e: Exception) {
     1
 }
@@ -26,7 +26,7 @@ android {
     defaultConfig {
         applicationId = "com.adamoutler.cobaltssh"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = gitCommitCount
         versionName = "1.$gitCommitCount"
 

@@ -24,7 +24,7 @@ class PasswordAuthenticator : SshAuthenticator {
                 throw IllegalArgumentException("Password required for password auth")
             }
 
-            val finalChars = passwordChars!!
+            val finalChars = passwordChars
             val passwordFinder = object : PasswordFinder {
                 override fun reqPassword(resource: Resource<*>?): CharArray = finalChars
                 override fun shouldRetry(resource: Resource<*>?): Boolean = false

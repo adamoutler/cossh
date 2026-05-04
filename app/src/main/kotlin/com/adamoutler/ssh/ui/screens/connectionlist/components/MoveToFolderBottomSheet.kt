@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.*
@@ -63,7 +64,7 @@ fun MoveToFolderBottomSheet(
                     items(folders) { folderId ->
                         ListItem(
                             headlineContent = { Text(folderId ?: com.adamoutler.ssh.crypto.SettingsManager(androidx.compose.ui.platform.LocalContext.current).defaultGroupName) },
-                            leadingContent = { Icon(Icons.Default.List, contentDescription = null) },
+                            leadingContent = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
                             modifier = Modifier.clickable { onFolderSelected(folderId) },
                         )
                     }

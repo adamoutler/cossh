@@ -85,7 +85,6 @@ fun ConnectionListContent(
                 onEditConnection = onEditConnection,
                 onDeleteConnection = onDeleteConnection,
                 onMoveToFolder = { profileId -> profileIdMovingToFolder = profileId },
-                defaultGroupName = defaultGroupName,
             )
         }
     }

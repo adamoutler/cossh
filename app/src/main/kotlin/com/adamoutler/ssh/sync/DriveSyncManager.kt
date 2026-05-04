@@ -10,7 +10,7 @@ import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
 import com.google.android.gms.auth.api.identity.AuthorizationRequest
 import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -69,10 +69,7 @@ class DriveSyncManager(context: Context) {
     }
 
     suspend fun authenticate(activity: Activity) {
-        val googleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false)
-            .setServerClientId(webClientId)
-            .setAutoSelectEnabled(true)
+        val googleIdOption = GetSignInWithGoogleOption.Builder(webClientId)
             .build()
 
         val request = GetCredentialRequest.Builder()
@@ -86,7 +83,7 @@ class DriveSyncManager(context: Context) {
             )
             val credential = result.credential
             if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                GoogleIdTokenCredential.createFrom(credential.data)
                 // Identity asserted. Now request OAuth scope for Drive.
                 authorizeScope(activity)
             }
@@ -107,15 +104,19 @@ class DriveSyncManager(context: Context) {
                 if (authorizationResult.hasResolution()) {
                     try {
                         authorizationContinuation = continuation
-                        activity.startIntentSenderForResult(
-                            authorizationResult.pendingIntent?.intentSender,
-                            1001,
-                            null,
-                            0,
-                            0,
-                            0,
-                            null,
-                        )
+                        if (activity is com.adamoutler.ssh.MainActivity) {
+                            activity.startAuthFlow(authorizationResult.pendingIntent?.intentSender)
+                        } else {
+                            activity.startIntentSenderForResult(
+                                authorizationResult.pendingIntent?.intentSender,
+                                1001,
+                                null,
+                                0,
+                                0,
+                                0,
+                                null,
+                            )
+                        }
                     } catch (e: Exception) {
                         authorizationContinuation = null
                         continuation.resumeWithException(e)

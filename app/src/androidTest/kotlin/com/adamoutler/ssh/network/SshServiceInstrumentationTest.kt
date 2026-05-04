@@ -80,21 +80,8 @@ class SshServiceInstrumentationTest {
         println("REAL LOG: Transitioning Activity to Lifecycle.State.CREATED (Backgrounding)")
         scenario.moveToState(Lifecycle.State.CREATED)
 
-        // Assert service is still running
-        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        var serviceRunning = false
-        for (i in 1..5) {
-            val runningServices = activityManager.getRunningServices(Int.MAX_VALUE)
-            if (runningServices.any { it.service.className == SshService::class.java.name }) {
-                serviceRunning = true
-                println("REAL LOG: Verified SshService is actively running via ActivityManager while app is in background.")
-                break
-            }
-            Thread.sleep(200)
-        }
-
-        // We know Robolectric/Instrumentation keeps it alive if no SecurityException occurred
-        assertTrue("Service should still be running", serviceRunning || notificationPosted)
+        // Assert service is still running via notification
+        assertTrue("Service should still be running via notification", notificationPosted)
 
         val stopIntent = Intent(context, SshService::class.java).apply {
             action = SshService.ACTION_DISCONNECT

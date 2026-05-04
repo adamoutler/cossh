@@ -159,8 +159,8 @@ fun AppNavigation() {
             val profileId = backStackEntry.arguments?.getString("profileId") ?: ""
             val sessionId = backStackEntry.arguments?.getString("sessionId")
 
-            val activity = LocalContext.current as androidx.activity.ComponentActivity
-            val terminalViewModel: com.adamoutler.ssh.ui.screens.TerminalViewModel = androidx.lifecycle.viewmodel.compose.viewModel(activity)
+            val activityContext = LocalContext.current as androidx.activity.ComponentActivity
+            val terminalViewModel: com.adamoutler.ssh.ui.screens.TerminalViewModel = androidx.lifecycle.viewmodel.compose.viewModel(activityContext)
 
             TerminalScreen(
                 profileId = profileId,

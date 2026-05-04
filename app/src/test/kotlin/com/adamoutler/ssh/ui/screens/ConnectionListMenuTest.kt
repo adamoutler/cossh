@@ -17,7 +17,7 @@ class ConnectionListMenuTest {
 
     @Test
     fun testManageIdentitiesMenuOptionNavigates() {
-        var navigatedToManageIdentities = false
+        var navigatedToManageIdentities: Boolean
 
         composeTestRule.setContent {
             com.adamoutler.ssh.ui.screens.connectionlist.components.ConnectionListTopBar(

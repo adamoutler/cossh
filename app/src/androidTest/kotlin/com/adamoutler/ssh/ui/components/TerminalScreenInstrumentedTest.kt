@@ -138,13 +138,11 @@ class TerminalScreenInstrumentedTest {
 
     @Test(timeout = 300000L)
     fun testKeyboardToggleTriggersSigwinch() {
-        var backNavigationCalled = false
-
         composeTestRule.setContent {
             TerminalScreen(
                 profileId = "testProfileSigwinch",
                 onNavigateBack = {
-                    backNavigationCalled = true
+                    // Do nothing in this test
                 },
             )
         }

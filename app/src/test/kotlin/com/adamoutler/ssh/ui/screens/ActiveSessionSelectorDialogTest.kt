@@ -24,7 +24,6 @@ class ActiveSessionSelectorDialogTest {
     fun testSelectSession_ResumesSession() {
         var selectedSession: String? = null
         var startNewClicked = false
-        var dismissClicked = false
 
         val profile1 = ConnectionProfile("id1", "Host 1", "host1.com", 22, Protocol.SSH, "user1", AuthType.PASSWORD, 0)
         val activeConnections = setOf("session1_id1", "session2_id1")
@@ -35,7 +34,7 @@ class ActiveSessionSelectorDialogTest {
                 profiles = listOf(profile1),
                 onSelectSession = { selectedSession = it },
                 onStartNew = { startNewClicked = true },
-                onDismiss = { dismissClicked = true },
+                onDismiss = { },
             )
         }
 
@@ -54,7 +53,6 @@ class ActiveSessionSelectorDialogTest {
     fun testStartNew_StartsNewSession() {
         var selectedSession: String? = null
         var startNewClicked = false
-        var dismissClicked = false
 
         val profile1 = ConnectionProfile("id1", "Host 1", "host1.com", 22, Protocol.SSH, "user1", AuthType.PASSWORD, 0)
         val activeConnections = setOf("session1_id1", "session2_id1")
@@ -65,7 +63,7 @@ class ActiveSessionSelectorDialogTest {
                 profiles = listOf(profile1),
                 onSelectSession = { selectedSession = it },
                 onStartNew = { startNewClicked = true },
-                onDismiss = { dismissClicked = true },
+                onDismiss = { },
             )
         }
 

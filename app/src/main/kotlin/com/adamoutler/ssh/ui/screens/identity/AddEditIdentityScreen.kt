@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
@@ -47,7 +49,7 @@ fun AddEditIdentityScreen(
                         viewModel.resetState()
                         onBack()
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -112,7 +114,7 @@ fun AddEditIdentityScreen(
                             viewModel.updateState { it.copy(isPasswordLocked = false, password = "") }
                         }) {
                             Icon(
-                                imageVector = Icons.Filled.Edit,
+                                imageVector = Icons.AutoMirrored.Filled.Send,
                                 contentDescription = "Edit Password",
                                 tint = MaterialTheme.colorScheme.primary,
                             )
@@ -211,7 +213,7 @@ fun AddEditIdentityScreen(
                     onClick = { showInjectDialog = true },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Icon(Icons.Default.Send, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Inject to Server (ssh-copy-id)")
                 }
