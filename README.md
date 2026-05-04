@@ -6,10 +6,18 @@
 
 # CoSSH (Cobalt SSH)
 
+[![CI Build Status](https://github.com/adamoutler/cossh/actions/workflows/ci.yml/badge.svg)](https://github.com/adamoutler/cossh/actions/workflows/ci.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=adamoutler_cossh&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=adamoutler_cossh)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=adamoutler_cossh&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=adamoutler_cossh)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=adamoutler_cossh&metric=bugs)](https://sonarcloud.io/summary/new_code?id=adamoutler_cossh)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=adamoutler_cossh&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=adamoutler_cossh)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=adamoutler_cossh&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=adamoutler_cossh)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=adamoutler_cossh&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=adamoutler_cossh)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=adamoutler_cossh&metric=coverage)](https://sonarcloud.io/summary/new_code?id=adamoutler_cossh)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=adamoutler_cossh&metric=bugs)](https://sonarcloud.io/summary/new_code?id=adamoutler_cossh)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=adamoutler_cossh&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=adamoutler_cossh)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=adamoutler_cossh&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=adamoutler_cossh)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=adamoutler_cossh&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=adamoutler_cossh)
+[![Duplicated Lines Density](https://sonarcloud.io/api/project_badges/measure?project=adamoutler_cossh&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=adamoutler_cossh)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=adamoutler_cossh&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=adamoutler_cossh)
 
 CoSSH is a native, highly secure Android SSH terminal client designed to replace legacy applications. It features a cobalt-blue aesthetic, one-touch connectivity, robust hardware-backed local Keystore encryption, and Google Drive cloud sync.
 
