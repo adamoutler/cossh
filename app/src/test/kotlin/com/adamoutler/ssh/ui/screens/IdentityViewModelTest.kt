@@ -55,7 +55,7 @@ class IdentityViewModelTest {
     }
 
     @Test
-    fun testGenerateEd25519KeyPair() = runTest {
+    fun testGenerateEd25519KeyPair() = kotlinx.coroutines.runBlocking {
         viewModel.generateEd25519KeyPair()
         
         var state = viewModel.uiState.value
@@ -74,7 +74,7 @@ class IdentityViewModelTest {
     }
 
     @Test
-    fun testGenerateRSAKeyPair() = runTest {
+    fun testGenerateRSAKeyPair() = kotlinx.coroutines.runBlocking {
         viewModel.generateRSAKeyPair()
         
         var state = viewModel.uiState.value
