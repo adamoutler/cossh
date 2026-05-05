@@ -47,6 +47,18 @@ android {
         }
     }
 
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("src/main/kotlin", "src/main/java")
+        }
+        getByName("test") {
+            java.srcDirs("src/test/kotlin", "src/test/java")
+        }
+        getByName("androidTest") {
+            java.srcDirs("src/androidTest/kotlin", "src/androidTest/java")
+        }
+    }
+
     lint {
         warningsAsErrors = true
         abortOnError = true
