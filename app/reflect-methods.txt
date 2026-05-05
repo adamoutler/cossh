@@ -48,13 +48,13 @@ isKeypadApplicationMode
 isCursorKeysApplicationMode
 isMouseTrackingActive
 processCodePoint
-getTitle
-updateTerminalSessionClient
 doDecSetOrReset
 getScrollCounter
 clearScrollCounter
 getSelectedText
 paste
+getTitle
+updateTerminalSessionClient
 equals
 hashCode
 getClass
