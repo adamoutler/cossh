@@ -65,4 +65,52 @@ class SettingsScreenScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun screenWithCloudSyncEnabledAndSyncing() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    SettingsScreenContent(
+                        isCloudSyncEnabled = true,
+                        isSyncing = true,
+                        defaultGroupName = "Uncategorized",
+                        isPassphraseSet = false,
+                        onDefaultGroupNameChange = {},
+                        onPurchaseCloudSync = {},
+                        onAuthenticateGoogle = {},
+                        onResetPassphrase = {},
+                        onNavigateBack = {},
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun screenWithCloudSyncEnabledAndPassphraseSet() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    SettingsScreenContent(
+                        isCloudSyncEnabled = true,
+                        isSyncing = false,
+                        defaultGroupName = "Uncategorized",
+                        isPassphraseSet = true,
+                        onDefaultGroupNameChange = {},
+                        onPurchaseCloudSync = {},
+                        onAuthenticateGoogle = {},
+                        onResetPassphrase = {},
+                        onNavigateBack = {},
+                    )
+                }
+            }
+        }
+    }
 }

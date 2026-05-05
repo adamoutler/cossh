@@ -255,4 +255,70 @@ class ConnectionListScreenScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun exportBackupDialogScreen() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    ExportBackupDialog(
+                        onDismiss = {},
+                        onExport = {},
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun importBackupDialogScreen() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    ImportBackupDialog(
+                        onDismiss = {},
+                        onImport = {},
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun activeSessionsDialogScreen() {
+        val mockSessions = listOf(
+            com.adamoutler.ssh.network.ActiveSessionState(
+                profileId = "1",
+                sessionId = "s1",
+                connectedAt = 1672531200000
+            ),
+            com.adamoutler.ssh.network.ActiveSessionState(
+                profileId = "1",
+                sessionId = "s2",
+                connectedAt = 1672534800000
+            )
+        )
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    ActiveSessionsDialog(
+                        profileName = "Production Server",
+                        activeSessions = mockSessions,
+                        onDismiss = {},
+                        onResumeSession = {},
+                        onStartNewSession = {}
+                    )
+                }
+            }
+        }
+    }
 }

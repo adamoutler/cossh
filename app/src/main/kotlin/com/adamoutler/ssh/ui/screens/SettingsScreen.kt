@@ -47,39 +47,11 @@ fun SettingsScreen(
 
     if (uiState.showPassphraseDialog) {
         var passphrase by remember { mutableStateOf("") }
-        AlertDialog(
-            modifier = Modifier.widthIn(max = 320.dp),
-            onDismissRequest = { viewModel.dismissPassphraseDialog() },
-            title = { Text("Sync Passphrase") },
-            text = {
-                Column {
-                    Text("Enter a secure passphrase to encrypt your backups before they leave this device.")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = passphrase,
-                        onValueChange = { passphrase = it },
-                        label = { Text("Passphrase") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        activity?.let { viewModel.savePassphraseAndSync(passphrase, it) }
-                    },
-                    enabled = passphrase.isNotBlank(),
-                ) {
-                    Text("Save & Sync")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { viewModel.dismissPassphraseDialog() }) {
-                    Text("Cancel")
-                }
-            },
+        SyncPassphraseDialog(
+            passphrase = passphrase,
+            onPassphraseChange = { passphrase = it },
+            onDismiss = { viewModel.dismissPassphraseDialog() },
+            onConfirm = { activity?.let { viewModel.savePassphraseAndSync(passphrase, it) } }
         )
     }
 
@@ -93,6 +65,47 @@ fun SettingsScreen(
         onAuthenticateGoogle = { activity?.let { viewModel.authenticateGoogle(it) } },
         onResetPassphrase = { viewModel.showPassphraseDialog() },
         onNavigateBack = onNavigateBack,
+    )
+}
+
+@Composable
+fun SyncPassphraseDialog(
+    passphrase: String,
+    onPassphraseChange: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        modifier = Modifier.widthIn(max = 320.dp),
+        onDismissRequest = onDismiss,
+        title = { Text("Sync Passphrase") },
+        text = {
+            Column {
+                Text("Enter a secure passphrase to encrypt your backups before they leave this device.")
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = passphrase,
+                    onValueChange = onPassphraseChange,
+                    label = { Text("Passphrase") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                enabled = passphrase.isNotBlank(),
+            ) {
+                Text("Save & Sync")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
     )
 }
 

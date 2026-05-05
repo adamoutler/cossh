@@ -220,53 +220,30 @@ fun ConnectionListScreen(
         val profileName = profileToConnect?.nickname ?: profileToConnect?.host ?: "Connection"
         val activeCount = activeConnectionCounts[profileIdToConnect] ?: 0
         if (activeCount > 0) {
-            // Connection Resume / Multiple Sessions Logic:
-            // When tapping a connection that is already active (one or more background sessions running),
-            // display a dialog showing the specific connection's name.
-            // The dialog lists all active sessions for this profile so the user can explicitly
-            // select which session to resume, or opt to start a fresh connection.
             val activeSessions = ConnectionStateRepository.sessions.values
                 .filter { it.profileId == profileIdToConnect }
                 .sortedBy { it.connectedAt }
 
-            AlertDialog(
-                onDismissRequest = { profileIdToConnect = null },
-                title = { Text("Active Sessions: $profileName") },
-                text = {
-                    Column {
-                        Text("This connection is already active. Select a session to resume or start a new one.")
-                        Spacer(modifier = Modifier.height(8.dp))
-                        androidx.compose.foundation.lazy.LazyColumn(modifier = Modifier.heightIn(max = 200.dp)) {
-                            items(activeSessions.size) { index ->
-                                val session = activeSessions[index]
-                                val dateStr = java.text.SimpleDateFormat("MMM dd, HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(session.connectedAt))
-                                TextButton(onClick = {
-                                    onConnect(profileIdToConnect!!, session.sessionId)
-                                    profileIdToConnect = null
-                                }) {
-                                    Text("Resume Session ${index + 1} ($dateStr)")
-                                }
-                            }
-                        }
+            ActiveSessionsDialog(
+                profileName = profileName,
+                activeSessions = activeSessions,
+                onDismiss = { profileIdToConnect = null },
+                onResumeSession = { sessionId ->
+                    onConnect(profileIdToConnect!!, sessionId)
+                    profileIdToConnect = null
+                },
+                onStartNewSession = {
+                    val newSessionId = java.util.UUID.randomUUID().toString()
+                    ConnectionStateRepository.clearConnectionState(profileIdToConnect!!)
+                    val intent = Intent(context, SshService::class.java).apply {
+                        action = SshService.ACTION_START
+                        putExtra(SshService.EXTRA_PROFILE_ID, profileIdToConnect)
+                        putExtra(SshService.EXTRA_SESSION_ID, newSessionId)
                     }
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-                        val newSessionId = java.util.UUID.randomUUID().toString()
-                        ConnectionStateRepository.clearConnectionState(profileIdToConnect!!)
-                        val intent = Intent(context, SshService::class.java).apply {
-                            action = SshService.ACTION_START
-                            putExtra(SshService.EXTRA_PROFILE_ID, profileIdToConnect)
-                            putExtra(SshService.EXTRA_SESSION_ID, newSessionId)
-                        }
-                        context.startForegroundService(intent)
-                        onConnect(profileIdToConnect!!, newSessionId)
-                        profileIdToConnect = null
-                    }) { Text("Start New") }
-                },
-                dismissButton = {
-                    TextButton(onClick = { profileIdToConnect = null }) { Text("Cancel") }
-                },
+                    context.startForegroundService(intent)
+                    onConnect(profileIdToConnect!!, newSessionId)
+                    profileIdToConnect = null
+                }
             )
         } else {
             val newSessionId = java.util.UUID.randomUUID().toString()
@@ -297,5 +274,178 @@ fun ConnectionListScreen(
         onImportRequested = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) },
         onSettingsRequested = onSettingsRequested,
         onManageIdentitiesRequested = onManageIdentitiesRequested,
+    )
+}
+
+@Composable
+fun ExportBackupDialog(
+    onDismiss: () -> Unit,
+    onExport: (CharArray) -> Unit,
+) {
+    val passwordBuffer = remember { java.util.concurrent.atomic.AtomicReference(CharArray(0)) }
+    val confirmPasswordBuffer = remember { java.util.concurrent.atomic.AtomicReference(CharArray(0)) }
+    var isPasswordStrong by remember { mutableStateOf(false) }
+    var doPasswordsMatch by remember { mutableStateOf(false) }
+
+    val isFormValid = isPasswordStrong && doPasswordsMatch
+
+    val checkForm = {
+        val pass = passwordBuffer.get()
+        val confirm = confirmPasswordBuffer.get()
+        isPasswordStrong = pass.size >= 8
+        doPasswordsMatch = pass.isNotEmpty() && pass.contentEquals(confirm)
+    }
+
+    AlertDialog(
+        onDismissRequest = {
+            onDismiss()
+            passwordBuffer.get().fill('\u0000')
+            confirmPasswordBuffer.get().fill('\u0000')
+        },
+        title = { Text("Secure Backup", color = MaterialTheme.colorScheme.primary) },
+        text = {
+            Column {
+                Text(
+                    "Create a strong password to encrypt your connection profiles. You will need this to restore your backup.",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                com.adamoutler.ssh.ui.components.SecurePasswordEditText(
+                    hint = "Backup Password",
+                    onPasswordChanged = {
+                        passwordBuffer.get().fill('\u0000')
+                        passwordBuffer.set(it)
+                        checkForm()
+                    },
+                )
+
+                if (!isPasswordStrong && passwordBuffer.get().isNotEmpty()) {
+                    Text("Password must be at least 8 characters", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                com.adamoutler.ssh.ui.components.SecurePasswordEditText(
+                    hint = "Confirm Password",
+                    onPasswordChanged = {
+                        confirmPasswordBuffer.get().fill('\u0000')
+                        confirmPasswordBuffer.set(it)
+                        checkForm()
+                    },
+                )
+
+                if (!doPasswordsMatch && confirmPasswordBuffer.get().isNotEmpty()) {
+                    Text("Passwords do not match", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val pass = passwordBuffer.get()
+                    onExport(pass)
+                    passwordBuffer.get().fill('\u0000')
+                    confirmPasswordBuffer.get().fill('\u0000')
+                },
+                enabled = isFormValid,
+            ) {
+                Text("Export Encrypted Backup")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = {
+                onDismiss()
+                passwordBuffer.get().fill('\u0000')
+                confirmPasswordBuffer.get().fill('\u0000')
+            }) { Text("Cancel") }
+        },
+    )
+}
+
+@Composable
+fun ImportBackupDialog(
+    onDismiss: () -> Unit,
+    onImport: (CharArray) -> Unit,
+) {
+    val passwordBuffer = remember { java.util.concurrent.atomic.AtomicReference(CharArray(0)) }
+    var hasPassword by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = {
+            onDismiss()
+            passwordBuffer.get().fill('\u0000')
+        },
+        title = { Text("Import Backup", color = MaterialTheme.colorScheme.primary) },
+        text = {
+            Column {
+                Text(
+                    "Enter the password used to encrypt this backup.",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                com.adamoutler.ssh.ui.components.SecurePasswordEditText(
+                    hint = "Password",
+                    onPasswordChanged = {
+                        passwordBuffer.get().fill('\u0000')
+                        passwordBuffer.set(it)
+                        hasPassword = it.isNotEmpty()
+                    },
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val pass = passwordBuffer.get()
+                    onImport(pass)
+                    passwordBuffer.get().fill('\u0000')
+                },
+                enabled = hasPassword,
+            ) { Text("Import Backup") }
+        },
+        dismissButton = {
+            TextButton(onClick = {
+                onDismiss()
+                passwordBuffer.get().fill('\u0000')
+            }) { Text("Cancel") }
+        },
+    )
+}
+
+@Composable
+fun ActiveSessionsDialog(
+    profileName: String,
+    activeSessions: List<com.adamoutler.ssh.network.ActiveSessionState>,
+    onDismiss: () -> Unit,
+    onResumeSession: (String) -> Unit,
+    onStartNewSession: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Active Sessions: $profileName") },
+        text = {
+            Column {
+                Text("This connection is already active. Select a session to resume or start a new one.")
+                Spacer(modifier = Modifier.height(8.dp))
+                androidx.compose.foundation.lazy.LazyColumn(modifier = Modifier.heightIn(max = 200.dp)) {
+                    items(activeSessions.size) { index ->
+                        val session = activeSessions[index]
+                        val dateStr = java.text.SimpleDateFormat("MMM dd, HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(session.connectedAt))
+                        TextButton(onClick = {
+                            onResumeSession(session.sessionId)
+                        }) {
+                            Text("Resume Session ${index + 1} ($dateStr)")
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onStartNewSession) { Text("Start New") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        },
     )
 }
