@@ -65,8 +65,7 @@ android {
     lint {
         warningsAsErrors = true
         abortOnError = true
-        disable += listOf("GradleDependency", "AndroidGradlePluginVersion", "TrustAllX509TrustManager", "LintBaselineFixed", "CoroutineCreationDuringComposition", "FlowOperatorInvokedInComposition", "StateFlowValueCalledInComposition", "ObsoleteSdkInt")
-        baseline = file("lint-baseline.xml")
+        disable += listOf("AndroidGradlePluginVersion", "GradleDependency", "TrustAllX509TrustManager", "CredentialManagerSignInWithGoogle")
     }
 
     // Link the termux native C code. Re-compiling locally is mandatory

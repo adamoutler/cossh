@@ -99,7 +99,10 @@ class SecureCrashHandler(
         // Enforce application internal storage only
         val crashDir = File(context.filesDir, CRASH_DIR_NAME)
         if (!crashDir.exists()) {
-            crashDir.mkdir()
+            if (!crashDir.mkdirs()) {
+                android.util.Log.e("SecureCrashHandler", "Failed to create crash directory")
+                return
+            }
         }
 
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
