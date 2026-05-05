@@ -53,4 +53,35 @@ AAAEBKiLMDOccl0BWyiGJ1QQUyW0PznmjKtml2gwOymx/MBKc3GTSItQK4BpGtNhwEtC7x
         assertNotNull(parsedKp)
         assertNotNull(parsedKp.private)
     }
+
+    @Test
+    fun testParseInvalidPem() {
+        Security.addProvider(org.bouncycastle.jce.provider.BouncyCastleProvider())
+        val pem = """-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEA0z+0o
+-----END RSA PRIVATE KEY-----"""
+        try {
+            PemUtils.parsePemToKeyPair(pem.toByteArray())
+            org.junit.Assert.fail("Should throw exception on invalid PEM")
+        } catch (e: Exception) {
+            assertNotNull(e)
+        }
+        
+        try {
+            PemUtils.parsePemToKeyPair("GARBAGE DATA NOT PEM".toByteArray())
+            org.junit.Assert.fail("Should throw exception on non-PEM")
+        } catch (e: Exception) {
+            assertNotNull(e)
+        }
+        
+        val pemEmptyOpenSsh = """-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+-----END OPENSSH PRIVATE KEY-----"""
+        try {
+            PemUtils.parsePemToKeyPair(pemEmptyOpenSsh.toByteArray())
+            org.junit.Assert.fail("Should throw exception on invalid OpenSSH key")
+        } catch (e: Exception) {
+            assertNotNull(e)
+        }
+    }
 }
