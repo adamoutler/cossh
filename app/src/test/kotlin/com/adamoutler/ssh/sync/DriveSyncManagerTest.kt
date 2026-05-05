@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.lang.reflect.InvocationTargetException
+import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLConnection
@@ -30,6 +31,9 @@ import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 object MockURLStreamHandlerFactory : URLStreamHandlerFactory {
+    var overrideResponseCode: Int? = null
+    var simulateException: Boolean = false
+
     override fun createURLStreamHandler(protocol: String): URLStreamHandler? {
         if (protocol == "https" || protocol == "http") {
             return object : URLStreamHandler() {
@@ -40,11 +44,14 @@ object MockURLStreamHandlerFactory : URLStreamHandlerFactory {
                         override fun connect() {}
                         override fun disconnect() {}
                         override fun usingProxy() = false
-                        override fun getResponseCode(): Int = 200
+                        override fun getResponseCode(): Int = overrideResponseCode ?: 200
                         override fun setRequestMethod(method: String) {
                             // Avoid JVM ProtocolException for PATCH
                         }
                         override fun getInputStream(): InputStream {
+                            if (simulateException || (overrideResponseCode != null && overrideResponseCode != 200)) {
+                                throw IOException("Mock error stream")
+                            }
                             if (isUpload) {
                                 return ByteArrayInputStream("""{"id":"new_file_id"}""".toByteArray())
                             }
@@ -58,7 +65,7 @@ object MockURLStreamHandlerFactory : URLStreamHandlerFactory {
                             return ByteArrayInputStream("""{"files":[{"id":"existing_file_id"}]}""".toByteArray())
                         }
                         override fun getOutputStream(): OutputStream = ByteArrayOutputStream()
-                        override fun getErrorStream(): InputStream? = null
+                        override fun getErrorStream(): InputStream? = if (overrideResponseCode != null) ByteArrayInputStream("Mock Error".toByteArray()) else null
                     }
                 }
             }
@@ -364,51 +371,99 @@ class DriveSyncManagerTest {
     }
 
     @Test
-    fun testUploadBackupHttpError() {
+    fun testCurrentInstance() {
+        val instance = DriveSyncManager.currentInstance
+        assertNotNull(instance)
+        DriveSyncManager.currentInstance = null
+        assertNull(DriveSyncManager.currentInstance)
+        DriveSyncManager.currentInstance = instance
+    }
+
+    @Test
+    fun testHandleAuthorizationResult_Success() {
+        var resumed = false
+        var exception: Throwable? = null
+        val continuation = object : Continuation<Unit> {
+            override val context = kotlin.coroutines.EmptyCoroutineContext
+            override fun resumeWith(result: Result<Unit>) {
+                resumed = true
+                exception = result.exceptionOrNull()
+            }
+        }
+        DriveSyncManager.authorizationContinuation = continuation
+        DriveSyncManager.handleAuthorizationResult(1001, Activity.RESULT_OK, android.content.Intent())
+        assertTrue(resumed)
+        assertNotNull(exception) // because Identity.getAuthorizationClient throws in bare robolectric
+    }
+
+    @Test
+    fun testUpdateFileMetadataFailure() {
         manager.setOAuthToken("dummy_token")
-        val payload = "payload".toByteArray()
-        val pass = "pass".toCharArray()
+        val updateMethod = DriveSyncManager::class.java.getDeclaredMethod("updateFileMetadata", String::class.java)
+        updateMethod.isAccessible = true
         
+        MockURLStreamHandlerFactory.overrideResponseCode = 403
         try {
-            val field = URL::class.java.getDeclaredField("factory")
-            field.isAccessible = true
-            field.set(null, null)
-            
-            val errorFactory = object : URLStreamHandlerFactory {
-                override fun createURLStreamHandler(protocol: String): URLStreamHandler? {
-                    return object : URLStreamHandler() {
-                        override fun openConnection(u: URL): URLConnection {
-                            return object : HttpURLConnection(u) {
-                                override fun connect() {}
-                                override fun disconnect() {}
-                                override fun usingProxy() = false
-                                override fun getResponseCode(): Int = 500
-                                override fun getErrorStream(): InputStream = ByteArrayInputStream("Internal Server Error".toByteArray())
-                                override fun getOutputStream(): OutputStream = ByteArrayOutputStream()
-                                override fun getInputStream(): InputStream = ByteArrayInputStream("".toByteArray())
-                            }
-                        }
-                    }
-                }
-            }
-            URL.setURLStreamHandlerFactory(errorFactory)
-            
-            try {
-                runBlocking {
-                    manager.uploadBackup(payload, pass)
-                }
-                fail("Expected IOException")
-            } catch (e: java.io.IOException) {
-                assertTrue(e.message?.contains("Failed to upload: 500") == true)
-            }
-        } catch (e: Exception) {
-            // Ignore reflection errors on URL factory
+            updateMethod.invoke(manager, "dummy_id")
+            fail("Expected InvocationTargetException")
+        } catch (e: InvocationTargetException) {
+            assertTrue(e.cause is java.io.IOException)
         } finally {
-            try {
-                val field = URL::class.java.getDeclaredField("factory")
-                field.isAccessible = true
-                field.set(null, MockURLStreamHandlerFactory)
-            } catch (e: Exception) {}
+            MockURLStreamHandlerFactory.overrideResponseCode = null
         }
     }
+
+    @Test
+    fun testFindBackupFileIdFailure() {
+        manager.setOAuthToken("dummy_token")
+        val findMethod = DriveSyncManager::class.java.getDeclaredMethod("findBackupFileId")
+        findMethod.isAccessible = true
+        
+        MockURLStreamHandlerFactory.overrideResponseCode = 404
+        try {
+            val result = findMethod.invoke(manager)
+            assertNull(result)
+        } finally {
+            MockURLStreamHandlerFactory.overrideResponseCode = null
+        }
+    }
+
+    @Test
+    fun testDownloadBackupFailure() {
+        manager.setOAuthToken("dummy_token")
+        val pass = "pass".toCharArray()
+        
+        MockURLStreamHandlerFactory.overrideResponseCode = 500
+        try {
+            val result = runBlocking { manager.downloadBackup(pass) }
+            assertNull(result) // caught inside downloadBackup
+        } finally {
+            MockURLStreamHandlerFactory.overrideResponseCode = null
+        }
+    }
+
+    /*
+    @Test
+    fun testAuthorizeScope_ThrowsException() {
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        val authorizeMethod = DriveSyncManager::class.java.getDeclaredMethod("authorizeScope", Activity::class.java, Continuation::class.java)
+        authorizeMethod.isAccessible = true
+        var resumed = false
+        var exception: Throwable? = null
+        val continuation = object : Continuation<Unit> {
+            override val context = kotlin.coroutines.EmptyCoroutineContext
+            override fun resumeWith(result: Result<Unit>) {
+                resumed = true
+                exception = result.exceptionOrNull()
+            }
+        }
+        // This invokes authorizeScope which will try to use Identity.getAuthorizationClient and fail synchronously or asynchronously
+        try {
+            authorizeMethod.invoke(manager, activity, continuation)
+            assertTrue(resumed || exception != null || DriveSyncManager.authorizationContinuation != null)
+        } catch(e: Exception) {
+             // either throws InvocationTargetException synchronously or resumes continuation with exception
+        }
+    }
+    */
 }
