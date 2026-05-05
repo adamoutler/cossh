@@ -239,7 +239,6 @@ dependencies {
 }
 
 tasks.withType<Test> {
-    ignoreFailures = true
     maxHeapSize = "1536m"
     maxParallelForks = 1
     forkEvery = 10
@@ -334,8 +333,8 @@ sonar {
         // and deep nesting (high cognitive complexity) are idiomatic patterns.
         property("sonar.issue.ignore.multicriteria", "e1,e2")
 
-        property("sonar.coverage.exclusions", "**/*Test*.kt,**/ui/**/*.*,**/MainActivity.kt,**/CoSshApplication.kt,**/billing/BillingManager.kt,**/network/SshService.kt,**/sync/SyncWorker.kt,**/security/SecureCrashHandler.kt,**/crypto/PasswordCipher.kt,**/network/PortForwardingOrchestrator.kt,**/sync/DriveSyncManager.kt,**/network/TelnetConnectionHandler.kt,**/network/SshHandshakeCoordinator.kt,**/backup/BackupManager.kt,**/backup/BackupCryptoManager.kt,**/network/SshSessionProvider.kt,**/crypto/SecurityStorageManager.kt,**/crypto/IdentityStorageManager.kt,**/network/ConnectionStateRepository.kt,**/network/SshConnectionManager.kt,**/network/SshConnectionHandler.kt,**/crypto/PemUtils.kt,**/data/ConnectionProfile.kt,**/data/IdentityProfile.kt,**/PtyStreamBridge.kt,**/CryptoExceptions.kt,**/ConnectionProtocol.kt,**/SettingsManager.kt")
-        property("sonar.cpd.exclusions", "**/ui/**/*.*")
+        property("sonar.coverage.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*,**/security/SecureCrashHandler.kt,**/crypto/PasswordCipher.kt")
+        property("sonar.cpd.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*")
 
         property("sonar.issue.ignore.multicriteria.e1.ruleKey", "kotlin:S107")
         property("sonar.issue.ignore.multicriteria.e1.resourceKey", "**/ui/**/*.kt")
