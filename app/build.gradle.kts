@@ -302,8 +302,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 
     val fileFilter = listOf(
         "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
-        "**/*Test*.*", "android/**/*.*", "**/ui/theme/**/*.*",
-        "**/ui/screens/**/*.*", "**/ui/components/**/*.*", "**/ui/keys/**/*.*", "**/ui/base/**/*.*"
+        "**/*Test*.*", "android/**/*.*", "**/ui/theme/*.*"
     )
     val debugTree = fileTree(mapOf(
         "dir" to layout.buildDirectory.dir("tmp/kotlin-classes/debug").get().asFile,
