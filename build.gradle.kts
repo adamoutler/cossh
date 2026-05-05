@@ -30,12 +30,3 @@ allprojects {
         lockAllConfigurations()
     }
 }
-
-sonar {
-    properties {
-        property("sonar.projectKey", "adamoutler_cossh")
-        property("sonar.organization", "adamoutler")
-        property("sonar.host.url", "https://sonarcloud.io")
-        property("sonar.coverage.jacoco.xmlReportPaths", "app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-    }
-}
