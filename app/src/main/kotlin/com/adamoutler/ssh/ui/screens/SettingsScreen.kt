@@ -89,6 +89,7 @@ fun SyncPassphraseDialog(
                     label = { Text("Passphrase") },
                     visualTransformation = PasswordVisualTransformation(),
                     singleLine = true,
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(autoCorrect = false, keyboardType = androidx.compose.ui.text.input.KeyboardType.Password),
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

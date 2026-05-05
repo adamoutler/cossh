@@ -184,6 +184,7 @@ fun AddEditIdentityScreenContent(
                     onValueChange = onPasswordChange,
                     label = { Text("Password (optional)") },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(autoCorrect = false, keyboardType = androidx.compose.ui.text.input.KeyboardType.Password),
                     trailingIcon = {
                         IconButton(onClick = { onPasswordVisibleChange(!passwordVisible) }) {
                             Icon(
