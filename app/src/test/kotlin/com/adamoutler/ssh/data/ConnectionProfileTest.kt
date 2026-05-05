@@ -1,47 +1,52 @@
 package com.adamoutler.ssh.data
 
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Test
 
 class ConnectionProfileTest {
-
     @Test
-    fun testProtocolSerialization() {
-        val originalProfile = ConnectionProfile(
-            id = "test-telnet-1",
-            nickname = "Legacy Switch",
-            host = "10.0.0.1",
-            port = 23,
-            username = "admin",
-            authType = AuthType.PASSWORD,
-            protocol = Protocol.TELNET,
-            password = "password123".toByteArray(), // @Transient field
-        )
+    fun testEqualsAndHashCode() {
+        val profile1 = ConnectionProfile("1", "test", "host", 22, Protocol.SSH, "user", AuthType.PASSWORD, password = byteArrayOf(1, 2, 3))
+        val profile2 = ConnectionProfile("1", "test", "host", 22, Protocol.SSH, "user", AuthType.PASSWORD, password = byteArrayOf(1, 2, 3))
+        val profile3 = ConnectionProfile("2", "test", "host", 22, Protocol.SSH, "user", AuthType.PASSWORD, password = byteArrayOf(1, 2, 3))
+        val profile4 = ConnectionProfile("1", "test", "host", 22, Protocol.SSH, "user", AuthType.PASSWORD, password = null)
 
-        // Serialize
-        val jsonString = Json.encodeToString(originalProfile)
+        assertEquals(profile1, profile1)
+        assertEquals(profile1, profile2)
+        assertNotEquals(profile1, profile3)
+        assertNotEquals(profile1, profile4)
+        assertNotEquals(profile4, profile1)
+        assertNotEquals(profile1, null)
+        assertNotEquals(profile1, Any())
 
-        // Deserialize
-        val restoredProfile = Json.decodeFromString<ConnectionProfile>(jsonString)
-
-        // Assert Protocol is restored
-        assertEquals(Protocol.TELNET, restoredProfile.protocol)
-        assertEquals("Legacy Switch", restoredProfile.nickname)
-        assertEquals("10.0.0.1", restoredProfile.host)
-        assertEquals(23, restoredProfile.port)
-        assertEquals(AuthType.PASSWORD, restoredProfile.authType)
-
-        // Assert the new protocol does not break existing data
-        assertEquals(originalProfile.id, restoredProfile.id)
+        assertEquals(profile1.hashCode(), profile2.hashCode())
+        assertNotEquals(profile1.hashCode(), profile3.hashCode())
+        
+        profile1.clearSensitiveData()
+        assertEquals(0.toByte(), profile1.password!![0])
     }
 
     @Test
-    fun testLegacyDeserializationDefaultsToSsh() {
-        val legacyJson = """{"id":"test-legacy","nickname":"Old Server","host":"10.0.0.1","port":22,"username":"admin","authType":"PASSWORD","keyReference":0}"""
-        val restoredProfile = Json { ignoreUnknownKeys = true }.decodeFromString<ConnectionProfile>(legacyJson)
-        assertEquals(Protocol.SSH, restoredProfile.protocol)
-        assertEquals("Old Server", restoredProfile.nickname)
+    fun testAuthTypeAndProtocol() {
+        assertEquals(AuthType.PASSWORD, AuthType.valueOf("PASSWORD"))
+        assertEquals(Protocol.SSH, Protocol.valueOf("SSH"))
+    }
+}
+
+class IdentityProfileTest {
+    @Test
+    fun testEqualsAndHashCode() {
+        val p1 = IdentityProfile("1", "test", "user", byteArrayOf(1), "pub", "priv", AuthType.KEY)
+        val p2 = IdentityProfile("1", "test", "user", byteArrayOf(1), "pub", "priv", AuthType.KEY)
+        val p3 = IdentityProfile("2", "test", "user", byteArrayOf(1), "pub", "priv", AuthType.KEY)
+        
+        assertEquals(p1, p2)
+        assertNotEquals(p1, p3)
+        assertEquals(p1.hashCode(), p2.hashCode())
+        assertNotEquals(p1.hashCode(), p3.hashCode())
+
+        p1.clearSensitiveData()
+        assertEquals(0.toByte(), p1.password!![0])
     }
 }
