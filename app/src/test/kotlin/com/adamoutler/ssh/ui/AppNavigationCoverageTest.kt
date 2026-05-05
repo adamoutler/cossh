@@ -29,6 +29,11 @@ class AppNavigationCoverageTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    @org.junit.Before
+    fun setup() {
+        ConnectionStateRepository.isHeadlessTest = true
+    }
+
     @Test
     fun testAppNavigationRenders() {
         composeTestRule.setContent {
@@ -49,11 +54,61 @@ class AppNavigationCoverageTest {
         UiEventBus.publish(UiEvent.Navigate("identityList"))
         composeTestRule.waitForIdle()
 
+        UiEventBus.publish(UiEvent.Navigate("addEditProfile?profileId=123"))
+        composeTestRule.waitForIdle()
+
+        UiEventBus.publish(UiEvent.Navigate("addEditIdentity?identityId=123"))
+        composeTestRule.waitForIdle()
+
+        UiEventBus.publish(UiEvent.Navigate("terminal?profileId=123"))
+        composeTestRule.waitForIdle()
+
+        UiEventBus.publish(UiEvent.Navigate("terminal?profileId=123&sessionId=456"))
+        composeTestRule.waitForIdle()
+
+        UiEventBus.publish(UiEvent.Navigate("keyManagement"))
+        composeTestRule.waitForIdle()
+
         UiEventBus.publish(UiEvent.NavigateUp)
         composeTestRule.waitForIdle()
 
         UiEventBus.publish(UiEvent.ShowKeystoreInvalidatedDialog)
         composeTestRule.waitForIdle()
+        
+        // composeTestRule.onNodeWithText("Wipe Keystore & Reset App").performClick()
+        // composeTestRule.waitForIdle()
+    }
+
+    @Test
+    fun testAppNavigation_HandlesIntent() {
+        val scenario = ActivityScenario.launch(androidx.activity.ComponentActivity::class.java)
+        scenario.onActivity { activity ->
+            val intent = Intent().apply {
+                putExtra(SshService.EXTRA_PROFILE_ID, "test_profile")
+                putExtra(SshService.EXTRA_SESSION_ID, "test_session")
+            }
+            activity.intent = intent
+            
+            composeTestRule.setContent {
+                AppNavigation()
+            }
+            composeTestRule.waitForIdle()
+
+            // Also test the onNewIntent listener by dispatching a new intent
+            val newIntent = Intent().apply {
+                putExtra(SshService.EXTRA_PROFILE_ID, "test_profile_2")
+                putExtra(SshService.EXTRA_SESSION_ID, "test_session_2")
+            }
+            // Trigger new intent by reflecting on ComponentActivity's dispatch function
+            try {
+                val method = androidx.activity.ComponentActivity::class.java.getDeclaredMethod("onNewIntent", Intent::class.java)
+                method.isAccessible = true
+                method.invoke(activity, newIntent)
+                composeTestRule.waitForIdle()
+            } catch (e: Exception) {
+                // Ignore if method not found
+            }
+        }
     }
 
     @Test

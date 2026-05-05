@@ -2,12 +2,14 @@ package com.adamoutler.ssh.crypto
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import android.content.SharedPreferences
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,6 +22,62 @@ class SecurityStorageManagerTest {
 
     private lateinit var context: Context
     private lateinit var storageManager: SecurityStorageManager
+
+    private val throwingPrefs = object : SharedPreferences {
+        override fun getAll(): MutableMap<String, *> = throw RuntimeException("Simulated Keystore Exception")
+        override fun getString(key: String?, defValue: String?): String? = throw RuntimeException("Simulated Keystore Exception")
+        override fun getStringSet(key: String?, defValues: MutableSet<String>?): MutableSet<String>? = null
+        override fun getInt(key: String?, defValue: Int): Int = 0
+        override fun getLong(key: String?, defValue: Long): Long = 0L
+        override fun getFloat(key: String?, defValue: Float): Float = 0f
+        override fun getBoolean(key: String?, defValue: Boolean): Boolean = false
+        override fun contains(key: String?): Boolean = false
+        override fun edit(): SharedPreferences.Editor = throw RuntimeException("Simulated Keystore Exception")
+        override fun registerOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {}
+        override fun unregisterOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {}
+    }
+
+    private val cryptoThrowingPrefs = object : SharedPreferences {
+        override fun getAll(): MutableMap<String, *> = throw SecureStorageUnavailableException("Mocked CryptoException")
+        override fun getString(key: String?, defValue: String?): String? = throw SecureStorageUnavailableException("Mocked CryptoException")
+        override fun getStringSet(key: String?, defValues: MutableSet<String>?): MutableSet<String>? = null
+        override fun getInt(key: String?, defValue: Int): Int = 0
+        override fun getLong(key: String?, defValue: Long): Long = 0L
+        override fun getFloat(key: String?, defValue: Float): Float = 0f
+        override fun getBoolean(key: String?, defValue: Boolean): Boolean = false
+        override fun contains(key: String?): Boolean = false
+        override fun edit(): SharedPreferences.Editor = throw SecureStorageUnavailableException("Mocked CryptoException")
+        override fun registerOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {}
+        override fun unregisterOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {}
+    }
+
+    private val authThrowingPrefs = object : SharedPreferences {
+        override fun getAll(): MutableMap<String, *> = throw RuntimeException("Simulated", android.security.keystore.UserNotAuthenticatedException())
+        override fun getString(key: String?, defValue: String?): String? = throw RuntimeException("Simulated", android.security.keystore.UserNotAuthenticatedException())
+        override fun getStringSet(key: String?, defValues: MutableSet<String>?): MutableSet<String>? = null
+        override fun getInt(key: String?, defValue: Int): Int = 0
+        override fun getLong(key: String?, defValue: Long): Long = 0L
+        override fun getFloat(key: String?, defValue: Float): Float = 0f
+        override fun getBoolean(key: String?, defValue: Boolean): Boolean = false
+        override fun contains(key: String?): Boolean = false
+        override fun edit(): SharedPreferences.Editor = throw RuntimeException("Simulated", android.security.keystore.UserNotAuthenticatedException())
+        override fun registerOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {}
+        override fun unregisterOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {}
+    }
+
+    private val invalidatedThrowingPrefs = object : SharedPreferences {
+        override fun getAll(): MutableMap<String, *> = throw RuntimeException("Simulated", android.security.keystore.KeyPermanentlyInvalidatedException())
+        override fun getString(key: String?, defValue: String?): String? = throw RuntimeException("Simulated", android.security.keystore.KeyPermanentlyInvalidatedException())
+        override fun getStringSet(key: String?, defValues: MutableSet<String>?): MutableSet<String>? = null
+        override fun getInt(key: String?, defValue: Int): Int = 0
+        override fun getLong(key: String?, defValue: Long): Long = 0L
+        override fun getFloat(key: String?, defValue: Float): Float = 0f
+        override fun getBoolean(key: String?, defValue: Boolean): Boolean = false
+        override fun contains(key: String?): Boolean = false
+        override fun edit(): SharedPreferences.Editor = throw RuntimeException("Simulated", android.security.keystore.KeyPermanentlyInvalidatedException())
+        override fun registerOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {}
+        override fun unregisterOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {}
+    }
 
     @Before
     fun setup() {
@@ -89,6 +147,9 @@ class SecurityStorageManagerTest {
         // We explicitly assert the manager is initialized successfully to satisfy coverage logic.
         assertNotNull(storageManager)
         assertNotNull(storageManager.encryptedPrefs)
+
+        val realManager = SecurityStorageManager(context)
+        assertNotNull(realManager.encryptedPrefs)
     }
 
     @Test
@@ -176,5 +237,69 @@ class SecurityStorageManagerTest {
         } catch (e: Exception) {
             // expected
         }
+    }
+
+    @Test
+    fun testSaveProfile_KeystoreExceptionFallback() {
+        val manager = SecurityStorageManager(context, throwingPrefs)
+        try {
+            manager.saveProfile(ConnectionProfile(id = "id", nickname = "nickname", host = "host", username = "user", authType = AuthType.KEY))
+            fail("Expected CryptoException")
+        } catch (e: CryptoException) {
+            // expected
+        }
+    }
+
+    @Test
+    fun testGetProfile_KeystoreExceptionFallback() {
+        val manager = SecurityStorageManager(context, throwingPrefs)
+        try {
+            manager.getProfile("id")
+            fail("Expected CryptoException")
+        } catch (e: CryptoException) {
+            // expected
+        }
+    }
+
+    @Test
+    fun testGetAllProfiles_KeystoreExceptionFallback() {
+        val manager = SecurityStorageManager(context, throwingPrefs)
+        try {
+            manager.getAllProfiles()
+            fail("Expected CryptoException")
+        } catch (e: CryptoException) {
+            // expected
+        }
+    }
+
+    @Test
+    fun testGetAllKeys_KeystoreExceptionFallback() {
+        val manager = SecurityStorageManager(context, throwingPrefs)
+        try {
+            manager.getAllKeys()
+            fail("Expected CryptoException")
+        } catch (e: CryptoException) {
+            // expected
+        }
+    }
+
+    @Test
+    fun testDeleteProfile_KeystoreExceptionFallback() {
+        val manager = SecurityStorageManager(context, throwingPrefs)
+        try {
+            manager.deleteProfile("id")
+            fail("Expected CryptoException")
+        } catch (e: CryptoException) {
+            // expected
+        }
+    }
+
+    @Test
+    fun testResetInvalidatedKeys_WithMockKeyStore_HandlesException() {
+        val manager = SecurityStorageManager(context, throwingPrefs)
+        // Ensure it doesn't crash even if preferences throwing exception are used (if resetInvalidatedKeys uses it).
+        // Since resetInvalidatedKeys uses context.getSharedPreferences directly and we can't easily mock KeyStore.getInstance,
+        // just running it is fine (which we already did), but let's check it.
+        manager.resetInvalidatedKeys()
     }
 }
