@@ -11,6 +11,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.StringWriter
 import java.security.Security
+import java.security.spec.PKCS8EncodedKeySpec
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
@@ -83,5 +84,64 @@ b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
         } catch (e: Exception) {
             assertNotNull(e)
         }
+    }
+    
+    @Test
+    fun testParseRawDerBytes() {
+        Security.addProvider(org.bouncycastle.jce.provider.BouncyCastleProvider())
+        val kp = SSHKeyGenerator.generateEd25519KeyPair()
+        val derBytes = kp.private.encoded
+        val parsedKp = PemUtils.parsePemToKeyPair(derBytes, kp.public)
+        assertNotNull(parsedKp)
+        assertNotNull(parsedKp.private)
+    }
+    
+    @Test
+    fun testParseRawDerBytesRsa() {
+        Security.addProvider(org.bouncycastle.jce.provider.BouncyCastleProvider())
+        val kp = SSHKeyGenerator.generateRSAKeyPair()
+        val derBytes = kp.private.encoded
+        val parsedKp = PemUtils.parsePemToKeyPair(derBytes, kp.public)
+        assertNotNull(parsedKp)
+        assertNotNull(parsedKp.private)
+    }
+    
+    @Test
+    fun testParsePublicKeyInsteadOfPrivate() {
+        Security.addProvider(org.bouncycastle.jce.provider.BouncyCastleProvider())
+        val kp = SSHKeyGenerator.generateRSAKeyPair()
+        val sw = StringWriter()
+        val pw = JcaPEMWriter(sw)
+        pw.writeObject(kp.public)
+        pw.close()
+        val pem = sw.toString()
+        try {
+            PemUtils.parsePemToKeyPair(pem.toByteArray())
+            org.junit.Assert.fail("Should throw exception when public key is passed")
+        } catch (e: Exception) {
+            assertNotNull(e)
+        }
+    }
+    
+    @Test
+    fun testRsaPrivateKeyWithHeader() {
+        Security.addProvider(org.bouncycastle.jce.provider.BouncyCastleProvider())
+        // Create an RSA key in PKCS#1 format
+        val kp = SSHKeyGenerator.generateRSAKeyPair()
+        val sw = StringWriter()
+        val pw = JcaPEMWriter(sw)
+        // Convert to RSA PRIVATE KEY (PKCS#1) usually done by default by JcaPEMWriter for RSA private key?
+        // Wait, JcaPEMWriter writes PKCS#8 by default unless we wrap it. Let's try to just write it. 
+        // We know PemUtils handles BEGIN RSA PRIVATE KEY.
+        val rsaPrivateInfo = org.bouncycastle.asn1.pkcs.PrivateKeyInfo.getInstance(kp.private.encoded)
+        val rsa = org.bouncycastle.asn1.pkcs.RSAPrivateKey.getInstance(rsaPrivateInfo.parsePrivateKey())
+        val pemObj = org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator(rsa)
+        pw.writeObject(pemObj)
+        pw.close()
+        val pem = sw.toString()
+        
+        val parsedKp = PemUtils.parsePemToKeyPair(pem.toByteArray())
+        assertNotNull(parsedKp)
+        assertNotNull(parsedKp.private)
     }
 }
