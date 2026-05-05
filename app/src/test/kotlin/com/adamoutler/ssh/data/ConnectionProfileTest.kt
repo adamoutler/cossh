@@ -37,9 +37,9 @@ class ConnectionProfileTest {
 class IdentityProfileTest {
     @Test
     fun testEqualsAndHashCode() {
-        val p1 = IdentityProfile("1", "test", "user", byteArrayOf(1), "pub", "priv", AuthType.KEY)
-        val p2 = IdentityProfile("1", "test", "user", byteArrayOf(1), "pub", "priv", AuthType.KEY)
-        val p3 = IdentityProfile("2", "test", "user", byteArrayOf(1), "pub", "priv", AuthType.KEY)
+        val p1 = IdentityProfile("1", "test", "user", byteArrayOf(1), byteArrayOf(2), "pub", AuthType.KEY)
+        val p2 = IdentityProfile("1", "test", "user", byteArrayOf(1), byteArrayOf(2), "pub", AuthType.KEY)
+        val p3 = IdentityProfile("2", "test", "user", byteArrayOf(1), byteArrayOf(2), "pub", AuthType.KEY)
         
         assertEquals(p1, p2)
         assertNotEquals(p1, p3)
