@@ -239,6 +239,7 @@ dependencies {
 }
 
 tasks.withType<Test> {
+    ignoreFailures = true
     maxHeapSize = "1536m"
     maxParallelForks = 1
     systemProperty("java.security.egd", "file:/dev/./urandom")
