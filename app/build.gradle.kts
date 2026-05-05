@@ -48,6 +48,9 @@ android {
     }
 
     sourceSets {
+        // Important: Explicitly declaring Kotlin source directories is required for the 
+        // SonarQube Scanner. Without these declarations, the scanner defaults to Java-only
+        // discovery and fails to index the Kotlin codebase, resulting in 0% code coverage.
         getByName("main") {
             java.srcDirs("src/main/kotlin", "src/main/java")
         }

@@ -18,7 +18,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.data.IdentityProfile
 import com.adamoutler.ssh.ui.screens.IdentityViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IdentityListScreen(
     viewModel: IdentityViewModel = viewModel(),
@@ -41,6 +40,24 @@ fun IdentityListScreen(
         }
     }
 
+    IdentityListScreenContent(
+        identities = identities,
+        onAddIdentity = onAddIdentity,
+        onEditIdentity = onEditIdentity,
+        onDeleteIdentity = { viewModel.deleteIdentity(it) },
+        onBack = onBack
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun IdentityListScreenContent(
+    identities: List<IdentityProfile>,
+    onAddIdentity: () -> Unit,
+    onEditIdentity: (String) -> Unit,
+    onDeleteIdentity: (String) -> Unit,
+    onBack: () -> Unit,
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -83,7 +100,7 @@ fun IdentityListScreen(
                     IdentityItem(
                         identity = identity,
                         onClick = { onEditIdentity(identity.id) },
-                        onDelete = { viewModel.deleteIdentity(identity.id) },
+                        onDelete = { onDeleteIdentity(identity.id) },
                     )
                 }
             }

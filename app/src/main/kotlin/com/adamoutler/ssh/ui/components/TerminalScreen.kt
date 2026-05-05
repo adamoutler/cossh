@@ -158,6 +158,7 @@ fun TerminalScreenContent(
     modifier: Modifier = Modifier,
     isTerminated: Boolean = false,
     profile: com.adamoutler.ssh.data.ConnectionProfile? = null,
+    initialTerminalInputState: Int = 0,
 ) {
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
     val density = androidx.compose.ui.platform.LocalDensity.current
@@ -206,7 +207,7 @@ fun TerminalScreenContent(
         }
     }
 
-    var terminalInputState by remember { androidx.compose.runtime.mutableIntStateOf(0) }
+    var terminalInputState by remember { androidx.compose.runtime.mutableIntStateOf(initialTerminalInputState) }
     var showOverlayButtons by remember { mutableStateOf(false) }
     val ctrlState = remember { mutableStateOf(ModifierState.INACTIVE) }
     val altState = remember { mutableStateOf(ModifierState.INACTIVE) }
