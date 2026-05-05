@@ -21,10 +21,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.data.AuthType
+import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
+import com.adamoutler.ssh.ui.screens.IdentityFormState
 import com.adamoutler.ssh.ui.screens.IdentityViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditIdentityScreen(
     identityId: String?,
@@ -40,41 +41,98 @@ fun AddEditIdentityScreen(
         viewModel.loadIdentityIfNeeded(identityId)
     }
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val profiles = remember { com.adamoutler.ssh.crypto.SecurityStorageManager(context).getAllProfiles() }
+
+    AddEditIdentityScreenContent(
+        identityId = identityId,
+        uiState = uiState,
+        passwordVisible = passwordVisible,
+        onPasswordVisibleChange = { passwordVisible = it },
+        showInjectDialog = showInjectDialog,
+        onShowInjectDialogChange = { showInjectDialog = it },
+        profiles = profiles,
+        onNameChange = { newName -> viewModel.updateState { it.copy(name = newName) } },
+        onUsernameChange = { newUsername -> viewModel.updateState { it.copy(username = newUsername) } },
+        onPasswordChange = { newPass -> viewModel.updateState { it.copy(password = newPass) } },
+        onPasswordLockedChange = { locked -> viewModel.updateState { it.copy(isPasswordLocked = locked, password = if (!locked) "" else it.password) } },
+        onManualKeyEntryChange = { manual -> viewModel.updateState { it.copy(manualKeyEntry = manual) } },
+        onManualPrivKeyChange = { newKey ->
+            viewModel.updateState {
+                it.copy(
+                    manualPrivKey = newKey,
+                    privateKey = if (newKey.isNotEmpty()) newKey.toByteArray(Charsets.UTF_8) else null,
+                    authType = if (newKey.isNotEmpty()) AuthType.KEY else it.authType,
+                )
+            }
+        },
+        onPublicKeyChange = { newKey -> viewModel.updateState { it.copy(publicKey = newKey) } },
+        onGenerateEd25519 = { viewModel.generateEd25519KeyPair() },
+        onGenerateRSA = { viewModel.generateRSAKeyPair() },
+        onInjectPublicKey = { host, port, tempPassword -> viewModel.injectPublicKey(host, port, tempPassword) },
+        onSave = {
+            val passBytes = if (uiState.isPasswordLocked) {
+                uiState.originalPassword
+            } else if (uiState.password.isNotEmpty()) {
+                uiState.password.toByteArray(Charsets.UTF_8)
+            } else {
+                null
+            }
+
+            val identity = IdentityProfile(
+                id = identityId ?: java.util.UUID.randomUUID().toString(),
+                name = uiState.name,
+                username = uiState.username,
+                password = passBytes,
+                publicKey = if (uiState.publicKey.isNotEmpty()) uiState.publicKey else null,
+                privateKey = uiState.privateKey,
+                authType = uiState.authType,
+            )
+            viewModel.saveIdentity(identity)
+            viewModel.resetState()
+            onBack()
+        },
+        onBack = {
+            viewModel.resetState()
+            onBack()
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddEditIdentityScreenContent(
+    identityId: String?,
+    uiState: IdentityFormState,
+    passwordVisible: Boolean,
+    onPasswordVisibleChange: (Boolean) -> Unit,
+    showInjectDialog: Boolean,
+    onShowInjectDialogChange: (Boolean) -> Unit,
+    profiles: List<ConnectionProfile>,
+    onNameChange: (String) -> Unit,
+    onUsernameChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onPasswordLockedChange: (Boolean) -> Unit,
+    onManualKeyEntryChange: (Boolean) -> Unit,
+    onManualPrivKeyChange: (String) -> Unit,
+    onPublicKeyChange: (String) -> Unit,
+    onGenerateEd25519: () -> Unit,
+    onGenerateRSA: () -> Unit,
+    onInjectPublicKey: (String, Int, String) -> Unit,
+    onSave: () -> Unit,
+    onBack: () -> Unit,
+) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(if (identityId == null) "Add Identity" else "Edit Identity") },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        viewModel.resetState()
-                        onBack()
-                    }) {
+                    IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
-                    IconButton(onClick = {
-                        val passBytes = if (uiState.isPasswordLocked) {
-                            uiState.originalPassword
-                        } else if (uiState.password.isNotEmpty()) {
-                            uiState.password.toByteArray(Charsets.UTF_8)
-                        } else {
-                            null
-                        }
-
-                        val identity = IdentityProfile(
-                            id = identityId ?: java.util.UUID.randomUUID().toString(),
-                            name = uiState.name,
-                            username = uiState.username,
-                            password = passBytes,
-                            publicKey = if (uiState.publicKey.isNotEmpty()) uiState.publicKey else null,
-                            privateKey = uiState.privateKey,
-                            authType = uiState.authType,
-                        )
-                        viewModel.saveIdentity(identity)
-                        viewModel.resetState()
-                        onBack()
-                    }) {
+                    IconButton(onClick = onSave) {
                         Icon(Icons.Default.Check, contentDescription = "Save")
                     }
                 },
@@ -91,14 +149,14 @@ fun AddEditIdentityScreen(
         ) {
             OutlinedTextField(
                 value = uiState.name,
-                onValueChange = { newName -> viewModel.updateState { it.copy(name = newName) } },
+                onValueChange = onNameChange,
                 label = { Text("Identity Name (e.g. My Home Server)") },
                 modifier = Modifier.fillMaxWidth(),
             )
 
             OutlinedTextField(
                 value = uiState.username,
-                onValueChange = { newUsername -> viewModel.updateState { it.copy(username = newUsername) } },
+                onValueChange = onUsernameChange,
                 label = { Text("Username") },
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -110,9 +168,7 @@ fun AddEditIdentityScreen(
                     readOnly = true,
                     label = { Text("Password (optional)") },
                     trailingIcon = {
-                        IconButton(onClick = {
-                            viewModel.updateState { it.copy(isPasswordLocked = false, password = "") }
-                        }) {
+                        IconButton(onClick = { onPasswordLockedChange(false) }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.Send,
                                 contentDescription = "Edit Password",
@@ -125,11 +181,11 @@ fun AddEditIdentityScreen(
             } else {
                 OutlinedTextField(
                     value = uiState.password,
-                    onValueChange = { newPass -> viewModel.updateState { it.copy(password = newPass) } },
+                    onValueChange = onPasswordChange,
                     label = { Text("Password (optional)") },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        IconButton(onClick = { onPasswordVisibleChange(!passwordVisible) }) {
                             Icon(
                                 imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
                                 contentDescription = if (passwordVisible) "Hide password" else "Show password",
@@ -150,9 +206,7 @@ fun AddEditIdentityScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Button(
-                    onClick = {
-                        viewModel.generateEd25519KeyPair()
-                    },
+                    onClick = onGenerateEd25519,
                     modifier = Modifier.weight(1f),
                 ) {
                     Icon(Icons.Default.Lock, contentDescription = null)
@@ -161,9 +215,7 @@ fun AddEditIdentityScreen(
                 }
 
                 Button(
-                    onClick = {
-                        viewModel.generateRSAKeyPair()
-                    },
+                    onClick = onGenerateRSA,
                     modifier = Modifier.weight(1f),
                 ) {
                     Icon(Icons.Default.Lock, contentDescription = null)
@@ -173,7 +225,7 @@ fun AddEditIdentityScreen(
             }
 
             Button(
-                onClick = { viewModel.updateState { it.copy(manualKeyEntry = !it.manualKeyEntry) } },
+                onClick = { onManualKeyEntryChange(!uiState.manualKeyEntry) },
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Icon(Icons.Default.Lock, contentDescription = null)
@@ -184,15 +236,7 @@ fun AddEditIdentityScreen(
             if (uiState.manualKeyEntry) {
                 OutlinedTextField(
                     value = uiState.manualPrivKey,
-                    onValueChange = { newKey ->
-                        viewModel.updateState {
-                            it.copy(
-                                manualPrivKey = newKey,
-                                privateKey = if (newKey.isNotEmpty()) newKey.toByteArray(Charsets.UTF_8) else null,
-                                authType = if (newKey.isNotEmpty()) AuthType.KEY else it.authType,
-                            )
-                        }
-                    },
+                    onValueChange = onManualPrivKeyChange,
                     label = { Text("Paste Private Key (PEM format)") },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 5,
@@ -202,7 +246,7 @@ fun AddEditIdentityScreen(
             if (uiState.publicKey.isNotEmpty()) {
                 OutlinedTextField(
                     value = uiState.publicKey,
-                    onValueChange = { newKey -> viewModel.updateState { it.copy(publicKey = newKey) } },
+                    onValueChange = onPublicKeyChange,
                     label = { Text("Public Key") },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 5,
@@ -210,7 +254,7 @@ fun AddEditIdentityScreen(
                 )
 
                 Button(
-                    onClick = { showInjectDialog = true },
+                    onClick = { onShowInjectDialogChange(true) },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null)
@@ -227,15 +271,12 @@ fun AddEditIdentityScreen(
         }
     }
 
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val profiles = remember { com.adamoutler.ssh.crypto.SecurityStorageManager(context).getAllProfiles() }
-
     if (showInjectDialog) {
         InjectKeyDialog(
-            onDismiss = { showInjectDialog = false },
+            onDismiss = { onShowInjectDialogChange(false) },
             onInject = { host, port, tempPassword ->
-                showInjectDialog = false
-                viewModel.injectPublicKey(host, port, tempPassword)
+                onShowInjectDialogChange(false)
+                onInjectPublicKey(host, port, tempPassword)
             },
             profiles = profiles,
         )

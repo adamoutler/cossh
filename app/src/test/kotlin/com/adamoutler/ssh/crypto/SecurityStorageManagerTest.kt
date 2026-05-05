@@ -108,4 +108,40 @@ class SecurityStorageManagerTest {
         storageManager.deleteProfile("test-id-2")
         assertNull(storageManager.getProfile("test-id-2"))
     }
+
+    @Test
+    fun testResetInvalidatedKeys() {
+        // Just verify it doesn't crash since it's hard to mock AndroidKeyStore fully here
+        storageManager.resetInvalidatedKeys()
+    }
+
+    @Test
+    fun testGetAndSaveSyncPassphrase() {
+        val pass = "my_sync_phrase".toCharArray()
+        storageManager.saveSyncPassphrase(pass)
+        val retrieved = storageManager.getSyncPassphrase()
+        assertNotNull(retrieved)
+        assertEquals(String(pass), String(retrieved!!))
+    }
+
+    @Test
+    fun testGetAllKeys() {
+        storageManager.encryptedPrefs.edit().putString("key_123", "value").apply()
+        val keys = storageManager.getAllKeys()
+        assertTrue(keys.contains("key_123"))
+    }
+
+    @Test
+    fun testCorruptedProfileDeserialization() {
+        // Save invalid JSON
+        storageManager.encryptedPrefs.edit().putString("corrupted_id", "{ invalid json }").apply()
+        
+        // This should catch SerializationException / IllegalArgumentException and return null
+        val profile = storageManager.getProfile("corrupted_id")
+        assertNull(profile)
+        
+        // Also check getAllProfiles doesn't crash on it
+        val allProfiles = storageManager.getAllProfiles()
+        assertTrue(allProfiles.none { it.id == "corrupted_id" })
+    }
 }
