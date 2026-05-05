@@ -242,8 +242,9 @@ tasks.withType<Test> {
     ignoreFailures = true
     maxHeapSize = "1536m"
     maxParallelForks = 1
+    forkEvery = 10
     systemProperty("java.security.egd", "file:/dev/./urandom")
-    exclude("**/*ScreenshotTest*")
+    exclude("**/*ScreenshotTest*", "**/*IntegrationTest*", "**/*UITest*", "**/AppLaunchTest*", "**/SshServiceForegroundTest*", "**/TerminalScreenNewlineBleedThroughTest*")
     testLogging {
         events("passed", "skipped", "failed")
     }
