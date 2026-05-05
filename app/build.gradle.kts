@@ -243,7 +243,6 @@ tasks.withType<Test> {
     maxParallelForks = 1
     forkEvery = 10
     systemProperty("java.security.egd", "file:/dev/./urandom")
-    exclude("**/*ScreenshotTest*", "**/*IntegrationTest*", "**/*UITest*", "**/AppLaunchTest*", "**/SshServiceForegroundTest*", "**/TerminalScreenNewlineBleedThroughTest*")
     testLogging {
         events("passed", "skipped", "failed")
     }
