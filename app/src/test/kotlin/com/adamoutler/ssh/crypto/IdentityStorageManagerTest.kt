@@ -83,4 +83,36 @@ class IdentityStorageManagerTest {
         storageManager.deleteIdentity("to-delete")
         assertNull(storageManager.getIdentity("to-delete"))
     }
+
+    @Test
+    fun testResetInvalidatedKeys() {
+        storageManager.resetInvalidatedKeys()
+    }
+
+    @Test
+    fun testDecryptNullSensitiveData() {
+        val id = IdentityProfile(id = "no-sensitive", name = "No Sensitive", username = "test")
+        storageManager.saveIdentity(id)
+        val retrieved = storageManager.getIdentity("no-sensitive")
+        assertNull(retrieved?.password)
+        assertNull(retrieved?.privateKey)
+    }
+
+    @Test
+    fun testGetAllIdentitiesSkipsPwdAndKey() {
+        storageManager.encryptedPrefs.edit().putString("test_id_pwd", "fake_pwd").apply()
+        storageManager.encryptedPrefs.edit().putString("test_id_key", "fake_key").apply()
+        val allIdentities = storageManager.getAllIdentities()
+        assertTrue(allIdentities.none { it.id == "test_id_pwd" || it.id == "test_id_key" })
+    }
+
+    @Test
+    fun testGetIdentityWithCorruptedData() {
+        storageManager.encryptedPrefs.edit().putString("corrupt_id", "{ invalid json }").apply()
+        val profile = storageManager.getIdentity("corrupt_id")
+        assertNull(profile)
+
+        val allProfiles = storageManager.getAllIdentities()
+        assertTrue(allProfiles.none { it.id == "corrupt_id" })
+    }
 }
