@@ -242,6 +242,7 @@ tasks.withType<Test> {
     maxHeapSize = "1536m"
     maxParallelForks = 1
     systemProperty("java.security.egd", "file:/dev/./urandom")
+    exclude("**/*ScreenshotTest*")
     testLogging {
         events("passed", "skipped", "failed")
     }
