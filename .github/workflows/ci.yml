@@ -69,11 +69,13 @@ jobs:
         run: pip install paramiko
       - name: Run Tests and Coverage
         run: ./gradlew testDebugUnitTest jacocoTestReport | tee build-test.log
-      - name: Upload Jacoco Report
+      - name: Upload Test Results and Coverage
         uses: actions/upload-artifact@v4
         with:
-          name: jacoco-report
-          path: app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+          name: test-artifacts
+          path: |
+            app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+            app/build/test-results/testDebugUnitTest/
           retention-days: 1
       - name: Echo Test Results for Reality Checker
         run: |
@@ -115,11 +117,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Download Jacoco Report
+      - name: Download Test Results and Coverage
         uses: actions/download-artifact@v4
         with:
-          name: jacoco-report
-          path: app/build/reports/jacoco/jacocoTestReport/
+          name: test-artifacts
+          path: app/build/
       - name: SonarCloud Scan & Quality Gate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
