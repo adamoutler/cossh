@@ -239,9 +239,9 @@ dependencies {
 }
 
 tasks.withType<Test> {
-    maxHeapSize = "3072m"
+    maxHeapSize = "1024m"
     maxParallelForks = 1
-    forkEvery = 5
+    forkEvery = 1
     systemProperty("java.security.egd", "file:/dev/./urandom")
     testLogging {
         events("passed", "skipped", "failed")
