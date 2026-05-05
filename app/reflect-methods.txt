@@ -32,12 +32,6 @@ reset
 toString
 append
 resize
-getScrollCounter
-clearScrollCounter
-getSelectedText
-paste
-getTitle
-updateTerminalSessionClient
 getScreen
 isAlternateBufferActive
 sendMouseEvent
@@ -54,7 +48,13 @@ isKeypadApplicationMode
 isCursorKeysApplicationMode
 isMouseTrackingActive
 processCodePoint
+getTitle
+updateTerminalSessionClient
 doDecSetOrReset
+getScrollCounter
+clearScrollCounter
+getSelectedText
+paste
 equals
 hashCode
 getClass
