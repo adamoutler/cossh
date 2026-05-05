@@ -310,6 +310,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 sonar {
     properties {
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
+        property("sonar.junit.reportPaths", "${layout.buildDirectory.get()}/test-results/testDebugUnitTest")
         
         // Suppress Sonar warnings for Jetpack Compose UI files where high parameter counts
         // and deep nesting (high cognitive complexity) are idiomatic patterns.
