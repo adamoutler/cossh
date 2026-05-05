@@ -332,6 +332,7 @@ sonar {
         property("sonar.issue.ignore.multicriteria", "e1,e2")
 
         property("sonar.coverage.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*,**/security/SecureCrashHandler.kt,**/crypto/PasswordCipher.kt")
+        property("sonar.cpd.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*")
 
         property("sonar.issue.ignore.multicriteria.e1.ruleKey", "kotlin:S107")
         property("sonar.issue.ignore.multicriteria.e1.resourceKey", "**/ui/**/*.kt")
