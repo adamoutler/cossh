@@ -13,6 +13,8 @@
         <pin-set expiration="2026-12-31">
             <!-- Google API root CA pinning example -->
             <pin digest="SHA-256">hxqRlPTu1bMS/0DITB1SSu0vd4u/8l8TjPgfaAp63Gc=</pin>
+            <!-- Backup pin -->
+            <pin digest="SHA-256">Vjs8r4z+80wjNcr1YKepWQboSIRi63WsWXhIMN+eWys=</pin>
         </pin-set>
     </domain-config>
 </network-security-config>
