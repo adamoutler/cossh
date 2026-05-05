@@ -94,4 +94,76 @@ class AddEditIdentityScreenScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun passwordVisibleScreen() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    AddEditIdentityScreenContent(
+                        identityId = null,
+                        uiState = IdentityFormState(
+                            password = "VisiblePassword"
+                        ),
+                        passwordVisible = true,
+                        onPasswordVisibleChange = {},
+                        showInjectDialog = false,
+                        onShowInjectDialogChange = {},
+                        profiles = emptyList(),
+                        onNameChange = {},
+                        onUsernameChange = {},
+                        onPasswordChange = {},
+                        onPasswordLockedChange = {},
+                        onManualKeyEntryChange = {},
+                        onManualPrivKeyChange = {},
+                        onPublicKeyChange = {},
+                        onGenerateEd25519 = {},
+                        onGenerateRSA = {},
+                        onInjectPublicKey = { _, _, _ -> },
+                        onSave = {},
+                        onBack = {},
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun showInjectDialogScreen() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    AddEditIdentityScreenContent(
+                        identityId = "id-123",
+                        uiState = IdentityFormState(
+                            name = "Production Identity"
+                        ),
+                        passwordVisible = false,
+                        onPasswordVisibleChange = {},
+                        showInjectDialog = true,
+                        onShowInjectDialogChange = {},
+                        profiles = emptyList(),
+                        onNameChange = {},
+                        onUsernameChange = {},
+                        onPasswordChange = {},
+                        onPasswordLockedChange = {},
+                        onManualKeyEntryChange = {},
+                        onManualPrivKeyChange = {},
+                        onPublicKeyChange = {},
+                        onGenerateEd25519 = {},
+                        onGenerateRSA = {},
+                        onInjectPublicKey = { _, _, _ -> },
+                        onSave = {},
+                        onBack = {},
+                    )
+                }
+            }
+        }
+    }
 }
