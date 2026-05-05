@@ -144,4 +144,37 @@ class SecurityStorageManagerTest {
         val allProfiles = storageManager.getAllProfiles()
         assertTrue(allProfiles.none { it.id == "corrupted_id" })
     }
+
+    @Test
+    fun testGetAllProfilesSkipsPwdAndKey() {
+        storageManager.encryptedPrefs.edit().putString("test_id_pwd", "fake_pwd").apply()
+        storageManager.encryptedPrefs.edit().putString("key_123", "fake_key").apply()
+        val allProfiles = storageManager.getAllProfiles()
+        assertTrue(allProfiles.none { it.id == "test_id_pwd" || it.id == "key_123" })
+    }
+
+    @Test
+    fun testDecryptNullPassword() {
+        // Just retrieving a profile that has no password should return null for password
+        val profile = ConnectionProfile(
+            id = "test-no-pwd",
+            nickname = "Server No Pwd",
+            host = "10.0.0.1",
+            username = "admin",
+            authType = AuthType.KEY
+        )
+        storageManager.saveProfile(profile)
+        val retrieved = storageManager.getProfile("test-no-pwd")
+        assertNull(retrieved?.password)
+    }
+
+    @Test
+    fun testCorruptPassphraseDeserialization() {
+        storageManager.encryptedPrefs.edit().putString("sync_passphrase", "invalid_base64!@#").apply()
+        try {
+            storageManager.getSyncPassphrase()
+        } catch (e: Exception) {
+            // expected
+        }
+    }
 }

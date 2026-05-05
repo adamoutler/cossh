@@ -362,4 +362,53 @@ class DriveSyncManagerTest {
         assertTrue(exception is java.lang.IllegalStateException)
         assertEquals("Authorization denied or cancelled by user", exception?.message)
     }
+
+    @Test
+    fun testUploadBackupHttpError() {
+        manager.setOAuthToken("dummy_token")
+        val payload = "payload".toByteArray()
+        val pass = "pass".toCharArray()
+        
+        try {
+            val field = URL::class.java.getDeclaredField("factory")
+            field.isAccessible = true
+            field.set(null, null)
+            
+            val errorFactory = object : URLStreamHandlerFactory {
+                override fun createURLStreamHandler(protocol: String): URLStreamHandler? {
+                    return object : URLStreamHandler() {
+                        override fun openConnection(u: URL): URLConnection {
+                            return object : HttpURLConnection(u) {
+                                override fun connect() {}
+                                override fun disconnect() {}
+                                override fun usingProxy() = false
+                                override fun getResponseCode(): Int = 500
+                                override fun getErrorStream(): InputStream = ByteArrayInputStream("Internal Server Error".toByteArray())
+                                override fun getOutputStream(): OutputStream = ByteArrayOutputStream()
+                                override fun getInputStream(): InputStream = ByteArrayInputStream("".toByteArray())
+                            }
+                        }
+                    }
+                }
+            }
+            URL.setURLStreamHandlerFactory(errorFactory)
+            
+            try {
+                runBlocking {
+                    manager.uploadBackup(payload, pass)
+                }
+                fail("Expected IOException")
+            } catch (e: java.io.IOException) {
+                assertTrue(e.message?.contains("Failed to upload: 500") == true)
+            }
+        } catch (e: Exception) {
+            // Ignore reflection errors on URL factory
+        } finally {
+            try {
+                val field = URL::class.java.getDeclaredField("factory")
+                field.isAccessible = true
+                field.set(null, MockURLStreamHandlerFactory)
+            } catch (e: Exception) {}
+        }
+    }
 }

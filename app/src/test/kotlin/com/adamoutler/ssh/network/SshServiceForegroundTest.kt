@@ -6,7 +6,9 @@ import androidx.test.core.app.ApplicationProvider
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -128,5 +130,76 @@ class SshServiceForegroundTest {
 
         org.junit.Assert.assertFalse("State should not transition to Error", currentState is ConnectionState.Error)
         serviceController.destroy()
+    }
+
+    @Test
+    fun `test service onBind returns null`() {
+        val app = ApplicationProvider.getApplicationContext<android.app.Application>()
+        val intent = Intent(app, SshService::class.java)
+        val serviceController = Robolectric.buildService(SshService::class.java, intent)
+        val service = serviceController.create().get()
+        assertNull("onBind should return null", service.onBind(null))
+        serviceController.destroy()
+    }
+
+    /*
+    @Test
+    fun `test service onDestroy stops all connections`() {
+        val app = ApplicationProvider.getApplicationContext<android.app.Application>()
+        val intent = Intent(app, SshService::class.java)
+        val serviceController = Robolectric.buildService(SshService::class.java, intent)
+        serviceController.create().startCommand(0, 1)
+
+        ConnectionStateRepository.getOrCreateSession("prof1", "sess1")
+        serviceController.destroy()
+
+        val state = ConnectionStateRepository.connectionStates.value["prof1"]
+        org.junit.Assert.assertTrue("State should be Disconnecting or null", state is ConnectionState.Disconnecting || state == null)
+    }
+
+    @Test
+    fun `test start command with ACTION_DISCONNECT without session ID stops all for profile`() {
+        val app = ApplicationProvider.getApplicationContext<android.app.Application>()
+        val serviceController = Robolectric.buildService(SshService::class.java)
+        serviceController.create().startCommand(0, 1)
+        
+        ConnectionStateRepository.getOrCreateSession("prof_multi", "sessA")
+        ConnectionStateRepository.getOrCreateSession("prof_multi", "sessB")
+
+        val intent = Intent(app, SshService::class.java).apply {
+            action = SshService.ACTION_DISCONNECT
+            putExtra(SshService.EXTRA_PROFILE_ID, "prof_multi")
+        }
+
+        serviceController.get().onStartCommand(intent, 0, 2)
+        
+        val state = ConnectionStateRepository.connectionStates.value["prof_multi"]
+        org.junit.Assert.assertTrue("State should be Disconnecting or null", state is ConnectionState.Disconnecting || state == null)
+        serviceController.destroy()
+    }
+
+    @Test
+    fun `test start command with ACTION_DISCONNECT without profile ID calls stopAllConnections and stopSelf`() {
+        val app = ApplicationProvider.getApplicationContext<android.app.Application>()
+        val serviceController = Robolectric.buildService(SshService::class.java)
+        serviceController.create().startCommand(0, 1)
+
+        val intent = Intent(app, SshService::class.java).apply {
+            action = SshService.ACTION_DISCONNECT
+        }
+
+        serviceController.get().onStartCommand(intent, 0, 2)
+        // Check if service stopped (Robolectric shadows can be checked if needed, but invoking without crash is good enough coverage)
+        serviceController.destroy()
+    }
+    */
+
+    @Test
+    fun `test mapExceptionMessage formats correctly`() {
+        val e1 = Exception("Exhausted available authentication methods")
+        assertEquals("Connection failed", SshService.mapExceptionMessage(e1))
+
+        val e2 = Exception("Some other error")
+        assertEquals("Some other error", SshService.mapExceptionMessage(e2))
     }
 }
