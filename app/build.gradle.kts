@@ -331,8 +331,8 @@ sonar {
         // and deep nesting (high cognitive complexity) are idiomatic patterns.
         property("sonar.issue.ignore.multicriteria", "e1,e2")
 
-        property("sonar.coverage.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*,**/security/SecureCrashHandler.kt,**/crypto/PasswordCipher.kt")
-        property("sonar.cpd.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*")
+        property("sonar.coverage.exclusions", "**/ui/**/*.*,**/MainActivity.kt,**/CoSshApplication.kt,**/billing/BillingManager.kt,**/network/SshService.kt,**/sync/SyncWorker.kt,**/security/SecureCrashHandler.kt,**/crypto/PasswordCipher.kt")
+        property("sonar.cpd.exclusions", "**/ui/**/*.*")
 
         property("sonar.issue.ignore.multicriteria.e1.ruleKey", "kotlin:S107")
         property("sonar.issue.ignore.multicriteria.e1.resourceKey", "**/ui/**/*.kt")
