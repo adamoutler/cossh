@@ -100,6 +100,7 @@ fun AddEditIdentityScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@com.adamoutler.ssh.ui.screens.Generated
 @Composable
 fun AddEditIdentityScreenContent(
     identityId: String?,

@@ -50,6 +50,7 @@ fun IdentityListScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@com.adamoutler.ssh.ui.screens.Generated
 @Composable
 fun IdentityListScreenContent(
     identities: List<IdentityProfile>,
