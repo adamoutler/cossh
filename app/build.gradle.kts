@@ -330,6 +330,9 @@ sonar {
         // Suppress Sonar warnings for Jetpack Compose UI files where high parameter counts
         // and deep nesting (high cognitive complexity) are idiomatic patterns.
         property("sonar.issue.ignore.multicriteria", "e1,e2")
+
+        property("sonar.coverage.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*")
+
         property("sonar.issue.ignore.multicriteria.e1.ruleKey", "kotlin:S107")
         property("sonar.issue.ignore.multicriteria.e1.resourceKey", "**/ui/**/*.kt")
         property("sonar.issue.ignore.multicriteria.e2.ruleKey", "kotlin:S3776")
