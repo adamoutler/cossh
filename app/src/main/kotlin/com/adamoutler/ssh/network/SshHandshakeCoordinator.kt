@@ -21,7 +21,7 @@ import java.security.PublicKey
 class SshHandshakeCoordinator(
     private val hostKeyVerifier: HostKeyVerifier? = null,
     private val identityStorageManager: IdentityStorageManager? = null,
-    private val context: Context? = null
+    private val context: Context? = null,
 ) {
 
     @PublishedApi
@@ -44,13 +44,17 @@ class SshHandshakeCoordinator(
             var lastException: Exception? = null
             for (authenticator in authenticators) {
                 try {
+                    // Check if we are interrupted to prevent infinite hangs if this loop somehow gets stuck
+                    if (Thread.currentThread().isInterrupted) {
+                        throw InterruptedException("Authentication interrupted")
+                    }
                     authenticator.authenticate(client, profile)
                     if (client.isAuthenticated) {
                         return
                     }
                 } catch (e: Exception) {
                     lastException = e
-                    android.util.Log.w("CompositeAuthenticator", "Authentication failed with ${authenticator::class.java.simpleName}, trying next", e)
+                    println(("CompositeAuthenticator").toString() + ": " + ("Authentication failed with ${authenticator::class.java.simpleName}, trying next").toString() + " " + (e).toString())
                 }
             }
             throw UserAuthException("All authentication methods failed", lastException)
@@ -77,16 +81,16 @@ class SshHandshakeCoordinator(
                     if (resolvedKeyPair?.public != null) {
                         authenticators.add(KeyAuthenticator(resolvedKeyPair))
                     } else {
-                        android.util.Log.w("SshHandshakeCoordinator", "Public key is null, skipping KeyAuthenticator")
+                        println(("SshHandshakeCoordinator").toString() + ": " + ("Public key is null, skipping KeyAuthenticator").toString())
                     }
                 } catch (e: Exception) {
-                    android.util.Log.e("SshHandshakeCoordinator", "Failed to initialize keypair", e)
+                    println(("SshHandshakeCoordinator").toString() + ": " + ("Failed to initialize keypair").toString() + " " + (e).toString())
                 }
             }
 
             // Try password auth if a password exists or if authType is PASSWORD
             if (identity.password != null || profile.authType == AuthType.PASSWORD) {
-                authenticators.add(PasswordAuthenticator())
+                authenticators.add(PasswordAuthenticator(identity.password))
             }
 
             if (authenticators.isNotEmpty()) {
@@ -126,7 +130,7 @@ class SshHandshakeCoordinator(
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.e("SshHandshakeCoordinator", "Failed to parse public key from identity", e)
+            println(("SshHandshakeCoordinator").toString() + ": " + ("Failed to parse public key from identity").toString() + " " + (e).toString())
         }
 
         return PemUtils.parsePemToKeyPair(privateKeyBytes, publicKey)
@@ -147,7 +151,7 @@ class SshHandshakeCoordinator(
         client: SSHClient,
         profile: ConnectionProfile,
         keyPair: KeyPair? = null,
-        block: (effectiveProfile: ConnectionProfile) -> T
+        block: (effectiveProfile: ConnectionProfile) -> T,
     ): T {
         client.connectTimeout = 10000
         client.timeout = 10000

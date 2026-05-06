@@ -1,3 +1,5 @@
+import java.time.Duration
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -253,6 +255,7 @@ dependencies {
 }
 
 tasks.withType<Test> {
+    timeout.set(Duration.ofMinutes(5))
     maxHeapSize = "1024m"
     maxParallelForks = 1
     forkEvery = 1
