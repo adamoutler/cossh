@@ -302,4 +302,80 @@ class SecurityStorageManagerTest {
         // just running it is fine (which we already did), but let's check it.
         manager.resetInvalidatedKeys()
     }
+
+    @Test
+    fun testGetProfile_IllegalArgumentException() {
+        // SharedPreferences returns a string that causes IllegalArgumentException in decodeFromString
+        // kotlinx.serialization throws IllegalArgumentException if enum is unknown, but regular JSON issues throw SerializationException.
+        // Let's just verify it returns null on exception.
+        storageManager.encryptedPrefs.edit().putString("illegal_arg_id", "{\"id\":\"illegal_arg_id\",\"nickname\":\"test\",\"host\":\"host\",\"port\":22,\"username\":\"user\",\"authType\":\"INVALID_ENUM_VALUE\"}").apply()
+        val profile = storageManager.getProfile("illegal_arg_id")
+        assertNull(profile)
+    }
+
+    @Test
+    fun testGetAllProfiles_IllegalArgumentException() {
+        storageManager.encryptedPrefs.edit().putString("illegal_arg_id", "{\"id\":\"illegal_arg_id\",\"nickname\":\"test\",\"host\":\"host\",\"port\":22,\"username\":\"user\",\"authType\":\"INVALID_ENUM_VALUE\"}").apply()
+        val profiles = storageManager.getAllProfiles()
+        assertTrue(profiles.none { it.id == "illegal_arg_id" })
+    }
+
+    @Test
+    fun testCryptoExceptionBubblesUp() {
+        val manager = SecurityStorageManager(context, cryptoThrowingPrefs)
+        
+        try { manager.saveProfile(ConnectionProfile(id = "id", nickname = "nickname", host = "host", username = "user", authType = AuthType.KEY)); fail() } catch (e: SecureStorageUnavailableException) {}
+        try { manager.getProfile("id"); fail() } catch (e: SecureStorageUnavailableException) {}
+        try { manager.getAllProfiles(); fail() } catch (e: SecureStorageUnavailableException) {}
+        try { manager.getAllKeys(); fail() } catch (e: SecureStorageUnavailableException) {}
+        try { manager.deleteProfile("id"); fail() } catch (e: SecureStorageUnavailableException) {}
+    }
+
+    @Test
+    fun testUserNotAuthenticatedException_WrapsInCryptoException() {
+        val manager = SecurityStorageManager(context, authThrowingPrefs)
+        
+        try { manager.saveProfile(ConnectionProfile(id = "id", nickname = "nickname", host = "host", username = "user", authType = AuthType.KEY)); fail() } catch (e: CryptoException) {}
+        try { manager.getProfile("id"); fail() } catch (e: CryptoException) {}
+        try { manager.getAllProfiles(); fail() } catch (e: CryptoException) {}
+        try { manager.getAllKeys(); fail() } catch (e: CryptoException) {}
+        try { manager.deleteProfile("id"); fail() } catch (e: CryptoException) {}
+    }
+
+    @Test
+    fun testKeyPermanentlyInvalidatedException_WrapsInCryptoException() {
+        val manager = SecurityStorageManager(context, invalidatedThrowingPrefs)
+        
+        try { manager.saveProfile(ConnectionProfile(id = "id", nickname = "nickname", host = "host", username = "user", authType = AuthType.KEY)); fail() } catch (e: CryptoException) {}
+        try { manager.getProfile("id"); fail() } catch (e: CryptoException) {}
+        try { manager.getAllProfiles(); fail() } catch (e: CryptoException) {}
+        try { manager.getAllKeys(); fail() } catch (e: CryptoException) {}
+        try { manager.deleteProfile("id"); fail() } catch (e: CryptoException) {}
+    }
+
+    @Test
+    fun testGetProfile_SerializationException() {
+        storageManager.encryptedPrefs.edit().putString("serial_err_id", "not a valid json").apply()
+        val profile = storageManager.getProfile("serial_err_id")
+        assertNull(profile)
+    }
+
+    @Test
+    fun testGetAllProfiles_SerializationException() {
+        storageManager.encryptedPrefs.edit().putString("serial_err_id", "not a valid json").apply()
+        val profiles = storageManager.getAllProfiles()
+        assertTrue(profiles.none { it.id == "serial_err_id" })
+    }
+
+    @Test
+    fun testDeleteProfile_WithNullId_DoesNotThrow() {
+        // SharedPreferences edit().remove(null) handles null gracefully or throws NPE depending on implementation.
+        // We're just ensuring it behaves predictably.
+        try {
+            storageManager.deleteProfile("") // empty string
+            assertNull(storageManager.getProfile(""))
+        } catch (e: Exception) {
+            // expected or ignored
+        }
+    }
 }

@@ -39,7 +39,7 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
                     EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
                 )
             } catch (e: Exception) {
-                val isRobolectric = System.getProperty("robolectric.logging") != null || android.os.Build.FINGERPRINT.contains("robolectric")
+                val isRobolectric = try { Class.forName("org.robolectric.Robolectric") != null } catch (ex: ClassNotFoundException) { false }
                 if (isRobolectric) {
                     android.util.Log.e(
                         "SecurityStorageManager",
@@ -85,7 +85,7 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
             } else {
                 editor.remove("${profile.id}_pwd")
             }
-            editor.apply() // Synchronous to ensure disk write completes immediately for test reliability
+            editor.commit() // Synchronous to ensure disk write completes immediately for test reliability
         } catch (e: Exception) {
             if (e is CryptoException) throw e
             e.handleKeystoreExceptions("Failed to save profile due to Keystore error.")
