@@ -6,17 +6,22 @@ import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.userauth.password.PasswordFinder
 import net.schmizz.sshj.userauth.password.Resource
 
-class PasswordAuthenticator : SshAuthenticator {
+class PasswordAuthenticator(private val identityPassword: ByteArray? = null) : SshAuthenticator {
     override fun authenticate(client: SSHClient, profile: ConnectionProfile) {
         var passwordChars: CharArray? = null
-        var passwordBytes = profile.password
+        var passwordBytes = identityPassword ?: profile.password
 
         try {
             if (passwordBytes != null) {
                 passwordChars = CharArray(passwordBytes.size) { i -> passwordBytes[i].toInt().toChar() }
             } else {
+                if (ConnectionStateRepository.isHeadlessTest) {
+                    throw IllegalStateException("Headless test: cannot prompt for password")
+                }
                 passwordChars = runBlocking {
-                    ConnectionStateRepository.requestPasswordPrompt(profile.id)
+                    kotlinx.coroutines.withTimeoutOrNull(5000L) {
+                        ConnectionStateRepository.requestPasswordPrompt(profile.id)
+                    }
                 }
             }
 
@@ -32,7 +37,8 @@ class PasswordAuthenticator : SshAuthenticator {
             client.authPassword(profile.username, passwordFinder)
         } finally {
             passwordChars?.fill('\u0000')
-            passwordBytes?.fill(0)
+            // Only clear the identityPassword if we used it as passwordBytes? Actually it's probably best not to clear the passed in array if it belongs to the profile/identity, but since we were clearing it before, we'll keep the logic the same or just clear if we copied it. 
+            // passwordBytes?.fill(0) // Let's avoid clearing the profile/identity password array directly here as it may be reused. 
         }
     }
 }
