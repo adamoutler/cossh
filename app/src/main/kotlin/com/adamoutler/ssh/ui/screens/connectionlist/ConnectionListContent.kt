@@ -37,7 +37,6 @@ fun ConnectionListContent(
     onManageIdentitiesRequested: () -> Unit = {},
     initialMenuExpanded: Boolean = false,
     isReorderingPreview: Boolean = false,
-    defaultGroupName: String = com.adamoutler.ssh.crypto.SettingsManager(androidx.compose.ui.platform.LocalContext.current).defaultGroupName,
 ) {
     var profileIdMovingToFolder by remember { mutableStateOf<String?>(null) }
     var isReordering by remember { mutableStateOf(isReorderingPreview) }

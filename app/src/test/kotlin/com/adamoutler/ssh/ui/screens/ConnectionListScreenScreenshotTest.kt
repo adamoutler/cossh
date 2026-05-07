@@ -206,7 +206,6 @@ class ConnectionListScreenScreenshotTest {
                         onEditConnection = {},
                         onDeleteConnection = {},
                         onConnect = {},
-                        defaultGroupName = "My Custom Group",
                     )
                 }
             }
