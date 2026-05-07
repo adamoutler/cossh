@@ -264,6 +264,7 @@ class DriveSyncManagerTest {
             arrayOf(androidx.credentials.CredentialManager::class.java),
         ) { _, method, args ->
             if (method.name == "getCredential") {
+                @Suppress("UNCHECKED_CAST")
                 val continuation = args.last() as kotlin.coroutines.Continuation<Any>
                 continuation.resumeWithException(androidx.credentials.exceptions.GetCredentialCustomException("CustomError"))
                 return@newProxyInstance kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
@@ -291,6 +292,7 @@ class DriveSyncManagerTest {
             arrayOf(androidx.credentials.CredentialManager::class.java),
         ) { _, method, args ->
             if (method.name == "getCredential") {
+                @Suppress("UNCHECKED_CAST")
                 val continuation = args.last() as kotlin.coroutines.Continuation<Any>
                 val customCredential = androidx.credentials.CustomCredential("UNEXPECTED_TYPE", android.os.Bundle())
                 continuation.resumeWith(Result.success(androidx.credentials.GetCredentialResponse(customCredential)))
@@ -315,6 +317,7 @@ class DriveSyncManagerTest {
             arrayOf(androidx.credentials.CredentialManager::class.java),
         ) { _, method, args ->
             if (method.name == "getCredential") {
+                @Suppress("UNCHECKED_CAST")
                 val continuation = args.last() as kotlin.coroutines.Continuation<Any>
                 val customCredential = androidx.credentials.CustomCredential("com.google.android.libraries.identity.googleid.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL", android.os.Bundle())
                 continuation.resumeWith(Result.success(androidx.credentials.GetCredentialResponse(customCredential)))
@@ -529,6 +532,7 @@ class DriveSyncManagerTest {
             arrayOf(androidx.credentials.CredentialManager::class.java),
         ) { _, method, args ->
             if (method.name == "getCredential") {
+                @Suppress("UNCHECKED_CAST")
                 val continuation = args.last() as kotlin.coroutines.Continuation<Any>
                 val customCredential = androidx.credentials.CustomCredential(
                     "com.google.android.libraries.identity.googleid.TYPE_GOOGLE_ID_TOKEN_SIWG_CREDENTIAL",

@@ -114,7 +114,7 @@ class SshConnectionManagerIntegrationTest {
         val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
         // Assuming mock.hackedyour.info accepts any key for testing, or at least doesn't crash with NPE
         try {
-            val result = manager.connectAndExecute(profile, "echo \"CoSSH_Key_Test\"", keyPair)
+            manager.connectAndExecute(profile, "echo \"CoSSH_Key_Test\"", keyPair)
             // It might succeed or throw UserAuthException depending on the mock server config.
             // As long as it doesn't crash with NPE on key.getAlgorithm(), the test passes the client side.
         } catch (e: net.schmizz.sshj.userauth.UserAuthException) {
