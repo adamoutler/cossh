@@ -2,6 +2,7 @@ package com.adamoutler.ssh.crypto
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.adamoutler.ssh.data.ConnectionProfile
@@ -9,6 +10,10 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class SecurityStorageManager(private val context: Context, injectedPrefs: SharedPreferences? = null) {
+
+    companion object {
+        private const val TAG = "SecurityStorageManager"
+    }
 
     val encryptedPrefs: SharedPreferences by lazy {
         injectedPrefs ?: run {
@@ -19,12 +24,12 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
                         .setRequestStrongBoxBacked(true)
                         .build()
                 } catch (e: java.security.ProviderException) {
-                    android.util.Log.w("SecurityStorageManager", "StrongBox unavailable, falling back to standard Keystore", e)
+                    Log.w(TAG, "StrongBox unavailable, falling back to standard Keystore", e)
                     MasterKey.Builder(context)
                         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                         .build()
                 } catch (e: java.security.KeyStoreException) {
-                    android.util.Log.w("SecurityStorageManager", "KeyStore initialization failed, trying fallback", e)
+                    Log.w(TAG, "KeyStore initialization failed, trying fallback", e)
                     MasterKey.Builder(context)
                         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                         .build()
@@ -39,13 +44,14 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
                     EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
                 )
             } catch (e: Exception) {
-                val isRobolectric = try { Class.forName("org.robolectric.Robolectric") != null } catch (ex: ClassNotFoundException) { false }
+                val isRobolectric = try {
+                    Class.forName("org.robolectric.Robolectric")
+                    true
+                } catch (ex: ClassNotFoundException) {
+                    false
+                }
                 if (isRobolectric) {
-                    android.util.Log.e(
-                        "SecurityStorageManager",
-                        "Failed to create EncryptedSharedPreferences, falling back to regular SharedPreferences for Robolectric",
-                        e,
-                    )
+                    Log.d(TAG, "Robolectric detected, using fallback shared preferences")
                     return@run context.getSharedPreferences("secret_ssh_profiles_fallback", Context.MODE_PRIVATE)
                 }
                 e.handleKeystoreExceptions(
@@ -64,7 +70,7 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
             context.getSharedPreferences("secret_ssh_profiles", Context.MODE_PRIVATE)
                 .edit().clear().apply()
         } catch (e: Exception) {
-            android.util.Log.e("SecurityStorageManager", "Failed to reset Keystore", e)
+            Log.e(TAG, "Failed to reset Keystore", e)
         }
     }
 
@@ -85,7 +91,7 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
             } else {
                 editor.remove("${profile.id}_pwd")
             }
-            editor.commit() // Synchronous to ensure disk write completes immediately for test reliability
+            editor.apply() // Asynchronous background write. In-memory state is updated immediately.
         } catch (e: Exception) {
             if (e is CryptoException) throw e
             e.handleKeystoreExceptions("Failed to save profile due to Keystore error.")
@@ -99,10 +105,10 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
             profile.password = decryptPassword(encryptedPrefs.getString("${id}_pwd", null))
             return profile
         } catch (e: kotlinx.serialization.SerializationException) {
-            android.util.Log.e("SecurityStorageManager", "Failed to deserialize profile", e)
+            Log.e(TAG, "Failed to deserialize profile", e)
             return null
         } catch (e: IllegalArgumentException) {
-            android.util.Log.e("SecurityStorageManager", "Invalid profile format", e)
+            Log.e(TAG, "Invalid profile format", e)
             return null
         } catch (e: Exception) {
             if (e is CryptoException) throw e
@@ -121,9 +127,9 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
                         profile.password = decryptPassword(encryptedPrefs.getString("${profile.id}_pwd", null))
                         profiles.add(profile)
                     } catch (e: kotlinx.serialization.SerializationException) {
-                        android.util.Log.e("SecurityStorageManager", "Failed to deserialize profile during list generation", e)
+                        Log.e(TAG, "Failed to deserialize profile during list generation", e)
                     } catch (e: IllegalArgumentException) {
-                        android.util.Log.e("SecurityStorageManager", "Invalid profile format during list generation", e)
+                        Log.e(TAG, "Invalid profile format during list generation", e)
                     }
                 }
             }
