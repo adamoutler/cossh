@@ -37,8 +37,7 @@ class PasswordAuthenticator(private val identityPassword: ByteArray? = null) : S
             client.authPassword(profile.username, passwordFinder)
         } finally {
             passwordChars?.fill('\u0000')
-            // Only clear the identityPassword if we used it as passwordBytes? Actually it's probably best not to clear the passed in array if it belongs to the profile/identity, but since we were clearing it before, we'll keep the logic the same or just clear if we copied it. 
-            // passwordBytes?.fill(0) // Let's avoid clearing the profile/identity password array directly here as it may be reused. 
+            passwordBytes?.fill(0)
         }
     }
 }
