@@ -184,7 +184,9 @@ class AppNavigationCoverageTest {
 
         val field = ConnectionStateRepository::class.java.getDeclaredField("_passwordPromptRequest")
         field.isAccessible = true
-        (field.get(ConnectionStateRepository) as MutableStateFlow<com.adamoutler.ssh.network.PasswordPromptRequest?>).value = request
+        @Suppress("UNCHECKED_CAST")
+        val stateFlow = field.get(ConnectionStateRepository) as MutableStateFlow<com.adamoutler.ssh.network.PasswordPromptRequest?>
+        stateFlow.value = request
 
         composeTestRule.setContent {
             PasswordPromptDialog()
