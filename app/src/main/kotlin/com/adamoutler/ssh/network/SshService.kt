@@ -8,7 +8,6 @@ import android.app.Service
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.adamoutler.ssh.MainActivity
 import com.adamoutler.ssh.crypto.IdentityStorageManager
@@ -137,14 +136,14 @@ class SshService : Service() {
 
                             if (!activeSession.firstSshOutputReceived) {
                                 activeSession.firstSshOutputReceived = true
-                                Log.d("SshService", "First SSH output received for $sessionId")
+                                println(("SshService").toString() + ": " + ("First SSH output received for $sessionId").toString())
                             }
                         },
                     )
-                    Log.d("SshService", "SSH Session disconnected normally for $profileId (Session: $sessionId)")
+                    println(("SshService").toString() + ": " + ("SSH Session disconnected normally for $profileId (Session: $sessionId)").toString())
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnected)
                 } else {
-                    Log.e("SshService", "Profile not found: $profileId")
+                    println(("SshService").toString() + ": " + ("Profile not found: $profileId").toString())
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error("Profile not found"))
                 }
             } catch (e: Exception) {
@@ -154,12 +153,12 @@ class SshService : Service() {
                     e.message?.contains("EOF", ignoreCase = true) == true
 
                 if (!isNormalClosure) {
-                    Log.e("SshService", "SSH Connection failed for $profileId (Session: $sessionId)", e)
+                    println(("SshService").toString() + ": " + ("SSH Connection failed for $profileId (Session: $sessionId)").toString() + " " + (e).toString())
                     updateSessionNotification(profileId, sessionId, "Connection", "Connection failed")
                     val userMessage = mapExceptionMessage(e)
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error(userMessage))
                 } else {
-                    Log.d("SshService", "SSH Session disconnected normally for $profileId (Session: $sessionId)")
+                    println(("SshService").toString() + ": " + ("SSH Session disconnected normally for $profileId (Session: $sessionId)").toString())
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnected)
                 }
             } finally {

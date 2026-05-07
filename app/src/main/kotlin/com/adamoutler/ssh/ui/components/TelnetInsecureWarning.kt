@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 fun TelnetInsecureWarning(
     modifier: Modifier = Modifier,
     nickname: String? = null,
-    isOverlay: Boolean = false
+    isOverlay: Boolean = false,
 ) {
     val backgroundColor = if (isOverlay) Color(0xFFE65100) else MaterialTheme.colorScheme.surfaceVariant
     val textColor = if (isOverlay) Color.White else MaterialTheme.colorScheme.onSurfaceVariant

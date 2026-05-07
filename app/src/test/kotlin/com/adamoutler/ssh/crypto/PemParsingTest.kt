@@ -67,14 +67,14 @@ MIIEpAIBAAKCAQEA0z+0o
         } catch (e: Exception) {
             assertNotNull(e)
         }
-        
+
         try {
             PemUtils.parsePemToKeyPair("GARBAGE DATA NOT PEM".toByteArray())
             org.junit.Assert.fail("Should throw exception on non-PEM")
         } catch (e: Exception) {
             assertNotNull(e)
         }
-        
+
         val pemEmptyOpenSsh = """-----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
 -----END OPENSSH PRIVATE KEY-----"""
@@ -85,7 +85,7 @@ b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
             assertNotNull(e)
         }
     }
-    
+
     @Test
     fun testParseRawDerBytes() {
         Security.addProvider(org.bouncycastle.jce.provider.BouncyCastleProvider())
@@ -95,7 +95,7 @@ b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
         assertNotNull(parsedKp)
         assertNotNull(parsedKp.private)
     }
-    
+
     @Test
     fun testParseRawDerBytesRsa() {
         Security.addProvider(org.bouncycastle.jce.provider.BouncyCastleProvider())
@@ -105,7 +105,7 @@ b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
         assertNotNull(parsedKp)
         assertNotNull(parsedKp.private)
     }
-    
+
     @Test
     fun testParsePublicKeyInsteadOfPrivate() {
         Security.addProvider(org.bouncycastle.jce.provider.BouncyCastleProvider())
@@ -122,7 +122,7 @@ b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
             assertNotNull(e)
         }
     }
-    
+
     // @Test
     fun testRsaPrivateKeyWithHeader() {
         Security.addProvider(org.bouncycastle.jce.provider.BouncyCastleProvider())
@@ -131,7 +131,7 @@ b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
         val sw = StringWriter()
         val pw = JcaPEMWriter(sw)
         // Convert to RSA PRIVATE KEY (PKCS#1) usually done by default by JcaPEMWriter for RSA private key?
-        // Wait, JcaPEMWriter writes PKCS#8 by default unless we wrap it. Let's try to just write it. 
+        // Wait, JcaPEMWriter writes PKCS#8 by default unless we wrap it. Let's try to just write it.
         // We know PemUtils handles BEGIN RSA PRIVATE KEY.
         val rsaPrivateInfo = org.bouncycastle.asn1.pkcs.PrivateKeyInfo.getInstance(kp.private.encoded)
         val rsa = org.bouncycastle.asn1.pkcs.RSAPrivateKey.getInstance(rsaPrivateInfo.parsePrivateKey())
@@ -139,7 +139,7 @@ b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
         pw.writeObject(pemObj)
         pw.close()
         val pem = sw.toString()
-        
+
         val parsedKp = PemUtils.parsePemToKeyPair(pem.toByteArray())
         assertNotNull(parsedKp)
         assertNotNull(parsedKp.private)

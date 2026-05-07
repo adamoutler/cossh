@@ -57,7 +57,7 @@ class IdentityListScreenScreenshotTest {
                                 password = null,
                                 publicKey = "ssh-rsa ...",
                                 privateKey = null,
-                                authType = AuthType.KEY
+                                authType = AuthType.KEY,
                             ),
                             IdentityProfile(
                                 id = "2",
@@ -66,8 +66,8 @@ class IdentityListScreenScreenshotTest {
                                 password = "password".toByteArray(),
                                 publicKey = null,
                                 privateKey = null,
-                                authType = AuthType.PASSWORD
-                            )
+                                authType = AuthType.PASSWORD,
+                            ),
                         ),
                         onAddIdentity = {},
                         onEditIdentity = {},

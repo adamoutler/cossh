@@ -296,13 +296,13 @@ class ConnectionListScreenScreenshotTest {
             com.adamoutler.ssh.network.ActiveSessionState(
                 profileId = "1",
                 sessionId = "s1",
-                connectedAt = 1672531200000
+                connectedAt = 1672531200000,
             ),
             com.adamoutler.ssh.network.ActiveSessionState(
                 profileId = "1",
                 sessionId = "s2",
-                connectedAt = 1672534800000
-            )
+                connectedAt = 1672534800000,
+            ),
         )
         paparazzi.snapshot {
             CoSSHTheme {
@@ -315,7 +315,7 @@ class ConnectionListScreenScreenshotTest {
                         activeSessions = mockSessions,
                         onDismiss = {},
                         onResumeSession = {},
-                        onStartNewSession = {}
+                        onStartNewSession = {},
                     )
                 }
             }

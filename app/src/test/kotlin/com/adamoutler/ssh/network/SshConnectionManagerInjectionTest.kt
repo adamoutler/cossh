@@ -57,7 +57,7 @@ class SshConnectionManagerInjectionTest {
 
     @After
     fun tearDown() {
-        mockSshdProcess?.destroy()
+        mockSshdProcess?.destroyForcibly()
     }
 
     @Test
@@ -82,44 +82,46 @@ class SshConnectionManagerInjectionTest {
 
     @Test(timeout = 60000L)
     fun testInjectPublicKey_ValidKey_AttemptConnect() = runBlocking {
-        val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
-
-        val passwordProfile = ConnectionProfile(
-            id = "test_pass",
-            nickname = "test_pass",
-            host = "127.0.0.1",
-            port = testPort,
-            username = "user",
-            authType = AuthType.PASSWORD,
-            password = "password".toByteArray(),
-        )
-
-        // Generate a new key
-        val keyPair = SSHKeyGenerator.generateRSAKeyPair()
-        val publicKeyString = SSHKeyGenerator.encodePublicKey(keyPair)
-
-        // 1. Inject the key using password authentication
-        val injectResult = manager.injectPublicKey(passwordProfile, publicKeyString)
-        assertTrue("Should successfully inject the public key", injectResult)
-
-        // 2. Re-authenticate using the newly injected key
-        val keyProfile = ConnectionProfile(
-            id = "test_key",
-            nickname = "test_key",
-            host = "127.0.0.1",
-            port = testPort,
-            username = "user",
-            authType = AuthType.KEY,
-        )
-
-        // This will connect and execute a command using public key authentication.
-        // If it throws an exception, the test will fail, proving the key wasn't accepted.
-        try {
-            manager.connectAndExecute(keyProfile, "echo test", keyPair)
-            // If we reach here, authentication succeeded!
-            assertTrue(true)
-        } catch (e: Exception) {
-            assertFalse("Authentication with injected key failed: ${e.message}", true)
+        kotlinx.coroutines.withTimeout(30_000L) {
+            val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
+    
+            val passwordProfile = ConnectionProfile(
+                id = "test_pass",
+                nickname = "test_pass",
+                host = "127.0.0.1",
+                port = testPort,
+                username = "user",
+                authType = AuthType.PASSWORD,
+                password = "password".toByteArray(),
+            )
+    
+            // Generate a new key
+            val keyPair = SSHKeyGenerator.generateRSAKeyPair()
+            val publicKeyString = SSHKeyGenerator.encodePublicKey(keyPair)
+    
+            // 1. Inject the key using password authentication
+            val injectResult = manager.injectPublicKey(passwordProfile, publicKeyString)
+            assertTrue("Should successfully inject the public key", injectResult)
+    
+            // 2. Re-authenticate using the newly injected key
+            val keyProfile = ConnectionProfile(
+                id = "test_key",
+                nickname = "test_key",
+                host = "127.0.0.1",
+                port = testPort,
+                username = "user",
+                authType = AuthType.KEY,
+            )
+    
+            // This will connect and execute a command using public key authentication.
+            // If it throws an exception, the test will fail, proving the key wasn't accepted.
+            try {
+                manager.connectAndExecute(keyProfile, "echo test", keyPair)
+                // If we reach here, authentication succeeded!
+                assertTrue(true)
+            } catch (e: Exception) {
+                assertFalse("Authentication with injected key failed: ${e.message}", true)
+            }
         }
     }
 }

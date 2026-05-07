@@ -14,6 +14,7 @@ object PasswordCipher {
 
     private var fallbackKey: SecretKey? = null
 
+    @Suppress("DEPRECATION")
     private fun getOrGenerateKey(): SecretKey {
         return try {
             val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
@@ -37,7 +38,7 @@ object PasswordCipher {
         } catch (e: Exception) {
             val isRobolectric = System.getProperty("robolectric.logging") != null || android.os.Build.FINGERPRINT.contains("robolectric")
             if (isRobolectric) {
-                android.util.Log.w("PasswordCipher", "AndroidKeyStore unavailable, falling back to standard AES for Robolectric testing only.", e)
+                println(("PasswordCipher").toString() + ": " + ("AndroidKeyStore unavailable, falling back to standard AES for Robolectric testing only.").toString() + " " + (e).toString())
                 if (fallbackKey == null) {
                     val keyGenerator = KeyGenerator.getInstance("AES")
                     keyGenerator.init(256)

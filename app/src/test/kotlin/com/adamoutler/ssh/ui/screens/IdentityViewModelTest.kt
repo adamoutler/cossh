@@ -57,7 +57,7 @@ class IdentityViewModelTest {
     @Test
     fun testGenerateEd25519KeyPair() = kotlinx.coroutines.runBlocking {
         viewModel.generateEd25519KeyPair()
-        
+
         var state = viewModel.uiState.value
         var attempts = 0
         while (state.publicKey.isEmpty() && attempts < 50) {
@@ -65,7 +65,7 @@ class IdentityViewModelTest {
             state = viewModel.uiState.value
             attempts++
         }
-        
+
         val privKey = state.privateKey
         assertTrue("Public key should not be empty", state.publicKey.isNotEmpty())
         assertTrue("Private key should not be empty", privKey != null && privKey.isNotEmpty())
@@ -76,7 +76,7 @@ class IdentityViewModelTest {
     @Test
     fun testGenerateRSAKeyPair() = kotlinx.coroutines.runBlocking {
         viewModel.generateRSAKeyPair()
-        
+
         var state = viewModel.uiState.value
         var attempts = 0
         while (state.publicKey.isEmpty() && attempts < 150) {
@@ -84,7 +84,7 @@ class IdentityViewModelTest {
             state = viewModel.uiState.value
             attempts++
         }
-        
+
         val privKey = state.privateKey
         assertTrue("Public key should not be empty", state.publicKey.isNotEmpty())
         assertTrue("Private key should not be empty", privKey != null && privKey.isNotEmpty())

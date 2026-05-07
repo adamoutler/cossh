@@ -42,7 +42,7 @@ class TelnetConnectionHandler : ConnectionProtocol {
                         tc.outputStream.write(bytes)
                         tc.outputStream.flush()
                     } catch (e: Exception) {
-                        android.util.Log.e("TelnetConnectionHandler", "Error writing to telnet stream", e)
+                        println(("TelnetConnectionHandler").toString() + ": " + ("Error writing to telnet stream").toString() + " " + (e).toString())
                         break
                     }
                 }
@@ -68,7 +68,7 @@ class TelnetConnectionHandler : ConnectionProtocol {
                         writeChannel.trySend(byteArrayOf(byteVal))
                     }
                     if (result?.isFailure == true) {
-                        android.util.Log.e("TelnetConnectionHandler", "Failed to send to writeChannel")
+                        println(("TelnetConnectionHandler").toString() + ": " + ("Failed to send to writeChannel").toString())
                     }
                 }
                 override fun write(b: Int) {
@@ -117,7 +117,7 @@ class TelnetConnectionHandler : ConnectionProtocol {
             try {
                 tc.disconnect()
             } catch (e: Exception) {
-                android.util.Log.e("TelnetConnectionHandler", "Error during telnet disconnect", e)
+                println(("TelnetConnectionHandler").toString() + ": " + ("Error during telnet disconnect").toString() + " " + (e).toString())
             }
         }
     }
@@ -126,7 +126,7 @@ class TelnetConnectionHandler : ConnectionProtocol {
         try {
             telnetClient?.disconnect()
         } catch (e: Exception) {
-            android.util.Log.e("TelnetConnectionHandler", "Error during manual telnet disconnect", e)
+            println(("TelnetConnectionHandler").toString() + ": " + ("Error during manual telnet disconnect").toString() + " " + (e).toString())
         }
     }
 }

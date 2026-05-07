@@ -54,7 +54,7 @@ fun GroupedConnectionList(
                     is ConnectionListItem.Header -> "header_${item.folderId ?: "default"}"
                     is ConnectionListItem.Profile -> item.profile.id
                 }
-            }
+            },
         ) { index ->
             when (val item = flatItems[index]) {
                 is ConnectionListItem.Header -> {
@@ -71,6 +71,7 @@ fun GroupedConnectionList(
                         )
                     }
                 }
+
                 is ConnectionListItem.Profile -> {
                     val profile = item.profile
                     val activeCount = activeConnectionCounts[profile.id] ?: 0

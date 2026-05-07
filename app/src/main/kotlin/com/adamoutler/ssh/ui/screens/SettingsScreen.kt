@@ -15,11 +15,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.adamoutler.ssh.billing.BillingManager
-import com.adamoutler.ssh.sync.DriveSyncManager
-
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.adamoutler.ssh.billing.BillingManager
+import com.adamoutler.ssh.sync.DriveSyncManager
 
 @Composable
 fun SettingsScreen(
@@ -29,19 +28,19 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
-    
+
     val factory = remember {
         viewModelFactory {
             initializer {
                 SettingsViewModel(
                     context.applicationContext as Application,
                     billingManager,
-                    driveSyncManager
+                    driveSyncManager,
                 )
             }
         }
     }
-    
+
     val viewModel: SettingsViewModel = viewModel(factory = factory)
     val uiState by viewModel.uiState.collectAsState()
 
@@ -51,7 +50,7 @@ fun SettingsScreen(
             passphrase = passphrase,
             onPassphraseChange = { passphrase = it },
             onDismiss = { viewModel.dismissPassphraseDialog() },
-            onConfirm = { activity?.let { viewModel.savePassphraseAndSync(passphrase, it) } }
+            onConfirm = { activity?.let { viewModel.savePassphraseAndSync(passphrase, it) } },
         )
     }
 

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.BeforeClass
@@ -16,10 +17,10 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLog
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.lang.reflect.InvocationTargetException
-import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLConnection
@@ -28,7 +29,6 @@ import java.net.URLStreamHandlerFactory
 import javax.crypto.AEADBadTagException
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 object MockURLStreamHandlerFactory : URLStreamHandlerFactory {
     var overrideResponseCode: Int? = null
@@ -165,7 +165,7 @@ class DriveSyncManagerTest {
     @Test
     fun testSetOAuthToken() {
         manager.setOAuthToken("test_token")
-        
+
         val field = DriveSyncManager::class.java.getDeclaredField("oauthToken")
         field.isAccessible = true
         assertEquals("test_token", field.get(manager))
@@ -175,7 +175,7 @@ class DriveSyncManagerTest {
     fun testUploadBackupUnauthenticated() {
         val payload = "payload".toByteArray()
         val pass = "pass".toCharArray()
-        
+
         try {
             runBlocking {
                 manager.uploadBackup(payload, pass)
@@ -189,7 +189,7 @@ class DriveSyncManagerTest {
     @Test
     fun testDownloadBackupUnauthenticated() {
         val pass = "pass".toCharArray()
-        
+
         val result = runBlocking {
             manager.downloadBackup(pass)
         }
@@ -200,10 +200,10 @@ class DriveSyncManagerTest {
     fun testReadFully() {
         val data = "Hello World".toByteArray()
         val inputStream = ByteArrayInputStream(data)
-        
+
         val readFullyMethod = DriveSyncManager::class.java.getDeclaredMethod("readFully", java.io.InputStream::class.java)
         readFullyMethod.isAccessible = true
-        
+
         val result = readFullyMethod.invoke(manager, inputStream) as ByteArray
         assertArrayEquals(data, result)
     }
@@ -213,23 +213,23 @@ class DriveSyncManagerTest {
         manager.setOAuthToken("dummy_token")
         val payload = "payload".toByteArray()
         val pass = "pass".toCharArray()
-        
+
         runBlocking {
             // Because URLFactory intercepts and returns 200, this should succeed without throwing
             manager.uploadBackup(payload, pass)
         }
-        
+
         // Assert token is nullified after upload
         val field = DriveSyncManager::class.java.getDeclaredField("oauthToken")
         field.isAccessible = true
         assertNull(field.get(manager))
     }
-    
+
     @Test
     fun testDownloadBackupSuccess() {
         manager.setOAuthToken("dummy_token")
         val pass = "pass".toCharArray()
-        
+
         val result = runBlocking {
             manager.downloadBackup(pass)
         }
@@ -242,7 +242,7 @@ class DriveSyncManagerTest {
         manager.setOAuthToken("dummy_token")
         val updateMethod = DriveSyncManager::class.java.getDeclaredMethod("updateFileMetadata", String::class.java)
         updateMethod.isAccessible = true
-        
+
         // URL interceptor returns 200, so it shouldn't throw exception
         updateMethod.invoke(manager, "dummy_id")
     }
@@ -252,7 +252,7 @@ class DriveSyncManagerTest {
         manager.setOAuthToken("dummy_token")
         val findMethod = DriveSyncManager::class.java.getDeclaredMethod("findBackupFileId")
         findMethod.isAccessible = true
-        
+
         val result = findMethod.invoke(manager)
         assertEquals("existing_file_id", result)
     }
@@ -261,7 +261,7 @@ class DriveSyncManagerTest {
     fun testAuthenticate_GetCredentialException() {
         val mockCredentialManager = java.lang.reflect.Proxy.newProxyInstance(
             DriveSyncManagerTest::class.java.classLoader,
-            arrayOf(androidx.credentials.CredentialManager::class.java)
+            arrayOf(androidx.credentials.CredentialManager::class.java),
         ) { _, method, args ->
             if (method.name == "getCredential") {
                 val continuation = args.last() as kotlin.coroutines.Continuation<Any>
@@ -273,12 +273,12 @@ class DriveSyncManagerTest {
         val field = DriveSyncManager::class.java.getDeclaredField("credentialManager")
         field.isAccessible = true
         field.set(manager, mockCredentialManager)
-        
+
         val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
         runBlocking {
             manager.authenticate(activity)
         }
-        
+
         val tokenField = DriveSyncManager::class.java.getDeclaredField("oauthToken")
         tokenField.isAccessible = true
         assertNull(tokenField.get(manager))
@@ -288,7 +288,7 @@ class DriveSyncManagerTest {
     fun testAuthenticate_UnexpectedCredentialType() {
         val mockCredentialManager = java.lang.reflect.Proxy.newProxyInstance(
             DriveSyncManagerTest::class.java.classLoader,
-            arrayOf(androidx.credentials.CredentialManager::class.java)
+            arrayOf(androidx.credentials.CredentialManager::class.java),
         ) { _, method, args ->
             if (method.name == "getCredential") {
                 val continuation = args.last() as kotlin.coroutines.Continuation<Any>
@@ -301,7 +301,7 @@ class DriveSyncManagerTest {
         val field = DriveSyncManager::class.java.getDeclaredField("credentialManager")
         field.isAccessible = true
         field.set(manager, mockCredentialManager)
-        
+
         val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
         runBlocking {
             manager.authenticate(activity)
@@ -312,7 +312,7 @@ class DriveSyncManagerTest {
     fun testAuthenticate_InvalidGoogleIdToken() {
         val mockCredentialManager = java.lang.reflect.Proxy.newProxyInstance(
             DriveSyncManagerTest::class.java.classLoader,
-            arrayOf(androidx.credentials.CredentialManager::class.java)
+            arrayOf(androidx.credentials.CredentialManager::class.java),
         ) { _, method, args ->
             if (method.name == "getCredential") {
                 val continuation = args.last() as kotlin.coroutines.Continuation<Any>
@@ -325,7 +325,7 @@ class DriveSyncManagerTest {
         val field = DriveSyncManager::class.java.getDeclaredField("credentialManager")
         field.isAccessible = true
         field.set(manager, mockCredentialManager)
-        
+
         val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
         runBlocking {
             manager.authenticate(activity)
@@ -405,7 +405,7 @@ class DriveSyncManagerTest {
         manager.setOAuthToken("dummy_token")
         val updateMethod = DriveSyncManager::class.java.getDeclaredMethod("updateFileMetadata", String::class.java)
         updateMethod.isAccessible = true
-        
+
         MockURLStreamHandlerFactory.overrideResponseCode = 403
         try {
             updateMethod.invoke(manager, "dummy_id")
@@ -422,7 +422,7 @@ class DriveSyncManagerTest {
         manager.setOAuthToken("dummy_token")
         val findMethod = DriveSyncManager::class.java.getDeclaredMethod("findBackupFileId")
         findMethod.isAccessible = true
-        
+
         MockURLStreamHandlerFactory.overrideResponseCode = 404
         try {
             val result = findMethod.invoke(manager)
@@ -436,7 +436,7 @@ class DriveSyncManagerTest {
     fun testDownloadBackupFailure() {
         manager.setOAuthToken("dummy_token")
         val pass = "pass".toCharArray()
-        
+
         MockURLStreamHandlerFactory.overrideResponseCode = 500
         try {
             val result = runBlocking { manager.downloadBackup(pass) }
@@ -469,7 +469,7 @@ class DriveSyncManagerTest {
         } finally {
             MockURLStreamHandlerFactory.mockResponseContent = null
         }
-        
+
         val tokenField = DriveSyncManager::class.java.getDeclaredField("oauthToken")
         tokenField.isAccessible = true
         assertNull(tokenField.get(manager))
@@ -480,7 +480,7 @@ class DriveSyncManagerTest {
         manager.setOAuthToken("dummy_token")
         val findMethod = DriveSyncManager::class.java.getDeclaredMethod("findBackupFileId")
         findMethod.isAccessible = true
-        
+
         MockURLStreamHandlerFactory.mockResponseContent = """{"files":[]}"""
         try {
             val result = findMethod.invoke(manager)
@@ -495,7 +495,7 @@ class DriveSyncManagerTest {
         manager.setOAuthToken("dummy_token")
         val findMethod = DriveSyncManager::class.java.getDeclaredMethod("findBackupFileId")
         findMethod.isAccessible = true
-        
+
         MockURLStreamHandlerFactory.mockResponseContent = """{"other_key":[]}"""
         try {
             val result = findMethod.invoke(manager)
@@ -510,7 +510,7 @@ class DriveSyncManagerTest {
         manager.setOAuthToken("dummy_token")
         val updateMethod = DriveSyncManager::class.java.getDeclaredMethod("updateFileMetadata", String::class.java)
         updateMethod.isAccessible = true
-        
+
         MockURLStreamHandlerFactory.overrideResponseCode = 500
         try {
             updateMethod.invoke(manager, "dummy_id")
@@ -526,13 +526,13 @@ class DriveSyncManagerTest {
     fun testAuthenticate_SIWGCredential() {
         val mockCredentialManager = java.lang.reflect.Proxy.newProxyInstance(
             DriveSyncManagerTest::class.java.classLoader,
-            arrayOf(androidx.credentials.CredentialManager::class.java)
+            arrayOf(androidx.credentials.CredentialManager::class.java),
         ) { _, method, args ->
             if (method.name == "getCredential") {
                 val continuation = args.last() as kotlin.coroutines.Continuation<Any>
                 val customCredential = androidx.credentials.CustomCredential(
                     "com.google.android.libraries.identity.googleid.TYPE_GOOGLE_ID_TOKEN_SIWG_CREDENTIAL",
-                    android.os.Bundle()
+                    android.os.Bundle(),
                 )
                 continuation.resumeWith(Result.success(androidx.credentials.GetCredentialResponse(customCredential)))
                 return@newProxyInstance kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
@@ -542,7 +542,7 @@ class DriveSyncManagerTest {
         val field = DriveSyncManager::class.java.getDeclaredField("credentialManager")
         field.isAccessible = true
         field.set(manager, mockCredentialManager)
-        
+
         val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
         runBlocking {
             manager.authenticate(activity)

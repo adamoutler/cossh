@@ -156,7 +156,7 @@ class SshServiceForegroundTest {
         val state = ConnectionStateRepository.connectionStates.value["prof1"]
         org.junit.Assert.assertTrue("State should be Disconnecting or null", state is ConnectionState.Disconnecting || state == null)
     }
-    */
+     */
 
     /*
     @Test
@@ -164,7 +164,7 @@ class SshServiceForegroundTest {
         val app = ApplicationProvider.getApplicationContext<android.app.Application>()
         val serviceController = Robolectric.buildService(SshService::class.java)
         serviceController.create().startCommand(0, 1)
-        
+
         ConnectionStateRepository.getOrCreateSession("prof_multi", "sessA")
         ConnectionStateRepository.getOrCreateSession("prof_multi", "sessB")
 
@@ -174,7 +174,7 @@ class SshServiceForegroundTest {
         }
 
         serviceController.get().onStartCommand(intent, 0, 2)
-        
+
         val state = ConnectionStateRepository.connectionStates.value["prof_multi"]
         org.junit.Assert.assertTrue("State should be Disconnecting or null", state is ConnectionState.Disconnecting || state == null)
         serviceController.destroy()
@@ -194,7 +194,7 @@ class SshServiceForegroundTest {
         // Check if service stopped (Robolectric shadows can be checked if needed, but invoking without crash is good enough coverage)
         serviceController.destroy()
     }
-    */
+     */
 
     @Test
     fun `test mapExceptionMessage formats correctly`() {

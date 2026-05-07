@@ -14,7 +14,7 @@ class SshConnectionHandler(
     private val hostKeyVerifier: HostKeyVerifier? = null,
     private val identityStorageManager: IdentityStorageManager? = null,
     private val context: Context? = null,
-    private val portForwardingOrchestrator: PortForwardingOrchestrator
+    private val portForwardingOrchestrator: PortForwardingOrchestrator,
 ) : ConnectionProtocol {
 
     var client: SSHClient? = null
@@ -24,7 +24,7 @@ class SshConnectionHandler(
         profile: ConnectionProfile,
         keyPair: KeyPair?,
         onOutput: suspend (ByteArray, Int) -> Unit,
-        onConnect: (OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit
+        onConnect: (OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit,
     ) = withContext(Dispatchers.IO) {
         val sshClient = SSHClient(net.schmizz.sshj.AndroidConfig())
         client = sshClient
@@ -39,7 +39,7 @@ class SshConnectionHandler(
                         try {
                             session.setEnvVar(key, value)
                         } catch (e: Exception) {
-                            android.util.Log.w("SshConnectionHandler", "Failed to set env var $key", e)
+                            println(("SshConnectionHandler").toString() + ": " + ("Failed to set env var $key").toString() + " " + (e).toString())
                         }
                     }
                     session.allocatePTY("xterm-256color", 80, 24, 0, 0, emptyMap())
@@ -67,7 +67,7 @@ class SshConnectionHandler(
         try {
             client?.disconnect()
         } catch (e: Exception) {
-            android.util.Log.e("SshConnectionHandler", "Error during disconnect", e)
+            println(("SshConnectionHandler").toString() + ": " + ("Error during disconnect").toString() + " " + (e).toString())
         }
     }
 }

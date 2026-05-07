@@ -22,7 +22,7 @@ class ConnectionProfileTest {
 
         assertEquals(profile1.hashCode(), profile2.hashCode())
         assertNotEquals(profile1.hashCode(), profile3.hashCode())
-        
+
         profile1.clearSensitiveData()
         assertEquals(0.toByte(), profile1.password!![0])
     }
@@ -40,7 +40,7 @@ class IdentityProfileTest {
         val p1 = IdentityProfile("1", "test", "user", byteArrayOf(1), byteArrayOf(2), "pub", AuthType.KEY)
         val p2 = IdentityProfile("1", "test", "user", byteArrayOf(1), byteArrayOf(2), "pub", AuthType.KEY)
         val p3 = IdentityProfile("2", "test", "user", byteArrayOf(1), byteArrayOf(2), "pub", AuthType.KEY)
-        
+
         assertEquals(p1, p2)
         assertNotEquals(p1, p3)
         assertEquals(p1.hashCode(), p2.hashCode())

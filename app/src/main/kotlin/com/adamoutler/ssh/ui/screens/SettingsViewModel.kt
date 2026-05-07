@@ -22,7 +22,7 @@ data class SettingsUiState(
     val isSyncing: Boolean = false,
     val defaultGroupName: String = "Uncategorized",
     val isPassphraseSet: Boolean = false,
-    val showPassphraseDialog: Boolean = false
+    val showPassphraseDialog: Boolean = false,
 )
 
 class SettingsViewModel(
@@ -30,14 +30,14 @@ class SettingsViewModel(
     private val billingManager: BillingManager,
     private val driveSyncManager: DriveSyncManager,
     private val settingsManager: SettingsManager = SettingsManager(application),
-    private val securityStorageManager: SecurityStorageManager = SecurityStorageManager(application)
+    private val securityStorageManager: SecurityStorageManager = SecurityStorageManager(application),
 ) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(
         SettingsUiState(
             defaultGroupName = settingsManager.defaultGroupName,
-            isPassphraseSet = securityStorageManager.getSyncPassphrase() != null
-        )
+            isPassphraseSet = securityStorageManager.getSyncPassphrase() != null,
+        ),
     )
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
@@ -70,12 +70,12 @@ class SettingsViewModel(
     fun savePassphraseAndSync(passphrase: String, activity: Activity) {
         securityStorageManager.saveSyncPassphrase(passphrase.toCharArray())
         _uiState.update { it.copy(isPassphraseSet = true, showPassphraseDialog = false, isSyncing = true) }
-        
+
         viewModelScope.launch {
             try {
                 driveSyncManager.authenticate(activity)
                 WorkManager.getInstance(getApplication()).enqueue(
-                    OneTimeWorkRequestBuilder<SyncWorker>().build()
+                    OneTimeWorkRequestBuilder<SyncWorker>().build(),
                 )
             } finally {
                 _uiState.update { it.copy(isSyncing = false) }
@@ -94,7 +94,7 @@ class SettingsViewModel(
             try {
                 driveSyncManager.authenticate(activity)
                 WorkManager.getInstance(getApplication()).enqueue(
-                    OneTimeWorkRequestBuilder<SyncWorker>().build()
+                    OneTimeWorkRequestBuilder<SyncWorker>().build(),
                 )
             } finally {
                 _uiState.update { it.copy(isSyncing = false) }

@@ -76,8 +76,8 @@ class BillingManagerTest {
             .build()
 
         billingManager.onPurchasesUpdated(billingResult, mutableListOf(purchase))
-        
-        // Should trigger acknowledgePurchase. Without a mock billing client, 
+
+        // Should trigger acknowledgePurchase. Without a mock billing client,
         // it may just log or fail to acknowledge. We test if it survives.
     }
 
@@ -100,7 +100,7 @@ class BillingManagerTest {
         val billingManager = BillingManager(context)
         val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
 
-        // Just calling it to hit the code path and ensure it doesn't crash 
+        // Just calling it to hit the code path and ensure it doesn't crash
         // before interacting with BillingClient.
         billingManager.purchaseCloudSync(activity)
     }

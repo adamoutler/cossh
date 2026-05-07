@@ -95,7 +95,7 @@ fun AddEditIdentityScreen(
         onBack = {
             viewModel.resetState()
             onBack()
-        }
+        },
     )
 }
 

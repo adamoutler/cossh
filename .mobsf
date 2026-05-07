@@ -7,6 +7,5 @@ ignore-paths:
 ignore-rules:
   - android_safetynet_api
   - android_certificate_pinning
-  - android_detect_tapjacking
   - android_certificate_transparency
-  - android_kotlin_logging
+  - android_detect_tapjacking
