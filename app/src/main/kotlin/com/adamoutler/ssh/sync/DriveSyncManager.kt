@@ -82,15 +82,8 @@ class DriveSyncManager(context: Context) {
             )
             val credential = result.credential
             if (credential is CustomCredential) {
-                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                    try {
-                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                        println(("DriveSyncManager").toString() + ": " + ("Auth successful for: ${googleIdTokenCredential.id}").toString())
-                        authorizeScope(activity)
-                    } catch (e: Exception) {
-                        println(("DriveSyncManager").toString() + ": " + ("Received an invalid google id token response").toString() + " " + (e).toString())
-                    }
-                } else if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_SIWG_CREDENTIAL) {
+                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL || 
+                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_SIWG_CREDENTIAL) {
                     try {
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                         println(("DriveSyncManager").toString() + ": " + ("Auth successful for: ${googleIdTokenCredential.id}").toString())

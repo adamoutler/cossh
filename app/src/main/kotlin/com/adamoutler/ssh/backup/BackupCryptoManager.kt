@@ -115,9 +115,9 @@ object BackupCryptoManager {
             }
         }
 
-        require(encryptedData != null && encryptedData!!.size >= SALT_LENGTH + IV_LENGTH) { "Invalid backup file" }
-
-        val data = encryptedData!!
+        require(encryptedData != null) { "Invalid backup file" }
+        val data = encryptedData ?: ByteArray(0)
+        require(data.size >= SALT_LENGTH + IV_LENGTH) { "Invalid backup file" }
         val salt = data.copyOfRange(0, SALT_LENGTH)
         val iv = data.copyOfRange(SALT_LENGTH, SALT_LENGTH + IV_LENGTH)
         val cipherText = data.copyOfRange(SALT_LENGTH + IV_LENGTH, data.size)

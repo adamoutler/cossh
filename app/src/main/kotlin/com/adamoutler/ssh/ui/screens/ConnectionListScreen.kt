@@ -28,8 +28,11 @@ import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.adamoutler.ssh.network.SshService
 import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
 
+private const val ACTION_IMPORT_BACKUP = "Import Backup"
+
 @Composable
 fun ConnectionListScreen(
+
     viewModel: ConnectionListViewModel = viewModel(),
     onAddConnection: () -> Unit,
     onEditConnection: (String) -> Unit,
@@ -167,7 +170,7 @@ fun ConnectionListScreen(
                 showImportPasswordDialog = null
                 passwordBuffer.get().fill('\u0000')
             },
-            title = { Text("Import Backup", color = MaterialTheme.colorScheme.primary) },
+            title = { Text(ACTION_IMPORT_BACKUP, color = MaterialTheme.colorScheme.primary) },
             text = {
                 Column {
                     Text(
@@ -202,7 +205,7 @@ fun ConnectionListScreen(
                         showImportPasswordDialog = null
                     },
                     enabled = hasPassword,
-                ) { Text("Import Backup") }
+                ) { Text(ACTION_IMPORT_BACKUP) }
             },
             dismissButton = {
                 TextButton(onClick = {
@@ -378,7 +381,7 @@ fun ImportBackupDialog(
             onDismiss()
             passwordBuffer.get().fill('\u0000')
         },
-        title = { Text("Import Backup", color = MaterialTheme.colorScheme.primary) },
+        title = { Text(ACTION_IMPORT_BACKUP, color = MaterialTheme.colorScheme.primary) },
         text = {
             Column {
                 Text(
@@ -404,7 +407,7 @@ fun ImportBackupDialog(
                     passwordBuffer.get().fill('\u0000')
                 },
                 enabled = hasPassword,
-            ) { Text("Import Backup") }
+            ) { Text(ACTION_IMPORT_BACKUP) }
         },
         dismissButton = {
             TextButton(onClick = {

@@ -97,11 +97,9 @@ class SecureCrashHandler(
     private fun securelyWriteCrashToDisk(trace: String) {
         // Enforce application internal storage only
         val crashDir = File(context.filesDir, CRASH_DIR_NAME)
-        if (!crashDir.exists()) {
-            if (!crashDir.mkdirs()) {
-                println(("SecureCrashHandler").toString() + ": " + ("Failed to create crash directory").toString())
-                return
-            }
+        if (!crashDir.exists() && !crashDir.mkdirs()) {
+            println(("SecureCrashHandler").toString() + ": " + ("Failed to create crash directory").toString())
+            return
         }
 
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())

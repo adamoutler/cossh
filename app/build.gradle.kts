@@ -313,6 +313,8 @@ spotless {
 }
 
 tasks.register<JacocoReport>("jacocoTestReport") {
+    group = "Reporting"
+    description = "Generate Jacoco coverage reports after running tests."
     dependsOn("testDebugUnitTest")
     reports {
         xml.required.set(true)
