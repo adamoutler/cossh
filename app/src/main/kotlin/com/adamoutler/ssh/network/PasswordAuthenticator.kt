@@ -15,9 +15,7 @@ class PasswordAuthenticator(private val identityPassword: ByteArray? = null) : S
             if (passwordBytes != null) {
                 passwordChars = CharArray(passwordBytes.size) { i -> passwordBytes[i].toInt().toChar() }
             } else {
-                if (ConnectionStateRepository.isHeadlessTest) {
-                    throw IllegalStateException("Headless test: cannot prompt for password")
-                }
+                check(!ConnectionStateRepository.isHeadlessTest) { "Headless test: cannot prompt for password" }
                 passwordChars = runBlocking {
                     kotlinx.coroutines.withTimeoutOrNull(5000L) {
                         ConnectionStateRepository.requestPasswordPrompt(profile.id)

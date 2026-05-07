@@ -18,36 +18,44 @@ class PortForwardingOrchestrator {
         profile.portForwards.forEach { config ->
             try {
                 if (config.type == PortForwardType.LOCAL) {
-                    val params = net.schmizz.sshj.connection.channel.direct.Parameters(LOCAL_HOST, config.localPort, config.remoteHost, config.remotePort)
-                    val serverSocket = ServerSocket()
-                    serverSocket.reuseAddress = true
-                    serverSocket.bind(InetSocketAddress(LOCAL_HOST, config.localPort))
-                    localServerSockets.add(serverSocket)
-                    val localPortForwarder = client.newLocalPortForwarder(params, serverSocket)
-                    thread(name = "LocalPortForwarder_${config.localPort}") {
-                        try {
-                            localPortForwarder.listen()
-                        } catch (e: Exception) {
-                            println(("PortForwardingOrchestrator").toString() + ": " + ("Local port forwarder error").toString() + " " + (e).toString())
-                        } finally {
-                            try {
-                                serverSocket.close()
-                            } catch (e: Exception) {
-                                // Ignore exception on close
-                            }
-                        }
-                    }
+                    startLocalPortForward(client, config)
                 } else if (config.type == PortForwardType.REMOTE) {
-                    val remoteForward = net.schmizz.sshj.connection.channel.forwarded.RemotePortForwarder.Forward(config.remotePort)
-                    val host = if (config.remoteHost.isEmpty()) LOCAL_HOST else config.remoteHost
-                    val localTargetAddress = InetSocketAddress(host, config.localPort)
-                    val localListener = net.schmizz.sshj.connection.channel.forwarded.SocketForwardingConnectListener(localTargetAddress)
-                    client.remotePortForwarder.bind(remoteForward, localListener)
+                    startRemotePortForward(client, config)
                 }
             } catch (e: Exception) {
                 println(("PortForwardingOrchestrator").toString() + ": " + ("Failed to setup port forward $config").toString() + " " + (e).toString())
             }
         }
+    }
+
+    private fun startLocalPortForward(client: SSHClient, config: com.adamoutler.ssh.data.PortForwardConfig) {
+        val params = net.schmizz.sshj.connection.channel.direct.Parameters(LOCAL_HOST, config.localPort, config.remoteHost, config.remotePort)
+        val serverSocket = ServerSocket()
+        serverSocket.reuseAddress = true
+        serverSocket.bind(InetSocketAddress(LOCAL_HOST, config.localPort))
+        localServerSockets.add(serverSocket)
+        val localPortForwarder = client.newLocalPortForwarder(params, serverSocket)
+        thread(name = "LocalPortForwarder_${config.localPort}") {
+            try {
+                localPortForwarder.listen()
+            } catch (e: Exception) {
+                println(("PortForwardingOrchestrator").toString() + ": " + ("Local port forwarder error").toString() + " " + (e).toString())
+            } finally {
+                try {
+                    serverSocket.close()
+                } catch (e: Exception) {
+                    // Ignore exception on close
+                }
+            }
+        }
+    }
+
+    private fun startRemotePortForward(client: SSHClient, config: com.adamoutler.ssh.data.PortForwardConfig) {
+        val remoteForward = net.schmizz.sshj.connection.channel.forwarded.RemotePortForwarder.Forward(config.remotePort)
+        val host = if (config.remoteHost.isEmpty()) LOCAL_HOST else config.remoteHost
+        val localTargetAddress = InetSocketAddress(host, config.localPort)
+        val localListener = net.schmizz.sshj.connection.channel.forwarded.SocketForwardingConnectListener(localTargetAddress)
+        client.remotePortForwarder.bind(remoteForward, localListener)
     }
 
     fun stopAll() {
