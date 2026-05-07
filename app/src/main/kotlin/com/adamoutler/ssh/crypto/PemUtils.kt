@@ -119,7 +119,7 @@ object PemUtils {
                                     pubKey = converter.getPublicKey(pubInfo)
                                 }
                             } catch (e: Exception) {
-                                android.util.Log.e("PemUtils", "Failed to extract public key from OpenSSH blob", e)
+                                println(("PemUtils").toString() + ": " + ("Failed to extract public key from OpenSSH blob").toString() + " " + (e).toString())
                             }
                         }
                         KeyPair(pubKey, privKey)
@@ -153,7 +153,7 @@ object PemUtils {
                             val pubInfo = SubjectPublicKeyInfoFactory.createSubjectPublicKeyInfo(pubParams)
                             pubKey = converter.getPublicKey(pubInfo)
                         } catch (e: Exception) {
-                            android.util.Log.e("PemUtils", "Failed to extract public key from RSA private key", e)
+                            println(("PemUtils").toString() + ": " + ("Failed to extract public key from RSA private key").toString() + " " + (e).toString())
                         }
                     }
                     KeyPair(pubKey, privKey)
@@ -185,7 +185,7 @@ object PemUtils {
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.e("PemUtils", "Failed to parse PEM string", e)
+            println(("PemUtils").toString() + ": " + ("Failed to parse PEM string").toString() + " " + (e).toString())
             throw RuntimeException("PemUtils failure", e)
         } finally {
             rawKeyBlob.fill(0)

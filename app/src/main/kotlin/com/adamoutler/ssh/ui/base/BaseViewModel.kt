@@ -1,6 +1,5 @@
 package com.adamoutler.ssh.ui.base
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.adamoutler.ssh.ui.events.UiEvent
@@ -14,7 +13,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 abstract class BaseViewModel : ViewModel() {
 
     protected val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-        Log.e("BaseViewModel", "Unhandled Coroutine Exception", exception)
+        println(("BaseViewModel").toString() + ": " + ("Unhandled Coroutine Exception").toString() + " " + (exception).toString())
         val errorMessage = exception.message ?: "An unknown error occurred"
         UiEventBus.publish(UiEvent.ShowSnackbar(errorMessage))
     }

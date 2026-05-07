@@ -2,7 +2,6 @@ package com.adamoutler.ssh.ui.screens
 
 import android.app.Application
 import android.net.Uri
-import android.util.Log
 import com.adamoutler.ssh.backup.BackupManager
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.ConnectionProfile
@@ -53,7 +52,7 @@ class ConnectionListViewModel(
                 val identityStorage = com.adamoutler.ssh.crypto.IdentityStorageManager(getApplication())
                 val generatedKey = com.adamoutler.ssh.crypto.SSHKeyGenerator.generateRSAKeyPair()
                 val dynamicUser = "dev_" + System.currentTimeMillis()
-                
+
                 val mockIdentity = com.adamoutler.ssh.data.IdentityProfile(
                     id = "mock_identity",
                     name = "Mock Server Key",
@@ -150,6 +149,7 @@ class ConnectionListViewModel(
                 is ConnectionListItem.Header -> {
                     currentFolderId = flatItem.folderId
                 }
+
                 is ConnectionListItem.Profile -> {
                     val profile = flatItem.profile
                     if (profile.folderId != currentFolderId || profile.sortOrder != sortIndex) {
@@ -175,7 +175,7 @@ class ConnectionListViewModel(
                 }
                 onComplete(true)
             } catch (e: Exception) {
-                Log.e("ConnectionListViewModel", "Export failed", e)
+                println(("ConnectionListViewModel").toString() + ": " + ("Export failed").toString() + " " + (e).toString())
                 onComplete(false)
             }
         }
@@ -190,7 +190,7 @@ class ConnectionListViewModel(
                 loadProfiles()
                 onComplete(true)
             } catch (e: Exception) {
-                Log.e("ConnectionListViewModel", "Import failed", e)
+                println(("ConnectionListViewModel").toString() + ": " + ("Import failed").toString() + " " + (e).toString())
                 onComplete(false)
             }
         }

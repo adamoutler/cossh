@@ -33,18 +33,18 @@ class TerminalScreenContentScreenshotTest {
     @Before
     fun setup() {
         ConnectionStateRepository.clearSession(mockSessionId)
-        
+
         // NOTE: PIPELINE DOCUMENTATION
-        // Do NOT simplify or remove this setup! Paparazzi tests run in a standard JVM environment 
-        // without real Android native libraries (JNI) loaded. The actual TerminalView relies heavily 
+        // Do NOT simplify or remove this setup! Paparazzi tests run in a standard JVM environment
+        // without real Android native libraries (JNI) loaded. The actual TerminalView relies heavily
         // on native code for PTY processing and terminal emulation which would crash the JVM test runner.
-        // 
-        // We set `isHeadlessTest = true` to bypass the instantiation of the real AndroidView/TerminalView. 
+        //
+        // We set `isHeadlessTest = true` to bypass the instantiation of the real AndroidView/TerminalView.
         // Instead, the UI renders a fallback Composable displaying the contents of `mockTestTranscripts`.
         // This allows us to snapshot the surrounding Compose UI (dialogs, overlays, etc) safely.
         ConnectionStateRepository.isHeadlessTest = true
         ConnectionStateRepository.mockTestTranscripts[mockSessionId] = "user@localhost:~$ "
-        
+
         mockSession = TerminalSession(
             "/system/bin/sh",
             "/",
@@ -89,7 +89,7 @@ class TerminalScreenContentScreenshotTest {
                         onUpdateFontSize = {},
                         onNavigateBack = {},
                         onClearError = {},
-                        profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH)
+                        profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH),
                     )
                 }
             }
@@ -112,7 +112,7 @@ class TerminalScreenContentScreenshotTest {
                         onUpdateFontSize = {},
                         onNavigateBack = {},
                         onClearError = {},
-                        profile = ConnectionProfile(id = "2", nickname = "Insecure Router", host = "192.168.1.1", protocol = Protocol.TELNET)
+                        profile = ConnectionProfile(id = "2", nickname = "Insecure Router", host = "192.168.1.1", protocol = Protocol.TELNET),
                     )
                 }
             }
@@ -136,7 +136,7 @@ class TerminalScreenContentScreenshotTest {
                         onNavigateBack = {},
                         onClearError = {},
                         profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH),
-                        initialTerminalInputState = 2
+                        initialTerminalInputState = 2,
                     )
                 }
             }
@@ -159,7 +159,7 @@ class TerminalScreenContentScreenshotTest {
                         onUpdateFontSize = {},
                         onNavigateBack = {},
                         onClearError = {},
-                        profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH)
+                        profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH),
                     )
                 }
             }

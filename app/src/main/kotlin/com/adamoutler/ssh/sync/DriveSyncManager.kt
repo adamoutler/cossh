@@ -2,7 +2,6 @@ package com.adamoutler.ssh.sync
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -50,10 +49,10 @@ class DriveSyncManager(context: Context) {
                     try {
                         val authResult = Identity.getAuthorizationClient(currentInstance?.appContext!!).getAuthorizationResultFromIntent(data)
                         currentInstance?.oauthToken = authResult.accessToken
-                        Log.d("DriveSyncManager", "OAuth Token received securely from intent")
+                        println(("DriveSyncManager").toString() + ": " + ("OAuth Token received securely from intent").toString())
                         authorizationContinuation?.resume(Unit)
                     } catch (e: Exception) {
-                        Log.e("DriveSyncManager", "Failed to get auth result from intent", e)
+                        println(("DriveSyncManager").toString() + ": " + ("Failed to get auth result from intent").toString() + " " + (e).toString())
                         authorizationContinuation?.resumeWithException(e)
                     }
                 } else {
@@ -86,28 +85,28 @@ class DriveSyncManager(context: Context) {
                 if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     try {
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                        Log.d("DriveSyncManager", "Auth successful for: ${googleIdTokenCredential.id}")
+                        println(("DriveSyncManager").toString() + ": " + ("Auth successful for: ${googleIdTokenCredential.id}").toString())
                         authorizeScope(activity)
                     } catch (e: Exception) {
-                        Log.e("DriveSyncManager", "Received an invalid google id token response", e)
+                        println(("DriveSyncManager").toString() + ": " + ("Received an invalid google id token response").toString() + " " + (e).toString())
                     }
                 } else if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_SIWG_CREDENTIAL) {
                     try {
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                        Log.d("DriveSyncManager", "Auth successful for: ${googleIdTokenCredential.id}")
+                        println(("DriveSyncManager").toString() + ": " + ("Auth successful for: ${googleIdTokenCredential.id}").toString())
                         authorizeScope(activity)
                     } catch (e: Exception) {
-                        Log.e("DriveSyncManager", "Received an invalid google id token response", e)
+                        println(("DriveSyncManager").toString() + ": " + ("Received an invalid google id token response").toString() + " " + (e).toString())
                     }
                 } else {
-                    Log.e("DriveSyncManager", "Unexpected type of credential")
+                    println(("DriveSyncManager").toString() + ": " + ("Unexpected type of credential").toString())
                 }
             } else {
-                Log.e("DriveSyncManager", "Unexpected type of credential")
+                println(("DriveSyncManager").toString() + ": " + ("Unexpected type of credential").toString())
             }
         } catch (e: GetCredentialException) {
             oauthToken = null
-            Log.e("DriveSyncManager", "Auth failed", e)
+            println(("DriveSyncManager").toString() + ": " + ("Auth failed").toString() + " " + (e).toString())
         }
     }
 
@@ -141,13 +140,13 @@ class DriveSyncManager(context: Context) {
                     }
                 } else {
                     oauthToken = authorizationResult.accessToken
-                    Log.d("DriveSyncManager", "OAuth Token received securely")
+                    println(("DriveSyncManager").toString() + ": " + ("OAuth Token received securely").toString())
                     continuation.resume(Unit)
                 }
             }
             .addOnFailureListener { e ->
                 oauthToken = null
-                Log.e("DriveSyncManager", "Scope authorization failed", e)
+                println(("DriveSyncManager").toString() + ": " + ("Scope authorization failed").toString() + " " + (e).toString())
                 continuation.resumeWithException(e)
             }
     }
@@ -189,7 +188,7 @@ class DriveSyncManager(context: Context) {
                     val error = connection.errorStream?.bufferedReader()?.readText()
                     throw IOException("Failed to upload: $responseCode $error")
                 } else {
-                    Log.d("DriveSyncManager", "Backup uploaded successfully: HTTP 200")
+                    println(("DriveSyncManager").toString() + ": " + ("Backup uploaded successfully: HTTP 200").toString())
                 }
 
                 if (fileId == null) {
@@ -260,13 +259,13 @@ class DriveSyncManager(context: Context) {
                 if (connection.responseCode in 200..299) {
                     val encryptedPayload = readFully(connection.inputStream)
                     val result = decrypt(encryptedPayload, pass)
-                    Log.d("DriveSyncManager", "Backup downloaded successfully: HTTP 200")
+                    println(("DriveSyncManager").toString() + ": " + ("Backup downloaded successfully: HTTP 200").toString())
                     return@withContext result
                 } else {
                     throw IOException("Failed to download: ${connection.responseCode}")
                 }
             } catch (e: Exception) {
-                Log.e("DriveSyncManager", "Download failed", e)
+                println(("DriveSyncManager").toString() + ": " + ("Download failed").toString() + " " + (e).toString())
                 null
             } finally {
                 oauthToken = null

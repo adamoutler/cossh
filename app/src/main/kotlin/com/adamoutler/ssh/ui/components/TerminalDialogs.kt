@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 @Composable
 fun ConnectionFailedDialog(
     errorMessage: String,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -16,7 +16,7 @@ fun ConnectionFailedDialog(
         text = { Text("Error: $errorMessage") },
         confirmButton = {
             TextButton(onClick = onDismiss) { Text("OK") }
-        }
+        },
     )
 }
 
@@ -24,7 +24,7 @@ fun ConnectionFailedDialog(
 fun KeepAliveDialog(
     onDismiss: () -> Unit,
     onKeepAlive: () -> Unit,
-    onTerminate: () -> Unit
+    onTerminate: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -35,14 +35,14 @@ fun KeepAliveDialog(
         },
         dismissButton = {
             TextButton(onClick = onTerminate) { Text("Terminate") }
-        }
+        },
     )
 }
 
 @Composable
 fun TerminateConfirmDialog(
     onDismiss: () -> Unit,
-    onTerminate: () -> Unit
+    onTerminate: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -53,13 +53,13 @@ fun TerminateConfirmDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }
-        }
+        },
     )
 }
 
 @Composable
 fun SessionDisconnectedDialog(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -67,6 +67,6 @@ fun SessionDisconnectedDialog(
         text = { Text("The SSH session has ended or the connection was lost.") },
         confirmButton = {
             TextButton(onClick = onDismiss) { Text("OK") }
-        }
+        },
     )
 }

@@ -14,14 +14,14 @@ class PasswordCipherTest {
     @Test
     fun `test encrypt and decrypt roundtrip`() {
         val originalText = "TopSecretPassword!123".toByteArray(Charsets.UTF_8)
-        
+
         val encrypted = PasswordCipher.encrypt(originalText)
-        
+
         // Ensure it's actually encrypted
         assertFalse(encrypted.contentEquals(originalText))
-        
+
         val decrypted = PasswordCipher.decrypt(encrypted)
-        
+
         assertArrayEquals(originalText, decrypted)
     }
 

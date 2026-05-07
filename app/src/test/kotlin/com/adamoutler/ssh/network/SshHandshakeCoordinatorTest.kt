@@ -39,11 +39,11 @@ class SshHandshakeCoordinatorTest {
         context = ApplicationProvider.getApplicationContext()
         val prefs = context.getSharedPreferences("test_identities", Context.MODE_PRIVATE)
         identityStorageManager = IdentityStorageManager(context, prefs)
-        
+
         coordinator = SshHandshakeCoordinator(
             hostKeyVerifier = dummyVerifier,
             identityStorageManager = identityStorageManager,
-            context = context
+            context = context,
         )
     }
 
@@ -59,7 +59,7 @@ class SshHandshakeCoordinatorTest {
         val localCoordinator = SshHandshakeCoordinator(
             hostKeyVerifier = null,
             identityStorageManager = null,
-            context = context
+            context = context,
         )
         val client = SSHClient()
         localCoordinator.configureHostKeyVerifier(client)
@@ -70,7 +70,7 @@ class SshHandshakeCoordinatorTest {
     fun `configureHostKeyVerifier throws if no verifier and no context`() {
         val localCoordinator = SshHandshakeCoordinator(null, null, null)
         val client = SSHClient()
-        
+
         assertThrows(java.io.IOException::class.java) {
             localCoordinator.configureHostKeyVerifier(client)
         }
@@ -88,7 +88,7 @@ class SshHandshakeCoordinatorTest {
         val profile = ConnectionProfile(id = "p1", nickname = "n1", host = "h1", authType = AuthType.PASSWORD, identityId = "id1")
         val identity = IdentityProfile("id1", "MyId", "user", "pass".toByteArray())
         identityStorageManager.saveIdentity(identity)
-        
+
         val result = coordinator.resolveIdentity(profile)
         assertNotNull(result)
         assertEquals("MyId", result?.name)
@@ -113,16 +113,16 @@ class SshHandshakeCoordinatorTest {
     fun `getAuthenticator returns CompositeAuthenticator for identity with password`() {
         val profile = ConnectionProfile(id = "p1", nickname = "n1", host = "h1", authType = AuthType.KEY)
         val identity = IdentityProfile("id1", "MyId", "user", "pass".toByteArray())
-        
+
         val authenticator = coordinator.getAuthenticator(profile, null, identity)
         assertEquals("CompositeAuthenticator", authenticator.javaClass.simpleName)
     }
-    
+
     @Test
     fun `getAuthenticator throws if identity has no password and no key`() {
         val profile = ConnectionProfile(id = "p1", nickname = "n1", host = "h1", authType = AuthType.KEY)
         val identity = IdentityProfile("id1", "MyId", "user")
-        
+
         assertThrows(IllegalArgumentException::class.java) {
             coordinator.getAuthenticator(profile, null, identity)
         }
@@ -132,7 +132,7 @@ class SshHandshakeCoordinatorTest {
     fun `executeWithConnection handles identity resolution and connects`() {
         val client = SSHClient()
         val profile = ConnectionProfile(id = "p1", nickname = "n1", host = "localhost", port = 22, authType = AuthType.PASSWORD, username = "test", password = "pwd".toByteArray())
-        
+
         // It will fail because localhost:22 is unlikely to have an SSH server running in the Robolectric env
         // but we just want to execute it to cover the lines up to client.connect()
         try {
@@ -143,14 +143,14 @@ class SshHandshakeCoordinatorTest {
             // Expected ConnectionException
         }
     }
-    
+
     @Test
     fun `executeWithConnection with identity injects credentials`() {
         val client = SSHClient()
         val profile = ConnectionProfile(id = "p1", nickname = "n1", host = "localhost", port = 22, authType = AuthType.PASSWORD, identityId = "id2")
         val identity = IdentityProfile("id2", "MyId", "testuser", "testpass".toByteArray())
         identityStorageManager.saveIdentity(identity)
-        
+
         try {
             coordinator.executeWithConnection(client, profile, null) {
                 it.host
@@ -159,7 +159,7 @@ class SshHandshakeCoordinatorTest {
             // Expected ConnectionException
         }
     }
-    
+
     @Test
     fun `loadKeyPairFromIdentity with malformed key throws but gracefully recovers`() {
         val identity = IdentityProfile("id3", "BadKey", "user", null, "bad key data".toByteArray(), "ssh-rsa AAAAB3Nza...")
@@ -167,7 +167,7 @@ class SshHandshakeCoordinatorTest {
             coordinator.loadKeyPairFromIdentity(identity)
         }
     }
-    
+
     @Test
     fun `loadKeyPairFromIdentity without private key throws`() {
         val identity = IdentityProfile("id4", "NoKey", "user", "pass".toByteArray(), null, null)
@@ -182,7 +182,7 @@ class SshHandshakeCoordinatorTest {
         val validBase64 = java.util.Base64.getEncoder().encodeToString("dummy public key data that fits the format maybe?".toByteArray())
         val identity = IdentityProfile("id5", "ValidKey", "user", null, "private_key".toByteArray(), "ssh-rsa $validBase64")
         try {
-            // It will attempt to parse using PemUtils. 
+            // It will attempt to parse using PemUtils.
             // We just care that it executes the `if (parts.size >= 2)` block
             coordinator.loadKeyPairFromIdentity(identity)
         } catch (e: Exception) {
@@ -194,7 +194,7 @@ class SshHandshakeCoordinatorTest {
     fun `getAuthenticator returns CompositeAuthenticator with key and password auth`() {
         val profile = ConnectionProfile(id = "p1", nickname = "n1", host = "h1", authType = AuthType.PASSWORD)
         val identity = IdentityProfile("id6", "DualAuth", "user", "pass".toByteArray(), "private_key".toByteArray(), null)
-        
+
         val authenticator = coordinator.getAuthenticator(profile, null, identity)
         assertEquals("CompositeAuthenticator", authenticator.javaClass.simpleName)
     }
@@ -203,7 +203,7 @@ class SshHandshakeCoordinatorTest {
     fun `executeWithConnection without identity uses raw profile credentials`() {
         val client = SSHClient()
         val profile = ConnectionProfile(id = "p7", nickname = "n7", host = "localhost", port = 22, authType = AuthType.PASSWORD, username = "raw_user", password = "raw_pwd".toByteArray())
-        
+
         try {
             coordinator.executeWithConnection(client, profile, null) {
                 assertEquals("raw_user", it.username)
@@ -217,9 +217,9 @@ class SshHandshakeCoordinatorTest {
     fun `CompositeAuthenticator loops and throws UserAuthException when all fail`() {
         val profile = ConnectionProfile(id = "p1", nickname = "n1", host = "h1", authType = AuthType.PASSWORD)
         val identity = IdentityProfile("id6", "DualAuth", "user", "pass".toByteArray(), "private_key".toByteArray(), null)
-        
+
         val authenticator = coordinator.getAuthenticator(profile, null, identity)
-        
+
         val client = SSHClient()
         try {
             authenticator.authenticate(client, profile)
@@ -231,7 +231,7 @@ class SshHandshakeCoordinatorTest {
             // That's fine, we just want to execute the loop in CompositeAuthenticator.
         }
     }
-    
+
     @Test
     fun `getAuthenticator returns PasswordAuthenticator if only profile auth is password and no identity`() {
         val profile = ConnectionProfile(id = "p_pwd", nickname = "n1", host = "h1", authType = AuthType.PASSWORD)

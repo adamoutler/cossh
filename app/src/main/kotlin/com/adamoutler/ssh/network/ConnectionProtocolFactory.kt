@@ -9,12 +9,10 @@ class ConnectionProtocolFactory(
     private val hostKeyVerifier: HostKeyVerifier? = null,
     private val identityStorageManager: IdentityStorageManager? = null,
     private val context: Context? = null,
-    private val portForwardingOrchestrator: PortForwardingOrchestrator
+    private val portForwardingOrchestrator: PortForwardingOrchestrator,
 ) {
-    fun create(protocol: Protocol): ConnectionProtocol {
-        return when (protocol) {
-            Protocol.TELNET -> TelnetConnectionHandler()
-            else -> SshConnectionHandler(hostKeyVerifier, identityStorageManager, context, portForwardingOrchestrator)
-        }
+    fun create(protocol: Protocol): ConnectionProtocol = when (protocol) {
+        Protocol.TELNET -> TelnetConnectionHandler()
+        else -> SshConnectionHandler(hostKeyVerifier, identityStorageManager, context, portForwardingOrchestrator)
     }
 }

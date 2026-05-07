@@ -3,8 +3,8 @@ package com.adamoutler.ssh.ui
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -48,7 +48,7 @@ class AppNavigationCoverageTest {
         composeTestRule.setContent {
             AppNavigation()
         }
-        
+
         UiEventBus.publish(UiEvent.Navigate("settings"))
         composeTestRule.waitForIdle()
 
@@ -75,7 +75,7 @@ class AppNavigationCoverageTest {
 
         UiEventBus.publish(UiEvent.ShowKeystoreInvalidatedDialog)
         composeTestRule.waitForIdle()
-        
+
         // composeTestRule.onNodeWithText("Wipe Keystore & Reset App").performClick()
         // composeTestRule.waitForIdle()
     }
@@ -154,7 +154,7 @@ class AppNavigationCoverageTest {
                 putExtra(SshService.EXTRA_SESSION_ID, "test_session")
             }
             activity.intent = intent
-            
+
             composeTestRule.setContent {
                 AppNavigation()
             }
@@ -181,11 +181,11 @@ class AppNavigationCoverageTest {
     fun testPasswordPromptDialog() {
         val deferred = kotlinx.coroutines.CompletableDeferred<CharArray?>()
         val request = com.adamoutler.ssh.network.PasswordPromptRequest("testProfile", deferred)
-        
+
         val field = ConnectionStateRepository::class.java.getDeclaredField("_passwordPromptRequest")
         field.isAccessible = true
         (field.get(ConnectionStateRepository) as MutableStateFlow<com.adamoutler.ssh.network.PasswordPromptRequest?>).value = request
-        
+
         composeTestRule.setContent {
             PasswordPromptDialog()
         }
@@ -203,8 +203,8 @@ class AppNavigationCoverageTest {
                 receivedFingerprint = "test_fingerprint",
                 expectedFingerprint = null,
                 isKeyChanged = false,
-                deferred = deferred
-            )
+                deferred = deferred,
+            ),
         )
 
         composeTestRule.setContent {
@@ -224,8 +224,8 @@ class AppNavigationCoverageTest {
                 receivedFingerprint = "new_fingerprint",
                 expectedFingerprint = "old_fingerprint",
                 isKeyChanged = true,
-                deferred = deferred
-            )
+                deferred = deferred,
+            ),
         )
 
         composeTestRule.setContent {

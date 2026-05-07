@@ -1,7 +1,6 @@
 package com.adamoutler.ssh.security
 
 import android.content.Context
-import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -34,7 +33,7 @@ class SecureCrashHandler(
         } catch (e: Exception) {
             // Ultimate fallback: If the crash handler crashes, do nothing.
             // We fail closed to prevent accidental leakage during error handling.
-            Log.e("SecureCrashHandler", "Fatal error in crash handler. Failing closed.")
+            println(("SecureCrashHandler").toString() + ": " + ("Fatal error in crash handler. Failing closed.").toString())
         } finally {
             // Gracefully self-terminate to prevent the default OS crash dialog from appearing
             processKiller()
@@ -100,7 +99,7 @@ class SecureCrashHandler(
         val crashDir = File(context.filesDir, CRASH_DIR_NAME)
         if (!crashDir.exists()) {
             if (!crashDir.mkdirs()) {
-                android.util.Log.e("SecureCrashHandler", "Failed to create crash directory")
+                println(("SecureCrashHandler").toString() + ": " + ("Failed to create crash directory").toString())
                 return
             }
         }

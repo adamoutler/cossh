@@ -45,7 +45,7 @@ fun IdentityListScreen(
         onAddIdentity = onAddIdentity,
         onEditIdentity = onEditIdentity,
         onDeleteIdentity = { viewModel.deleteIdentity(it) },
-        onBack = onBack
+        onBack = onBack,
     )
 }
 

@@ -6,11 +6,11 @@ import com.adamoutler.ssh.data.PortForwardConfig
 import com.adamoutler.ssh.data.PortForwardType
 import com.adamoutler.ssh.data.Protocol
 import org.junit.After
+import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
 import java.net.ServerSocket
 import java.net.Socket
-import org.junit.Assert.assertFalse
 
 class PortForwardingOrchestratorTest {
 

@@ -1,8 +1,8 @@
 package com.adamoutler.ssh.crypto
 
 import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import android.content.SharedPreferences
+import androidx.test.core.app.ApplicationProvider
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
 import org.junit.Assert.assertEquals
@@ -196,11 +196,11 @@ class SecurityStorageManagerTest {
     fun testCorruptedProfileDeserialization() {
         // Save invalid JSON
         storageManager.encryptedPrefs.edit().putString("corrupted_id", "{ invalid json }").apply()
-        
+
         // This should catch SerializationException / IllegalArgumentException and return null
         val profile = storageManager.getProfile("corrupted_id")
         assertNull(profile)
-        
+
         // Also check getAllProfiles doesn't crash on it
         val allProfiles = storageManager.getAllProfiles()
         assertTrue(allProfiles.none { it.id == "corrupted_id" })
@@ -222,7 +222,7 @@ class SecurityStorageManagerTest {
             nickname = "Server No Pwd",
             host = "10.0.0.1",
             username = "admin",
-            authType = AuthType.KEY
+            authType = AuthType.KEY,
         )
         storageManager.saveProfile(profile)
         val retrieved = storageManager.getProfile("test-no-pwd")
@@ -323,34 +323,79 @@ class SecurityStorageManagerTest {
     @Test
     fun testCryptoExceptionBubblesUp() {
         val manager = SecurityStorageManager(context, cryptoThrowingPrefs)
-        
-        try { manager.saveProfile(ConnectionProfile(id = "id", nickname = "nickname", host = "host", username = "user", authType = AuthType.KEY)); fail() } catch (e: SecureStorageUnavailableException) {}
-        try { manager.getProfile("id"); fail() } catch (e: SecureStorageUnavailableException) {}
-        try { manager.getAllProfiles(); fail() } catch (e: SecureStorageUnavailableException) {}
-        try { manager.getAllKeys(); fail() } catch (e: SecureStorageUnavailableException) {}
-        try { manager.deleteProfile("id"); fail() } catch (e: SecureStorageUnavailableException) {}
+
+        try {
+            manager.saveProfile(ConnectionProfile(id = "id", nickname = "nickname", host = "host", username = "user", authType = AuthType.KEY))
+            fail()
+        } catch (e: SecureStorageUnavailableException) {}
+        try {
+            manager.getProfile("id")
+            fail()
+        } catch (e: SecureStorageUnavailableException) {}
+        try {
+            manager.getAllProfiles()
+            fail()
+        } catch (e: SecureStorageUnavailableException) {}
+        try {
+            manager.getAllKeys()
+            fail()
+        } catch (e: SecureStorageUnavailableException) {}
+        try {
+            manager.deleteProfile("id")
+            fail()
+        } catch (e: SecureStorageUnavailableException) {}
     }
 
     @Test
     fun testUserNotAuthenticatedException_WrapsInCryptoException() {
         val manager = SecurityStorageManager(context, authThrowingPrefs)
-        
-        try { manager.saveProfile(ConnectionProfile(id = "id", nickname = "nickname", host = "host", username = "user", authType = AuthType.KEY)); fail() } catch (e: CryptoException) {}
-        try { manager.getProfile("id"); fail() } catch (e: CryptoException) {}
-        try { manager.getAllProfiles(); fail() } catch (e: CryptoException) {}
-        try { manager.getAllKeys(); fail() } catch (e: CryptoException) {}
-        try { manager.deleteProfile("id"); fail() } catch (e: CryptoException) {}
+
+        try {
+            manager.saveProfile(ConnectionProfile(id = "id", nickname = "nickname", host = "host", username = "user", authType = AuthType.KEY))
+            fail()
+        } catch (e: CryptoException) {}
+        try {
+            manager.getProfile("id")
+            fail()
+        } catch (e: CryptoException) {}
+        try {
+            manager.getAllProfiles()
+            fail()
+        } catch (e: CryptoException) {}
+        try {
+            manager.getAllKeys()
+            fail()
+        } catch (e: CryptoException) {}
+        try {
+            manager.deleteProfile("id")
+            fail()
+        } catch (e: CryptoException) {}
     }
 
     @Test
     fun testKeyPermanentlyInvalidatedException_WrapsInCryptoException() {
         val manager = SecurityStorageManager(context, invalidatedThrowingPrefs)
-        
-        try { manager.saveProfile(ConnectionProfile(id = "id", nickname = "nickname", host = "host", username = "user", authType = AuthType.KEY)); fail() } catch (e: CryptoException) {}
-        try { manager.getProfile("id"); fail() } catch (e: CryptoException) {}
-        try { manager.getAllProfiles(); fail() } catch (e: CryptoException) {}
-        try { manager.getAllKeys(); fail() } catch (e: CryptoException) {}
-        try { manager.deleteProfile("id"); fail() } catch (e: CryptoException) {}
+
+        try {
+            manager.saveProfile(ConnectionProfile(id = "id", nickname = "nickname", host = "host", username = "user", authType = AuthType.KEY))
+            fail()
+        } catch (e: CryptoException) {}
+        try {
+            manager.getProfile("id")
+            fail()
+        } catch (e: CryptoException) {}
+        try {
+            manager.getAllProfiles()
+            fail()
+        } catch (e: CryptoException) {}
+        try {
+            manager.getAllKeys()
+            fail()
+        } catch (e: CryptoException) {}
+        try {
+            manager.deleteProfile("id")
+            fail()
+        } catch (e: CryptoException) {}
     }
 
     @Test

@@ -28,7 +28,7 @@ class PortForwardingOrchestrator {
                         try {
                             localPortForwarder.listen()
                         } catch (e: Exception) {
-                            android.util.Log.e("PortForwardingOrchestrator", "Local port forwarder error", e)
+                            println(("PortForwardingOrchestrator").toString() + ": " + ("Local port forwarder error").toString() + " " + (e).toString())
                         } finally {
                             try {
                                 serverSocket.close()
@@ -45,7 +45,7 @@ class PortForwardingOrchestrator {
                     client.remotePortForwarder.bind(remoteForward, localListener)
                 }
             } catch (e: Exception) {
-                android.util.Log.e("PortForwardingOrchestrator", "Failed to setup port forward $config", e)
+                println(("PortForwardingOrchestrator").toString() + ": " + ("Failed to setup port forward $config").toString() + " " + (e).toString())
             }
         }
     }
@@ -55,7 +55,7 @@ class PortForwardingOrchestrator {
             localServerSockets.forEach { it.close() }
             localServerSockets.clear()
         } catch (e: Exception) {
-            android.util.Log.e("PortForwardingOrchestrator", "Error closing local port forwarders", e)
+            println(("PortForwardingOrchestrator").toString() + ": " + ("Error closing local port forwarders").toString() + " " + (e).toString())
         }
     }
 }

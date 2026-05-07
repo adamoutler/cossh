@@ -1,6 +1,5 @@
 package com.adamoutler.ssh.ui.components
 
-import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.foundation.background
@@ -233,7 +232,7 @@ fun TerminalScreenContent(
             onDismiss = {
                 onClearError()
                 onNavigateBack()
-            }
+            },
         )
     }
 
@@ -285,7 +284,7 @@ fun TerminalScreenContent(
                     ctx.startService(intent)
                 }
                 onNavigateBack()
-            }
+            },
         )
     }
 
@@ -304,7 +303,7 @@ fun TerminalScreenContent(
                     ctx.startService(intent)
                 }
                 onNavigateBack()
-            }
+            },
         )
     }
     if (showDisconnectedOverlay) {
@@ -312,7 +311,7 @@ fun TerminalScreenContent(
             onDismiss = {
                 showDisconnectedOverlay = false
                 onNavigateBack()
-            }
+            },
         )
     }
 
@@ -328,7 +327,7 @@ fun TerminalScreenContent(
                     activeSession.ptyOutputStream?.write(bytes)
                     activeSession.ptyOutputStream?.flush()
                 } catch (ex: Exception) {
-                    android.util.Log.e("TerminalScreen", "Failed to write to SSH PTY", ex)
+                    println(("TerminalScreen").toString() + ": " + ("Failed to write to SSH PTY").toString() + " " + (ex).toString())
                 }
             }
         }
@@ -336,7 +335,7 @@ fun TerminalScreenContent(
 
     val sendToTerminal: (ByteArray) -> Unit = { bytes ->
         if (showDisconnectedOverlay) {
-            Log.d("TerminalScreen", "Input locked: session disconnected.")
+            println(("TerminalScreen").toString() + ": " + ("Input locked: session disconnected.").toString())
         } else {
             var finalBytes = bytes
             // Apply Alt modifier by prepending ESC (0x1B)
@@ -449,7 +448,7 @@ fun TerminalScreenContent(
 
                                 // Prevent bleed-through key events from previous screens (like hitting Enter to connect)
                                 if (isBleedThroughEvent(e, connectionStartTime)) {
-                                    Log.d("TerminalScreen", "Ignoring bleed-through key event: keyCode=$keyCode")
+                                    println(("TerminalScreen").toString() + ": " + ("Ignoring bleed-through key event: keyCode=$keyCode").toString())
                                     return true // Consume it so it doesn't propagate
                                 }
 
@@ -511,7 +510,7 @@ fun TerminalScreenContent(
                                     if (superState.value == ModifierState.STICKY) superState.value = ModifierState.INACTIVE
                                     if (menuState.value == ModifierState.STICKY) menuState.value = ModifierState.INACTIVE
                                     sendToTerminal(bytesToSend)
-                                    Log.d("TerminalScreen", "Wrote ${bytesToSend.size} bytes (key: $keyCode) to SSH PTY stdin")
+                                    println(("TerminalScreen").toString() + ": " + ("Wrote ${bytesToSend.size} bytes (key: $keyCode) to SSH PTY stdin").toString())
                                 }
                                 return true
                             }
@@ -525,7 +524,7 @@ fun TerminalScreenContent(
                             override fun readFnKey(): Boolean = false
                             override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, s: TerminalSession?): Boolean {
                                 if (android.os.SystemClock.uptimeMillis() < connectionStartTime + 500) {
-                                    Log.d("TerminalScreen", "Ignoring bleed-through codePoint: $codePoint")
+                                    println(("TerminalScreen").toString() + ": " + ("Ignoring bleed-through codePoint: $codePoint").toString())
                                     return true // Consume it so it doesn't propagate
                                 }
                                 try {
@@ -556,9 +555,9 @@ fun TerminalScreenContent(
                                     if (superState.value == ModifierState.STICKY) superState.value = ModifierState.INACTIVE
                                     if (menuState.value == ModifierState.STICKY) menuState.value = ModifierState.INACTIVE
                                     sendToTerminal(bytes)
-                                    Log.d("TerminalScreen", "Wrote ${bytes.size} bytes (codePoint) to SSH PTY stdin")
+                                    println(("TerminalScreen").toString() + ": " + ("Wrote ${bytes.size} bytes (codePoint) to SSH PTY stdin").toString())
                                 } catch (ex: Exception) {
-                                    Log.e("TerminalScreen", "Failed to write codePoint to SSH PTY", ex)
+                                    println(("TerminalScreen").toString() + ": " + ("Failed to write codePoint to SSH PTY").toString() + " " + (ex).toString())
                                 }
                                 return true
                             }
@@ -587,9 +586,9 @@ fun TerminalScreenContent(
                                     coroutineScope.launch(Dispatchers.IO) {
                                         try {
                                             activeSession.sshShell?.changeWindowDimensions(cols, rows, newWidth, newHeight)
-                                            Log.i("TerminalScreen", "SIGWINCH dispatched successfully: cols=$cols, rows=$rows, width=$newWidth, height=$newHeight")
+                                            println(("TerminalScreen").toString() + ": " + ("SIGWINCH dispatched successfully: cols=$cols, rows=$rows, width=$newWidth, height=$newHeight").toString())
                                         } catch (e: Exception) {
-                                            Log.e("TerminalScreen", "Failed to send SIGWINCH", e)
+                                            println(("TerminalScreen").toString() + ": " + ("Failed to send SIGWINCH").toString() + " " + (e).toString())
                                         }
                                     }
                                 }
@@ -680,7 +679,7 @@ fun TerminalScreenContent(
                         if (ctrlState.value == ModifierState.STICKY) ctrlState.value = ModifierState.INACTIVE
                         if (superState.value == ModifierState.STICKY) superState.value = ModifierState.INACTIVE
                         if (menuState.value == ModifierState.STICKY) menuState.value = ModifierState.INACTIVE
-                        android.util.Log.d("TerminalScreen", "Sending extra key bytes: ${bytes.joinToString(",") { String.format("0x%02X", it) }}")
+                        println("TerminalScreen: Sending extra key bytes: ${bytes.joinToString(",") { String.format("0x%02X", it) }}")
                         sendToTerminal(bytes)
                     }
                 },

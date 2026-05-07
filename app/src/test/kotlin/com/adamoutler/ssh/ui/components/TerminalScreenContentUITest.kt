@@ -29,11 +29,11 @@ class TerminalScreenContentUITest {
     @Test
     fun testTerminalExtraKeysTriggerCallbacks() {
         org.junit.Assume.assumeTrue(com.adamoutler.ssh.BuildConfig.DEBUG)
-        
+
         val mockSessionId = "test-session-123"
         ConnectionStateRepository.clearSession(mockSessionId)
         ConnectionStateRepository.isHeadlessTest = true
-        
+
         val mockSession = TerminalSession(
             "/system/bin/sh",
             "/",
@@ -59,7 +59,7 @@ class TerminalScreenContentUITest {
                 override fun logStackTrace(tag: String?, e: java.lang.Exception?) {}
             },
         )
-        
+
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
                 activity.setContent {
@@ -75,7 +75,7 @@ class TerminalScreenContentUITest {
                         onNavigateBack = {},
                         onClearError = {},
                         profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH),
-                        initialTerminalInputState = 2
+                        initialTerminalInputState = 2,
                     )
                 }
             }
@@ -86,7 +86,7 @@ class TerminalScreenContentUITest {
             composeTestRule.onNodeWithText("Ctrl-C").performClick()
             composeTestRule.onNodeWithText("↑").performClick()
             composeTestRule.onNodeWithText("Home").performClick()
-            
+
             // To reach higher coverage, we'd have to click more, but this proves the concept
             assertTrue(true)
         }

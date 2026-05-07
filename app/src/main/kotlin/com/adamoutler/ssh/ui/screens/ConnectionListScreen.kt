@@ -243,7 +243,7 @@ fun ConnectionListScreen(
                     context.startForegroundService(intent)
                     onConnect(profileIdToConnect!!, newSessionId)
                     profileIdToConnect = null
-                }
+                },
             )
         } else {
             val newSessionId = java.util.UUID.randomUUID().toString()

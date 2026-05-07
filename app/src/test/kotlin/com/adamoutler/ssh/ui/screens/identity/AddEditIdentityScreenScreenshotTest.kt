@@ -70,7 +70,7 @@ class AddEditIdentityScreenScreenshotTest {
                             isPasswordLocked = true,
                             publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJGzP736vWqH6WbO0D9Z3Y5P5xZ1mP6B6+N4r5v8fR admin@host",
                             manualKeyEntry = true,
-                            manualPrivKey = "-----BEGIN OPENSSH PRIVATE KEY-----\n...\n-----END OPENSSH PRIVATE KEY-----"
+                            manualPrivKey = "-----BEGIN OPENSSH PRIVATE KEY-----\n...\n-----END OPENSSH PRIVATE KEY-----",
                         ),
                         passwordVisible = false,
                         onPasswordVisibleChange = {},
@@ -106,7 +106,7 @@ class AddEditIdentityScreenScreenshotTest {
                     AddEditIdentityScreenContent(
                         identityId = null,
                         uiState = IdentityFormState(
-                            password = "VisiblePassword"
+                            password = "VisiblePassword",
                         ),
                         passwordVisible = true,
                         onPasswordVisibleChange = {},
@@ -142,7 +142,7 @@ class AddEditIdentityScreenScreenshotTest {
                     AddEditIdentityScreenContent(
                         identityId = "id-123",
                         uiState = IdentityFormState(
-                            name = "Production Identity"
+                            name = "Production Identity",
                         ),
                         passwordVisible = false,
                         onPasswordVisibleChange = {},

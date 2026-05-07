@@ -4,6 +4,7 @@ import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.data.ConnectionProfile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.schmizz.sshj.SSHClient
@@ -12,7 +13,6 @@ import net.schmizz.sshj.transport.verification.OpenSSHKnownHosts
 import java.io.File
 import java.security.KeyPair
 import java.security.PublicKey
-import kotlinx.coroutines.awaitCancellation
 
 class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(knownHostsFile) {
     override fun verify(hostname: String, port: Int, key: PublicKey): Boolean {
@@ -83,20 +83,20 @@ class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(
                 }
                 val success = tempFile.renameTo(knownHostsFile)
                 if (!success) {
-                    android.util.Log.e("TofuHostKeyVerifier", "Failed to rename temp known_hosts file")
+                    println(("TofuHostKeyVerifier").toString() + ": " + ("Failed to rename temp known_hosts file").toString())
                 }
             } else {
                 knownHostsFile.appendText(newEntry)
             }
             try {
-                android.util.Log.i("TofuHostKeyVerifier", "Host $hostname key accepted and saved.")
+                println(("TofuHostKeyVerifier").toString() + ": " + ("Host $hostname key accepted and saved.").toString())
             } catch (e: Throwable) {
                 println("Host $hostname key accepted and saved.")
             }
             return true
         } else {
             try {
-                android.util.Log.e("TofuHostKeyVerifier", "Host key for $hostname rejected by user. Connection aborted.")
+                println(("TofuHostKeyVerifier").toString() + ": " + ("Host key for $hostname rejected by user. Connection aborted.").toString())
             } catch (e: Throwable) {
                 println("Host key rejected by user.")
             }
@@ -123,12 +123,12 @@ class SshConnectionManager(
         try {
             activeProtocol?.disconnect()
         } catch (e: Exception) {
-            android.util.Log.e("SshConnectionManager", "Error during manual disconnect", e)
+            println(("SshConnectionManager").toString() + ": " + ("Error during manual disconnect").toString() + " " + (e).toString())
         }
         try {
             portForwardingOrchestrator.stopAll()
         } catch (e: Exception) {
-            android.util.Log.e("SshConnectionManager", "Error closing local port forwarders", e)
+            println(("SshConnectionManager").toString() + ": " + ("Error closing local port forwarders").toString() + " " + (e).toString())
         }
     }
 
@@ -149,7 +149,7 @@ class SshConnectionManager(
             try {
                 sshClient.disconnect()
             } catch (e: Exception) {
-                android.util.Log.e("SshConnectionManager", "Error during disconnect", e)
+                println(("SshConnectionManager").toString() + ": " + ("Error during disconnect").toString() + " " + (e).toString())
             }
         }
     }
@@ -175,7 +175,7 @@ class SshConnectionManager(
         // Validate public key to prevent shell injection
         val regex = Regex("^[a-zA-Z0-9+/= \\-_@]+$")
         if (!regex.matches(publicKey)) {
-            android.util.Log.e("SshConnectionManager", "Invalid public key format for injection")
+            println(("SshConnectionManager").toString() + ": " + ("Invalid public key format for injection").toString())
             return@withContext false
         }
 
@@ -185,7 +185,7 @@ class SshConnectionManager(
             connectAndExecute(profile, injectionCommand)
             true
         } catch (e: Exception) {
-            android.util.Log.e("SshConnectionManager", "Failed to inject public key", e)
+            println(("SshConnectionManager").toString() + ": " + ("Failed to inject public key").toString() + " " + (e).toString())
             false
         }
     }
