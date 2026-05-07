@@ -10,6 +10,8 @@ class Server(paramiko.ServerInterface):
         return 'password,publickey'
 
     def check_auth_password(self, username, password):
+        if password == "wrongpassword":
+            return paramiko.AUTH_FAILED
         return paramiko.AUTH_SUCCESSFUL
 
     def check_auth_publickey(self, username, key):
@@ -60,37 +62,61 @@ class Server(paramiko.ServerInterface):
 host_key = paramiko.RSAKey.generate(1024)
 
 def handle_client(client_socket):
-    transport = paramiko.Transport(client_socket)
-    transport.add_server_key(host_key)
-    server = Server()
     try:
-        transport.start_server(server=server)
-    except paramiko.SSHException as e:
-        print("SSHException during start_server: ", str(e))
-        return
-    except Exception as e:
-        print("Exception during start_server: ", str(e))
-        return
-    channel = transport.accept(20)
-    if channel is None:
-        return
-    channel.send("Hello from mock sshd!\r\n")
-    while True:
+        transport = paramiko.Transport(client_socket)
+        transport.add_server_key(host_key)
+        server = Server()
         try:
-            data = channel.recv(1024)
-            if not data:
+            transport.start_server(server=server)
+        except paramiko.SSHException as e:
+            print("SSHException during start_server: ", str(e))
+            return
+        except Exception as e:
+            print("Exception during start_server: ", str(e))
+            return
+        
+        channel = transport.accept(20)
+        if channel is None:
+            return
+            
+        channel.send("Hello from mock sshd!\r\n")
+        while True:
+            try:
+                if channel.recv_ready():
+                    data = channel.recv(1024)
+                    if not data:
+                        break
+                    print(f"Received bytes from SSH client: {[hex(b) for b in data]}", flush=True)
+                    # PTYs typically echo \r\n for \n
+                    echo_data = data.replace(b'\n', b'\r\n') if b'\n' in data else data
+                    channel.send(echo_data)
+                elif channel.exit_status_ready():
+                    break
+                else:
+                    import time
+                    time.sleep(0.05)
+            except EOFError:
+                    print("Exit command received. Closing channel.")
+                    try:
+                        channel.send_exit_status(0)
+                    except:
+                        pass
+                    break
+            except Exception:
                 break
-            print(f"Received bytes from SSH client: {[hex(b) for b in data]}", flush=True)
-            # PTYs typically echo \r\n for \n
-            echo_data = data.replace(b'\n', b'\r\n') if b'\n' in data else data
-            channel.send(echo_data)
-        except EOFError:
-                print("Exit command received. Closing channel.")
-                channel.send_exit_status(0)
-                break
-        except Exception:
-            break
-    channel.close()
+    finally:
+        try:
+            channel.close()
+        except:
+            pass
+        try:
+            transport.close()
+        except:
+            pass
+        try:
+            client_socket.close()
+        except:
+            pass
 
 import sys
 port = int(sys.argv[1]) if len(sys.argv) > 1 else 2222
@@ -103,8 +129,11 @@ print(f"Mock SSHD listening on {port}")
 
 def serve():
     while True:
-        client, addr = server_socket.accept()
-        threading.Thread(target=handle_client, args=(client,)).start()
+        try:
+            client, addr = server_socket.accept()
+            threading.Thread(target=handle_client, args=(client,)).start()
+        except Exception:
+            break
 
 t = threading.Thread(target=serve)
 t.daemon = True
@@ -116,3 +145,7 @@ try:
         time.sleep(1)
 except KeyboardInterrupt:
     pass
+except Exception:
+    pass
+finally:
+    server_socket.close()
