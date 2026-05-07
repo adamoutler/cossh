@@ -120,6 +120,7 @@ class SshConnectionManagerIntegrationTest {
         } catch (e: net.schmizz.sshj.userauth.UserAuthException) {
             // Expected if mock server rejects the randomly generated key, but importantly not NPE
         }
+        Unit
     }
 
     @Test(timeout = 300000L)
