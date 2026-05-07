@@ -240,6 +240,7 @@ dependencies {
     testImplementation(libs.androidx.ui.test.junit4)
     testImplementation(libs.hamcrest)
     testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.ui.test.manifest)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.espresso.intents)
@@ -251,7 +252,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     releaseImplementation(libs.androidx.ui.test.manifest)
-    testImplementation(libs.androidx.ui.test.manifest)
 }
 
 tasks.withType<Test> {
