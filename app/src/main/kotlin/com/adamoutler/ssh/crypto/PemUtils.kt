@@ -153,7 +153,7 @@ object PemUtils {
                             val pubInfo = SubjectPublicKeyInfoFactory.createSubjectPublicKeyInfo(pubParams)
                             pubKey = converter.getPublicKey(pubInfo)
                         } catch (e: Exception) {
-                            println(("PemUtils").toString() + ": " + ("Failed to extract public key from RSA private key").toString() + " " + (e).toString())
+                            android.util.Log.e("PemUtils", "Failed to extract public key from RSA private key", e)
                         }
                     }
                     KeyPair(pubKey, privKey)
