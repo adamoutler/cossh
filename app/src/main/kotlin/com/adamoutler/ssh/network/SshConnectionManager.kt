@@ -142,7 +142,7 @@ class SshConnectionManager(
                     val cmd = session.exec(command)
                     val result = cmd.inputStream.bufferedReader().use { it.readText() }
                     cmd.join()
-                    return@withContext result
+                    result
                 }
             }
         } finally {

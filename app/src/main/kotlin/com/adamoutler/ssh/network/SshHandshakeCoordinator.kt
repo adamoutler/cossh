@@ -147,11 +147,11 @@ class SshHandshakeCoordinator(
      * It handles timeouts, Host Key Verification (TOFU), Identity resolution, and authentication.
      * Returns the resolved Effective Profile (containing injected credentials if an identity was used).
      */
-    inline fun <T> executeWithConnection(
+    suspend fun <T> executeWithConnection(
         client: SSHClient,
         profile: ConnectionProfile,
         keyPair: KeyPair? = null,
-        block: (effectiveProfile: ConnectionProfile) -> T,
+        block: suspend (effectiveProfile: ConnectionProfile) -> T,
     ): T {
         client.connectTimeout = 10000
         client.timeout = 10000

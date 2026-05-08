@@ -103,7 +103,7 @@ class AppConnectionIntegrationTest {
     
             var retries = 0
             while (sessionData.ptyOutputStream == null && retries < 150) {
-                delay(100)
+                delay(10)
                 retries++
             }
             assertTrue("Output stream should be initialized", sessionData.ptyOutputStream != null)
@@ -121,7 +121,7 @@ class AppConnectionIntegrationTest {
                     foundOutput = true
                     break
                 }
-                delay(100)
+                delay(10)
                 retries++
             }
     
@@ -184,10 +184,10 @@ class AppConnectionIntegrationTest {
             try {
                 // Wait for connection 1
                 println("DEBUG: Waiting for connection 1...")
-                var retries = 0
-                while (sessionData1.ptyOutputStream == null && retries < 150) {
-                    delay(100)
-                    retries++
+                var retries1 = 0
+                while (sessionData1.ptyOutputStream == null && retries1 < 150) {
+                    delay(10)
+                    retries1++
                 }
                 println("DEBUG: Connection 1 stream initialized? ${sessionData1.ptyOutputStream != null}")
                 assertTrue("Output stream 1 should be initialized", sessionData1.ptyOutputStream != null)
@@ -200,16 +200,16 @@ class AppConnectionIntegrationTest {
                 sessionData1.ptyOutputStream?.flush()
 
                 println("DEBUG: Waiting for Step 3 Text...")
-                retries = 0
+                retries1 = 0
                 var foundOutput1 = false
-                while (retries < 150) {
+                while (retries1 < 150) {
                     val transcript = ConnectionStateRepository.mockTestTranscripts[profileId1] ?: ""
                     if (transcript.contains("Step 3 Text") || transcript.contains("Hello from mock sshd!")) {
                         foundOutput1 = true
                         break
                     }
-                    delay(100)
-                    retries++
+                    delay(10)
+                    retries1++
                 }
                 println("DEBUG: Found Step 3 Text? $foundOutput1. Transcript so far: ${ConnectionStateRepository.mockTestTranscripts[profileId1]}")
                 assertTrue("Transcript 1 should contain typed text", foundOutput1)
@@ -243,10 +243,10 @@ class AppConnectionIntegrationTest {
                 }
 
                 // Wait for connection 2
-                retries = 0
-                while (sessionData2.ptyOutputStream == null && retries < 150) {
-                    delay(100)
-                    retries++
+                var retries2 = 0
+                while (sessionData2.ptyOutputStream == null && retries2 < 150) {
+                    delay(10)
+                    retries2++
                 }
                 assertTrue("Output stream 2 should be initialized", sessionData2.ptyOutputStream != null)
                 ConnectionStateRepository.addConnection(profileId2) // Simulate service started
@@ -255,7 +255,7 @@ class AppConnectionIntegrationTest {
                 sessionData2.ptyOutputStream?.write("Step 11 Text\n".toByteArray())
                 sessionData2.ptyOutputStream?.flush()
 
-                retries = 0
+                var retries = 0
                 var foundOutput2 = false
                 while (retries < 150) {
                     val transcript = ConnectionStateRepository.mockTestTranscripts[profileId2] ?: ""
@@ -263,7 +263,7 @@ class AppConnectionIntegrationTest {
                         foundOutput2 = true
                         break
                     }
-                    delay(100)
+                    delay(10)
                     retries++
                 }
                 assertTrue("Transcript 2 should contain typed text", foundOutput2)

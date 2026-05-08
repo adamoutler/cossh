@@ -50,7 +50,7 @@ class SshConnectionManagerIntegrationTest {
         // Wait for connection
         var retries = 0
         while (ptyOut == null && retries < 100) {
-            delay(100)
+            delay(10)
             retries++
         }
 
@@ -63,7 +63,7 @@ class SshConnectionManagerIntegrationTest {
 
         retries = 0
         while (!receivedOutput.contains("test_pty_command") && retries < 100) {
-            delay(100)
+            delay(10)
             retries++
         }
 
@@ -166,7 +166,7 @@ class SshConnectionManagerIntegrationTest {
             // Wait for connection
             var retries = 0
             while (ptyOut == null && retries < 100) {
-                delay(100)
+                delay(10)
                 retries++
             }
 
@@ -179,7 +179,7 @@ class SshConnectionManagerIntegrationTest {
 
             retries = 0
             while (!receivedOutput.contains("test_telnet_command") && retries < 100) {
-                delay(100)
+                delay(10)
                 retries++
             }
 
