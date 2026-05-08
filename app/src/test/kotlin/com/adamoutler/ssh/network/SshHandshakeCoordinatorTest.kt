@@ -238,4 +238,22 @@ class SshHandshakeCoordinatorTest {
         val auth = coordinator.getAuthenticator(profile, null, null)
         assertEquals("PasswordAuthenticator", auth.javaClass.simpleName)
     }
+
+    @Test
+    fun `executeWithConnection handles thread interruption gracefully`() {
+        val client = SSHClient()
+        val profile = ConnectionProfile(id = "p1", nickname = "n1", host = "localhost", authType = AuthType.PASSWORD, username = "test", password = "pwd".toByteArray())
+        
+        Thread.currentThread().interrupt()
+        
+        try {
+            coordinator.executeWithConnection(client, profile, null) {
+                // Should not reach here
+            }
+            fail("Expected exception due to interruption")
+        } catch (e: Exception) {
+            // Expected interruption exception
+            assertTrue(Thread.interrupted() || e is java.util.concurrent.CancellationException || e is InterruptedException)
+        }
+    }
 }

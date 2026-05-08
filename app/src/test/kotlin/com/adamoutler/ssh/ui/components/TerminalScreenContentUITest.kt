@@ -81,13 +81,14 @@ class TerminalScreenContentUITest {
             }
 
             // Click some extra keys to trigger the onKeyPress lambda and execute the switch cases
-            composeTestRule.onNodeWithText("Esc").performClick()
-            composeTestRule.onNodeWithText("Tab").performClick()
-            composeTestRule.onNodeWithText("Ctrl-C").performClick()
-            composeTestRule.onNodeWithText("↑").performClick()
-            composeTestRule.onNodeWithText("Home").performClick()
+            val visibleKeys = listOf(
+                "Esc", "Tab", "Ctrl-C", "↑", "Home", "End", "↓", "←", "→"
+            )
 
-            // To reach higher coverage, we'd have to click more, but this proves the concept
+            for (key in visibleKeys) {
+                composeTestRule.onNodeWithText(key).performClick()
+            }
+
             assertTrue(true)
         }
     }

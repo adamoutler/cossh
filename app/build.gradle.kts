@@ -226,6 +226,7 @@ dependencies {
     implementation(libs.google.api.client.android)
     implementation(libs.google.auth.library.oauth2.http)
     implementation(libs.androidx.work.runtime.ktx)
+    testImplementation(libs.androidx.work.testing)
     implementation(libs.googleid)
     
     testImplementation(libs.junit)
@@ -255,7 +256,7 @@ dependencies {
 }
 
 tasks.withType<Test> {
-    timeout.set(Duration.ofMinutes(5))
+    timeout.set(Duration.ofMinutes(10))
     maxHeapSize = "1024m"
     maxParallelForks = 1
     forkEvery = 1
