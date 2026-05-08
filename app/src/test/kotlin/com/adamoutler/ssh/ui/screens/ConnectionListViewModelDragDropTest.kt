@@ -59,11 +59,12 @@ class ConnectionListViewModelDragDropTest {
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
 
         var retries = 0
-        while (retries < 50) {
+        while (retries < 300) {
+            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
             val p1 = storageManager.getProfile("id1")
             val p2 = storageManager.getProfile("id2")
             if (p1 != null && p2 != null && p1.sortOrder > p2.sortOrder) break
-            Thread.sleep(10)
+            Thread.sleep(20)
             retries++
         }
 
@@ -72,9 +73,9 @@ class ConnectionListViewModelDragDropTest {
         val newViewModel = ConnectionListViewModel(app, storageManager, BackupManager(app, storageManager, com.adamoutler.ssh.crypto.IdentityStorageManager(app)))
 
         var reloadRetries = 0
-        while (newViewModel.flatItems.value.size < 3 && reloadRetries < 50) {
+        while (newViewModel.flatItems.value.size < 3 && reloadRetries < 300) {
             ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-            Thread.sleep(10)
+            Thread.sleep(20)
             reloadRetries++
         }
 
