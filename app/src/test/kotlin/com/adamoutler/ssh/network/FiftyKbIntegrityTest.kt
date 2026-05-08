@@ -113,7 +113,7 @@ class FiftyKbIntegrityTest {
     
             var retries = 0
             while (sessionData.ptyOutputStream == null && retries < 150) {
-                delay(100)
+                delay(10)
                 retries++
             }
             assertTrue("Output stream should be initialized", sessionData.ptyOutputStream != null)
@@ -158,7 +158,7 @@ class FiftyKbIntegrityTest {
                     remoteData = transcript.substring(0, generatedData.length)
                     break
                 }
-                delay(100)
+                
                 retries++
             }
     

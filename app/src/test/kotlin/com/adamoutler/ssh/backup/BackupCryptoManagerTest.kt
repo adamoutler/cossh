@@ -3,8 +3,14 @@ package com.adamoutler.ssh.backup
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
+import com.adamoutler.ssh.data.PortForwardConfig
+import com.adamoutler.ssh.data.PortForwardType
 import com.adamoutler.ssh.data.Protocol
-import org.junit.Assert.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -12,49 +18,77 @@ import java.io.ByteArrayOutputStream
 class BackupCryptoManagerTest {
 
     @Test
-    fun testExportAndImportBackup() {
-        val passwordBytes = "my_secret_password".toByteArray()
-        val profile1 = ConnectionProfile("id1", "Host 1", "host1.com", 22, Protocol.SSH, "user1", AuthType.PASSWORD, 0, passwordBytes, null, null, null, null, emptyMap(), emptyList(), "/var/www")
-        val profile2 = ConnectionProfile("id2", "Host 2", "host2.com", 22, Protocol.SSH, "user2", AuthType.KEY, 0)
+    fun `test BackupPayload serialization`() {
+        val payload = BackupPayload(
+            version = 2,
+            profiles = listOf(
+                ConnectionProfile(
+                    id = "p-1",
+                    nickname = "Test",
+                    host = "localhost",
+                    username = "test-user",
+                    portForwards = listOf(PortForwardConfig(PortForwardType.LOCAL, 8080, "127.0.0.1", 80))
+                )
+            ),
+            profilePasswords = mapOf("p-1" to "encoded-pass"),
+            identities = listOf(
+                IdentityProfile(id = "i-1", name = "Test Identity", username = "test-user")
+            ),
+            identityPasswords = mapOf("i-1" to "encoded-ipass"),
+            identityPrivateKeys = mapOf("i-1" to "encoded-ikey")
+        )
 
-        val profiles = listOf(profile1, profile2)
+        val jsonString = Json.encodeToString(payload)
+        val deserialized = Json.decodeFromString<BackupPayload>(jsonString)
 
-        val identityPasswordBytes = "identity_password".toByteArray()
-        val identityPrivateKeyBytes = "identity_private_key".toByteArray()
-        val identity1 = IdentityProfile("ident1", "My Identity", "iduser", identityPasswordBytes, identityPrivateKeyBytes, null, AuthType.KEY)
-        val identities = listOf(identity1)
+        assertEquals(payload.version, deserialized.version)
+        assertEquals(payload.profiles.size, deserialized.profiles.size)
+        assertEquals(payload.profilePasswords, deserialized.profilePasswords)
+        assertEquals(payload.identities.size, deserialized.identities.size)
+        assertEquals(payload.identityPasswords, deserialized.identityPasswords)
+        assertEquals(payload.identityPrivateKeys, deserialized.identityPrivateKeys)
+    }
 
-        val backupPassword = "strong_backup_password".toCharArray()
+    @Test
+    fun `test export and import profiles`() {
+        val profiles = listOf(
+            ConnectionProfile(
+                id = "p-1",
+                nickname = "Profile 1",
+                host = "1.2.3.4",
+                password = "test-password".toByteArray()
+            )
+        )
+        val identities = listOf(
+            IdentityProfile(
+                id = "i-1",
+                name = "Identity 1",
+                username = "id-user",
+                password = "id-password".toByteArray(),
+                privateKey = "id-priv-key".toByteArray()
+            )
+        )
 
+        val password = "secure-backup-password".toCharArray()
         val outputStream = ByteArrayOutputStream()
 
-        // Test export
-        BackupCryptoManager.exportProfilesToZip(profiles, identities, backupPassword, outputStream)
+        // Export
+        BackupCryptoManager.exportProfilesToZip(profiles, identities, password, outputStream)
 
-        val encryptedData = outputStream.toByteArray()
-        assertTrue(encryptedData.isNotEmpty())
+        val zipData = outputStream.toByteArray()
+        assertTrue(zipData.isNotEmpty())
 
-        val inputStream = ByteArrayInputStream(encryptedData)
+        // Import
+        val inputStream = ByteArrayInputStream(zipData)
+        val (importedProfiles, importedIdentities) = BackupCryptoManager.importProfilesFromZip(inputStream, password)
 
-        // Test import
-        val (restoredProfiles, restoredIdentities) = BackupCryptoManager.importProfilesFromZip(inputStream, backupPassword)
+        assertEquals(1, importedProfiles.size)
+        assertEquals("p-1", importedProfiles[0].id)
+        assertEquals("test-password", importedProfiles[0].password?.let { String(it) })
 
-        assertEquals(2, restoredProfiles.size)
-
-        val restored1 = restoredProfiles.find { it.id == "id1" }
-        assertNotNull(restored1)
-        assertEquals("Host 1", restored1?.nickname)
-        assertArrayEquals(passwordBytes, restored1?.password)
-
-        val restored2 = restoredProfiles.find { it.id == "id2" }
-        assertNotNull(restored2)
-        assertEquals("Host 2", restored2?.nickname)
-
-        assertEquals(1, restoredIdentities.size)
-        val restoredIdent1 = restoredIdentities.find { it.id == "ident1" }
-        assertNotNull(restoredIdent1)
-        assertEquals("My Identity", restoredIdent1?.name)
-        assertArrayEquals(identityPasswordBytes, restoredIdent1?.password)
-        assertArrayEquals(identityPrivateKeyBytes, restoredIdent1?.privateKey)
+        assertEquals(1, importedIdentities.size)
+        assertEquals("i-1", importedIdentities[0].id)
+        assertEquals("id-password", importedIdentities[0].password?.let { String(it) })
+        assertEquals("id-priv-key", importedIdentities[0].privateKey?.let { String(it) })
     }
 }

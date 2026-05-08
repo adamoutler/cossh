@@ -78,7 +78,7 @@ class SshServiceForegroundTest {
             if (currentState is ConnectionState.Error) {
                 break
             }
-            kotlinx.coroutines.delay(100)
+            kotlinx.coroutines.delay(10)
             retries++
         }
 
@@ -124,7 +124,7 @@ class SshServiceForegroundTest {
             if (currentState is ConnectionState.Disconnected || currentState is ConnectionState.Disconnecting || currentState == null) {
                 break
             }
-            kotlinx.coroutines.delay(100)
+            kotlinx.coroutines.delay(10)
             retries++
         }
 
@@ -142,7 +142,6 @@ class SshServiceForegroundTest {
         serviceController.destroy()
     }
 
-    /*
     @Test
     fun `test service onDestroy stops all connections`() {
         val app = ApplicationProvider.getApplicationContext<android.app.Application>()
@@ -156,9 +155,7 @@ class SshServiceForegroundTest {
         val state = ConnectionStateRepository.connectionStates.value["prof1"]
         org.junit.Assert.assertTrue("State should be Disconnecting or null", state is ConnectionState.Disconnecting || state == null)
     }
-     */
 
-    /*
     @Test
     fun `test start command with ACTION_DISCONNECT without session ID stops all for profile`() {
         val app = ApplicationProvider.getApplicationContext<android.app.Application>()
@@ -194,7 +191,6 @@ class SshServiceForegroundTest {
         // Check if service stopped (Robolectric shadows can be checked if needed, but invoking without crash is good enough coverage)
         serviceController.destroy()
     }
-     */
 
     @Test
     fun `test mapExceptionMessage formats correctly`() {

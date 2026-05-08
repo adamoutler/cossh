@@ -61,7 +61,7 @@ class IdentityViewModelTest {
         var state = viewModel.uiState.value
         var attempts = 0
         while (state.publicKey.isEmpty() && attempts < 50) {
-            Thread.sleep(100)
+            kotlinx.coroutines.delay(10)
             state = viewModel.uiState.value
             attempts++
         }
@@ -79,8 +79,8 @@ class IdentityViewModelTest {
 
         var state = viewModel.uiState.value
         var attempts = 0
-        while (state.publicKey.isEmpty() && attempts < 150) {
-            Thread.sleep(100)
+        while (state.publicKey.isEmpty() && attempts < 300) {
+            Thread.sleep(10)
             state = viewModel.uiState.value
             attempts++
         }

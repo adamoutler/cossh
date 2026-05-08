@@ -288,13 +288,27 @@ tasks.withType<Test> {
 afterEvaluate {
     tasks.named("installDebug") {
         doFirst {
-            val deviceIp = project.findProperty("deviceIp") as? String ?: "192.168.1.39:42513"
-            val userHome = System.getProperty("user.home")
-            println("🔌 Automatically connecting to device $deviceIp before install...")
+            val devicesOutput = org.apache.commons.io.output.ByteArrayOutputStream()
             exec {
-                environment("ADB_VENDOR_KEYS", "$userHome/.android")
-                commandLine("adb", "connect", deviceIp)
-                isIgnoreExitValue = true
+                commandLine("adb", "devices")
+                standardOutput = devicesOutput
+            }
+            
+            val outputStr = devicesOutput.toString("UTF-8")
+            val lines: List<String> = outputStr.lines()
+            val hasDevice = lines.drop(1).any { line: String -> line.isNotBlank() && !line.contains("offline") }
+
+            if (!hasDevice) {
+                val deviceIp = project.findProperty("deviceIp") as? String ?: "192.168.1.39:42513"
+                val userHome = System.getProperty("user.home")
+                println("🔌 No active devices found. Connecting to device $deviceIp before install...")
+                exec {
+                    environment("ADB_VENDOR_KEYS", "$userHome/.android")
+                    commandLine("adb", "connect", deviceIp)
+                    isIgnoreExitValue = true
+                }
+            } else {
+                println("🔌 Device already connected, skipping auto-connect.")
             }
         }
     }
@@ -320,6 +334,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     reports {
         xml.required.set(true)
         html.required.set(true)
+        csv.required.set(true)
     }
 
     val fileFilter = listOf(
