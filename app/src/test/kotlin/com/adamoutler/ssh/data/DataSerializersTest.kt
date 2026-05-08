@@ -92,4 +92,15 @@ class DataSerializersTest {
         assertEquals("user", deserialized.username)
         assertEquals(null, deserialized.publicKey) // default
     }
+
+    @Test
+    fun `test PortForwardConfig serialization and deserialization`() {
+        val original = PortForwardConfig(PortForwardType.LOCAL, 8080, "127.0.0.1", 80)
+        val jsonString = Json.encodeToString(original)
+        val deserialized = Json.decodeFromString<PortForwardConfig>(jsonString)
+        assertEquals(original.type, deserialized.type)
+        assertEquals(original.localPort, deserialized.localPort)
+        assertEquals(original.remoteHost, deserialized.remoteHost)
+        assertEquals(original.remotePort, deserialized.remotePort)
+    }
 }
