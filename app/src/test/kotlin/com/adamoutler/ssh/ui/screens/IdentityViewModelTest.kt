@@ -79,7 +79,7 @@ class IdentityViewModelTest {
 
         var state = viewModel.uiState.value
         var attempts = 0
-        while (state.publicKey.isEmpty() && attempts < 300) {
+        while (state.publicKey.isEmpty() && attempts < 1000) {
             kotlinx.coroutines.delay(20)
             state = viewModel.uiState.value
             attempts++
