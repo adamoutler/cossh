@@ -2,6 +2,8 @@ package com.adamoutler.ssh.ui.screens
 
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
+import androidx.work.Configuration
+import androidx.work.testing.WorkManagerTestInitHelper
 import com.adamoutler.ssh.billing.BillingManager
 import com.adamoutler.ssh.sync.DriveSyncManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,6 +28,14 @@ class SettingsViewModelTest {
     @Before
     fun setup() {
         application = ApplicationProvider.getApplicationContext()
+        
+        // Initialize WorkManager for testing
+        val config = Configuration.Builder()
+            .setMinimumLoggingLevel(android.util.Log.DEBUG)
+            .setExecutor(androidx.work.testing.SynchronousExecutor())
+            .build()
+        WorkManagerTestInitHelper.initializeTestWorkManager(application, config)
+        
         billingManager = BillingManager(application)
         driveSyncManager = DriveSyncManager(application)
         viewModel = SettingsViewModel(application, billingManager, driveSyncManager)
@@ -70,5 +80,41 @@ class SettingsViewModelTest {
         val state = viewModel.uiState.value
         assertTrue("Passphrase dialog should show if passphrase is not set", state.showPassphraseDialog)
         assertFalse("Should not start syncing immediately", state.isSyncing)
+    }
+
+    @Test
+    fun testSavePassphraseAndSync() = runTest {
+        val activity = org.robolectric.Robolectric.buildActivity(android.app.Activity::class.java).setup().get()
+        try {
+            viewModel.savePassphraseAndSync("test_passphrase", activity)
+        } catch (e: Exception) {
+            // CredentialManager fails
+        }
+        
+        val state = viewModel.uiState.value
+        assertTrue("Passphrase should be marked as set", state.isPassphraseSet)
+        assertFalse("Passphrase dialog should be hidden", state.showPassphraseDialog)
+    }
+
+    @Test
+    fun testAuthenticateGoogleWhenPassphraseIsSet() = runTest {
+        val activity = org.robolectric.Robolectric.buildActivity(android.app.Activity::class.java).setup().get()
+        try {
+            viewModel.savePassphraseAndSync("test_passphrase", activity)
+        } catch (e: Exception) {}
+        
+        try {
+            viewModel.authenticateGoogle(activity)
+        } catch (e: Exception) {}
+        
+        val state = viewModel.uiState.value
+        assertFalse("Passphrase dialog should not show if passphrase is set", state.showPassphraseDialog)
+    }
+
+    @Test
+    fun testPurchaseCloudSync() = runTest {
+        val activity = org.robolectric.Robolectric.buildActivity(android.app.Activity::class.java).setup().get()
+        viewModel.purchaseCloudSync(activity)
+        // Verify it doesn't crash, logic handles billing flow silently without mock
     }
 }
