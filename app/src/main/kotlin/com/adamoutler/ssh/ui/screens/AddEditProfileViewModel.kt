@@ -8,6 +8,7 @@ import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
 import com.adamoutler.ssh.data.PortForwardConfig
 import com.adamoutler.ssh.data.Protocol
+import com.adamoutler.ssh.data.KeepScreenOnMode
 import com.adamoutler.ssh.ui.base.BaseAndroidViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,6 +31,8 @@ data class ProfileFormState(
     val envVarsText: String = "",
     val portForwards: List<PortForwardConfig> = emptyList(),
     val initialDirectory: String = "",
+    val terminalInputState: Int = 0,
+    val keepScreenOnMode: KeepScreenOnMode = KeepScreenOnMode.SYSTEM_DEFAULT,
     val isLoaded: Boolean = false,
 )
 
@@ -72,6 +75,8 @@ class AddEditProfileViewModel(
                         envVarsText = profile.envVars.entries.joinToString(",") { entry -> "${entry.key}=${entry.value}" },
                         portForwards = profile.portForwards,
                         initialDirectory = profile.initialDirectory ?: "",
+                        terminalInputState = profile.terminalInputState,
+                        keepScreenOnMode = profile.keepScreenOnMode,
                         isLoaded = true,
                     )
                 }
@@ -99,6 +104,8 @@ class AddEditProfileViewModel(
         envVars: Map<String, String> = emptyMap(),
         portForwards: List<PortForwardConfig> = emptyList(),
         initialDirectory: String? = null,
+        terminalInputState: Int = 0,
+        keepScreenOnMode: KeepScreenOnMode = KeepScreenOnMode.SYSTEM_DEFAULT,
     ) {
         val profileId = id ?: UUID.randomUUID().toString()
         val profile = ConnectionProfile(
@@ -115,6 +122,8 @@ class AddEditProfileViewModel(
             envVars = envVars,
             portForwards = portForwards,
             initialDirectory = initialDirectory?.takeIf { it.isNotBlank() },
+            terminalInputState = terminalInputState,
+            keepScreenOnMode = keepScreenOnMode,
         )
         storageManager.saveProfile(profile)
         resetState()

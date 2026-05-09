@@ -8,13 +8,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -142,6 +143,7 @@ fun TerminalScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TerminalScreenContent(
     profileId: String,
@@ -161,9 +163,11 @@ fun TerminalScreenContent(
 ) {
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
     val density = androidx.compose.ui.platform.LocalDensity.current
+    var lastDataTime by remember { androidx.compose.runtime.mutableLongStateOf(System.currentTimeMillis()) }
 
     androidx.compose.runtime.LaunchedEffect(sessionId) {
         val processBytes = { bytes: ByteArray ->
+            lastDataTime = System.currentTimeMillis()
             if (ConnectionStateRepository.isHeadlessTest) {
                 val newText = String(bytes, Charsets.UTF_8)
                 val current = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: ""
@@ -206,12 +210,42 @@ fun TerminalScreenContent(
         }
     }
 
-    var terminalInputState by remember { androidx.compose.runtime.mutableIntStateOf(initialTerminalInputState) }
+    var terminalInputState by remember { androidx.compose.runtime.mutableIntStateOf(profile?.terminalInputState ?: initialTerminalInputState) }
     var showOverlayButtons by remember { mutableStateOf(false) }
+    var showTerminalMenuBottomSheet by remember { mutableStateOf(false) }
     val ctrlState = remember { mutableStateOf(ModifierState.INACTIVE) }
     val altState = remember { mutableStateOf(ModifierState.INACTIVE) }
     val superState = remember { mutableStateOf(ModifierState.INACTIVE) }
     val menuState = remember { mutableStateOf(ModifierState.INACTIVE) }
+
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val window = (context as? android.app.Activity)?.window
+    val isProximityNear by rememberProximitySensorState()
+    var isDataFlowing by remember { mutableStateOf(false) }
+
+    androidx.compose.runtime.LaunchedEffect(lastDataTime) {
+        isDataFlowing = true
+        kotlinx.coroutines.delay(30000)
+        isDataFlowing = false
+    }
+
+    var keepScreenOnMode by remember { mutableStateOf(profile?.keepScreenOnMode ?: com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT) }
+
+    androidx.compose.runtime.LaunchedEffect(keepScreenOnMode, isProximityNear, isDataFlowing) {
+        if (window == null) return@LaunchedEffect
+
+        val shouldKeepOn = when (keepScreenOnMode) {
+            com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT -> false
+            com.adamoutler.ssh.data.KeepScreenOnMode.ALWAYS_ON -> !isProximityNear
+            com.adamoutler.ssh.data.KeepScreenOnMode.SMART_AWAKE -> !isProximityNear && isDataFlowing
+        }
+
+        if (shouldKeepOn) {
+            window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
 
     androidx.compose.runtime.LaunchedEffect(showOverlayButtons) {
         if (showOverlayButtons) {
@@ -415,6 +449,12 @@ fun TerminalScreenContent(
                                     terminalInputState = 0
                                 }
 
+                                coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                    profile?.copy(terminalInputState = terminalInputState)?.let { updatedProfile ->
+                                        com.adamoutler.ssh.crypto.SecurityStorageManager(ctx).saveProfile(updatedProfile)
+                                    }
+                                }
+
                                 terminalView.requestFocus()
                                 val window = (ctx as? android.app.Activity)?.window
                                 if (terminalInputState != 0) {
@@ -561,7 +601,10 @@ fun TerminalScreenContent(
                                 }
                                 return true
                             }
-                            override fun onLongPress(e: android.view.MotionEvent?): Boolean = false
+                            override fun onLongPress(e: android.view.MotionEvent?): Boolean {
+                                showTerminalMenuBottomSheet = true
+                                return true
+                            }
                             override fun onEmulatorSet() { /* No-op */ }
                             override fun logError(tag: String?, msg: String?) { /* No-op */ }
                             override fun logWarn(tag: String?, msg: String?) { /* No-op */ }
@@ -684,6 +727,99 @@ fun TerminalScreenContent(
                     }
                 },
             )
+        }
+    }
+
+    if (showTerminalMenuBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showTerminalMenuBottomSheet = false }
+        ) {
+            Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
+                Text(profile?.nickname ?: "Terminal Settings", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text("Default Input Mode", style = MaterialTheme.typography.labelMedium)
+                androidx.compose.foundation.layout.Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)) {
+                    FilterChip(
+                        selected = terminalInputState == 0,
+                        onClick = { 
+                            terminalInputState = 0 
+                            coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                profile?.copy(terminalInputState = 0)?.let { updatedProfile ->
+                                    com.adamoutler.ssh.crypto.SecurityStorageManager(context).saveProfile(updatedProfile)
+                                }
+                            }
+                        },
+                        label = { Text("Standard") }
+                    )
+                    FilterChip(
+                        selected = terminalInputState == 1,
+                        onClick = { 
+                            terminalInputState = 1
+                            coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                profile?.copy(terminalInputState = 1)?.let { updatedProfile ->
+                                    com.adamoutler.ssh.crypto.SecurityStorageManager(context).saveProfile(updatedProfile)
+                                }
+                            }
+                        },
+                        label = { Text("Keyboard") }
+                    )
+                    FilterChip(
+                        selected = terminalInputState == 2,
+                        onClick = { 
+                            terminalInputState = 2
+                            coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                profile?.copy(terminalInputState = 2)?.let { updatedProfile ->
+                                    com.adamoutler.ssh.crypto.SecurityStorageManager(context).saveProfile(updatedProfile)
+                                }
+                            }
+                        },
+                        label = { Text("Keyboard & Buttons") }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text("Keep Screen On Mode", style = MaterialTheme.typography.labelMedium)
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    val modes = com.adamoutler.ssh.data.KeepScreenOnMode.values()
+                    modes.forEachIndexed { index, mode ->
+                        SegmentedButton(
+                            selected = keepScreenOnMode == mode,
+                            onClick = { 
+                                keepScreenOnMode = mode
+                                coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                    profile?.copy(keepScreenOnMode = mode)?.let { updatedProfile ->
+                                        com.adamoutler.ssh.crypto.SecurityStorageManager(context).saveProfile(updatedProfile)
+                                    }
+                                }
+                            },
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size),
+                        ) {
+                            Text(when(mode) {
+                                com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT -> "System"
+                                com.adamoutler.ssh.data.KeepScreenOnMode.SMART_AWAKE -> "Smart"
+                                com.adamoutler.ssh.data.KeepScreenOnMode.ALWAYS_ON -> "Always"
+                            })
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text("Font Size", style = MaterialTheme.typography.labelMedium)
+                androidx.compose.foundation.layout.Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    IconButton(onClick = { onUpdateFontSize(currentFontSize - 1) }) {
+                        Text("-", style = MaterialTheme.typography.titleLarge)
+                    }
+                    Text("$currentFontSize", modifier = Modifier.padding(horizontal = 16.dp))
+                    IconButton(onClick = { onUpdateFontSize(currentFontSize + 1) }) {
+                        Text("+", style = MaterialTheme.typography.titleLarge)
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(32.dp))
+            }
         }
     }
 }

@@ -74,7 +74,7 @@ class TerminalScreenContentUITest {
                         onUpdateFontSize = {},
                         onNavigateBack = {},
                         onClearError = {},
-                        profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH),
+                        profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH, terminalInputState = 2),
                         initialTerminalInputState = 2,
                     )
                 }

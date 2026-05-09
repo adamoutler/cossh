@@ -40,6 +40,13 @@ enum class Protocol {
 }
 
 @Serializable
+enum class KeepScreenOnMode {
+    SYSTEM_DEFAULT,
+    SMART_AWAKE,
+    ALWAYS_ON
+}
+
+@Serializable
 data class ConnectionProfile(
     val id: String,
     val nickname: String,
@@ -58,6 +65,8 @@ data class ConnectionProfile(
     val envVars: Map<String, String> = emptyMap(),
     val portForwards: List<PortForwardConfig> = emptyList(),
     val initialDirectory: String? = null,
+    val terminalInputState: Int = 0,
+    val keepScreenOnMode: KeepScreenOnMode = KeepScreenOnMode.SYSTEM_DEFAULT,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -85,6 +94,9 @@ data class ConnectionProfile(
         if (folderId != other.folderId) return false
         if (envVars != other.envVars) return false
         if (portForwards != other.portForwards) return false
+        if (initialDirectory != other.initialDirectory) return false
+        if (terminalInputState != other.terminalInputState) return false
+        if (keepScreenOnMode != other.keepScreenOnMode) return false
 
         return true
     }
@@ -105,6 +117,9 @@ data class ConnectionProfile(
         result = 31 * result + (folderId?.hashCode() ?: 0)
         result = 31 * result + envVars.hashCode()
         result = 31 * result + portForwards.hashCode()
+        result = 31 * result + (initialDirectory?.hashCode() ?: 0)
+        result = 31 * result + terminalInputState
+        result = 31 * result + keepScreenOnMode.hashCode()
         return result
     }
 
