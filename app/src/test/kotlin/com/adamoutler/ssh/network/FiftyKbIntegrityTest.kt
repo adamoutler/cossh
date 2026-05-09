@@ -21,7 +21,7 @@ import kotlin.random.Random
 class FiftyKbIntegrityTest {
 
     companion object {
-        var currentPort = 3000
+        var currentPort = 3100
     }
 
     private var mockSshdProcess: Process? = null
