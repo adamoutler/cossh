@@ -41,4 +41,59 @@ class AddEditProfileViewModelTest {
         assertEquals(AuthType.PASSWORD, profile?.authType)
         assertEquals("testpassword", profile?.password?.decodeToString())
     }
+
+    @Test
+    fun `test updateState and resetState`() {
+        val app = ApplicationProvider.getApplicationContext<Application>()
+        val prefs = app.getSharedPreferences("test_prefs", android.content.Context.MODE_PRIVATE)
+        val viewModel = AddEditProfileViewModel(app, com.adamoutler.ssh.crypto.SecurityStorageManager(app, prefs), com.adamoutler.ssh.crypto.IdentityStorageManager(app, prefs))
+
+        viewModel.updateState { it.copy(nickname = "New Name", host = "1.2.3.4") }
+        assertEquals("New Name", viewModel.uiState.value.nickname)
+        assertEquals("1.2.3.4", viewModel.uiState.value.host)
+
+        viewModel.resetState()
+        assertEquals("", viewModel.uiState.value.nickname)
+        assertEquals("", viewModel.uiState.value.host)
+    }
+
+    @Test
+    fun `test loadProfileIfNeeded`() {
+        val app = ApplicationProvider.getApplicationContext<Application>()
+        val prefs = app.getSharedPreferences("test_prefs", android.content.Context.MODE_PRIVATE)
+        val storageManager = com.adamoutler.ssh.crypto.SecurityStorageManager(app, prefs)
+        val viewModel = AddEditProfileViewModel(app, storageManager, com.adamoutler.ssh.crypto.IdentityStorageManager(app, prefs))
+
+        val profile = com.adamoutler.ssh.data.ConnectionProfile(
+            id = "load-test", nickname = "Load", host = "test", envVars = mapOf("A" to "B")
+        )
+        storageManager.saveProfile(profile)
+
+        viewModel.loadProfileIfNeeded("load-test")
+        assertEquals(true, viewModel.uiState.value.isLoaded)
+        assertEquals("Load", viewModel.uiState.value.nickname)
+        assertEquals("A=B", viewModel.uiState.value.envVarsText)
+
+        // Loading again shouldn't overwrite if modified
+        viewModel.updateState { it.copy(nickname = "Modified") }
+        viewModel.loadProfileIfNeeded("load-test")
+        assertEquals("Modified", viewModel.uiState.value.nickname)
+    }
+
+    @Test
+    fun `test getAvailableKeys and getIdentities`() {
+        val app = ApplicationProvider.getApplicationContext<Application>()
+        val prefs = app.getSharedPreferences("test_prefs", android.content.Context.MODE_PRIVATE)
+        val storageManager = com.adamoutler.ssh.crypto.SecurityStorageManager(app, prefs)
+        val identityStorageManager = com.adamoutler.ssh.crypto.IdentityStorageManager(app, prefs)
+        val viewModel = AddEditProfileViewModel(app, storageManager, identityStorageManager)
+
+        identityStorageManager.saveIdentity(com.adamoutler.ssh.data.IdentityProfile(id = "id-1", name = "Test Identity", username = "test"))
+
+        val keys = viewModel.getAvailableKeys()
+        org.junit.Assert.assertNotNull(keys)
+
+        val identities = viewModel.getIdentities()
+        org.junit.Assert.assertTrue(identities.any { it.name == "Test Identity" })
+    }
 }
