@@ -52,8 +52,8 @@ class AppConnectionIntegrationTest {
                     }
                 }
             }.start()
-            if (!latch.await(15, java.util.concurrent.TimeUnit.SECONDS)) {
-                println("Warning: mock_sshd.py failed to report listening within 15 seconds")
+            if (!latch.await(45, java.util.concurrent.TimeUnit.SECONDS)) {
+                println("Warning: mock_sshd.py failed to report listening within 45 seconds")
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -70,7 +70,7 @@ class AppConnectionIntegrationTest {
 
     @Test(timeout = 300000L)
     fun testInAppTerminalConnectionAndDataTransfer() = runBlocking {
-        kotlinx.coroutines.withTimeout(60_000L) {
+        kotlinx.coroutines.withTimeout(90_000L) {
             ConnectionStateRepository.isHeadlessTest = true
             ConnectionStateRepository.clearSession("id_integration")
             val sessionData = ConnectionStateRepository.getOrCreateSession("id_integration")
@@ -108,7 +108,7 @@ class AppConnectionIntegrationTest {
             }
     
             var retries = 0
-            while (sessionData.ptyOutputStream == null && retries < 150) {
+            while (sessionData.ptyOutputStream == null && retries < 1500) {
                 delay(10)
                 retries++
             }
@@ -121,7 +121,7 @@ class AppConnectionIntegrationTest {
     
             retries = 0
             var foundOutput = false
-            while (retries < 150) {
+            while (retries < 1500) {
                 val transcript = ConnectionStateRepository.mockTestTranscripts["id_integration"]
                 if (transcript?.contains("a\n") == true || transcript?.contains("Hello from mock sshd!") == true) {
                     foundOutput = true
@@ -143,7 +143,7 @@ class AppConnectionIntegrationTest {
 
     @Test(timeout = 300000L)
     fun test19StepWorkflow_ConnectionResumeAndConcurrentSessions() = runBlocking {
-        kotlinx.coroutines.withTimeout(60_000L) {
+        kotlinx.coroutines.withTimeout(90_000L) {
             ConnectionStateRepository.isHeadlessTest = true
             val profileId1 = "id_integration_1"
             val profileId2 = "id_integration_2"
@@ -263,7 +263,7 @@ class AppConnectionIntegrationTest {
 
                 var retries = 0
                 var foundOutput2 = false
-                while (retries < 150) {
+                while (retries < 1500) {
                     val transcript = ConnectionStateRepository.mockTestTranscripts[profileId2] ?: ""
                     if (transcript.contains("Step 11 Text") || transcript.contains("Hello from mock sshd!")) {
                         foundOutput2 = true

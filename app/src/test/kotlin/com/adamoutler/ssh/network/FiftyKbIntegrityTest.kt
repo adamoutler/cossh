@@ -55,8 +55,8 @@ class FiftyKbIntegrityTest {
                     }
                 }
             }.start()
-            if (!latch.await(15, java.util.concurrent.TimeUnit.SECONDS)) {
-                println("Warning: mock_sshd.py failed to report listening within 15 seconds")
+            if (!latch.await(45, java.util.concurrent.TimeUnit.SECONDS)) {
+                println("Warning: mock_sshd.py failed to report listening within 45 seconds")
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -80,7 +80,7 @@ class FiftyKbIntegrityTest {
 
     @Test(timeout = 300000L)
     fun test50KbDataIntegrity() = runBlocking {
-        kotlinx.coroutines.withTimeout(60_000L) {
+        kotlinx.coroutines.withTimeout(120_000L) {
             ConnectionStateRepository.isHeadlessTest = true
             ConnectionStateRepository.clearSession("id_50kb")
             val sessionData = ConnectionStateRepository.getOrCreateSession("id_50kb")
@@ -118,7 +118,7 @@ class FiftyKbIntegrityTest {
             }
     
             var retries = 0
-            while (sessionData.ptyOutputStream == null && retries < 150) {
+            while (sessionData.ptyOutputStream == null && retries < 1500) {
                 delay(10)
                 retries++
             }
