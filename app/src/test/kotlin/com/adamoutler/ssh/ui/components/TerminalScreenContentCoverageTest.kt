@@ -1,9 +1,8 @@
 package com.adamoutler.ssh.ui.components
 
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.ui.test.junit4.createEmptyComposeRule
-import androidx.test.core.app.ActivityScenario
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.Protocol
 import com.adamoutler.ssh.network.ActiveSessionState
@@ -20,14 +19,18 @@ import java.io.PipedInputStream
 import java.io.PipedOutputStream
 
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(sdk = [34])
 class TerminalScreenContentCoverageTest {
 
     @get:Rule
-    val composeTestRule = createEmptyComposeRule()
+    val composeTestRule = createComposeRule()
 
     @Test
     fun testTerminalScreenContentVariousStates() {
+        var navigateBackClicked = false
+        var clearErrorClicked = false
+        var updateFontSizeCalled = false
+        
         val mockSessionId = "test-session-123"
         ConnectionStateRepository.clearSession(mockSessionId)
         ConnectionStateRepository.isHeadlessTest = true
@@ -61,29 +64,46 @@ class TerminalScreenContentCoverageTest {
             },
         )
 
-        ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
-            scenario.onActivity { activity ->
-                activity.setContent {
-                    TerminalScreenContent(
-                        profileId = "test-profile-123",
-                        sessionId = mockSessionId,
-                        session = mockSession,
-                        activeSession = ActiveSessionState(profileId = "test-profile-123", ptyOutputStream = pos, sshShell = null),
-                        currentFontSize = 14,
-                        isConnectionActive = true,
-                        errorMessage = "Test Error Message", // Trigger error state
-                        onUpdateFontSize = {},
-                        onNavigateBack = {},
-                        onClearError = {},
-                        profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH),
-                        initialTerminalInputState = 1, // Alt mode or something
-                    )
-                }
-            }
-            
-            // Just running it through recomposition helps hit UI lines
-            composeTestRule.waitForIdle()
-            assertTrue(true)
+        composeTestRule.setContent {
+            TerminalScreenContent(
+                profileId = "test-profile-123",
+                sessionId = mockSessionId,
+                session = mockSession,
+                activeSession = ActiveSessionState(profileId = "test-profile-123", ptyOutputStream = pos, sshShell = null),
+                currentFontSize = 14,
+                isConnectionActive = true,
+                errorMessage = "Test Error Message", // Trigger error state
+                onUpdateFontSize = { updateFontSizeCalled = true },
+                onNavigateBack = { navigateBackClicked = true },
+                onClearError = { clearErrorClicked = true },
+                profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH),
+                initialTerminalInputState = 1,
+            )
         }
+        
+        composeTestRule.waitForIdle()
+        
+        // Error message should be displayed
+        composeTestRule.onNodeWithText("Error: Test Error Message").assertExists()
+        
+        // Click dismiss on error
+        composeTestRule.onNodeWithText("OK").performClick()
+        assertTrue(clearErrorClicked)
+    }
+
+    @Test
+    fun testTerminalScreenBase() {
+        val mockSessionId = "test-session-456"
+        ConnectionStateRepository.clearSession(mockSessionId)
+        ConnectionStateRepository.isHeadlessTest = true
+        
+        composeTestRule.setContent {
+            TerminalScreen(
+                profileId = "1",
+                sessionId = mockSessionId,
+                onNavigateBack = {},
+            )
+        }
+        composeTestRule.waitForIdle()
     }
 }
