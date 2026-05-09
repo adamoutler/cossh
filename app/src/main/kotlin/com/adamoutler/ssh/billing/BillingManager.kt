@@ -17,7 +17,11 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class BillingManager(private val context: Context) : PurchasesUpdatedListener {
 
-    private val _isCloudSyncEnabled = MutableStateFlow(false)
+    companion object {
+        var forceCloudSyncEnabledForTest = false
+    }
+
+    private val _isCloudSyncEnabled = MutableStateFlow(forceCloudSyncEnabledForTest)
     val isCloudSyncEnabled: StateFlow<Boolean> = _isCloudSyncEnabled.asStateFlow()
 
     private val billingClient = BillingClient.newBuilder(context)

@@ -159,6 +159,7 @@ class FiftyKbIntegrityTest {
                     break
                 }
                 
+                delay(50)
                 retries++
             }
     

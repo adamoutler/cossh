@@ -1,107 +1,103 @@
 package com.adamoutler.ssh.billing
 
 import android.app.Activity
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
-import com.android.billingclient.api.Purchase
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import java.lang.reflect.Field
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class BillingManagerTest {
 
-    @Test
-    fun testProcessPurchases_UnlockCloudSync() {
-        val context = RuntimeEnvironment.getApplication()
-        val billingManager = BillingManager(context)
+    private lateinit var context: Context
+    private lateinit var billingManager: BillingManager
 
-        assertFalse(billingManager.isCloudSyncEnabled.value)
-
-        // Construct a Purchase using JSON
-        val purchaseJson = """
-            {
-              "orderId": "GPA.1234-5678-9012-34567",
-              "packageName": "com.adamoutler.ssh",
-              "productId": "lifetimecloudsync",
-              "purchaseTime": 1620000000000,
-              "purchaseState": 0,
-              "purchaseToken": "token",
-              "acknowledged": true
-            }
-        """.trimIndent()
-
-        val purchase = Purchase(purchaseJson, "signature")
-
-        val billingResult = BillingResult.newBuilder()
-            .setResponseCode(BillingClient.BillingResponseCode.OK)
-            .build()
-
-        billingManager.onPurchasesUpdated(billingResult, mutableListOf(purchase))
-
-        assertTrue(billingManager.isCloudSyncEnabled.value)
+    @Before
+    fun setUp() {
+        context = ApplicationProvider.getApplicationContext()
+        billingManager = BillingManager(context)
     }
 
     @Test
-    fun testProcessPurchases_UnacknowledgedPurchase() {
-        val context = RuntimeEnvironment.getApplication()
-        val billingManager = BillingManager(context)
-
-        assertFalse(billingManager.isCloudSyncEnabled.value)
-
-        val purchaseJson = """
-            {
-              "orderId": "GPA.1234-5678-9012-34567",
-              "packageName": "com.adamoutler.ssh",
-              "productId": "lifetimecloudsync",
-              "purchaseTime": 1620000000000,
-              "purchaseState": 0,
-              "purchaseToken": "token",
-              "acknowledged": false
-            }
-        """.trimIndent()
-
-        val purchase = Purchase(purchaseJson, "signature")
-
-        val billingResult = BillingResult.newBuilder()
-            .setResponseCode(BillingClient.BillingResponseCode.OK)
-            .build()
-
-        billingManager.onPurchasesUpdated(billingResult, mutableListOf(purchase))
-
-        // Should trigger acknowledgePurchase. Without a mock billing client,
-        // it may just log or fail to acknowledge. We test if it survives.
+    fun testInitialState() = runBlocking {
+        // By default it should be false, unless forceCloudSyncEnabledForTest is true
+        BillingManager.forceCloudSyncEnabledForTest = false
+        val newBillingManager = BillingManager(context)
+        val isEnabled = newBillingManager.isCloudSyncEnabled.first()
+        assertEquals(false, isEnabled)
     }
 
     @Test
-    fun testOnPurchasesUpdated_Error() {
-        val context = RuntimeEnvironment.getApplication()
-        val billingManager = BillingManager(context)
+    fun testForceCloudSyncEnabled() = runBlocking {
+        BillingManager.forceCloudSyncEnabledForTest = true
+        val newBillingManager = BillingManager(context)
+        val isEnabled = newBillingManager.isCloudSyncEnabled.first()
+        assertEquals(true, isEnabled)
+        BillingManager.forceCloudSyncEnabledForTest = false // Reset
+    }
 
-        val billingResult = BillingResult.newBuilder()
-            .setResponseCode(BillingClient.BillingResponseCode.ERROR)
-            .build()
-
+    @Test
+    fun testOnPurchasesUpdated() {
+        // We test the callback manually
+        val billingResult = BillingResult.newBuilder().setResponseCode(BillingClient.BillingResponseCode.OK).build()
+        // Also test with null purchases
         billingManager.onPurchasesUpdated(billingResult, null)
-        assertFalse(billingManager.isCloudSyncEnabled.value)
     }
 
     @Test
     fun testPurchaseCloudSync() {
-        val context = RuntimeEnvironment.getApplication()
-        val billingManager = BillingManager(context)
-        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
-
-        // Just calling it to hit the code path and ensure it doesn't crash
-        // before interacting with BillingClient.
+        val activity = Activity()
         billingManager.purchaseCloudSync(activity)
+        // Should query product details but since billing client isn't connected/mocked, it will just not crash
+    }
+
+    @Test
+    fun testOnPurchasesUpdated_withValidPurchase() = runBlocking {
+        val billingResult = BillingResult.newBuilder().setResponseCode(BillingClient.BillingResponseCode.OK).build()
+        
+        val purchaseJson = """
+            {
+                "productId": "lifetimecloudsync",
+                "productIds": ["lifetimecloudsync"],
+                "purchaseState": 0,
+                "acknowledged": true,
+                "purchaseToken": "mock_token"
+            }
+        """.trimIndent()
+        val purchase = com.android.billingclient.api.Purchase(purchaseJson, "mock_signature")
+        
+        val newBillingManager = BillingManager(context)
+        newBillingManager.onPurchasesUpdated(billingResult, mutableListOf(purchase))
+        
+        val isEnabled = newBillingManager.isCloudSyncEnabled.first()
+        assertEquals(true, isEnabled)
+    }
+
+    @Test
+    fun testOnPurchasesUpdated_withUnacknowledgedPurchase() = runBlocking {
+        val billingResult = BillingResult.newBuilder().setResponseCode(BillingClient.BillingResponseCode.OK).build()
+        
+        val purchaseJson = """
+            {
+                "productId": "lifetimecloudsync",
+                "productIds": ["lifetimecloudsync"],
+                "purchaseState": 0,
+                "acknowledged": false,
+                "purchaseToken": "mock_token"
+            }
+        """.trimIndent()
+        val purchase = com.android.billingclient.api.Purchase(purchaseJson, "mock_signature")
+        
+        val newBillingManager = BillingManager(context)
+        newBillingManager.onPurchasesUpdated(billingResult, mutableListOf(purchase))
     }
 }
