@@ -3,6 +3,7 @@ isRunning
 reset
 write
 getPid
+updateTerminalSessionClient
 updateSize
 getTitle
 initializeEmulator
@@ -16,7 +17,6 @@ onPasteTextFromClipboard
 onBell
 onColorsChanged
 getCwd
-updateTerminalSessionClient
 write
 equals
 toString
@@ -32,12 +32,6 @@ reset
 toString
 append
 resize
-getScrollCounter
-clearScrollCounter
-getSelectedText
-paste
-getTitle
-updateTerminalSessionClient
 getScreen
 isAlternateBufferActive
 sendMouseEvent
@@ -55,6 +49,12 @@ isCursorKeysApplicationMode
 isMouseTrackingActive
 processCodePoint
 doDecSetOrReset
+getScrollCounter
+clearScrollCounter
+getSelectedText
+paste
+updateTerminalSessionClient
+getTitle
 equals
 hashCode
 getClass
