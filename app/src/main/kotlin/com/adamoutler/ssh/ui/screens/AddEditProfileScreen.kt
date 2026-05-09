@@ -111,6 +111,10 @@ fun AddEditProfileScreen(
         onPortForwardsChange = { newPF -> viewModel.updateState { it.copy(portForwards = newPF) } },
         initialDirectory = uiState.initialDirectory,
         onInitialDirectoryChange = { newInitialDirectory -> viewModel.updateState { it.copy(initialDirectory = newInitialDirectory) } },
+        terminalInputState = uiState.terminalInputState,
+        onTerminalInputStateChange = { newState -> viewModel.updateState { it.copy(terminalInputState = newState) } },
+        keepScreenOnMode = uiState.keepScreenOnMode,
+        onKeepScreenOnModeChange = { newMode -> viewModel.updateState { it.copy(keepScreenOnMode = newMode) } },
         onSave = {
             val selectedIdent = identities.find { it.id == uiState.identityId }
             val finalUsername = if (selectedIdent != null && uiState.protocol == Protocol.SSH) selectedIdent.username else uiState.username
@@ -151,6 +155,8 @@ fun AddEditProfileScreen(
                 envVars = parsedEnvVars,
                 portForwards = uiState.portForwards,
                 initialDirectory = uiState.initialDirectory,
+                terminalInputState = uiState.terminalInputState,
+                keepScreenOnMode = uiState.keepScreenOnMode,
             )
             onNavigateBack()
         },
@@ -194,6 +200,10 @@ fun AddEditProfileScreenContent(
     onPortForwardsChange: (List<PortForwardConfig>) -> Unit,
     initialDirectory: String,
     onInitialDirectoryChange: (String) -> Unit,
+    terminalInputState: Int,
+    onTerminalInputStateChange: (Int) -> Unit,
+    keepScreenOnMode: com.adamoutler.ssh.data.KeepScreenOnMode,
+    onKeepScreenOnModeChange: (com.adamoutler.ssh.data.KeepScreenOnMode) -> Unit,
     onSave: () -> Unit,
     onNavigateBack: () -> Unit,
     defaultPasswordVisible: Boolean = false,
@@ -507,6 +517,64 @@ fun AddEditProfileScreenContent(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 },
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+            SectionHeaderWithInfo(title = "Default Terminal View", topic = "Terminal Options")
+            var isTerminalViewDropdownExpanded by remember { mutableStateOf(false) }
+            val terminalViewOptions = listOf("Standard", "Keyboard Only", "Keyboard & Extra Keys")
+            ExposedDropdownMenuBox(
+                expanded = isTerminalViewDropdownExpanded,
+                onExpandedChange = { isTerminalViewDropdownExpanded = !isTerminalViewDropdownExpanded },
+            ) {
+                OutlinedTextField(
+                    value = terminalViewOptions.getOrNull(terminalInputState) ?: "Standard",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Default Input Mode") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isTerminalViewDropdownExpanded) },
+                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                    modifier = Modifier.fillMaxWidth().menuAnchor(),
+                )
+                ExposedDropdownMenu(
+                    expanded = isTerminalViewDropdownExpanded,
+                    onDismissRequest = { isTerminalViewDropdownExpanded = false },
+                ) {
+                    terminalViewOptions.forEachIndexed { index, option ->
+                        DropdownMenuItem(
+                            text = { Text(option) },
+                            onClick = {
+                                onTerminalInputStateChange(index)
+                                isTerminalViewDropdownExpanded = false
+                            },
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            SectionHeaderWithInfo(title = "Keep Screen On Mode", topic = "Terminal Options")
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                val modes = com.adamoutler.ssh.data.KeepScreenOnMode.values()
+                modes.forEachIndexed { index, mode ->
+                    SegmentedButton(
+                        selected = keepScreenOnMode == mode,
+                        onClick = { onKeepScreenOnModeChange(mode) },
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size),
+                    ) {
+                        Text(when(mode) {
+                            com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT -> "System"
+                            com.adamoutler.ssh.data.KeepScreenOnMode.SMART_AWAKE -> "Smart"
+                            com.adamoutler.ssh.data.KeepScreenOnMode.ALWAYS_ON -> "Always On"
+                        })
+                    }
+                }
+            }
+            Text(
+                text = "Smart Awake keeps the screen on while data flows. Both Smart and Always On will pause if the device is placed face-down or in a pocket.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp, start = 16.dp, end = 16.dp)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
