@@ -53,8 +53,8 @@ class SshConnectionManagerInjectionTest {
                     }
                 }
             }.start()
-            if (!latch.await(15, java.util.concurrent.TimeUnit.SECONDS)) {
-                println("Warning: mock_sshd.py failed to report listening within 15 seconds")
+            if (!latch.await(45, java.util.concurrent.TimeUnit.SECONDS)) {
+                println("Warning: mock_sshd.py failed to report listening within 45 seconds")
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -86,9 +86,9 @@ class SshConnectionManagerInjectionTest {
         assertFalse("Should fail regex validation for malicious key", result)
     }
 
-    @Test(timeout = 60000L)
+    @Test(timeout = 120000L)
     fun testInjectPublicKey_ValidKey_AttemptConnect() = runBlocking {
-        kotlinx.coroutines.withTimeout(30_000L) {
+        kotlinx.coroutines.withTimeout(90_000L) {
             val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
     
             val passwordProfile = ConnectionProfile(

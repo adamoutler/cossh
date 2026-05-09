@@ -48,3 +48,9 @@ You are a senior orchestrator. You have a team of highly specialized agents at y
 ### 7. SonarCloud Analysis
 - **Project Key:** `adamoutler_cossh`
 - **Organization Key:** `adamoutler`
+- **Quality Gate Failures:** If the Sonar job fails with "No coverage report can be found", it is usually because the XML test results or Jacoco reports were not generated.
+- **Test Output Requirements:** The CI pipeline runs `./gradlew testDebugUnitTest jacocoTestReport`. To ensure reports are generated:
+  - You MUST include `set -o pipefail` in the CI shell script before piping to `tee build-test.log`, otherwise test failures will be masked (exit code 0) and the `upload-artifact` step won't find the reports.
+  - You MUST explicitly enable XML test reports for AGP 8.0+ in `build.gradle.kts` via `testOptions { unitTests { all { it.reports.junitXml.required.set(true) } } }`.
+  - The `lint` job MUST upload `app/build/reports/` using `actions/upload-artifact@v4` and the `sonar` job MUST download it, as Sonar requires the `lint-results-debug.xml` file.
+  - Integration tests using `mock_sshd.py` (like `FiftyKbIntegrityTest`) must have long timeouts (`withTimeout(120_000L)`) and use `CountDownLatch` to wait for the Python server to start and listen (e.g. `latch.await(45, TimeUnit.SECONDS)`) to avoid arbitrary connection timeouts on slow GitHub Action runners.
