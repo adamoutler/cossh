@@ -43,15 +43,21 @@ class FiftyKbIntegrityTest {
             val pb = ProcessBuilder("python3", mockScript.absolutePath, testPort.toString())
             pb.redirectErrorStream(true)
             mockSshdProcess = pb.start()
+            val latch = java.util.concurrent.CountDownLatch(1)
             Thread {
                 mockSshdProcess?.inputStream?.bufferedReader()?.use { reader ->
                     var line: String?
                     while (reader.readLine().also { line = it } != null) {
                         println("mock_sshd: $line")
+                        if (line?.contains("Mock SSHD listening on") == true) {
+                            latch.countDown()
+                        }
                     }
                 }
             }.start()
-            Thread.sleep(3000)
+            if (!latch.await(15, java.util.concurrent.TimeUnit.SECONDS)) {
+                println("Warning: mock_sshd.py failed to report listening within 15 seconds")
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
