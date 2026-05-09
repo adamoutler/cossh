@@ -19,7 +19,7 @@ import java.io.File
 class SshConnectionManagerInjectionTest {
 
     companion object {
-        var currentPort = 2224
+        var currentPort = 3300
     }
 
     private var mockSshdProcess: Process? = null

@@ -70,7 +70,9 @@ jobs:
       # Important: Tests and JaCoCo coverage report generation are run here.
       # We separate `test` from `sonar` so these heavy JVM test suites run concurrently with `lint` and builds.
       - name: Run Tests and Coverage
-        run: ./gradlew testDebugUnitTest jacocoTestReport | tee build-test.log
+        run: |
+          set -o pipefail
+          ./gradlew testDebugUnitTest jacocoTestReport | tee build-test.log
       # Important: Upload the generated jacocoTestReport.xml and JUnit test-results.
       # The `sonar` job will download this artifact to ingest the coverage metrics without re-running the tests.
       - name: Upload Test Results and Coverage

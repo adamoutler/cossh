@@ -18,7 +18,7 @@ import java.io.File
 class AppConnectionIntegrationTest {
 
     companion object {
-        var currentPort = 4000
+        var currentPort = 3200
     }
 
     private var mockSshdProcess: Process? = null

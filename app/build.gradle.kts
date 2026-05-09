@@ -121,6 +121,7 @@ android {
         unitTests {
             isIncludeAndroidResources = true
             all {
+                it.reports.junitXml.required.set(true)
                 it.extensions.configure<org.gradle.testing.jacoco.plugins.JacocoTaskExtension> {
                     isIncludeNoLocationClasses = true
                     excludes = listOf("jdk.internal.*")
