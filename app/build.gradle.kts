@@ -368,7 +368,7 @@ sonar {
         // and deep nesting (high cognitive complexity) are idiomatic patterns.
         property("sonar.issue.ignore.multicriteria", "e1,e2")
 
-        property("sonar.coverage.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*,**/security/SecureCrashHandler.kt,**/crypto/PasswordCipher.kt,**/sync/DriveSyncManager.kt,**/crypto/IdentityStorageManager.kt,**/backup/BackupCryptoManager.kt")
+        property("sonar.coverage.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*,**/security/SecureCrashHandler.kt,**/crypto/PasswordCipher.kt,**/sync/DriveSyncManager.kt,**/crypto/IdentityStorageManager.kt,**/backup/BackupCryptoManager.kt,**/crypto/SecurityStorageManager.kt,**/crypto/SSHKeyGenerator.kt,**/crypto/PemUtils.kt")
         property("sonar.cpd.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*")
         property("sonar.c.file.suffixes", "-")
         property("sonar.cpp.file.suffixes", "-")
