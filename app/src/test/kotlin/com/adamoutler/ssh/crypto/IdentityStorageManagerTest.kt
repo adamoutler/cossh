@@ -115,4 +115,11 @@ class IdentityStorageManagerTest {
         val allProfiles = storageManager.getAllIdentities()
         assertTrue(allProfiles.none { it.id == "corrupt_id" })
     }
+
+    @Test
+    fun testDefaultInitialization() {
+        // Test that without injectedPrefs, it initializes correctly (falls back to Robolectric preferences in this environment)
+        val defaultStorageManager = IdentityStorageManager(context, null)
+        assertNotNull(defaultStorageManager.encryptedPrefs)
+    }
 }

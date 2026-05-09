@@ -26,9 +26,12 @@ class SyncWorkerTest {
     @Before
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
-        val prefs = context.getSharedPreferences("test_prefs_sync", 0)
-        prefs.edit().clear().commit()
-        securityManager = SecurityStorageManager(context, prefs)
+        // Clear default security prefs so we have a clean state
+        val defaultSecurityPrefs = context.getSharedPreferences("security_prefs", Context.MODE_PRIVATE)
+        defaultSecurityPrefs.edit().clear().commit()
+        
+        securityManager = SecurityStorageManager(context)
+        
         val billingPrefs = context.getSharedPreferences("BillingPrefs", Context.MODE_PRIVATE)
         billingPrefs.edit().clear().commit()
     }
@@ -42,33 +45,29 @@ class SyncWorkerTest {
     
     @Test
     fun `test doWork with cloud sync enabled but no password returns failure`() = runBlocking {
-        // Enable cloud sync
-        val billingPrefs = context.getSharedPreferences("BillingPrefs", Context.MODE_PRIVATE)
-        billingPrefs.edit().putBoolean("isCloudSyncEnabled", true).commit()
+        // Enable cloud sync via test flag
+        BillingManager.forceCloudSyncEnabledForTest = true
 
-        // SyncWorker checks billingManager.isCloudSyncEnabled.first()
-        // Without mocking the Google Play Billing Library, we can't easily set it to true.
-        // By default it emits false initially.
-        // Therefore, the worker will return success early.
         val worker = TestListenableWorkerBuilder<SyncWorker>(context).build()
         val result = worker.doWork()
         
-        assertEquals(Result.success(), result)
+        assertEquals(Result.failure(), result)
+        BillingManager.forceCloudSyncEnabledForTest = false
     }
 
     @Test
     fun `test doWork with cloud sync enabled and password returns retry due to network error`() = runBlocking {
-        // Enable cloud sync
-        val billingPrefs = context.getSharedPreferences("BillingPrefs", Context.MODE_PRIVATE)
-        billingPrefs.edit().putBoolean("isCloudSyncEnabled", true).commit()
+        // Enable cloud sync via test flag
+        BillingManager.forceCloudSyncEnabledForTest = true
 
         // Save a dummy password
         securityManager.saveSyncPassphrase("testpass".toCharArray())
 
         val worker = TestListenableWorkerBuilder<SyncWorker>(context).build()
-        // It returns success early because we aren't mocking the billing client callback
+        // It should try to sync but fail with retry due to lack of network/drive mock
         val result = worker.doWork()
         
-        assertEquals(Result.success(), result)
+        assertEquals(Result.retry(), result)
+        BillingManager.forceCloudSyncEnabledForTest = false
     }
 }
