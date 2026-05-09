@@ -41,6 +41,56 @@ class IdentityViewModelTest {
     }
 
     @Test
+    fun testUpdateStateAndResetState() {
+        viewModel.updateState { it.copy(name = "Updated Name", username = "Updated Username") }
+        var state = viewModel.uiState.value
+        assertTrue(state.name == "Updated Name")
+        assertTrue(state.username == "Updated Username")
+
+        viewModel.resetState()
+        state = viewModel.uiState.value
+        assertTrue(state.name == "")
+        assertTrue(state.username == "")
+        assertTrue(!state.isLoaded)
+    }
+
+    @Test
+    fun testLoadIdentityIfNeeded() = runTest {
+        val identity = IdentityProfile(id = "load-me", name = "Load Me", username = "loaded", password = "pwd".toByteArray())
+        viewModel.saveIdentity(identity)
+        
+        // Let flow settle
+        kotlinx.coroutines.delay(50)
+        
+        viewModel.loadIdentityIfNeeded("load-me")
+        val state = viewModel.uiState.value
+        assertTrue(state.isLoaded)
+        assertTrue(state.name == "Load Me")
+        assertTrue(state.username == "loaded")
+        assertTrue(state.isPasswordLocked)
+        
+        // Calling again should no-op
+        viewModel.updateState { it.copy(name = "Changed") }
+        viewModel.loadIdentityIfNeeded("load-me")
+        assertTrue(viewModel.uiState.value.name == "Changed") // Didn't reload
+    }
+    
+    @Test
+    fun testLoadIdentityIfNeededNull() {
+        viewModel.loadIdentityIfNeeded(null)
+        assertTrue(viewModel.uiState.value.isLoaded)
+    }
+    
+    @Test
+    fun testGetIdentity() = runTest {
+        val identity = IdentityProfile(id = "get-me", name = "Get Me", username = "got")
+        viewModel.saveIdentity(identity)
+        kotlinx.coroutines.delay(50)
+        val got = viewModel.getIdentity("get-me")
+        assertTrue(got?.name == "Get Me")
+    }
+
+    @Test
     fun testDeleteIdentity() = runTest {
         val identity = IdentityProfile(id = "to-delete", name = "Delete Me", username = "gone")
         viewModel.saveIdentity(identity)
