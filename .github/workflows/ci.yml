@@ -137,6 +137,11 @@ jobs:
         with:
           name: lint-artifacts
           path: app/build/reports/
+      - name: Debug Downloaded Artifacts
+        run: |
+          echo "==== Debug Artifacts ===="
+          find app/build/reports/ || true
+          find app/build/test-results/ || true
       - name: SonarCloud Scan & Quality Gate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
