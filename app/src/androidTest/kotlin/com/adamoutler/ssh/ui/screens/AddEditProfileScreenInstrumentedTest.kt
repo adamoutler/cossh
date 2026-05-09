@@ -57,6 +57,10 @@ class AddEditProfileScreenInstrumentedTest {
                 onPortForwardsChange = {},
                 initialDirectory = "",
                 onInitialDirectoryChange = {},
+                terminalInputState = 0,
+                onTerminalInputStateChange = {},
+                keepScreenOnMode = com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT,
+                onKeepScreenOnModeChange = {},
             )
         }
 
