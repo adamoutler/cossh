@@ -136,6 +136,7 @@ fun TerminalScreen(
             errorStateEntry?.key?.let { ConnectionStateRepository.clearConnectionState(it) }
             terminatedStateEntry?.key?.let { ConnectionStateRepository.clearConnectionState(it) }
         },
+        onPaste = { terminalViewModel.onPasteTextFromClipboard(session) },
         profile = remember(profileId) {
             com.adamoutler.ssh.crypto.SecurityStorageManager(context).getProfile(profileId)
         },
@@ -156,6 +157,7 @@ fun TerminalScreenContent(
     onUpdateFontSize: (Int) -> Unit,
     onNavigateBack: () -> Unit,
     onClearError: () -> Unit,
+    onPaste: () -> Unit = {},
     modifier: Modifier = Modifier,
     isTerminated: Boolean = false,
     profile: com.adamoutler.ssh.data.ConnectionProfile? = null,
@@ -569,6 +571,7 @@ fun TerminalScreenContent(
                                 }
                                 try {
                                     var cp = codePoint
+                                    if (cp == 10) cp = 13 // Replace \n with \r
                                     if (ctrlState.value.isActive) {
                                         if (cp in 'a'.code..'z'.code) {
                                             cp = cp - 'a'.code + 1
@@ -818,6 +821,18 @@ fun TerminalScreenContent(
                     }
                 }
                 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        showTerminalMenuBottomSheet = false
+                        onPaste()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Paste from Clipboard")
+                }
+
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
