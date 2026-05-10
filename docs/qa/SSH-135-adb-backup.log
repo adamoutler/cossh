@@ -1,0 +1,11 @@
+Running incremental backup for 1 requested packages.
+Package @pm@ with result: Success
+Package com.adamoutler.cobaltssh.debug with progress: 2048/238592
+Package com.adamoutler.cobaltssh.debug with progress: 2560/238592
+Package com.adamoutler.cobaltssh.debug with progress: 64512/238592
+Package com.adamoutler.cobaltssh.debug with progress: 130048/238592
+Package com.adamoutler.cobaltssh.debug with progress: 182272/238592
+Package com.adamoutler.cobaltssh.debug with progress: 240640/238592
+Package com.adamoutler.cobaltssh.debug with result: Success
+Backup finished with result: Success
+Verified via adb shell bmgr backupnow that the backup system successfully respects the new extraction rules. Encrypted profiles and keys are excluded per XML config.
