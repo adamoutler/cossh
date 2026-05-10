@@ -162,16 +162,16 @@ configurations.all {
 
 configurations.all {
     resolutionStrategy {
-        force("io.netty:netty-codec-http2:4.1.132.Final")
-        force("io.netty:netty-codec-http:4.1.132.Final")
-        force("io.netty:netty-codec:4.1.132.Final")
-        force("io.netty:netty-common:4.1.132.Final")
-        force("io.netty:netty-handler:4.1.132.Final")
-        force("io.netty:netty-transport:4.1.132.Final")
-        force("io.netty:netty-buffer:4.1.132.Final")
-        force("io.netty:netty-resolver:4.1.132.Final")
-        force("io.netty:netty-transport-native-unix-common:4.1.132.Final")
-        force("io.netty:netty-handler-proxy:4.1.132.Final")
+        force("io.netty:netty-codec-http2:4.1.110.Final")
+        force("io.netty:netty-codec-http:4.1.110.Final")
+        force("io.netty:netty-codec:4.1.110.Final")
+        force("io.netty:netty-common:4.1.110.Final")
+        force("io.netty:netty-handler:4.1.110.Final")
+        force("io.netty:netty-transport:4.1.110.Final")
+        force("io.netty:netty-buffer:4.1.110.Final")
+        force("io.netty:netty-resolver:4.1.110.Final")
+        force("io.netty:netty-transport-native-unix-common:4.1.110.Final")
+        force("io.netty:netty-handler-proxy:4.1.110.Final")
     }
 }
 

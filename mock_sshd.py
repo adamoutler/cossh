@@ -123,7 +123,7 @@ port = int(sys.argv[1]) if len(sys.argv) > 1 else 2222
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server_socket.bind(('127.0.0.1', port))
+server_socket.bind(('localhost', port))
 server_socket.listen(100)
 print(f"Mock SSHD listening on {port}")
 
