@@ -118,7 +118,7 @@ class TerminalViewModel(application: Application) :
                 }
             }
         } catch (e: Exception) {
-            println("TerminalViewModel: Failed to securely scrub terminal buffer: $e")
+            android.util.Log.e("TerminalViewModel", "Failed to securely scrub terminal buffer", e)
         }
     }
 
