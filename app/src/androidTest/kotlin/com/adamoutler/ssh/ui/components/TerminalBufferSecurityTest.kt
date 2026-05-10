@@ -77,4 +77,56 @@ class TerminalBufferSecurityTest {
         assertTrue("Buffer should NOT contain secret data after scrubbing", !foundSecretAfter)
         assertTrue("All text arrays should be completely zeroed out", allZeroed)
     }
+
+    @Test
+    @UiThreadTest
+    fun testBufferEvictionEnforcesLimits() {
+        val app = ApplicationProvider.getApplicationContext<Application>()
+        val viewModel = TerminalViewModel(app)
+        
+        val session = viewModel.getOrCreateSession("eviction-test-session", app)
+        session.updateSize(80, 24, 10, 20)
+        val emulator = session.emulator!!
+        
+        // Assert limit is set to 1600 (plus screen size, usually + rows)
+        val screenField = emulator.javaClass.getDeclaredMethod("getScreen")
+        screenField.isAccessible = true
+        val buffer = screenField.invoke(emulator)
+        
+        val mLinesField = buffer.javaClass.getDeclaredField("mLines")
+        mLinesField.isAccessible = true
+        
+        // Write 2500 lines to the buffer (limit is 1600 scrollback + 24 screen)
+        for (i in 0..2500) {
+            val line = "Line number $i\r\n"
+            emulator.append(line.toByteArray(), line.toByteArray().size)
+        }
+        
+        // Access lines
+        val lines = mLinesField.get(buffer) as Array<*>
+        
+        var foundLine0 = false
+        var foundLine2500 = false
+        
+        val mTextField = lines[0]?.javaClass?.getDeclaredField("mText")
+        mTextField?.isAccessible = true
+        
+        for (row in lines) {
+            if (row != null) {
+                val chars = mTextField?.get(row) as? CharArray
+                if (chars != null) {
+                    val str = String(chars)
+                    if (str.contains("Line number 0 ")) {
+                        foundLine0 = true
+                    }
+                    if (str.contains("Line number 2500 ")) {
+                        foundLine2500 = true
+                    }
+                }
+            }
+        }
+        
+        assertTrue("Buffer should have evicted Line 0", !foundLine0)
+        assertTrue("Buffer should still contain Line 2500", foundLine2500)
+    }
 }
