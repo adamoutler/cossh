@@ -63,7 +63,7 @@ class BillingManagerTest {
     @Test
     fun testOnPurchasesUpdated_withValidPurchase() = runBlocking {
         val billingResult = BillingResult.newBuilder().setResponseCode(BillingClient.BillingResponseCode.OK).build()
-        
+
         val purchaseJson = """
             {
                 "productId": "lifetimecloudsync",
@@ -74,10 +74,10 @@ class BillingManagerTest {
             }
         """.trimIndent()
         val purchase = com.android.billingclient.api.Purchase(purchaseJson, "mock_signature")
-        
+
         val newBillingManager = BillingManager(context)
         newBillingManager.onPurchasesUpdated(billingResult, mutableListOf(purchase))
-        
+
         val isEnabled = newBillingManager.isCloudSyncEnabled.first()
         assertEquals(true, isEnabled)
     }
@@ -85,7 +85,7 @@ class BillingManagerTest {
     @Test
     fun testOnPurchasesUpdated_withUnacknowledgedPurchase() = runBlocking {
         val billingResult = BillingResult.newBuilder().setResponseCode(BillingClient.BillingResponseCode.OK).build()
-        
+
         val purchaseJson = """
             {
                 "productId": "lifetimecloudsync",
@@ -96,7 +96,7 @@ class BillingManagerTest {
             }
         """.trimIndent()
         val purchase = com.android.billingclient.api.Purchase(purchaseJson, "mock_signature")
-        
+
         val newBillingManager = BillingManager(context)
         newBillingManager.onPurchasesUpdated(billingResult, mutableListOf(purchase))
     }

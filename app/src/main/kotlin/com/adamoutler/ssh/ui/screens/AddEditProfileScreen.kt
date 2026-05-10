@@ -562,11 +562,13 @@ fun AddEditProfileScreenContent(
                         onClick = { onKeepScreenOnModeChange(mode) },
                         shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size),
                     ) {
-                        Text(when(mode) {
-                            com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT -> "System"
-                            com.adamoutler.ssh.data.KeepScreenOnMode.SMART_AWAKE -> "Smart"
-                            com.adamoutler.ssh.data.KeepScreenOnMode.ALWAYS_ON -> "Always On"
-                        })
+                        Text(
+                            when (mode) {
+                                com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT -> "System"
+                                com.adamoutler.ssh.data.KeepScreenOnMode.SMART_AWAKE -> "Smart"
+                                com.adamoutler.ssh.data.KeepScreenOnMode.ALWAYS_ON -> "Always On"
+                            },
+                        )
                     }
                 }
             }
@@ -574,7 +576,7 @@ fun AddEditProfileScreenContent(
                 text = "Smart Awake keeps the screen on while data flows. Both Smart and Always On will pause if the device is placed face-down or in a pocket.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp, start = 16.dp, end = 16.dp)
+                modifier = Modifier.padding(top = 4.dp, start = 16.dp, end = 16.dp),
             )
 
             Spacer(modifier = Modifier.height(8.dp))

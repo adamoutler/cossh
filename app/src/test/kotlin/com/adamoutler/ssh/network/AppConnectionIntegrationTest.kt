@@ -76,7 +76,7 @@ class AppConnectionIntegrationTest {
             ConnectionStateRepository.clearSession("id_integration")
             val sessionData = ConnectionStateRepository.getOrCreateSession("id_integration")
             ConnectionStateRepository.mockTestTranscripts["id_integration"] = ""
-    
+
             val profile = ConnectionProfile(
                 id = "id_integration",
                 nickname = "IntegrationServer",
@@ -86,9 +86,9 @@ class AppConnectionIntegrationTest {
                 authType = AuthType.PASSWORD,
                 password = "password".toByteArray(),
             )
-    
+
             val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
-    
+
             val job = launch(Dispatchers.IO) {
                 try {
                     manager.connectPty(
@@ -107,19 +107,19 @@ class AppConnectionIntegrationTest {
                     e.printStackTrace()
                 }
             }
-    
+
             var retries = 0
             while (sessionData.ptyOutputStream == null && retries < 1500) {
                 delay(10)
                 retries++
             }
             assertTrue("Output stream should be initialized", sessionData.ptyOutputStream != null)
-    
+
             delay(1500)
-    
+
             sessionData.ptyOutputStream?.write("a\n".toByteArray())
             sessionData.ptyOutputStream?.flush()
-    
+
             retries = 0
             var foundOutput = false
             while (retries < 1500) {
@@ -131,10 +131,10 @@ class AppConnectionIntegrationTest {
                 delay(10)
                 retries++
             }
-    
+
             println("Transcript captured:\n${ConnectionStateRepository.mockTestTranscripts["id_integration"]}")
             assertTrue("Output should contain mock-server deterministic RESPONSE for a", foundOutput)
-    
+
             try {
                 sessionData.sshShell?.close()
             } catch (e: Exception) {}

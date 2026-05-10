@@ -28,14 +28,14 @@ class SettingsViewModelTest {
     @Before
     fun setup() {
         application = ApplicationProvider.getApplicationContext()
-        
+
         // Initialize WorkManager for testing
         val config = Configuration.Builder()
             .setMinimumLoggingLevel(android.util.Log.DEBUG)
             .setExecutor(androidx.work.testing.SynchronousExecutor())
             .build()
         WorkManagerTestInitHelper.initializeTestWorkManager(application, config)
-        
+
         billingManager = BillingManager(application)
         driveSyncManager = DriveSyncManager(application)
         viewModel = SettingsViewModel(application, billingManager, driveSyncManager)
@@ -90,7 +90,7 @@ class SettingsViewModelTest {
         } catch (e: Exception) {
             // CredentialManager fails
         }
-        
+
         val state = viewModel.uiState.value
         assertTrue("Passphrase should be marked as set", state.isPassphraseSet)
         assertFalse("Passphrase dialog should be hidden", state.showPassphraseDialog)
@@ -102,11 +102,11 @@ class SettingsViewModelTest {
         try {
             viewModel.savePassphraseAndSync("test_passphrase", activity)
         } catch (e: Exception) {}
-        
+
         try {
             viewModel.authenticateGoogle(activity)
         } catch (e: Exception) {}
-        
+
         val state = viewModel.uiState.value
         assertFalse("Passphrase dialog should not show if passphrase is set", state.showPassphraseDialog)
     }

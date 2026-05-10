@@ -3,12 +3,12 @@ package com.adamoutler.ssh.ui.components
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.junit.Assert.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
@@ -26,10 +26,10 @@ class TerminalScreenDialogsCoverageTest {
                 onDismiss = { onDismissClicked = true },
             )
         }
-        
+
         composeTestRule.onNodeWithText("Error: Connection Failed Error").assertExists()
         composeTestRule.onNodeWithText("OK").performClick()
-        
+
         composeTestRule.waitForIdle()
         assertTrue(onDismissClicked)
     }
@@ -44,10 +44,10 @@ class TerminalScreenDialogsCoverageTest {
             KeepAliveDialog(
                 onDismiss = { onDismissClicked = true },
                 onKeepAlive = { onConfirmClicked = true },
-                onTerminate = { onTerminateClicked = true }
+                onTerminate = { onTerminateClicked = true },
             )
         }
-        
+
         composeTestRule.onNodeWithText("Keep Alive").performClick()
         composeTestRule.waitForIdle()
         assertTrue(onConfirmClicked)
@@ -64,13 +64,13 @@ class TerminalScreenDialogsCoverageTest {
         composeTestRule.setContent {
             TerminateConfirmDialog(
                 onDismiss = { onDismissClicked = true },
-                onTerminate = { onConfirmClicked = true }
+                onTerminate = { onConfirmClicked = true },
             )
         }
-        
+
         composeTestRule.onNodeWithText("Cancel").performClick()
         assertTrue(onDismissClicked)
-        
+
         composeTestRule.onNodeWithText("Terminate").performClick()
         assertTrue(onConfirmClicked)
     }
@@ -83,9 +83,9 @@ class TerminalScreenDialogsCoverageTest {
                 onDismiss = { onDismissClicked = true },
             )
         }
-        
+
         composeTestRule.onNodeWithText("OK").performClick()
-        
+
         composeTestRule.waitForIdle()
         assertTrue(onDismissClicked)
     }

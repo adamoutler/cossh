@@ -32,7 +32,6 @@ private const val ACTION_IMPORT_BACKUP = "Import Backup"
 
 @Composable
 fun ConnectionListScreen(
-
     viewModel: ConnectionListViewModel = viewModel(),
     onAddConnection: () -> Unit,
     onEditConnection: (String) -> Unit,

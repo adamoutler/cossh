@@ -1,8 +1,8 @@
 package com.adamoutler.ssh.data
 
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -20,8 +20,8 @@ class DataSerializersTest {
             protocol = Protocol.SSH,
             password = "password".toByteArray(),
             portForwards = listOf(
-                PortForwardConfig(PortForwardType.LOCAL, 8080, "127.0.0.1", 80)
-            )
+                PortForwardConfig(PortForwardType.LOCAL, 8080, "127.0.0.1", 80),
+            ),
         )
 
         val jsonString = Json.encodeToString(original)
@@ -51,7 +51,7 @@ class DataSerializersTest {
             privateKey = "private-key-data".toByteArray(),
             publicKey = "public-key-data",
             password = "password".toByteArray(),
-            username = "test-user"
+            username = "test-user",
         )
 
         val jsonString = Json.encodeToString(original)

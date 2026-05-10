@@ -28,7 +28,7 @@ class BackupPayloadTest {
             id = "test_id",
             name = "test_identity",
             username = "user2",
-            authType = AuthType.KEY
+            authType = AuthType.KEY,
         )
 
         val profilePasswords = mapOf("test_profile_id" to Base64.getEncoder().encodeToString("password".toByteArray()))
@@ -41,22 +41,22 @@ class BackupPayloadTest {
             profilePasswords = profilePasswords,
             identities = listOf(i1),
             identityPasswords = identityPasswords,
-            identityPrivateKeys = identityPrivateKeys
+            identityPrivateKeys = identityPrivateKeys,
         )
 
         val jsonString = Json.encodeToString(payload)
 
         val deserialized = Json.decodeFromString<BackupPayload>(jsonString)
-        
+
         assertEquals(payload.version, deserialized.version)
         assertEquals(payload.profiles.size, deserialized.profiles.size)
         assertEquals(payload.profiles[0].id, deserialized.profiles[0].id)
-        
+
         assertEquals(payload.profilePasswords, deserialized.profilePasswords)
-        
+
         assertEquals(payload.identities.size, deserialized.identities.size)
         assertEquals(payload.identities[0].id, deserialized.identities[0].id)
-        
+
         assertEquals(payload.identityPasswords, deserialized.identityPasswords)
         assertEquals(payload.identityPrivateKeys, deserialized.identityPrivateKeys)
     }

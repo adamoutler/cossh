@@ -86,7 +86,7 @@ class FiftyKbIntegrityTest {
             ConnectionStateRepository.clearSession("id_50kb")
             val sessionData = ConnectionStateRepository.getOrCreateSession("id_50kb")
             ConnectionStateRepository.mockTestTranscripts["id_50kb"] = ""
-    
+
             val profile = ConnectionProfile(
                 id = "id_50kb",
                 nickname = "IntegrityServer",
@@ -96,9 +96,9 @@ class FiftyKbIntegrityTest {
                 authType = AuthType.PASSWORD,
                 password = "password".toByteArray(),
             )
-    
+
             val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
-    
+
             val job = launch(Dispatchers.IO) {
                 try {
                     manager.connectPty(
@@ -117,19 +117,19 @@ class FiftyKbIntegrityTest {
                     e.printStackTrace()
                 }
             }
-    
+
             var retries = 0
             while (sessionData.ptyOutputStream == null && retries < 1500) {
                 delay(10)
                 retries++
             }
             assertTrue("Output stream should be initialized", sessionData.ptyOutputStream != null)
-    
+
             delay(1500) // Give connection time to settle and send MOTD
-    
+
             // Clear transcript to remove MOTD from our 50kb capture
             ConnectionStateRepository.mockTestTranscripts["id_50kb"] = ""
-    
+
             // Generate 50kb of standard ASCII-compliant typable characters
             val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;':,./<>? "
             val sb = StringBuilder(50 * 1024)
@@ -138,9 +138,9 @@ class FiftyKbIntegrityTest {
             }
             val generatedData = sb.toString()
             val expectedHash = sha256(generatedData)
-    
+
             println("Generated 50kb ASCII data. Local SHA256: $expectedHash")
-    
+
             // We write in chunks to avoid overwhelming the local pipes or SSHJ buffers all at once
             val chunkSizeBytes = 4096
             var offset = 0
@@ -152,9 +152,9 @@ class FiftyKbIntegrityTest {
                 offset += length
                 delay(50) // tiny delay to allow reading
             }
-    
+
             println("Data transmitted through terminal.")
-    
+
             retries = 0
             var remoteData = ""
             while (retries < 300) {
@@ -165,20 +165,20 @@ class FiftyKbIntegrityTest {
                     remoteData = transcript.substring(0, generatedData.length)
                     break
                 }
-                
+
                 delay(50)
                 retries++
             }
-    
+
             val outputFile = File("docs/qa/SSH-50-output.txt")
             outputFile.parentFile?.mkdirs()
             outputFile.writeText(remoteData)
-    
+
             val actualHash = sha256(remoteData)
             println("Data received and written to ${outputFile.absolutePath}. Remote SHA256: $actualHash")
-    
+
             assertEquals("The local SHA256 hash must match the remote SHA256 hash", expectedHash, actualHash)
-    
+
             try {
                 sessionData.sshShell?.close()
             } catch (e: Exception) {}
