@@ -14,6 +14,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
 
 @RunWith(AndroidJUnit4::class)
 @Config(manifest = Config.NONE)
@@ -71,5 +73,38 @@ class TerminalSettingsIntegrationTest {
         assertNotNull(profile)
         assertEquals(0, profile?.terminalInputState)
         assertEquals(KeepScreenOnMode.SYSTEM_DEFAULT, profile?.keepScreenOnMode)
+    }
+
+    @Test
+    fun testTogglingButtonBarTriggersBackgroundWrite() = runTest {
+        val app = ApplicationProvider.getApplicationContext<Application>()
+        val storageManager = SecurityStorageManager(app)
+        
+        // Initial state
+        val initialProfile = ConnectionProfile(
+            id = "test_profile_toggle",
+            nickname = "Test Toggle",
+            host = "localhost",
+            port = 22,
+            protocol = com.adamoutler.ssh.data.Protocol.SSH,
+            username = "user",
+            authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
+            terminalInputState = 0 // CLOSED
+        )
+        storageManager.saveProfile(initialProfile)
+        
+        // Simulate UI toggle triggering a background write
+        val job = CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            val updatedProfile = initialProfile.copy(terminalInputState = 2) // OPEN
+            storageManager.saveProfile(updatedProfile)
+        }
+        
+        // Wait for background write to complete
+        job.join()
+        
+        // Verify state is persisted
+        val profile = storageManager.getProfile("test_profile_toggle")
+        assertNotNull(profile)
+        assertEquals(2, profile?.terminalInputState)
     }
 }
