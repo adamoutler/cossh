@@ -3,10 +3,10 @@ isRunning
 reset
 write
 getPid
+updateTerminalSessionClient
 updateSize
 getTitle
 initializeEmulator
-updateTerminalSessionClient
 writeCodePoint
 getEmulator
 finishIfRunning
@@ -53,8 +53,8 @@ getScrollCounter
 clearScrollCounter
 getSelectedText
 paste
-getTitle
 updateTerminalSessionClient
+getTitle
 equals
 hashCode
 getClass

@@ -37,6 +37,8 @@ class TerminalDialogsTest {
     fun testKeepAliveDialog() {
         var onKeepAliveClicked = false
         var onTerminateClicked = false
+
+        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var onDismissClicked = false
         composeTestRule.setContent {
             KeepAliveDialog(

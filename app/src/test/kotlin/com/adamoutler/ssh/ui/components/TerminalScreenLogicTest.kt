@@ -32,7 +32,10 @@ class TerminalScreenLogicTest {
 
     @Test
     fun testTerminalScreenContentKeyboardInteractions() {
+        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var navigateBackClicked = false
+
+        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var updateFontSizeCalled = false
         var terminalInputState = 1 // 1 for EXTRA_KEYS
 
@@ -41,6 +44,8 @@ class TerminalScreenLogicTest {
         ConnectionStateRepository.isHeadlessTest = true
 
         val pos = PipedOutputStream()
+
+        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         val pis = PipedInputStream(pos)
 
         val mockSession = TerminalSession(

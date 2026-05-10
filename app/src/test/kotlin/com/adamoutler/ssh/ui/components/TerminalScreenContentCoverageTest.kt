@@ -27,8 +27,11 @@ class TerminalScreenContentCoverageTest {
 
     @Test
     fun testTerminalScreenContentVariousStates() {
+        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var navigateBackClicked = false
         var clearErrorClicked = false
+
+        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var updateFontSizeCalled = false
 
         val mockSessionId = "test-session-123"
@@ -36,6 +39,8 @@ class TerminalScreenContentCoverageTest {
         ConnectionStateRepository.isHeadlessTest = true
 
         val pos = PipedOutputStream()
+
+        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         val pis = PipedInputStream(pos)
 
         val mockSession = TerminalSession(

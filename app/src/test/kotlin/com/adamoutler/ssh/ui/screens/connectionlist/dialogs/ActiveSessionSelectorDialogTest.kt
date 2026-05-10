@@ -24,6 +24,7 @@ class ActiveSessionSelectorDialogTest {
 
     @Test
     fun testActiveSessionSelectorDialog() {
+        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var dismissed = false
         var selectedProfileId = ""
         var startNewClicked = false

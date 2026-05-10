@@ -36,6 +36,7 @@ class TerminalScreenDialogsCoverageTest {
 
     @Test
     fun testKeepAliveDialog() {
+        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var onDismissClicked = false
         var onConfirmClicked = false
         var onTerminateClicked = false

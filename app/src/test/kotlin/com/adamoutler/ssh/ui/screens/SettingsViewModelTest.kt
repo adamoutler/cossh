@@ -8,6 +8,7 @@ import com.adamoutler.ssh.billing.BillingManager
 import com.adamoutler.ssh.sync.DriveSyncManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -24,6 +25,11 @@ class SettingsViewModelTest {
     private lateinit var billingManager: BillingManager
     private lateinit var driveSyncManager: DriveSyncManager
     private lateinit var viewModel: SettingsViewModel
+
+    @After
+    fun tearDown() {
+        androidx.work.testing.WorkManagerTestInitHelper.closeWorkDatabase()
+    }
 
     @Before
     fun setup() {
