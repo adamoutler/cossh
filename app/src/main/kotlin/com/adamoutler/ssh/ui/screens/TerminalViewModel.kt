@@ -94,7 +94,25 @@ class TerminalViewModel(application: Application) :
         clipboard.setPrimaryClip(clip)
     }
 
-    override fun onPasteTextFromClipboard(session: TerminalSession) { /* No-op */ }
+    override fun onPasteTextFromClipboard(session: TerminalSession) {
+        val context = getContext?.invoke() ?: return
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        val clipData = clipboard.primaryClip
+        if (clipData != null && clipData.itemCount > 0) {
+            val text = clipData.getItemAt(0).text?.toString() ?: return
+            val sanitizedText = text.replace("\n", "\r")
+            val sessionId = sessions.entries.firstOrNull { it.value == session }?.key
+            if (sessionId != null) {
+                val ptyOutputStream = com.adamoutler.ssh.network.ConnectionStateRepository.sessions[sessionId]?.ptyOutputStream
+                try {
+                    ptyOutputStream?.write(sanitizedText.toByteArray(Charsets.UTF_8))
+                    ptyOutputStream?.flush()
+                } catch (e: Exception) {
+                    println("TerminalViewModel: Failed to paste text: $e")
+                }
+            }
+        }
+    }
     override fun onBell(session: TerminalSession) { /* No-op */ }
     override fun onColorsChanged(session: TerminalSession) { /* No-op */ }
     override fun onTerminalCursorStateChange(state: Boolean) { /* No-op */ }
