@@ -297,19 +297,47 @@ afterEvaluate {
             
             val outputStr = devicesOutput.toString("UTF-8")
             val lines: List<String> = outputStr.lines()
-            val hasDevice = lines.drop(1).any { line: String -> line.isNotBlank() && !line.contains("offline") }
+            val connectedDevices = lines.drop(1).filter { it.isNotBlank() && !it.contains("offline") }
+            
+            val explicitDeviceIp = project.findProperty("deviceIp") as? String
 
-            if (!hasDevice) {
-                val deviceIp = project.findProperty("deviceIp") as? String ?: "192.168.1.39:42513"
-                val userHome = System.getProperty("user.home")
-                println("🔌 No active devices found. Connecting to device $deviceIp before install...")
-                exec {
-                    environment("ADB_VENDOR_KEYS", "$userHome/.android")
-                    commandLine("adb", "connect", deviceIp)
-                    isIgnoreExitValue = true
+            if (explicitDeviceIp == null) {
+                val wifiDevices = connectedDevices.filter { it.contains(":") || it.contains(".") }
+                if (wifiDevices.isNotEmpty()) {
+                    println("🔌 Wireless devices detected without explicit 'deviceIp'. Disconnecting to prioritize USB/Emulator.")
+                    wifiDevices.forEach { device ->
+                        val deviceId = device.split("\\s+".toRegex())[0]
+                        if (deviceId.contains(":") || deviceId.contains(".")) {
+                            exec {
+                                commandLine("adb", "disconnect", deviceId)
+                                isIgnoreExitValue = true
+                            }
+                        }
+                    }
+                }
+            }
+
+            val devicesOutputPost = org.apache.commons.io.output.ByteArrayOutputStream()
+            exec {
+                commandLine("adb", "devices")
+                standardOutput = devicesOutputPost
+            }
+            val connectedDevicesPost = devicesOutputPost.toString("UTF-8").lines().drop(1).filter { it.isNotBlank() && !it.contains("offline") }
+
+            if (connectedDevicesPost.isEmpty()) {
+                if (explicitDeviceIp != null) {
+                    val userHome = System.getProperty("user.home")
+                    println("🔌 No active devices found. Connecting to explicit device $explicitDeviceIp before install...")
+                    exec {
+                        environment("ADB_VENDOR_KEYS", "$userHome/.android")
+                        commandLine("adb", "connect", explicitDeviceIp)
+                        isIgnoreExitValue = true
+                    }
+                } else {
+                    println("🔌 No active devices found and no 'deviceIp' property provided. Please connect a USB device or start an emulator.")
                 }
             } else {
-                println("🔌 Device already connected, skipping auto-connect.")
+                println("🔌 Device already connected. Using connected device(s).")
             }
         }
     }
