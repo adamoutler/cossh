@@ -77,21 +77,21 @@ class DriveSyncManagerTest {
     fun testSetOAuthToken() {
         val token = "test_token"
         driveSyncManager.setOAuthToken(token)
-        
+
         val oauthTokenField = DriveSyncManager::class.java.getDeclaredField("oauthToken")
         oauthTokenField.isAccessible = true
         val actualToken = oauthTokenField.get(driveSyncManager)
-        
+
         assertEquals(token, actualToken)
     }
-    
+
     @Test
     fun testHandleAuthorizationResult_invalidCode() {
         DriveSyncManager.authorizationContinuation = null
         DriveSyncManager.handleAuthorizationResult(999, 0, null)
         // Should not crash and not consume continuation
     }
-    
+
     @Test
     fun testUploadBackupUnauthenticated() = runBlocking {
         var exceptionThrown = false
@@ -102,7 +102,7 @@ class DriveSyncManagerTest {
         }
         assertTrue("Expected IllegalStateException for unauthenticated upload", exceptionThrown)
     }
-    
+
     @Test
     fun testUploadBackupAuthenticated_Failure() = runBlocking {
         driveSyncManager.setOAuthToken("dummy_token")
@@ -119,19 +119,18 @@ class DriveSyncManagerTest {
         val actualToken = oauthTokenField.get(driveSyncManager)
         org.junit.Assert.assertNull(actualToken)
     }
-    
+
     @Test
     fun testDownloadBackupUnauthenticated() = runBlocking {
         val result = driveSyncManager.downloadBackup("pass".toCharArray())
         org.junit.Assert.assertNull(result)
     }
 
-
     @Test
     fun testFindBackupFileId_Unauthenticated() {
         val findBackupFileIdMethod = DriveSyncManager::class.java.getDeclaredMethod("findBackupFileId")
         findBackupFileIdMethod.isAccessible = true
-        
+
         // This will attempt an HTTP request, but since oauthToken is null, it might fail or return null
         // However it should cover the method execution up to the HTTP call
         try {
@@ -141,24 +140,24 @@ class DriveSyncManagerTest {
             // Exception is fine, we just want coverage
         }
     }
-    
+
     @Test
     fun testUpdateFileMetadata_Unauthenticated() {
         val updateFileMetadataMethod = DriveSyncManager::class.java.getDeclaredMethod("updateFileMetadata", String::class.java)
         updateFileMetadataMethod.isAccessible = true
-        
+
         try {
             updateFileMetadataMethod.invoke(driveSyncManager, "dummyFileId")
         } catch (e: Exception) {
             // Exception is expected since network request fails
         }
     }
-    
+
     @Test
     fun testReadFully() {
         val readFullyMethod = DriveSyncManager::class.java.getDeclaredMethod("readFully", java.io.InputStream::class.java)
         readFullyMethod.isAccessible = true
-        
+
         val testData = "testData".toByteArray()
         val inputStream = java.io.ByteArrayInputStream(testData)
         val result = readFullyMethod.invoke(driveSyncManager, inputStream) as ByteArray

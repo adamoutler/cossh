@@ -1,8 +1,8 @@
 package com.adamoutler.ssh.ui.keys
 
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.adamoutler.ssh.ui.theme.CoSSHTheme
 import org.junit.Rule
@@ -28,13 +28,13 @@ class KeyManagementScreenTest {
 
         // Verify initial state
         composeTestRule.onNodeWithText("Key Management").assertExists()
-        
+
         // Open dialog
         composeTestRule.onNodeWithContentDescription("Generate New Key").assertExists().performClick()
-        
+
         // Click ED25519 to generate
         composeTestRule.onNodeWithText("ED25519").assertExists().performClick()
-        
+
         // Verify key is displayed
         composeTestRule.onNodeWithText("Algorithm: Ed25519").assertExists()
     }

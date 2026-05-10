@@ -82,7 +82,7 @@ class TerminalViewModelTest {
 
         val session2 = viewModel.getOrCreateSession("session-123", application)
         assertEquals(session, session2) // Should return same instance
-        
+
         assertNotNull(TerminalViewModel.activeSessionsRef?.get("session-123"))
     }
 
@@ -90,15 +90,15 @@ class TerminalViewModelTest {
     fun `test onCopyTextToClipboard sets primary clip`() {
         viewModel.getContext = { application }
         val session = viewModel.getOrCreateSession("session-123", application)
-        
+
         viewModel.onCopyTextToClipboard(session, "test clip text   ")
-        
+
         val clipboard = application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = clipboard.primaryClip
         assertNotNull(clip)
         assertEquals("test clip text", clip?.getItemAt(0)?.text.toString())
     }
-    
+
     @Test
     fun `test no-op methods do not crash`() {
         val session = TerminalSession("sh", "/", arrayOf(), arrayOf(), 0, viewModel)

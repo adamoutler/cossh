@@ -43,7 +43,7 @@ enum class Protocol {
 enum class KeepScreenOnMode {
     SYSTEM_DEFAULT,
     SMART_AWAKE,
-    ALWAYS_ON
+    ALWAYS_ON,
 }
 
 @Serializable

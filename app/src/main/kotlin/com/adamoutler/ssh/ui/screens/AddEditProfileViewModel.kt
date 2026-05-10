@@ -6,9 +6,9 @@ import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
+import com.adamoutler.ssh.data.KeepScreenOnMode
 import com.adamoutler.ssh.data.PortForwardConfig
 import com.adamoutler.ssh.data.Protocol
-import com.adamoutler.ssh.data.KeepScreenOnMode
 import com.adamoutler.ssh.ui.base.BaseAndroidViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

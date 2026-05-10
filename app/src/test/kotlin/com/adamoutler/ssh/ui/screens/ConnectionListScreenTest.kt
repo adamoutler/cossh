@@ -3,16 +3,16 @@ package com.adamoutler.ssh.ui.screens
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.onNodeWithText
 import com.adamoutler.ssh.network.ActiveSessionState
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.junit.Assert.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
@@ -41,10 +41,10 @@ class ConnectionListScreenTest {
         composeTestRule.setContent {
             ExportBackupDialog(
                 onDismiss = { dismissed = true },
-                onExport = { _ -> }
+                onExport = { _ -> },
             )
         }
-        
+
         composeTestRule.onAllNodesWithText("Cancel").onFirst().performClick()
         assertTrue("Dialog should be dismissed", dismissed)
     }
@@ -55,15 +55,15 @@ class ConnectionListScreenTest {
         composeTestRule.setContent {
             ImportBackupDialog(
                 onDismiss = { dismissed = true },
-                onImport = { _ -> }
+                onImport = { _ -> },
             )
         }
-        
+
         composeTestRule.onAllNodesWithText("Import Backup").onFirst().assertExists()
         composeTestRule.onAllNodesWithText("Cancel").onFirst().performClick()
         assertTrue("Dialog should be dismissed", dismissed)
     }
-    
+
     @Test
     fun testActiveSessionsDialog_renders() {
         var dismissed = false
@@ -71,19 +71,19 @@ class ConnectionListScreenTest {
         var resumedSessionId = ""
         val activeSessions = listOf(
             ActiveSessionState(profileId = "profile1", sessionId = "session1", connectedAt = 1000L, ptyOutputStream = null, sshShell = null),
-            ActiveSessionState(profileId = "profile1", sessionId = "session2", connectedAt = 2000L, ptyOutputStream = null, sshShell = null)
+            ActiveSessionState(profileId = "profile1", sessionId = "session2", connectedAt = 2000L, ptyOutputStream = null, sshShell = null),
         )
-        
+
         composeTestRule.setContent {
             ActiveSessionsDialog(
                 profileName = "My Profile",
                 activeSessions = activeSessions,
                 onDismiss = { dismissed = true },
                 onResumeSession = { resumedSessionId = it },
-                onStartNewSession = { startNewClicked = true }
+                onStartNewSession = { startNewClicked = true },
             )
         }
-        
+
         composeTestRule.onAllNodesWithText("Active Sessions: My Profile").onFirst().assertExists()
         composeTestRule.onAllNodesWithText("Start New").onFirst().performClick()
         assertTrue(startNewClicked)

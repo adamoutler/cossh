@@ -121,7 +121,7 @@ class ConnectionListViewModelTest {
             exportSuccess = success
             latch.countDown()
         }
-        
+
         ShadowLooper.idleMainLooper()
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
         latch.await(2, TimeUnit.SECONDS)
@@ -137,15 +137,15 @@ class ConnectionListViewModelTest {
 
         viewModel.loadProfiles()
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        
+
         val flatList = viewModel.flatItems.value
         val fromIndex = flatList.indexOfFirst { it is ConnectionListItem.Profile && it.profile.id == "id1" }
         val toIndex = flatList.indexOfFirst { it is ConnectionListItem.Profile && it.profile.id == "id2" }
-        
+
         if (fromIndex != -1 && toIndex != -1) {
             viewModel.moveProfileInFlatList(fromIndex, toIndex)
             ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-            
+
             // Check that the profile is still there but we cannot reliably assert the exact folder mapping in flat list via this test because of the optimistic UI update
             val updatedP1 = storageManager.getProfile("id1")
             org.junit.Assert.assertNotNull(updatedP1)

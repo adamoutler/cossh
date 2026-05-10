@@ -1,22 +1,22 @@
 package com.adamoutler.ssh.ui.components
 
-import org.junit.Test
-import org.junit.Assert.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import org.junit.Rule
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import com.termux.terminal.TerminalSession
-import com.termux.terminal.TerminalSessionClient
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.Protocol
 import com.adamoutler.ssh.network.ActiveSessionState
 import com.adamoutler.ssh.network.ConnectionStateRepository
-import java.io.PipedOutputStream
+import com.termux.terminal.TerminalSession
+import com.termux.terminal.TerminalSessionClient
+import org.junit.Assert.*
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.io.PipedInputStream
+import java.io.PipedOutputStream
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
@@ -35,11 +35,11 @@ class TerminalScreenLogicTest {
         var navigateBackClicked = false
         var updateFontSizeCalled = false
         var terminalInputState = 1 // 1 for EXTRA_KEYS
-        
+
         val mockSessionId = "test-session-123"
         ConnectionStateRepository.clearSession(mockSessionId)
         ConnectionStateRepository.isHeadlessTest = true
-        
+
         val pos = PipedOutputStream()
         val pis = PipedInputStream(pos)
 
@@ -85,7 +85,7 @@ class TerminalScreenLogicTest {
                 initialTerminalInputState = terminalInputState,
             )
         }
-        
+
         composeTestRule.waitForIdle()
     }
 }

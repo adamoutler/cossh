@@ -29,9 +29,9 @@ class SyncWorkerTest {
         // Clear default security prefs so we have a clean state
         val defaultSecurityPrefs = context.getSharedPreferences("security_prefs", Context.MODE_PRIVATE)
         defaultSecurityPrefs.edit().clear().commit()
-        
+
         securityManager = SecurityStorageManager(context)
-        
+
         val billingPrefs = context.getSharedPreferences("BillingPrefs", Context.MODE_PRIVATE)
         billingPrefs.edit().clear().commit()
     }
@@ -42,7 +42,7 @@ class SyncWorkerTest {
         val result = worker.doWork()
         assertEquals(Result.success(), result)
     }
-    
+
     @Test
     fun `test doWork with cloud sync enabled but no password returns failure`() = runBlocking {
         // Enable cloud sync via test flag
@@ -50,7 +50,7 @@ class SyncWorkerTest {
 
         val worker = TestListenableWorkerBuilder<SyncWorker>(context).build()
         val result = worker.doWork()
-        
+
         assertEquals(Result.failure(), result)
         BillingManager.forceCloudSyncEnabledForTest = false
     }
@@ -66,7 +66,7 @@ class SyncWorkerTest {
         val worker = TestListenableWorkerBuilder<SyncWorker>(context).build()
         // It should try to sync but fail with retry due to lack of network/drive mock
         val result = worker.doWork()
-        
+
         assertEquals(Result.retry(), result)
         BillingManager.forceCloudSyncEnabledForTest = false
     }

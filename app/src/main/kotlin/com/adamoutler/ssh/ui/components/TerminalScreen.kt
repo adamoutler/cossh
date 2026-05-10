@@ -735,29 +735,29 @@ fun TerminalScreenContent(
 
     if (showTerminalMenuBottomSheet) {
         ModalBottomSheet(
-            onDismissRequest = { showTerminalMenuBottomSheet = false }
+            onDismissRequest = { showTerminalMenuBottomSheet = false },
         ) {
             Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
                 Text(profile?.nickname ?: "Terminal Settings", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Text("Default Input Mode", style = MaterialTheme.typography.labelMedium)
                 androidx.compose.foundation.layout.Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)) {
                     FilterChip(
                         selected = terminalInputState == 0,
-                        onClick = { 
-                            terminalInputState = 0 
+                        onClick = {
+                            terminalInputState = 0
                             coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                                 profile?.copy(terminalInputState = 0)?.let { updatedProfile ->
                                     com.adamoutler.ssh.crypto.SecurityStorageManager(context).saveProfile(updatedProfile)
                                 }
                             }
                         },
-                        label = { Text("Standard") }
+                        label = { Text("Standard") },
                     )
                     FilterChip(
                         selected = terminalInputState == 1,
-                        onClick = { 
+                        onClick = {
                             terminalInputState = 1
                             coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                                 profile?.copy(terminalInputState = 1)?.let { updatedProfile ->
@@ -765,11 +765,11 @@ fun TerminalScreenContent(
                                 }
                             }
                         },
-                        label = { Text("Keyboard") }
+                        label = { Text("Keyboard") },
                     )
                     FilterChip(
                         selected = terminalInputState == 2,
-                        onClick = { 
+                        onClick = {
                             terminalInputState = 2
                             coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                                 profile?.copy(terminalInputState = 2)?.let { updatedProfile ->
@@ -777,19 +777,19 @@ fun TerminalScreenContent(
                                 }
                             }
                         },
-                        label = { Text("Keyboard & Buttons") }
+                        label = { Text("Keyboard & Buttons") },
                     )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Text("Keep Screen On Mode", style = MaterialTheme.typography.labelMedium)
                 SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                     val modes = com.adamoutler.ssh.data.KeepScreenOnMode.values()
                     modes.forEachIndexed { index, mode ->
                         SegmentedButton(
                             selected = keepScreenOnMode == mode,
-                            onClick = { 
+                            onClick = {
                                 keepScreenOnMode = mode
                                 coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                                     profile?.copy(keepScreenOnMode = mode)?.let { updatedProfile ->
@@ -799,17 +799,19 @@ fun TerminalScreenContent(
                             },
                             shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size),
                         ) {
-                            Text(when(mode) {
-                                com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT -> "System"
-                                com.adamoutler.ssh.data.KeepScreenOnMode.SMART_AWAKE -> "Smart"
-                                com.adamoutler.ssh.data.KeepScreenOnMode.ALWAYS_ON -> "Always"
-                            })
+                            Text(
+                                when (mode) {
+                                    com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT -> "System"
+                                    com.adamoutler.ssh.data.KeepScreenOnMode.SMART_AWAKE -> "Smart"
+                                    com.adamoutler.ssh.data.KeepScreenOnMode.ALWAYS_ON -> "Always"
+                                },
+                            )
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Text("Font Size", style = MaterialTheme.typography.labelMedium)
                 androidx.compose.foundation.layout.Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     IconButton(onClick = { onUpdateFontSize(currentFontSize - 1) }) {
@@ -820,7 +822,7 @@ fun TerminalScreenContent(
                         Text("+", style = MaterialTheme.typography.titleLarge)
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
@@ -828,7 +830,7 @@ fun TerminalScreenContent(
                         showTerminalMenuBottomSheet = false
                         onPaste()
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text("Paste from Clipboard")
                 }

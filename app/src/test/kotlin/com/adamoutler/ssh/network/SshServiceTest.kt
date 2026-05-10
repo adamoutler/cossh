@@ -3,6 +3,7 @@ package com.adamoutler.ssh.network
 import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
+import net.schmizz.sshj.userauth.UserAuthException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -13,7 +14,6 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ServiceController
 import org.robolectric.annotation.Config
-import net.schmizz.sshj.userauth.UserAuthException
 import java.net.ConnectException
 
 @RunWith(RobolectricTestRunner::class)
@@ -35,7 +35,7 @@ class SshServiceTest {
     fun `mapExceptionMessage formats authentication errors cleanly`() {
         val authEx = UserAuthException("Exhausted available authentication methods")
         assertEquals("Connection failed", SshService.mapExceptionMessage(authEx))
-        
+
         val authEx2 = Exception("All authentication methods failed")
         assertEquals("Connection failed", SshService.mapExceptionMessage(authEx2))
     }
@@ -44,7 +44,7 @@ class SshServiceTest {
     fun `mapExceptionMessage passes through other errors`() {
         val ex = ConnectException("Connection refused")
         assertEquals("Connection refused", SshService.mapExceptionMessage(ex))
-        
+
         val exNull = Exception()
         assertEquals("Connection failed", SshService.mapExceptionMessage(exNull))
     }
@@ -102,7 +102,7 @@ class SshServiceTest {
             port = 22,
             authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
             username = "testuser",
-            password = "testpassword".toByteArray()
+            password = "testpassword".toByteArray(),
         )
         storageManager.saveProfile(profile)
 
@@ -122,7 +122,7 @@ class SshServiceTest {
             putExtra(SshService.EXTRA_SESSION_ID, "test_session_id_missing")
         }
         service.onStartCommand(intent, 0, 1)
-        
+
         var retries = 0
         var currentState: ConnectionState? = null
         while (retries < 50) {
@@ -131,7 +131,7 @@ class SshServiceTest {
             kotlinx.coroutines.delay(10)
             retries++
         }
-        
+
         assertTrue("State should be Error when profile is missing", currentState is ConnectionState.Error)
         assertEquals("Profile not found", (currentState as ConnectionState.Error).message)
     }
@@ -147,7 +147,7 @@ class SshServiceTest {
             port = 22,
             authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
             username = "testuser",
-            password = "testpassword".toByteArray()
+            password = "testpassword".toByteArray(),
         )
         storageManager.saveProfile(profile)
 
@@ -165,7 +165,7 @@ class SshServiceTest {
             kotlinx.coroutines.delay(10)
             retries++
         }
-        
+
         assertTrue("State should transition to Error on connection failure", currentState is ConnectionState.Error)
     }
 }

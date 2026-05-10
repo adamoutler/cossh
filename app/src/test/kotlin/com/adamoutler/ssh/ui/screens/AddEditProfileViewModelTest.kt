@@ -65,7 +65,10 @@ class AddEditProfileViewModelTest {
         val viewModel = AddEditProfileViewModel(app, storageManager, com.adamoutler.ssh.crypto.IdentityStorageManager(app, prefs))
 
         val profile = com.adamoutler.ssh.data.ConnectionProfile(
-            id = "load-test", nickname = "Load", host = "test", envVars = mapOf("A" to "B")
+            id = "load-test",
+            nickname = "Load",
+            host = "test",
+            envVars = mapOf("A" to "B"),
         )
         storageManager.saveProfile(profile)
 

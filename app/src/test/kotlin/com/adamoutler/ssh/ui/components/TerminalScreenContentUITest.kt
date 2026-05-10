@@ -82,7 +82,7 @@ class TerminalScreenContentUITest {
 
             // Click some extra keys to trigger the onKeyPress lambda and execute the switch cases
             val visibleKeys = listOf(
-                "Esc", "Tab", "Ctrl-C", "↑", "Home", "End", "↓", "←", "→"
+                "Esc", "Tab", "Ctrl-C", "↑", "Home", "End", "↓", "←", "→",
             )
 
             for (key in visibleKeys) {

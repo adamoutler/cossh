@@ -30,11 +30,11 @@ class TerminalScreenContentCoverageTest {
         var navigateBackClicked = false
         var clearErrorClicked = false
         var updateFontSizeCalled = false
-        
+
         val mockSessionId = "test-session-123"
         ConnectionStateRepository.clearSession(mockSessionId)
         ConnectionStateRepository.isHeadlessTest = true
-        
+
         val pos = PipedOutputStream()
         val pis = PipedInputStream(pos)
 
@@ -80,12 +80,12 @@ class TerminalScreenContentCoverageTest {
                 initialTerminalInputState = 1,
             )
         }
-        
+
         composeTestRule.waitForIdle()
-        
+
         // Error message should be displayed
         composeTestRule.onNodeWithText("Error: Test Error Message").assertExists()
-        
+
         // Click dismiss on error
         composeTestRule.onNodeWithText("OK").performClick()
         assertTrue(clearErrorClicked)
@@ -96,7 +96,7 @@ class TerminalScreenContentCoverageTest {
         val mockSessionId = "test-session-456"
         ConnectionStateRepository.clearSession(mockSessionId)
         ConnectionStateRepository.isHeadlessTest = true
-        
+
         composeTestRule.setContent {
             TerminalScreen(
                 profileId = "1",

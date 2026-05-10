@@ -6,9 +6,9 @@ import com.adamoutler.ssh.data.IdentityProfile
 import com.adamoutler.ssh.data.PortForwardConfig
 import com.adamoutler.ssh.data.PortForwardType
 import com.adamoutler.ssh.data.Protocol
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -27,15 +27,15 @@ class BackupCryptoManagerTest {
                     nickname = "Test",
                     host = "localhost",
                     username = "test-user",
-                    portForwards = listOf(PortForwardConfig(PortForwardType.LOCAL, 8080, "127.0.0.1", 80))
-                )
+                    portForwards = listOf(PortForwardConfig(PortForwardType.LOCAL, 8080, "127.0.0.1", 80)),
+                ),
             ),
             profilePasswords = mapOf("p-1" to "encoded-pass"),
             identities = listOf(
-                IdentityProfile(id = "i-1", name = "Test Identity", username = "test-user")
+                IdentityProfile(id = "i-1", name = "Test Identity", username = "test-user"),
             ),
             identityPasswords = mapOf("i-1" to "encoded-ipass"),
-            identityPrivateKeys = mapOf("i-1" to "encoded-ikey")
+            identityPrivateKeys = mapOf("i-1" to "encoded-ikey"),
         )
 
         val jsonString = Json.encodeToString(payload)
@@ -56,8 +56,8 @@ class BackupCryptoManagerTest {
                 id = "p-1",
                 nickname = "Profile 1",
                 host = "1.2.3.4",
-                password = "test-password".toByteArray()
-            )
+                password = "test-password".toByteArray(),
+            ),
         )
         val identities = listOf(
             IdentityProfile(
@@ -65,8 +65,8 @@ class BackupCryptoManagerTest {
                 name = "Identity 1",
                 username = "id-user",
                 password = "id-password".toByteArray(),
-                privateKey = "id-priv-key".toByteArray()
-            )
+                privateKey = "id-priv-key".toByteArray(),
+            ),
         )
 
         val password = "secure-backup-password".toCharArray()

@@ -250,9 +250,9 @@ class SshHandshakeCoordinatorTest {
         kotlinx.coroutines.runBlocking {
             val client = SSHClient()
             val profile = ConnectionProfile(id = "p1", nickname = "n1", host = "localhost", authType = AuthType.PASSWORD, username = "test", password = "pwd".toByteArray())
-            
+
             Thread.currentThread().interrupt()
-            
+
             try {
                 coordinator.executeWithConnection(client, profile, null) {
                     // Should not reach here
@@ -272,7 +272,7 @@ class SshHandshakeCoordinatorTest {
             val profile = ConnectionProfile(id = "p_def", nickname = "n_def", host = "localhost", port = 22, authType = AuthType.PASSWORD, username = "test", password = "pwd".toByteArray())
             try {
                 // Testing default parameters via standard Kotlin invocation, avoiding explicit passing of null for keypair.
-                coordinator.executeWithConnection(client, profile) { 
+                coordinator.executeWithConnection(client, profile) {
                     it.host
                 }
             } catch (e: Exception) {

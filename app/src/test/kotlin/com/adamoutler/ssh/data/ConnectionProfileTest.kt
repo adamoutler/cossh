@@ -1,11 +1,11 @@
 package com.adamoutler.ssh.data
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
 
 class ConnectionProfileTest {
     @Test
@@ -20,20 +20,20 @@ class ConnectionProfileTest {
             authType = AuthType.KEY,
             password = byteArrayOf(1, 2, 3), // Transient
             envVars = mapOf("TEST" to "VAL"),
-            portForwards = listOf(PortForwardConfig(PortForwardType.LOCAL, 8080, "local", 80))
+            portForwards = listOf(PortForwardConfig(PortForwardType.LOCAL, 8080, "local", 80)),
         )
-        
+
         val jsonString = Json.encodeToString(profile)
-        
+
         // Assert serialization works and transient data is excluded
         assertTrue(jsonString.contains(""""id":"123""""))
         assertTrue(jsonString.contains(""""host":"localhost""""))
         assertTrue(jsonString.contains(""""TEST":"VAL""""))
         assertTrue(jsonString.contains(""""portForwards":[{"type":"LOCAL","localPort":8080,"remoteHost":"local","remotePort":80}]"""))
         assertTrue(!jsonString.contains("password"))
-        
+
         val deserialized = Json.decodeFromString<ConnectionProfile>(jsonString)
-        
+
         assertEquals(profile.id, deserialized.id)
         assertEquals(profile.host, deserialized.host)
         assertEquals(profile.portForwards, deserialized.portForwards)

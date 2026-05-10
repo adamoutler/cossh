@@ -54,7 +54,7 @@ class SecureCrashHandlerTest {
     fun `test uncaughtException sanitizes and writes log`() {
         val thread = Thread.currentThread()
         val sensitiveException = Exception("Failed with IP 192.168.1.100 and base64: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
-        
+
         secureCrashHandler.uncaughtException(thread, sensitiveException)
 
         // Verify killer was called
@@ -75,7 +75,7 @@ class SecureCrashHandlerTest {
     fun `test isSensitiveException completely redacts message`() {
         val thread = Thread.currentThread()
         val securityException = GeneralSecurityException("My super secret key failure: 123456")
-        
+
         secureCrashHandler.uncaughtException(thread, securityException)
 
         // Verify killer was called
@@ -94,46 +94,46 @@ class SecureCrashHandlerTest {
         val thread = Thread.currentThread()
         val cause = GeneralSecurityException("Secret Crypto Key")
         val wrapper = RuntimeException("Wrapper exception", cause)
-        
+
         secureCrashHandler.uncaughtException(thread, wrapper)
 
         val files = crashDir.listFiles()
         val logContent = files!![0].readText()
-        
+
         // The cause is a GeneralSecurityException, so its message should be [REDACTED]
         assertTrue("Cause should be redacted", logContent.contains("Message: [REDACTED]"))
         assertFalse("Log should NOT contain the secret", logContent.contains("Secret Crypto Key"))
     }
-    
+
     @Test
     fun `test PEM redaction`() {
         val thread = Thread.currentThread()
         val pemString = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDE\n-----END PRIVATE KEY-----"
         val exception = Exception("Failed loading: $pemString")
-        
+
         secureCrashHandler.uncaughtException(thread, exception)
 
         val files = crashDir.listFiles()
         val logContent = files!![0].readText()
-        
+
         assertTrue("PEM block should be redacted", logContent.contains("[REDACTED_KEY]"))
         assertFalse("Log should NOT contain the private key", logContent.contains("MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDE"))
     }
-    
+
     @Test
     fun `test fallback if crash handler throws exception`() {
         // We can force the crash handler to throw an exception by giving it a bad context
         val badContext = RuntimeEnvironment.getApplication().applicationContext // Normally ok, let's break it using reflection or null
-        // Easier: simulate failure writing by making directory read-only? No, better to mock or pass null. 
+        // Easier: simulate failure writing by making directory read-only? No, better to mock or pass null.
         // Actually, let's just make the crash directory a file so mkdirs fails
         crashDir.parentFile?.mkdirs()
         crashDir.createNewFile() // Now crashDir is a file, so it can't be a directory
-        
+
         val thread = Thread.currentThread()
         val exception = Exception("Test")
-        
+
         secureCrashHandler.uncaughtException(thread, exception)
-        
+
         // Verify process killer still called
         assertTrue("Process killer should have been called even on failure", processKillerCalled)
     }
