@@ -171,6 +171,7 @@ configurations.all {
         force("io.netty:netty-buffer:4.1.132.Final")
         force("io.netty:netty-resolver:4.1.132.Final")
         force("io.netty:netty-transport-native-unix-common:4.1.132.Final")
+        force("io.netty:netty-handler-proxy:4.1.132.Final")
     }
 }
 

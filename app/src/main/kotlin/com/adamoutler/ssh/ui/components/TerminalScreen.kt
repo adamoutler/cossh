@@ -453,7 +453,7 @@ fun TerminalScreenContent(
 
                                 coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                                     profile?.copy(terminalInputState = terminalInputState)?.let { updatedProfile ->
-                                        android.util.Log.d("TerminalScreen", "Asynchronously saving terminal input state: $terminalInputState")
+                                        // Log stripped for security
                                         com.adamoutler.ssh.crypto.SecurityStorageManager(ctx).saveProfile(updatedProfile)
                                     }
                                 }
