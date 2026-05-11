@@ -6,7 +6,7 @@ buildscript {
     dependencies {
         classpath("com.google.protobuf:protobuf-java:3.25.5")
         classpath("com.google.guava:guava:33.3.1-jre")
-        classpath("commons-io:commons-io:2.14.0")
+        classpath("commons-io:commons-io:2.22.0")
         classpath("org.jdom:jdom2:2.0.6.1")
         classpath("org.bitbucket.b_c:jose4j:0.9.6") // updated
         classpath("org.bouncycastle:bcprov-jdk18on:1.78.1")
