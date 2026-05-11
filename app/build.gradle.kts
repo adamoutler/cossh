@@ -108,10 +108,12 @@ android {
     buildTypes {
         getByName("debug") {
             applicationIdSuffix = ".debug"
+            buildConfigField("boolean", "ENABLE_CLOUD_SYNC", "true")
         }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            buildConfigField("boolean", "ENABLE_CLOUD_SYNC", "false")
             ndk {
                 debugSymbolLevel = "FULL"
             }
