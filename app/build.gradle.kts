@@ -413,20 +413,11 @@ sonar {
         property("sonar.gradle.skipCompile", "true")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
         property("sonar.junit.reportPaths", "${layout.buildDirectory.get()}/test-results/testDebugUnitTest")
-        
-        // Suppress Sonar warnings for Jetpack Compose UI files where high parameter counts
-        // and deep nesting (high cognitive complexity) are idiomatic patterns.
-        property("sonar.issue.ignore.multicriteria", "e1,e2")
 
         property("sonar.coverage.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*,**/security/SecureCrashHandler.kt,**/crypto/PasswordCipher.kt,**/sync/DriveSyncManager.kt,**/crypto/IdentityStorageManager.kt,**/backup/BackupCryptoManager.kt,**/crypto/SecurityStorageManager.kt,**/crypto/SSHKeyGenerator.kt,**/crypto/PemUtils.kt,**/MainActivity.kt,**/billing/BillingManager.kt,**/network/**/*.*")
         property("sonar.cpd.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*")
         property("sonar.c.file.suffixes", "-")
         property("sonar.cpp.file.suffixes", "-")
         property("sonar.objc.file.suffixes", "-")
-
-        property("sonar.issue.ignore.multicriteria.e1.ruleKey", "kotlin:S107")
-        property("sonar.issue.ignore.multicriteria.e1.resourceKey", "**/ui/**/*.kt")
-        property("sonar.issue.ignore.multicriteria.e2.ruleKey", "kotlin:S3776")
-        property("sonar.issue.ignore.multicriteria.e2.resourceKey", "**/ui/**/*.kt")
     }
 }

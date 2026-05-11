@@ -40,7 +40,7 @@ fun GroupedConnectionList(
     var profileToDelete by remember { mutableStateOf<ConnectionProfile?>(null) }
 
     val listState = rememberLazyListState()
-    var draggedItemKey by remember { mutableStateOf<Any?>(null) }
+    var draggedItemId by remember { mutableStateOf<Any?>(null) }
     var dragOffset by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
 
     LazyColumn(
@@ -59,25 +59,25 @@ fun GroupedConnectionList(
         ) { index ->
             when (val item = flatItems[index]) {
                 is ConnectionListItem.Header -> {
-                    val headerKey = "header_${item.folderId ?: "default"}"
-                    val isDragging = headerKey == draggedItemKey
+                    val headerId = "header_${item.folderId ?: "default"}"
+                    val isDragging = headerId == draggedItemId
                     val translationY = if (isDragging) dragOffset else 0f
 
                     val dragModifier = Modifier.pointerInput(isReordering) {
                         if (!isReordering) return@pointerInput
                         detectDragGestures(
                             onDragStart = { _ ->
-                                draggedItemKey = headerKey
+                                draggedItemId = headerId
                                 dragOffset = 0f
                             },
                             onDrag = { change, dragAmount ->
                                 change.consume()
                                 dragOffset += dragAmount.y
-                                val draggedItem = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggedItemKey }
+                                val draggedItem = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggedItemId }
                                 if (draggedItem != null) {
                                     val currentCenter = draggedItem.offset + dragOffset + (draggedItem.size / 2)
                                     val targetItem = listState.layoutInfo.visibleItemsInfo.firstOrNull {
-                                        it.key != draggedItemKey && currentCenter.toInt() in it.offset..(it.offset + it.size)
+                                        it.key != draggedItemId && currentCenter.toInt() in it.offset..(it.offset + it.size)
                                     }
                                     if (targetItem != null) {
                                         val targetGlobalIndex = targetItem.index
@@ -88,11 +88,11 @@ fun GroupedConnectionList(
                                 }
                             },
                             onDragEnd = {
-                                draggedItemKey = null
+                                draggedItemId = null
                                 dragOffset = 0f
                             },
                             onDragCancel = {
-                                draggedItemKey = null
+                                draggedItemId = null
                                 dragOffset = 0f
                             },
                         )
@@ -132,24 +132,24 @@ fun GroupedConnectionList(
                     val profile = item.profile
                     val activeCount = activeConnectionCounts[profile.id] ?: 0
 
-                    val isDragging = profile.id == draggedItemKey
+                    val isDragging = profile.id == draggedItemId
                     val translationY = if (isDragging) dragOffset else 0f
 
                     val dragModifier = Modifier.pointerInput(isReordering) {
                         if (!isReordering) return@pointerInput
                         detectDragGestures(
                             onDragStart = { _ ->
-                                draggedItemKey = profile.id
+                                draggedItemId = profile.id
                                 dragOffset = 0f
                             },
                             onDrag = { change, dragAmount ->
                                 change.consume()
                                 dragOffset += dragAmount.y
-                                val draggedItem = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggedItemKey }
+                                val draggedItem = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggedItemId }
                                 if (draggedItem != null) {
                                     val currentCenter = draggedItem.offset + dragOffset + (draggedItem.size / 2)
                                     val targetItem = listState.layoutInfo.visibleItemsInfo.firstOrNull {
-                                        it.key != draggedItemKey && currentCenter.toInt() in it.offset..(it.offset + it.size)
+                                        it.key != draggedItemId && currentCenter.toInt() in it.offset..(it.offset + it.size)
                                     }
                                     if (targetItem != null) {
                                         val targetGlobalIndex = targetItem.index
@@ -160,11 +160,11 @@ fun GroupedConnectionList(
                                 }
                             },
                             onDragEnd = {
-                                draggedItemKey = null
+                                draggedItemId = null
                                 dragOffset = 0f
                             },
                             onDragCancel = {
-                                draggedItemKey = null
+                                draggedItemId = null
                                 dragOffset = 0f
                             },
                         )

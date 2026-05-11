@@ -45,7 +45,6 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
             } catch (e: Exception) {
                 val isRobolectric = System.getProperty("robolectric.logging") != null || android.os.Build.FINGERPRINT.contains("robolectric")
                 if (isRobolectric) {
-                    Log.d(TAG, "Robolectric detected, using fallback shared preferences")
                     return@run context.getSharedPreferences("secret_ssh_identities_fallback", Context.MODE_PRIVATE)
                 }
                 e.handleKeystoreExceptions(
@@ -64,7 +63,7 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
             context.getSharedPreferences("secret_ssh_identities", Context.MODE_PRIVATE)
                 .edit().clear().apply()
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to reset Keystore", e)
+            // Error handling intentionally silent to prevent information leakage
         }
     }
 
@@ -73,7 +72,6 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
         return try {
             Base64.getDecoder().decode(encryptedBase64)
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to decrypt sensitive field", e)
             null
         }
     }
@@ -115,7 +113,6 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
         } catch (e: Exception) {
             if (e is CryptoException) throw e
             if (e is kotlinx.serialization.SerializationException || e is IllegalArgumentException) {
-                Log.e(TAG, "Failed to load identity $id: ${e.message}")
                 return null
             }
             e.handleKeystoreExceptions("Failed to retrieve identity due to Keystore error.")
