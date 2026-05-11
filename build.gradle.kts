@@ -27,11 +27,3 @@ plugins {
 
 allprojects {
 }
-
-sonar {
-    properties {
-        property("sonar.issue.ignore.multicriteria", "e2")
-        property("sonar.issue.ignore.multicriteria.e2.ruleKey", "text:S8569")
-        property("sonar.issue.ignore.multicriteria.e2.resourceKey", "**/*.gradle.kts")
-    }
-}
