@@ -1,50 +1,1247 @@
-build-release	Build Release (ProGuard Check)	2026-05-11T02:51:04.2766979Z > Task :app:assembleRelease
-build-release	Build Release (ProGuard Check)	2026-05-11T02:51:04.3759107Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1778467628288.json
-build-release	Build Release (ProGuard Check)	2026-05-11T02:51:04.3761646Z 
-build-release	Build Release (ProGuard Check)	2026-05-11T02:51:04.3762016Z BUILD SUCCESSFUL in 4m 1s
-build-release	Build Release (ProGuard Check)	2026-05-11T02:51:04.3762653Z 61 actionable tasks: 61 executed
-build-release	Post Setup Gradle	﻿2026-05-11T02:51:04.7772795Z Post job cleanup.
-build-release	Post Setup Gradle	2026-05-11T02:51:05.0893474Z In post-action step
-build-release	Post Setup Gradle	2026-05-11T02:51:05.0905214Z ##[group]Stopping Gradle daemons
-build-release	Post Setup Gradle	2026-05-11T02:51:05.0906741Z Stopping Gradle daemons for /home/runner/.gradle/wrapper/dists/gradle-8.9-bin/90cnw93cvbtalezasaz0blq0a/gradle-8.9
-build-release	Post Setup Gradle	2026-05-11T02:51:05.0923994Z [command]/home/runner/.gradle/wrapper/dists/gradle-8.9-bin/90cnw93cvbtalezasaz0blq0a/gradle-8.9/bin/gradle --stop
-build-release	Post Setup Gradle	2026-05-11T02:51:05.6957593Z Stopping Daemon(s)
-build-release	Post Setup Gradle	2026-05-11T02:51:05.7029790Z 1 Daemon stopped
-build-release	Post Setup Gradle	2026-05-11T02:51:05.7235420Z ##[endgroup]
-build-release	Post Setup Gradle	2026-05-11T02:51:05.7370456Z ##[group]Provision Gradle >= 8.11
-build-release	Post Setup Gradle	2026-05-11T02:51:08.8515694Z Gradle version 9.4.1 is available at /usr/bin/gradle and >= 8.11. Not installing.
-build-release	Post Setup Gradle	2026-05-11T02:51:08.8517005Z ##[endgroup]
-build-release	Post Setup Gradle	2026-05-11T02:51:08.8521901Z ##[group]Executing Gradle to clean up caches
-build-release	Post Setup Gradle	2026-05-11T02:51:08.8522614Z Cleaning up caches last used before 1778467608233
-build-release	Post Setup Gradle	2026-05-11T02:51:08.8526701Z [command]/usr/bin/gradle -g /home/runner/.gradle -I init.gradle --info --no-daemon --no-scan --build-cache -DGITHUB_DEPENDENCY_GRAPH_ENABLED=false -DGRADLE_ACTIONS_SKIP_BUILD_RESULT_CAPTURE=true noop
-build-release	Post Setup Gradle	2026-05-11T02:51:09.2438581Z Initialized native services in: /home/runner/.gradle/native
-build-release	Post Setup Gradle	2026-05-11T02:51:09.2464267Z Initialized jansi services in: /home/runner/.gradle/native
-build-release	Post Setup Gradle	2026-05-11T02:51:09.6716482Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.4.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
-build-release	Post Setup Gradle	2026-05-11T02:51:09.7731958Z Starting process 'Gradle build daemon'. Working directory: /home/runner/.gradle/daemon/9.4.1 Command: /usr/lib/jvm/temurin-17-jdk-amd64/bin/java --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED -XX:MaxMetaspaceSize=384m -XX:+HeapDumpOnOutOfMemoryError -Xms256m -Xmx512m -Dfile.encoding=UTF-8 -Duser.country -Duser.language=en -Duser.variant -cp /usr/share/gradle-9.4.1/lib/gradle-daemon-main-9.4.1.jar -javaagent:/usr/share/gradle-9.4.1/lib/agents/gradle-instrumentation-agent-9.4.1.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.4.1
-build-release	Post Setup Gradle	2026-05-11T02:51:09.7741698Z Successfully started process 'Gradle build daemon'
-build-release	Post Setup Gradle	2026-05-11T02:51:12.8711177Z An attempt to start the daemon took 3.238 secs.
-build-release	Post Setup Gradle	2026-05-11T02:51:12.9712183Z The client will now receive all logging from the daemon (pid: 3117). The daemon log file: /home/runner/.gradle/daemon/9.4.1/daemon-3117.out.log
-build-release	Post Setup Gradle	2026-05-11T02:51:12.9714041Z Daemon will be stopped at the end of the build 
-build-release	Post Setup Gradle	2026-05-11T02:51:13.8710319Z Using 4 worker leases.
-build-release	Post Setup Gradle	2026-05-11T02:51:13.8713236Z Operational build model parameters: {cachingModelBuilding=false, configurationCache=false, configurationCacheDisabledReason=null, configurationCacheParallelLoad=false, configurationCacheParallelStore=false, configureOnDemand=false, invalidateCoupledProjects=false, isolatedProjects=false, modelAsProjectDependency=false, modelBuilding=false, parallelModelBuilding=false, parallelProjectConfiguration=false, parallelProjectExecution=false, resilientModelBuilding=false}
-build-release	Post Setup Gradle	2026-05-11T02:51:14.4712103Z Received JVM installation metadata from '/usr/lib/jvm/temurin-17-jdk-amd64': {JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64, JAVA_VERSION=17.0.18, JAVA_VENDOR=Eclipse Adoptium, RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=17.0.18+8, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=17.0.18+8, VM_VENDOR=Eclipse Adoptium, OS_ARCH=amd64}
-build-release	Post Setup Gradle	2026-05-11T02:51:14.8732125Z Watching the file system is configured to be enabled if available
-build-release	Post Setup Gradle	2026-05-11T02:51:14.8743324Z Now considering [/home/runner/work/_temp/dummy-cleanup-project] as hierarchies to watch
-build-release	Post Setup Gradle	2026-05-11T02:51:14.8744561Z File system watching is active
-build-release	Post Setup Gradle	2026-05-11T02:51:15.3709205Z Caching disabled for Groovy DSL script compilation (cp_init) because:
-build-release	Post Setup Gradle	2026-05-11T02:51:15.3710068Z   Build cache is disabled
-build-release	Post Setup Gradle	2026-05-11T02:51:15.3710567Z   Not worth caching.
-build-release	Post Setup Gradle	2026-05-11T02:51:15.4712083Z Compiling initialization script '/home/runner/work/_temp/dummy-cleanup-project/init.gradle' using SubsetScriptTransformer.
-build-release	Post Setup Gradle	2026-05-11T02:51:16.2713344Z Caching disabled for Groovy DSL script compilation (init) because:
-build-release	Post Setup Gradle	2026-05-11T02:51:16.2716431Z   Build cache is disabled
-build-release	Post Setup Gradle	2026-05-11T02:51:16.2717402Z   Not worth caching.
-build-release	Post Setup Gradle	2026-05-11T02:51:16.2718639Z Compiling initialization script '/home/runner/work/_temp/dummy-cleanup-project/init.gradle' using BuildScriptTransformer.
-build-release	Post Setup Gradle	2026-05-11T02:51:16.9722072Z gradle/actions: Not capturing build results
-build-release	Post Setup Gradle	2026-05-11T02:51:17.1711190Z Starting Build
-build-release	Post Setup Gradle	2026-05-11T02:51:17.1713303Z Settings evaluated using settings file '/home/runner/work/_temp/dummy-cleanup-project/settings.gradle'.
-build-release	Post Setup Gradle	2026-05-11T02:51:17.2711610Z Using local directory build cache for the root build (location = /home/runner/.gradle/caches/build-cache-1, remove unused entries = older than 2026-05-11 02:46:48 UTC).
-build-release	Post Setup Gradle	2026-05-11T02:51:17.4710283Z Projects loaded. Root project using build file '/home/runner/work/_temp/dummy-cleanup-project/build.gradle'.
-build-release	Post Setup Gradle	2026-05-11T02:51:17.4717319Z Included projects: [root project 'dummy-cleanup-project']
-build-release	Post Setup Gradle	2026-05-11T02:51:17.6709335Z 
-build-release	Post Setup Gradle	2026-05-11T02:51:17.6736984Z > Configure project :
-build-release	Post Setup Gradle	2026-05-11T02:51:17.6739802Z Evaluating root project 'dummy-cleanup-project' using build file '/home/runner/work/_temp/dummy-cleanup-project/build.gradle'.
+build-debug	Build with Gradle	2026-05-11T03:04:09.5430050Z > Configure project :app
+build-debug	Build with Gradle	2026-05-11T03:04:09.5461039Z The 'sonarqube' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+build-debug	Build with Gradle	2026-05-11T03:04:09.5481284Z The 'sonar' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+build-debug	Build with Gradle	2026-05-11T03:04:09.7405660Z ⚠️  Release keystore not found or not configured. Falling back to default debug keystore.
+build-debug	Build with Gradle	2026-05-11T03:04:10.7405102Z WARNING: The following problems were found when resolving the SDK location:
+build-debug	Build with Gradle	2026-05-11T03:04:10.7412701Z Where: sdk.dir property in local.properties file. Problem: Directory does not exist
+build-debug	Build with Gradle	2026-05-11T03:04:10.7413533Z 
+build-debug	Build with Gradle	2026-05-11T03:04:12.6413728Z 
+build-debug	Build with Gradle	2026-05-11T03:04:12.6414507Z > Task :app:preBuild UP-TO-DATE
+build-debug	Build with Gradle	2026-05-11T03:04:12.6415433Z > Task :app:preDebugBuild UP-TO-DATE
+build-debug	Build with Gradle	2026-05-11T03:04:12.6416516Z > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+build-debug	Build with Gradle	2026-05-11T03:04:12.6417755Z > Task :app:checkKotlinGradlePluginConfigurationErrors
+build-debug	Build with Gradle	2026-05-11T03:04:12.7411183Z > Task :app:generateDebugBuildConfig
+build-debug	Build with Gradle	2026-05-11T03:04:13.3406288Z > Task :app:generateDebugResValues
+build-debug	Build with Gradle	2026-05-11T03:04:13.3420073Z > Task :app:checkDebugAarMetadata
+build-debug	Build with Gradle	2026-05-11T03:04:13.4404483Z > Task :app:mapDebugSourceSetPaths
+build-debug	Build with Gradle	2026-05-11T03:04:13.4405547Z > Task :app:generateDebugResources
+build-debug	Build with Gradle	2026-05-11T03:04:15.9420326Z > Task :app:packageDebugResources
+build-debug	Build with Gradle	2026-05-11T03:04:16.1403723Z > Task :app:mergeDebugResources
+build-debug	Build with Gradle	2026-05-11T03:04:16.5405108Z > Task :app:createDebugCompatibleScreenManifests
+build-debug	Build with Gradle	2026-05-11T03:04:16.5454558Z > Task :app:extractDeepLinksDebug
+build-debug	Build with Gradle	2026-05-11T03:04:16.6404021Z > Task :app:parseDebugLocalResources
+build-debug	Build with Gradle	2026-05-11T03:04:16.8413355Z > Task :app:processDebugMainManifest
+build-debug	Build with Gradle	2026-05-11T03:04:16.9403638Z > Task :app:processDebugManifest
+build-debug	Build with Gradle	2026-05-11T03:04:16.9404469Z > Task :app:javaPreCompileDebug
+build-debug	Build with Gradle	2026-05-11T03:04:17.0430188Z > Task :app:mergeDebugShaders
+build-debug	Build with Gradle	2026-05-11T03:04:17.0446778Z > Task :app:compileDebugShaders NO-SOURCE
+build-debug	Build with Gradle	2026-05-11T03:04:17.0459695Z > Task :app:generateDebugAssets UP-TO-DATE
+build-debug	Build with Gradle	2026-05-11T03:04:17.0489690Z > Task :app:mergeDebugAssets
+build-debug	Build with Gradle	2026-05-11T03:04:17.0510749Z > Task :app:compressDebugAssets
+build-debug	Build with Gradle	2026-05-11T03:04:17.0511347Z > Task :app:desugarDebugFileDependencies
+build-debug	Build with Gradle	2026-05-11T03:04:17.3405253Z > Task :app:checkDebugDuplicateClasses
+build-debug	Build with Gradle	2026-05-11T03:04:20.2435151Z > Task :app:configureNdkBuildDebug[arm64-v8a]
+build-debug	Build with Gradle	2026-05-11T03:04:20.5423378Z > Task :app:processDebugManifestForPackage
+build-debug	Build with Gradle	2026-05-11T03:04:20.5440051Z > Task :app:mergeLibDexDebug
+build-debug	Build with Gradle	2026-05-11T03:04:22.2426203Z > Task :app:processDebugResources
+build-debug	Build with Gradle	2026-05-11T03:04:26.0404698Z > Task :app:buildNdkBuildDebug[arm64-v8a]
+build-debug	Build with Gradle	2026-05-11T03:04:27.0420412Z > Task :app:configureNdkBuildDebug[armeabi-v7a]
+build-debug	Build with Gradle	2026-05-11T03:04:27.5434642Z > Task :app:buildNdkBuildDebug[armeabi-v7a]
+build-debug	Build with Gradle	2026-05-11T03:04:27.7423065Z > Task :app:configureNdkBuildDebug[x86]
+build-debug	Build with Gradle	2026-05-11T03:04:28.9430096Z > Task :app:buildNdkBuildDebug[x86]
+build-debug	Build with Gradle	2026-05-11T03:04:29.1433154Z > Task :app:configureNdkBuildDebug[x86_64]
+build-debug	Build with Gradle	2026-05-11T03:04:29.7429929Z > Task :app:buildNdkBuildDebug[x86_64]
+build-debug	Build with Gradle	2026-05-11T03:04:29.7460082Z > Task :app:mergeDebugJniLibFolders
+build-debug	Build with Gradle	2026-05-11T03:04:30.0407502Z > Task :app:mergeDebugNativeLibs
+build-debug	Build with Gradle	2026-05-11T03:04:33.4430204Z > Task :app:validateSigningDebug
+build-debug	Build with Gradle	2026-05-11T03:04:33.4459844Z > Task :app:writeDebugAppMetadata
+build-debug	Build with Gradle	2026-05-11T03:04:33.5480115Z > Task :app:writeDebugSigningConfigVersions
+build-debug	Build with Gradle	2026-05-11T03:04:33.8420015Z > Task :app:stripDebugDebugSymbols
+build-debug	Build with Gradle	2026-05-11T03:04:41.5415563Z > Task :app:mergeExtDexDebug
+build-debug	Build with Gradle	2026-05-11T03:04:55.9429893Z > Task :app:compileDebugKotlin
+build-debug	Build with Gradle	2026-05-11T03:05:09.5432448Z > Task :app:compileDebugJavaWithJavac
+build-debug	Build with Gradle	2026-05-11T03:05:15.5404112Z > Task :app:dexBuilderDebug
+build-debug	Build with Gradle	2026-05-11T03:05:15.6404935Z > Task :app:mergeDebugGlobalSynthetics
+build-debug	Build with Gradle	2026-05-11T03:05:15.6405755Z > Task :app:processDebugJavaRes
+build-debug	Build with Gradle	2026-05-11T03:05:16.2404362Z > Task :app:mergeProjectDexDebug
+build-debug	Build with Gradle	2026-05-11T03:05:17.9403934Z > Task :app:mergeDebugJavaResource
+build-debug	Build with Gradle	2026-05-11T03:05:18.8415186Z > Task :app:packageDebug
+build-debug	Build with Gradle	2026-05-11T03:05:18.8449699Z > Task :app:createDebugApkListingFileRedirect
+build-debug	Build with Gradle	2026-05-11T03:05:18.8479483Z > Task :app:assembleDebug
+build-debug	Build with Gradle	2026-05-11T03:05:18.8510062Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1778468642598.json
+build-debug	Build with Gradle	2026-05-11T03:05:18.8539320Z 
+build-debug	Build with Gradle	2026-05-11T03:05:18.8569510Z BUILD SUCCESSFUL in 1m 22s
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:08.1499104Z > Configure project :app
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:08.1529590Z The 'sonarqube' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:08.1532925Z The 'sonar' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:08.3471695Z 🔒 Using Release Keystore for signing.
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:09.1454201Z WARNING: The following problems were found when resolving the SDK location:
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:09.1455271Z Where: sdk.dir property in local.properties file. Problem: Directory does not exist
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:09.1455881Z 
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:11.3466418Z 
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:11.3470964Z > Task :app:buildKotlinToolingMetadata
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:11.3472017Z > Task :app:checkKotlinGradlePluginConfigurationErrors
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:11.3472990Z > Task :app:preBuild UP-TO-DATE
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:11.3473778Z > Task :app:preReleaseBuild UP-TO-DATE
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:11.3474554Z > Task :app:generateReleaseBuildConfig
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:11.9468010Z > Task :app:generateReleaseResValues
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:11.9469157Z > Task :app:checkReleaseAarMetadata
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:12.0454965Z > Task :app:mapReleaseSourceSetPaths
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:12.0456840Z > Task :app:generateReleaseResources
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:14.2479685Z > Task :app:packageReleaseResources
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:15.3459503Z > Task :app:createReleaseCompatibleScreenManifests
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:15.3508991Z > Task :app:extractDeepLinksRelease
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:15.4480793Z > Task :app:parseReleaseLocalResources
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:15.7457213Z > Task :app:mergeReleaseResources
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:16.0454000Z > Task :app:processReleaseMainManifest
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:16.1456764Z > Task :app:processReleaseManifest
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:16.1478998Z > Task :app:extractProguardFiles
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:16.1508952Z > Task :app:javaPreCompileRelease
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:16.1536867Z > Task :app:processReleaseManifestForPackage
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:17.0455676Z > Task :app:processReleaseResources
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:18.2489704Z > Task :app:configureNdkBuildRelease[arm64-v8a]
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:21.5500754Z > Task :app:buildNdkBuildRelease[arm64-v8a]
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:21.6471551Z > Task :app:configureNdkBuildRelease[armeabi-v7a]
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:22.2469139Z > Task :app:buildNdkBuildRelease[armeabi-v7a]
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:22.3475743Z > Task :app:configureNdkBuildRelease[x86]
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:22.9509228Z > Task :app:buildNdkBuildRelease[x86]
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:23.1455065Z > Task :app:configureNdkBuildRelease[x86_64]
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:23.6485165Z > Task :app:buildNdkBuildRelease[x86_64]
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:23.6519061Z > Task :app:mergeReleaseJniLibFolders
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:24.2502878Z > Task :app:mergeReleaseNativeLibs
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:24.4489226Z > Task :app:checkReleaseDuplicateClasses
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:24.5455250Z > Task :app:stripReleaseDebugSymbols
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:24.5479660Z > Task :app:mergeReleaseArtProfile
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:24.5503620Z > Task :app:mergeReleaseStartupProfile
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:24.6474250Z > Task :app:mergeReleaseShaders
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:24.6498805Z > Task :app:compileReleaseShaders NO-SOURCE
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:24.6499544Z > Task :app:generateReleaseAssets UP-TO-DATE
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:24.6528887Z > Task :app:extractReleaseNativeDebugMetadata
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:24.7489266Z > Task :app:mergeReleaseAssets
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:24.7548718Z > Task :app:compressReleaseAssets
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:24.7627856Z > Task :app:mergeReleaseNativeDebugMetadata
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:24.8525166Z > Task :app:extractReleaseVersionControlInfo
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:25.3454306Z > Task :app:collectReleaseDependencies
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:25.6459071Z > Task :app:sdkReleaseDependencyData
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:25.6487287Z > Task :app:validateSigningRelease
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:25.6518766Z > Task :app:writeReleaseAppMetadata
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:25.6544756Z > Task :app:writeReleaseSigningConfigVersions
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:25.6568882Z > Task :app:convertLinkedResourcesToProtoRelease
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:48.2453865Z > Task :app:compileReleaseKotlin
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:54.4463240Z > Task :app:compileReleaseJavaWithJavac
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:55.1474515Z > Task :app:generateReleaseLintVitalReportModel
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:55.2479326Z > Task :app:mergeReleaseGeneratedProguardFiles
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:55.3490326Z > Task :app:processReleaseJavaRes
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:56.9479134Z > Task :app:expandReleaseArtProfileWildcards
+build-release	Build Release (ProGuard Check)	2026-05-11T03:04:58.0478746Z > Task :app:mergeReleaseJavaResource
+build-release	Build Release (ProGuard Check)	2026-05-11T03:05:25.1459270Z > Task :app:lintVitalAnalyzeRelease
+build-release	Build Release (ProGuard Check)	2026-05-11T03:05:28.1463299Z > Task :app:minifyReleaseWithR8
+build-release	Build Release (ProGuard Check)	2026-05-11T03:05:40.6465592Z > Task :app:lintVitalReportRelease
+build-release	Build Release (ProGuard Check)	2026-05-11T03:05:40.6478599Z > Task :app:lintVitalRelease
+build-release	Build Release (ProGuard Check)	2026-05-11T03:07:49.3453458Z > Task :app:compileReleaseArtProfile
+build-release	Build Release (ProGuard Check)	2026-05-11T03:07:51.6455995Z > Task :app:shrinkReleaseRes
+build-release	Build Release (ProGuard Check)	2026-05-11T03:07:51.7453325Z > Task :app:convertShrunkResourcesToBinaryRelease
+build-release	Build Release (ProGuard Check)	2026-05-11T03:07:51.9477076Z > Task :app:optimizeReleaseResources
+build-release	Build Release (ProGuard Check)	2026-05-11T03:07:52.7461453Z > Task :app:packageRelease
+build-release	Build Release (ProGuard Check)	2026-05-11T03:07:52.7462481Z > Task :app:createReleaseApkListingFileRedirect
+build-release	Build Release (ProGuard Check)	2026-05-11T03:07:52.7463430Z > Task :app:assembleRelease
+build-release	Build Release (ProGuard Check)	2026-05-11T03:07:52.8455084Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1778468641462.json
+build-release	Build Release (ProGuard Check)	2026-05-11T03:07:52.8456276Z 
+build-release	Build Release (ProGuard Check)	2026-05-11T03:07:52.8456619Z BUILD SUCCESSFUL in 3m 57s
+test	Run Tests and Coverage	2026-05-11T03:04:22.0821795Z > Configure project :app
+test	Run Tests and Coverage	2026-05-11T03:04:22.0827980Z The 'sonarqube' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+test	Run Tests and Coverage	2026-05-11T03:04:22.0863000Z The 'sonar' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+test	Run Tests and Coverage	2026-05-11T03:04:22.2748581Z ⚠️  Release keystore not found or not configured. Falling back to default debug keystore.
+test	Run Tests and Coverage	2026-05-11T03:04:23.2725568Z WARNING: The following problems were found when resolving the SDK location:
+test	Run Tests and Coverage	2026-05-11T03:04:23.2726757Z Where: sdk.dir property in local.properties file. Problem: Directory does not exist
+test	Run Tests and Coverage	2026-05-11T03:04:23.2727415Z 
+test	Run Tests and Coverage	2026-05-11T03:04:26.1729685Z 
+test	Run Tests and Coverage	2026-05-11T03:04:26.1737492Z > Task :app:checkKotlinGradlePluginConfigurationErrors
+test	Run Tests and Coverage	2026-05-11T03:04:26.1738494Z > Task :app:preBuild UP-TO-DATE
+test	Run Tests and Coverage	2026-05-11T03:04:26.1739459Z > Task :app:preDebugBuild UP-TO-DATE
+test	Run Tests and Coverage	2026-05-11T03:04:26.2735858Z > Task :app:generateDebugBuildConfig
+test	Run Tests and Coverage	2026-05-11T03:04:26.7763464Z > Task :app:generateDebugResValues
+test	Run Tests and Coverage	2026-05-11T03:04:26.7764600Z > Task :app:checkDebugAarMetadata
+test	Run Tests and Coverage	2026-05-11T03:04:26.8727771Z > Task :app:mapDebugSourceSetPaths
+test	Run Tests and Coverage	2026-05-11T03:04:26.8730257Z > Task :app:generateDebugResources
+test	Run Tests and Coverage	2026-05-11T03:04:29.3727819Z > Task :app:packageDebugResources
+test	Run Tests and Coverage	2026-05-11T03:04:29.3751767Z > Task :app:createDebugCompatibleScreenManifests
+test	Run Tests and Coverage	2026-05-11T03:04:29.3781495Z > Task :app:extractDeepLinksDebug
+test	Run Tests and Coverage	2026-05-11T03:04:29.5731812Z > Task :app:parseDebugLocalResources
+test	Run Tests and Coverage	2026-05-11T03:04:29.6731725Z > Task :app:mergeDebugResources
+test	Run Tests and Coverage	2026-05-11T03:04:29.7742638Z > Task :app:processDebugMainManifest
+test	Run Tests and Coverage	2026-05-11T03:04:29.8742297Z > Task :app:processDebugManifest
+test	Run Tests and Coverage	2026-05-11T03:04:29.8765744Z > Task :app:javaPreCompileDebug
+test	Run Tests and Coverage	2026-05-11T03:04:29.9741864Z > Task :app:mergeDebugShaders
+test	Run Tests and Coverage	2026-05-11T03:04:29.9773132Z > Task :app:compileDebugShaders NO-SOURCE
+test	Run Tests and Coverage	2026-05-11T03:04:29.9781706Z > Task :app:generateDebugAssets UP-TO-DATE
+test	Run Tests and Coverage	2026-05-11T03:04:29.9803001Z > Task :app:mergeDebugAssets
+test	Run Tests and Coverage	2026-05-11T03:04:29.9833757Z > Task :app:preDebugUnitTestBuild UP-TO-DATE
+test	Run Tests and Coverage	2026-05-11T03:04:30.1751805Z > Task :app:preparePaparazziDebugResources
+test	Run Tests and Coverage	2026-05-11T03:04:30.1753030Z > Task :app:processDebugManifestForPackage
+test	Run Tests and Coverage	2026-05-11T03:04:30.4733701Z > Task :app:javaPreCompileDebugUnitTest
+test	Run Tests and Coverage	2026-05-11T03:04:31.1728883Z > Task :app:processDebugResources
+test	Run Tests and Coverage	2026-05-11T03:04:31.6728781Z > Task :app:packageDebugUnitTestForUnitTest
+test	Run Tests and Coverage	2026-05-11T03:04:31.6732707Z > Task :app:generateDebugUnitTestConfig
+test	Run Tests and Coverage	2026-05-11T03:05:01.1746675Z > Task :app:compileDebugKotlin
+test	Run Tests and Coverage	2026-05-11T03:05:04.3731545Z > Task :app:compileDebugJavaWithJavac
+test	Run Tests and Coverage	2026-05-11T03:05:04.4746451Z > Task :app:processDebugJavaRes
+test	Run Tests and Coverage	2026-05-11T03:05:04.4791552Z > Task :app:bundleDebugClassesToRuntimeJar
+test	Run Tests and Coverage	2026-05-11T03:05:04.5737482Z > Task :app:bundleDebugClassesToCompileJar
+test	Run Tests and Coverage	2026-05-11T03:05:17.3725822Z > Task :app:compileDebugUnitTestKotlin
+test	Run Tests and Coverage	2026-05-11T03:05:17.4731190Z > Task :app:processDebugUnitTestJavaRes
+test	Run Tests and Coverage	2026-05-11T03:05:17.4732331Z > Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+test	Run Tests and Coverage	2026-05-11T03:05:17.7728482Z > Task :app:transformDebugUnitTestClassesWithAsm
+test	Run Tests and Coverage	2026-05-11T03:05:32.9751173Z 
+test	Run Tests and Coverage	2026-05-11T03:05:32.9811777Z > Task :app:testDebugUnitTest
+test	Run Tests and Coverage	2026-05-11T03:05:32.9842456Z ⏱️ TEST-METRIC: com.adamoutler.ssh.CoSshApplicationTest.testBouncyCastleProviderIsRegistered took 10096ms
+test	Run Tests and Coverage	2026-05-11T03:05:32.9871112Z 
+test	Run Tests and Coverage	2026-05-11T03:05:32.9901759Z CoSshApplicationTest > testBouncyCastleProviderIsRegistered PASSED
+test	Run Tests and Coverage	2026-05-11T03:05:33.0762934Z ⏱️ TEST-METRIC: com.adamoutler.ssh.CoSshApplicationTest.testSecureCrashHandlerIsRegistered took 142ms
+test	Run Tests and Coverage	2026-05-11T03:05:33.0791251Z 
+test	Run Tests and Coverage	2026-05-11T03:05:33.0851637Z CoSshApplicationTest > testSecureCrashHandlerIsRegistered PASSED
+test	Run Tests and Coverage	2026-05-11T03:05:33.4752660Z ⏱️ TEST-METRIC: com.adamoutler.ssh.CoSshApplicationTest.testSecureCrashHandlerRedactsAndWritesToDisk took 395ms
+test	Run Tests and Coverage	2026-05-11T03:05:33.4781238Z 
+test	Run Tests and Coverage	2026-05-11T03:05:33.4801847Z CoSshApplicationTest > testSecureCrashHandlerRedactsAndWritesToDisk PASSED
+test	Run Tests and Coverage	2026-05-11T03:05:45.4752442Z ⏱️ TEST-METRIC: com.adamoutler.ssh.AppLaunchTest.testAppLaunchesSuccessfully took 22562ms
+test	Run Tests and Coverage	2026-05-11T03:05:45.4811128Z 
+test	Run Tests and Coverage	2026-05-11T03:05:45.4871563Z AppLaunchTest > testAppLaunchesSuccessfully PASSED
+test	Run Tests and Coverage	2026-05-11T03:05:47.9728486Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ExceptionTest.testException took 86ms
+test	Run Tests and Coverage	2026-05-11T03:05:47.9733603Z 
+test	Run Tests and Coverage	2026-05-11T03:05:47.9737976Z ExceptionTest > testException PASSED
+test	Run Tests and Coverage	2026-05-11T03:05:49.5736926Z ⏱️ TEST-METRIC: com.adamoutler.ssh.PlaceholderScreenScreenshotTest.defaultScreen took 13803ms
+test	Run Tests and Coverage	2026-05-11T03:05:49.5761460Z 
+test	Run Tests and Coverage	2026-05-11T03:05:49.5780192Z PlaceholderScreenScreenshotTest > defaultScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:05:49.6727819Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ViewModelReflectionTest.testReflection took 31ms
+test	Run Tests and Coverage	2026-05-11T03:05:49.6754266Z 
+test	Run Tests and Coverage	2026-05-11T03:05:49.6766923Z ViewModelReflectionTest > testReflection PASSED
+test	Run Tests and Coverage	2026-05-11T03:05:52.1768951Z ⏱️ TEST-METRIC: com.adamoutler.ssh.backup.BackupCryptoManagerTest.test BackupPayload serialization took 563ms
+test	Run Tests and Coverage	2026-05-11T03:05:52.1822988Z 
+test	Run Tests and Coverage	2026-05-11T03:05:52.1867510Z BackupCryptoManagerTest > test BackupPayload serialization PASSED
+test	Run Tests and Coverage	2026-05-11T03:05:52.7732270Z ⏱️ TEST-METRIC: com.adamoutler.ssh.backup.BackupCryptoManagerTest.test export and import profiles took 521ms
+test	Run Tests and Coverage	2026-05-11T03:05:52.7755981Z 
+test	Run Tests and Coverage	2026-05-11T03:05:52.7791678Z BackupCryptoManagerTest > test export and import profiles PASSED
+test	Run Tests and Coverage	2026-05-11T03:05:55.4742553Z ⏱️ TEST-METRIC: com.adamoutler.ssh.backup.BackupPayloadTest.testSerializationAndDeserialization took 566ms
+test	Run Tests and Coverage	2026-05-11T03:05:55.4771045Z 
+test	Run Tests and Coverage	2026-05-11T03:05:55.4798566Z BackupPayloadTest > testSerializationAndDeserialization PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:02.2727955Z ⏱️ TEST-METRIC: com.adamoutler.ssh.backup.BackupManagerTest.test exportBackup and importBackup took 10170ms
+test	Run Tests and Coverage	2026-05-11T03:06:02.2761112Z 
+test	Run Tests and Coverage	2026-05-11T03:06:02.2761839Z BackupManagerTest > test exportBackup and importBackup PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:06.6752729Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testGetAllIdentitiesSkipsPwdAndKey took 8588ms
+test	Run Tests and Coverage	2026-05-11T03:06:06.6754134Z 
+test	Run Tests and Coverage	2026-05-11T03:06:06.6781779Z IdentityStorageManagerTest > testGetAllIdentitiesSkipsPwdAndKey PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:06.8728566Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testDefaultInitialization took 173ms
+test	Run Tests and Coverage	2026-05-11T03:06:06.8751132Z 
+test	Run Tests and Coverage	2026-05-11T03:06:06.8791640Z IdentityStorageManagerTest > testDefaultInitialization PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:07.0772468Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testResetInvalidatedKeys took 184ms
+test	Run Tests and Coverage	2026-05-11T03:06:07.0801068Z 
+test	Run Tests and Coverage	2026-05-11T03:06:07.0802005Z IdentityStorageManagerTest > testResetInvalidatedKeys PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:07.6740166Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testSaveAndRetrieveIdentity took 643ms
+test	Run Tests and Coverage	2026-05-11T03:06:07.6797447Z 
+test	Run Tests and Coverage	2026-05-11T03:06:07.6811488Z IdentityStorageManagerTest > testSaveAndRetrieveIdentity PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:07.8735940Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testGetAllIdentities took 164ms
+test	Run Tests and Coverage	2026-05-11T03:06:07.8743092Z 
+test	Run Tests and Coverage	2026-05-11T03:06:07.8743476Z IdentityStorageManagerTest > testGetAllIdentities PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:07.9748624Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testDecryptNullSensitiveData took 128ms
+test	Run Tests and Coverage	2026-05-11T03:06:07.9780102Z 
+test	Run Tests and Coverage	2026-05-11T03:06:07.9791678Z IdentityStorageManagerTest > testDecryptNullSensitiveData PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:08.0735426Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testDeleteIdentity took 87ms
+test	Run Tests and Coverage	2026-05-11T03:06:08.0761253Z 
+test	Run Tests and Coverage	2026-05-11T03:06:08.0831716Z IdentityStorageManagerTest > testDeleteIdentity PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:08.2726406Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testGetIdentityWithCorruptedData took 172ms
+test	Run Tests and Coverage	2026-05-11T03:06:08.2761129Z 
+test	Run Tests and Coverage	2026-05-11T03:06:08.2762668Z IdentityStorageManagerTest > testGetIdentityWithCorruptedData PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:14.6742536Z ⏱️ TEST-METRIC: com.adamoutler.ssh.billing.BillingManagerTest.testOnPurchasesUpdated took 9303ms
+test	Run Tests and Coverage	2026-05-11T03:06:14.6811342Z 
+test	Run Tests and Coverage	2026-05-11T03:06:14.6856288Z BillingManagerTest > testOnPurchasesUpdated PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:15.2754502Z ⏱️ TEST-METRIC: com.adamoutler.ssh.billing.BillingManagerTest.testPurchaseCloudSync took 571ms
+test	Run Tests and Coverage	2026-05-11T03:06:15.2811339Z 
+test	Run Tests and Coverage	2026-05-11T03:06:15.2872093Z BillingManagerTest > testPurchaseCloudSync PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:15.5727575Z ⏱️ TEST-METRIC: com.adamoutler.ssh.billing.BillingManagerTest.testOnPurchasesUpdated_withValidPurchase took 356ms
+test	Run Tests and Coverage	2026-05-11T03:06:15.5761364Z 
+test	Run Tests and Coverage	2026-05-11T03:06:15.5764790Z BillingManagerTest > testOnPurchasesUpdated_withValidPurchase PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:15.7752578Z ⏱️ TEST-METRIC: com.adamoutler.ssh.billing.BillingManagerTest.testInitialState took 143ms
+test	Run Tests and Coverage	2026-05-11T03:06:15.7781246Z 
+test	Run Tests and Coverage	2026-05-11T03:06:15.7791495Z BillingManagerTest > testInitialState PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:15.8742358Z ⏱️ TEST-METRIC: com.adamoutler.ssh.billing.BillingManagerTest.testOnPurchasesUpdated_withUnacknowledgedPurchase took 81ms
+test	Run Tests and Coverage	2026-05-11T03:06:15.8743475Z 
+test	Run Tests and Coverage	2026-05-11T03:06:15.8791531Z BillingManagerTest > testOnPurchasesUpdated_withUnacknowledgedPurchase PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:15.8822038Z ⏱️ TEST-METRIC: com.adamoutler.ssh.billing.BillingManagerTest.testForceCloudSyncEnabled took 61ms
+test	Run Tests and Coverage	2026-05-11T03:06:15.8841001Z 
+test	Run Tests and Coverage	2026-05-11T03:06:15.8871421Z BillingManagerTest > testForceCloudSyncEnabled PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:19.3752605Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PasswordCipherTest.test decrypt with invalid data throws exception took 8038ms
+test	Run Tests and Coverage	2026-05-11T03:06:19.3753673Z 
+test	Run Tests and Coverage	2026-05-11T03:06:19.3781936Z PasswordCipherTest > test decrypt with invalid data throws exception PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:19.5728400Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PasswordCipherTest.test encrypt and decrypt roundtrip took 181ms
+test	Run Tests and Coverage	2026-05-11T03:06:19.5729403Z 
+test	Run Tests and Coverage	2026-05-11T03:06:19.5732882Z PasswordCipherTest > test encrypt and decrypt roundtrip PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:19.7728468Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.ParsePublicKeyTest.testParse took 1762ms
+test	Run Tests and Coverage	2026-05-11T03:06:19.7761172Z 
+test	Run Tests and Coverage	2026-05-11T03:06:19.7781569Z ParsePublicKeyTest > testParse PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:26.5783056Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemUtilsTest.test parsePemToKeyPair with OpenSSH RSA Key took 5426ms
+test	Run Tests and Coverage	2026-05-11T03:06:26.5851402Z 
+test	Run Tests and Coverage	2026-05-11T03:06:26.5951671Z PemUtilsTest > test parsePemToKeyPair with OpenSSH RSA Key PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:26.6735096Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemUtilsTest.test parsePemToKeyPair with OpenSSH Ed25519 Key took 75ms
+test	Run Tests and Coverage	2026-05-11T03:06:26.6801071Z 
+test	Run Tests and Coverage	2026-05-11T03:06:26.6826535Z PemUtilsTest > test parsePemToKeyPair with OpenSSH Ed25519 Key PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:30.5792589Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SSHKeyGeneratorTest.testGenerateRSAKeyPair took 1758ms
+test	Run Tests and Coverage	2026-05-11T03:06:30.5793560Z 
+test	Run Tests and Coverage	2026-05-11T03:06:30.5806639Z SSHKeyGeneratorTest > testGenerateRSAKeyPair PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:30.6727457Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SSHKeyGeneratorTest.testGenerateEd25519KeyPair took 57ms
+test	Run Tests and Coverage	2026-05-11T03:06:30.6728388Z 
+test	Run Tests and Coverage	2026-05-11T03:06:30.6729403Z SSHKeyGeneratorTest > testGenerateEd25519KeyPair PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:32.3726902Z ⏱️ TEST-METRIC: com.adamoutler.ssh.data.ByteArrayAsBase64SerializerTest.testSerialization took 498ms
+test	Run Tests and Coverage	2026-05-11T03:06:32.3727864Z 
+test	Run Tests and Coverage	2026-05-11T03:06:32.3781465Z ByteArrayAsBase64SerializerTest > testSerialization PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:32.3792182Z ⏱️ TEST-METRIC: com.adamoutler.ssh.data.ByteArrayAsBase64SerializerTest.testDeserialization took 16ms
+test	Run Tests and Coverage	2026-05-11T03:06:32.3810931Z 
+test	Run Tests and Coverage	2026-05-11T03:06:32.3833244Z ByteArrayAsBase64SerializerTest > testDeserialization PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:34.0772494Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingTest.testParseRawDerBytesRsa took 11267ms
+test	Run Tests and Coverage	2026-05-11T03:06:34.0801251Z 
+test	Run Tests and Coverage	2026-05-11T03:06:34.0821496Z PemParsingTest > testParseRawDerBytesRsa PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:34.1742409Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingTest.testParseRawDerBytes took 122ms
+test	Run Tests and Coverage	2026-05-11T03:06:34.1801156Z 
+test	Run Tests and Coverage	2026-05-11T03:06:34.1861587Z PemParsingTest > testParseRawDerBytes PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:34.5766034Z ⏱️ TEST-METRIC: com.adamoutler.ssh.data.DataSerializersTest.test ConnectionProfile partial deserialization took 340ms
+test	Run Tests and Coverage	2026-05-11T03:06:34.5810969Z 
+test	Run Tests and Coverage	2026-05-11T03:06:34.5901838Z DataSerializersTest > test ConnectionProfile partial deserialization PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:34.5922741Z ⏱️ TEST-METRIC: com.adamoutler.ssh.data.DataSerializersTest.test IdentityProfile partial deserialization took 12ms
+test	Run Tests and Coverage	2026-05-11T03:06:34.5991096Z 
+test	Run Tests and Coverage	2026-05-11T03:06:34.6041622Z DataSerializersTest > test IdentityProfile partial deserialization PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:34.8756034Z ⏱️ TEST-METRIC: com.adamoutler.ssh.data.DataSerializersTest.test PortForwardConfig serialization and deserialization took 326ms
+test	Run Tests and Coverage	2026-05-11T03:06:34.8821070Z 
+test	Run Tests and Coverage	2026-05-11T03:06:34.8861845Z DataSerializersTest > test PortForwardConfig serialization and deserialization PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:34.8922372Z ⏱️ TEST-METRIC: com.adamoutler.ssh.data.DataSerializersTest.test IdentityProfile serialization and deserialization took 31ms
+test	Run Tests and Coverage	2026-05-11T03:06:34.8991174Z 
+test	Run Tests and Coverage	2026-05-11T03:06:34.9022230Z DataSerializersTest > test IdentityProfile serialization and deserialization PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:34.9052277Z ⏱️ TEST-METRIC: com.adamoutler.ssh.data.DataSerializersTest.test ConnectionProfile serialization and deserialization took 1ms
+test	Run Tests and Coverage	2026-05-11T03:06:34.9081079Z 
+test	Run Tests and Coverage	2026-05-11T03:06:34.9093882Z DataSerializersTest > test ConnectionProfile serialization and deserialization PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:36.7731272Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.AppConnectionIntegrationTest.testInAppTerminalConnectionAndDataTransfer took 0ms
+test	Run Tests and Coverage	2026-05-11T03:06:36.7732849Z 
+test	Run Tests and Coverage	2026-05-11T03:06:36.7733633Z AppConnectionIntegrationTest > testInAppTerminalConnectionAndDataTransfer SKIPPED
+test	Run Tests and Coverage	2026-05-11T03:06:36.7735629Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.AppConnectionIntegrationTest.test19StepWorkflow_ConnectionResumeAndConcurrentSessions took 0ms
+test	Run Tests and Coverage	2026-05-11T03:06:36.7736949Z 
+test	Run Tests and Coverage	2026-05-11T03:06:36.7737687Z AppConnectionIntegrationTest > test19StepWorkflow_ConnectionResumeAndConcurrentSessions SKIPPED
+test	Run Tests and Coverage	2026-05-11T03:06:38.2743106Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.FiftyKbIntegrityTest.test50KbDataIntegrity took 1ms
+test	Run Tests and Coverage	2026-05-11T03:06:38.2744200Z 
+test	Run Tests and Coverage	2026-05-11T03:06:38.2764956Z FiftyKbIntegrityTest > test50KbDataIntegrity SKIPPED
+test	Run Tests and Coverage	2026-05-11T03:06:38.6733073Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingTest.testParsePublicKeyInsteadOfPrivate took 4467ms
+test	Run Tests and Coverage	2026-05-11T03:06:38.6771163Z 
+test	Run Tests and Coverage	2026-05-11T03:06:38.6791624Z PemParsingTest > testParsePublicKeyInsteadOfPrivate PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:38.7725697Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingTest.testParseOpenSshEd25519 took 144ms
+test	Run Tests and Coverage	2026-05-11T03:06:38.7751269Z 
+test	Run Tests and Coverage	2026-05-11T03:06:38.7751960Z PemParsingTest > testParseOpenSshEd25519 PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:38.8778026Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingTest.testParseInvalidPem took 117ms
+test	Run Tests and Coverage	2026-05-11T03:06:38.8798381Z 
+test	Run Tests and Coverage	2026-05-11T03:06:38.8819060Z PemParsingTest > testParseInvalidPem PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:40.9752486Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingTest.testParsePem took 2103ms
+test	Run Tests and Coverage	2026-05-11T03:06:40.9791108Z 
+test	Run Tests and Coverage	2026-05-11T03:06:40.9821460Z PemParsingTest > testParsePem PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:42.9728870Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.PortForwardingOrchestratorTest.test startLocalPortForwarding took 3074ms
+test	Run Tests and Coverage	2026-05-11T03:06:42.9746394Z 
+test	Run Tests and Coverage	2026-05-11T03:06:42.9771942Z PortForwardingOrchestratorTest > test startLocalPortForwarding PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:43.1747447Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.PortForwardingOrchestratorTest.test startPortForwards handles exception gracefully when failing to bind took 217ms
+test	Run Tests and Coverage	2026-05-11T03:06:43.1763595Z 
+test	Run Tests and Coverage	2026-05-11T03:06:43.1792236Z PortForwardingOrchestratorTest > test startPortForwards handles exception gracefully when failing to bind PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:43.3742998Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.PortForwardingOrchestratorTest.test startPortForwards gracefully handles null SSHClient or invalid config took 167ms
+test	Run Tests and Coverage	2026-05-11T03:06:43.3751294Z 
+test	Run Tests and Coverage	2026-05-11T03:06:43.3772274Z PortForwardingOrchestratorTest > test startPortForwards gracefully handles null SSHClient or invalid config PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:44.0741247Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.PortForwardingOrchestratorTest.test startRemotePortForwarding took 706ms
+test	Run Tests and Coverage	2026-05-11T03:06:44.0771351Z 
+test	Run Tests and Coverage	2026-05-11T03:06:44.0775167Z PortForwardingOrchestratorTest > test startRemotePortForwarding PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:49.7732930Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerIntegrationTest.testHeadlessKeyConnection took 3335ms
+test	Run Tests and Coverage	2026-05-11T03:06:49.7771205Z 
+test	Run Tests and Coverage	2026-05-11T03:06:49.7811767Z SshConnectionManagerIntegrationTest > testHeadlessKeyConnection PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:49.7842359Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerIntegrationTest.testEnvVarTransmission took 7ms
+test	Run Tests and Coverage	2026-05-11T03:06:49.7851182Z 
+test	Run Tests and Coverage	2026-05-11T03:06:49.7869802Z SshConnectionManagerIntegrationTest > testEnvVarTransmission PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:51.4746863Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerIntegrationTest.testHeadlessPasswordConnectionAndPtyInteraction took 1709ms
+test	Run Tests and Coverage	2026-05-11T03:06:51.4791165Z 
+test	Run Tests and Coverage	2026-05-11T03:06:51.4822179Z SshConnectionManagerIntegrationTest > testHeadlessPasswordConnectionAndPtyInteraction PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:51.7742439Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerIntegrationTest.testHeadlessPasswordConnectionFailsAndClearsMemory took 354ms
+test	Run Tests and Coverage	2026-05-11T03:06:51.7781383Z 
+test	Run Tests and Coverage	2026-05-11T03:06:51.7782518Z SshConnectionManagerIntegrationTest > testHeadlessPasswordConnectionFailsAndClearsMemory PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:51.7812283Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SSHKeyGeneratorEncodingTest.testGenerateAndEncodeRSA took 8388ms
+test	Run Tests and Coverage	2026-05-11T03:06:51.7841138Z 
+test	Run Tests and Coverage	2026-05-11T03:06:51.7851682Z SSHKeyGeneratorEncodingTest > testGenerateAndEncodeRSA PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:52.1741127Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SSHKeyGeneratorEncodingTest.testGenerateAndEncodeEd25519 took 373ms
+test	Run Tests and Coverage	2026-05-11T03:06:52.1742239Z 
+test	Run Tests and Coverage	2026-05-11T03:06:52.1751578Z SSHKeyGeneratorEncodingTest > testGenerateAndEncodeEd25519 PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:53.0725138Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerIntegrationTest.testTelnetConnectionAndPtyInteraction took 1220ms
+test	Run Tests and Coverage	2026-05-11T03:06:53.0765705Z 
+test	Run Tests and Coverage	2026-05-11T03:06:53.0802125Z SshConnectionManagerIntegrationTest > testTelnetConnectionAndPtyInteraction PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:55.3728499Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceErrorMappingTest.testOtherExceptionMapping took 190ms
+test	Run Tests and Coverage	2026-05-11T03:06:55.3751247Z 
+test	Run Tests and Coverage	2026-05-11T03:06:55.3782010Z SshServiceErrorMappingTest > testOtherExceptionMapping PASSED
+test	Run Tests and Coverage	2026-05-11T03:06:55.3791743Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceErrorMappingTest.testAuthenticationExhaustedMapping took 0ms
+test	Run Tests and Coverage	2026-05-11T03:06:55.3811643Z 
+test	Run Tests and Coverage	2026-05-11T03:06:55.3842472Z SshServiceErrorMappingTest > testAuthenticationExhaustedMapping PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:03.3733085Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testUserNotAuthenticatedException_WrapsInCryptoException took 9005ms
+test	Run Tests and Coverage	2026-05-11T03:07:03.3763438Z 
+test	Run Tests and Coverage	2026-05-11T03:07:03.3821682Z SecurityStorageManagerTest > testUserNotAuthenticatedException_WrapsInCryptoException PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:03.7772644Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testCorruptedProfileDeserialization took 383ms
+test	Run Tests and Coverage	2026-05-11T03:07:03.7791363Z 
+test	Run Tests and Coverage	2026-05-11T03:07:03.7851719Z SecurityStorageManagerTest > testCorruptedProfileDeserialization PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:03.8802855Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testSaveProfile_KeystoreExceptionFallback took 108ms
+test	Run Tests and Coverage	2026-05-11T03:07:03.8861149Z 
+test	Run Tests and Coverage	2026-05-11T03:07:03.8921756Z SecurityStorageManagerTest > testSaveProfile_KeystoreExceptionFallback PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:03.9737278Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testResetInvalidatedKeys_WithMockKeyStore_HandlesException took 97ms
+test	Run Tests and Coverage	2026-05-11T03:07:03.9752532Z 
+test	Run Tests and Coverage	2026-05-11T03:07:03.9793715Z SecurityStorageManagerTest > testResetInvalidatedKeys_WithMockKeyStore_HandlesException PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:04.1751408Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testStrongBoxFallbackLogic took 194ms
+test	Run Tests and Coverage	2026-05-11T03:07:04.1791093Z 
+test	Run Tests and Coverage	2026-05-11T03:07:04.1851304Z SecurityStorageManagerTest > testStrongBoxFallbackLogic PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:04.2783014Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testDeleteProfile_WithNullId_DoesNotThrow took 123ms
+test	Run Tests and Coverage	2026-05-11T03:07:04.2841183Z 
+test	Run Tests and Coverage	2026-05-11T03:07:04.2901762Z SecurityStorageManagerTest > testDeleteProfile_WithNullId_DoesNotThrow PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:04.3752602Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testResetInvalidatedKeys took 108ms
+test	Run Tests and Coverage	2026-05-11T03:07:04.3781044Z 
+test	Run Tests and Coverage	2026-05-11T03:07:04.3811740Z SecurityStorageManagerTest > testResetInvalidatedKeys PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:04.5782781Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testCorruptPassphraseDeserialization took 166ms
+test	Run Tests and Coverage	2026-05-11T03:07:04.5801667Z 
+test	Run Tests and Coverage	2026-05-11T03:07:04.5841806Z SecurityStorageManagerTest > testCorruptPassphraseDeserialization PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:04.6762530Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testDecryptNullPassword took 92ms
+test	Run Tests and Coverage	2026-05-11T03:07:04.6818642Z 
+test	Run Tests and Coverage	2026-05-11T03:07:04.6881618Z SecurityStorageManagerTest > testDecryptNullPassword PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:04.7732651Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllProfiles_IllegalArgumentException took 127ms
+test	Run Tests and Coverage	2026-05-11T03:07:04.7791049Z 
+test	Run Tests and Coverage	2026-05-11T03:07:04.7851867Z SecurityStorageManagerTest > testGetAllProfiles_IllegalArgumentException PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:04.8732430Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllKeys took 115ms
+test	Run Tests and Coverage	2026-05-11T03:07:04.8761256Z 
+test	Run Tests and Coverage	2026-05-11T03:07:04.8791543Z SecurityStorageManagerTest > testGetAllKeys PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:04.9750398Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllKeys_KeystoreExceptionFallback took 118ms
+test	Run Tests and Coverage	2026-05-11T03:07:04.9781121Z 
+test	Run Tests and Coverage	2026-05-11T03:07:04.9871812Z SecurityStorageManagerTest > testGetAllKeys_KeystoreExceptionFallback PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:05.0732734Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAndSaveSyncPassphrase took 102ms
+test	Run Tests and Coverage	2026-05-11T03:07:05.0753454Z 
+test	Run Tests and Coverage	2026-05-11T03:07:05.0761473Z SecurityStorageManagerTest > testGetAndSaveSyncPassphrase PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:05.2733095Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testKeyPermanentlyInvalidatedException_WrapsInCryptoException took 126ms
+test	Run Tests and Coverage	2026-05-11T03:07:05.2761480Z 
+test	Run Tests and Coverage	2026-05-11T03:07:05.2791562Z SecurityStorageManagerTest > testKeyPermanentlyInvalidatedException_WrapsInCryptoException PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:05.3772749Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetProfile_KeystoreExceptionFallback took 139ms
+test	Run Tests and Coverage	2026-05-11T03:07:05.3773877Z 
+test	Run Tests and Coverage	2026-05-11T03:07:05.3831696Z SecurityStorageManagerTest > testGetProfile_KeystoreExceptionFallback PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:05.4742804Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllProfilesSkipsPwdAndKey took 114ms
+test	Run Tests and Coverage	2026-05-11T03:07:05.4801330Z 
+test	Run Tests and Coverage	2026-05-11T03:07:05.4811683Z SecurityStorageManagerTest > testGetAllProfilesSkipsPwdAndKey PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:05.5742896Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetProfile_SerializationException took 104ms
+test	Run Tests and Coverage	2026-05-11T03:07:05.5771233Z 
+test	Run Tests and Coverage	2026-05-11T03:07:05.5831737Z SecurityStorageManagerTest > testGetProfile_SerializationException PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:05.6734966Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testDeleteProfile_KeystoreExceptionFallback took 89ms
+test	Run Tests and Coverage	2026-05-11T03:07:05.6761120Z 
+test	Run Tests and Coverage	2026-05-11T03:07:05.6761755Z SecurityStorageManagerTest > testDeleteProfile_KeystoreExceptionFallback PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:05.7742652Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testSaveAndRetrieveProfile took 96ms
+test	Run Tests and Coverage	2026-05-11T03:07:05.7763375Z 
+test	Run Tests and Coverage	2026-05-11T03:07:05.7786026Z SecurityStorageManagerTest > testSaveAndRetrieveProfile PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:05.8725232Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetProfile_IllegalArgumentException took 101ms
+test	Run Tests and Coverage	2026-05-11T03:07:05.8783938Z 
+test	Run Tests and Coverage	2026-05-11T03:07:05.8811647Z SecurityStorageManagerTest > testGetProfile_IllegalArgumentException PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:05.9782546Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testDeleteProfile took 94ms
+test	Run Tests and Coverage	2026-05-11T03:07:05.9861238Z 
+test	Run Tests and Coverage	2026-05-11T03:07:05.9891861Z SecurityStorageManagerTest > testDeleteProfile PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:06.0727239Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testCryptoExceptionBubblesUp took 91ms
+test	Run Tests and Coverage	2026-05-11T03:07:06.0761476Z 
+test	Run Tests and Coverage	2026-05-11T03:07:06.0762380Z SecurityStorageManagerTest > testCryptoExceptionBubblesUp PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:06.1729004Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllProfiles took 90ms
+test	Run Tests and Coverage	2026-05-11T03:07:06.1730100Z 
+test	Run Tests and Coverage	2026-05-11T03:07:06.1731056Z SecurityStorageManagerTest > testGetAllProfiles PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:06.2759516Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllProfiles_SerializationException took 82ms
+test	Run Tests and Coverage	2026-05-11T03:07:06.2760436Z 
+test	Run Tests and Coverage	2026-05-11T03:07:06.2791866Z SecurityStorageManagerTest > testGetAllProfiles_SerializationException PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:06.3733225Z ⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllProfiles_KeystoreExceptionFallback took 84ms
+test	Run Tests and Coverage	2026-05-11T03:07:06.3786550Z 
+test	Run Tests and Coverage	2026-05-11T03:07:06.3809784Z SecurityStorageManagerTest > testGetAllProfiles_KeystoreExceptionFallback PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:06.6730426Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.mapExceptionMessage formats authentication errors cleanly took 8344ms
+test	Run Tests and Coverage	2026-05-11T03:07:06.6732092Z 
+test	Run Tests and Coverage	2026-05-11T03:07:06.6762847Z SshServiceTest > mapExceptionMessage formats authentication errors cleanly PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:06.8785142Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.ACTION_DISCONNECT with session ID stops specific connection took 143ms
+test	Run Tests and Coverage	2026-05-11T03:07:06.8811146Z 
+test	Run Tests and Coverage	2026-05-11T03:07:06.8841764Z SshServiceTest > ACTION_DISCONNECT with session ID stops specific connection PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:06.9771445Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.ACTION_DISCONNECT with no session ID and no profile ID stops all connections and self took 107ms
+test	Run Tests and Coverage	2026-05-11T03:07:06.9772813Z 
+test	Run Tests and Coverage	2026-05-11T03:07:06.9801973Z SshServiceTest > ACTION_DISCONNECT with no session ID and no profile ID stops all connections and self PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:06.9804617Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.ACTION_START with no profile ID stops self took 68ms
+test	Run Tests and Coverage	2026-05-11T03:07:06.9829637Z 
+test	Run Tests and Coverage	2026-05-11T03:07:06.9851634Z SshServiceTest > ACTION_START with no profile ID stops self PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:07.0752207Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.mapExceptionMessage passes through other errors took 70ms
+test	Run Tests and Coverage	2026-05-11T03:07:07.0764171Z 
+test	Run Tests and Coverage	2026-05-11T03:07:07.0808987Z SshServiceTest > mapExceptionMessage passes through other errors PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:07.1774731Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.onBind returns null took 63ms
+test	Run Tests and Coverage	2026-05-11T03:07:07.1791406Z 
+test	Run Tests and Coverage	2026-05-11T03:07:07.1821552Z SshServiceTest > onBind returns null PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:07.4756601Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.test startSshConnection with missing profile transitions to Error state took 355ms
+test	Run Tests and Coverage	2026-05-11T03:07:07.4757854Z 
+test	Run Tests and Coverage	2026-05-11T03:07:07.4831804Z SshServiceTest > test startSshConnection with missing profile transitions to Error state PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:07.6727208Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.ACTION_DISCONNECT with profile ID stops matching sessions took 170ms
+test	Run Tests and Coverage	2026-05-11T03:07:07.6749450Z 
+test	Run Tests and Coverage	2026-05-11T03:07:07.6750306Z SshServiceTest > ACTION_DISCONNECT with profile ID stops matching sessions PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:08.5724609Z ⏱️ TEST-METRIC: com.adamoutler.ssh.data.ConnectionProfileTest.testAuthTypeAndProtocol took 18ms
+test	Run Tests and Coverage	2026-05-11T03:07:08.5741248Z 
+test	Run Tests and Coverage	2026-05-11T03:07:08.5775347Z ConnectionProfileTest > testAuthTypeAndProtocol PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:08.8725486Z ⏱️ TEST-METRIC: com.adamoutler.ssh.data.ConnectionProfileTest.testSerialization took 368ms
+test	Run Tests and Coverage	2026-05-11T03:07:08.8751273Z 
+test	Run Tests and Coverage	2026-05-11T03:07:08.8751858Z ConnectionProfileTest > testSerialization PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:08.8753813Z ⏱️ TEST-METRIC: com.adamoutler.ssh.data.ConnectionProfileTest.testSerializationWithDefaults took 4ms
+test	Run Tests and Coverage	2026-05-11T03:07:08.8754975Z 
+test	Run Tests and Coverage	2026-05-11T03:07:08.8755552Z ConnectionProfileTest > testSerializationWithDefaults PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:08.8757186Z ⏱️ TEST-METRIC: com.adamoutler.ssh.data.ConnectionProfileTest.testEqualsAndHashCode took 0ms
+test	Run Tests and Coverage	2026-05-11T03:07:08.8758281Z 
+test	Run Tests and Coverage	2026-05-11T03:07:08.8759185Z ConnectionProfileTest > testEqualsAndHashCode PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:10.2724556Z ⏱️ TEST-METRIC: com.adamoutler.ssh.data.IdentityProfileTest.testSerializationWithDefaults took 344ms
+test	Run Tests and Coverage	2026-05-11T03:07:10.2725852Z 
+test	Run Tests and Coverage	2026-05-11T03:07:10.2726499Z IdentityProfileTest > testSerializationWithDefaults PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:10.2727995Z ⏱️ TEST-METRIC: com.adamoutler.ssh.data.IdentityProfileTest.testEqualsAndHashCode took 0ms
+test	Run Tests and Coverage	2026-05-11T03:07:10.2728674Z 
+test	Run Tests and Coverage	2026-05-11T03:07:10.2728840Z IdentityProfileTest > testEqualsAndHashCode PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:11.7725034Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.ConnectionStateRepositoryTest.test output is buffered before UI attaches and emitted after took 454ms
+test	Run Tests and Coverage	2026-05-11T03:07:11.7726546Z 
+test	Run Tests and Coverage	2026-05-11T03:07:11.7731052Z ConnectionStateRepositoryTest > test output is buffered before UI attaches and emitted after PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:18.4762733Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.test startSshConnection with failing connection updates state to Error took 10812ms
+test	Run Tests and Coverage	2026-05-11T03:07:18.4791147Z 
+test	Run Tests and Coverage	2026-05-11T03:07:18.4792064Z SshServiceTest > test startSshConnection with failing connection updates state to Error PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:18.5752838Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.ACTION_START starts connection and service coroutine took 123ms
+test	Run Tests and Coverage	2026-05-11T03:07:18.5780997Z 
+test	Run Tests and Coverage	2026-05-11T03:07:18.5811810Z SshServiceTest > ACTION_START starts connection and service coroutine PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:18.7726862Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.onDestroy stops all connections took 148ms
+test	Run Tests and Coverage	2026-05-11T03:07:18.7728502Z 
+test	Run Tests and Coverage	2026-05-11T03:07:18.7781620Z SshServiceTest > onDestroy stops all connections PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:22.6783095Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.NotificationScreenshotTest.testForegroundNotification took 9941ms
+test	Run Tests and Coverage	2026-05-11T03:07:22.6841091Z 
+test	Run Tests and Coverage	2026-05-11T03:07:22.6901740Z NotificationScreenshotTest > testForegroundNotification PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:23.2742528Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.NotificationScreenshotTest.testMultipleForegroundNotifications took 543ms
+test	Run Tests and Coverage	2026-05-11T03:07:23.2784281Z 
+test	Run Tests and Coverage	2026-05-11T03:07:23.2811821Z NotificationScreenshotTest > testMultipleForegroundNotifications PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:23.6728375Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.TofuHostKeyVerifierPortBugTest.testPort22AndOtherPortDoNotOverwriteEachOther took 2637ms
+test	Run Tests and Coverage	2026-05-11T03:07:23.6732493Z 
+test	Run Tests and Coverage	2026-05-11T03:07:23.6733717Z TofuHostKeyVerifierPortBugTest > testPort22AndOtherPortDoNotOverwriteEachOther PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:25.8727827Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerInjectionTest.testInjectPublicKey_ValidKey_AttemptConnect took 1ms
+test	Run Tests and Coverage	2026-05-11T03:07:25.8761111Z 
+test	Run Tests and Coverage	2026-05-11T03:07:25.8765114Z SshConnectionManagerInjectionTest > testInjectPublicKey_ValidKey_AttemptConnect SKIPPED
+test	Run Tests and Coverage	2026-05-11T03:07:25.8822461Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerInjectionTest.testInjectPublicKey_InvalidKey_ReturnsFalse took 0ms
+test	Run Tests and Coverage	2026-05-11T03:07:25.8824261Z 
+test	Run Tests and Coverage	2026-05-11T03:07:25.8851557Z SshConnectionManagerInjectionTest > testInjectPublicKey_InvalidKey_ReturnsFalse SKIPPED
+test	Run Tests and Coverage	2026-05-11T03:07:35.2752547Z ⏱️ TEST-METRIC: com.adamoutler.ssh.security.SecureCrashHandlerTest.test recursive cause redaction took 9049ms
+test	Run Tests and Coverage	2026-05-11T03:07:35.2781101Z 
+test	Run Tests and Coverage	2026-05-11T03:07:35.2801596Z SecureCrashHandlerTest > test recursive cause redaction PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:35.4763117Z ⏱️ TEST-METRIC: com.adamoutler.ssh.security.SecureCrashHandlerTest.test fallback if crash handler throws exception took 194ms
+test	Run Tests and Coverage	2026-05-11T03:07:35.4791055Z 
+test	Run Tests and Coverage	2026-05-11T03:07:35.4821699Z SecureCrashHandlerTest > test fallback if crash handler throws exception PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:35.5762997Z ⏱️ TEST-METRIC: com.adamoutler.ssh.security.SecureCrashHandlerTest.test uncaughtException sanitizes and writes log took 94ms
+test	Run Tests and Coverage	2026-05-11T03:07:35.5811134Z 
+test	Run Tests and Coverage	2026-05-11T03:07:35.5841615Z SecureCrashHandlerTest > test uncaughtException sanitizes and writes log PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:35.6753341Z ⏱️ TEST-METRIC: com.adamoutler.ssh.security.SecureCrashHandlerTest.test isSensitiveException completely redacts message took 65ms
+test	Run Tests and Coverage	2026-05-11T03:07:35.6801535Z 
+test	Run Tests and Coverage	2026-05-11T03:07:35.6842092Z SecureCrashHandlerTest > test isSensitiveException completely redacts message PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:35.7732674Z ⏱️ TEST-METRIC: com.adamoutler.ssh.security.SecureCrashHandlerTest.test PEM redaction took 61ms
+test	Run Tests and Coverage	2026-05-11T03:07:35.7791031Z 
+test	Run Tests and Coverage	2026-05-11T03:07:35.7791646Z SecureCrashHandlerTest > test PEM redaction PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:36.7744157Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.loadKeyPairFromIdentity without private key throws took 8362ms
+test	Run Tests and Coverage	2026-05-11T03:07:36.7781301Z 
+test	Run Tests and Coverage	2026-05-11T03:07:36.7782182Z SshHandshakeCoordinatorTest > loadKeyPairFromIdentity without private key throws PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:40.3732771Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.executeWithConnection default arguments took 3609ms
+test	Run Tests and Coverage	2026-05-11T03:07:40.3754921Z 
+test	Run Tests and Coverage	2026-05-11T03:07:40.3771590Z SshHandshakeCoordinatorTest > executeWithConnection default arguments PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:40.4761980Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.getAuthenticator returns PasswordAuthenticator for profile PASSWORD auth took 155ms
+test	Run Tests and Coverage	2026-05-11T03:07:40.4781230Z 
+test	Run Tests and Coverage	2026-05-11T03:07:40.4812001Z SshHandshakeCoordinatorTest > getAuthenticator returns PasswordAuthenticator for profile PASSWORD auth PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:40.6732841Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.configureHostKeyVerifier creates Tofu verifier if none provided took 185ms
+test	Run Tests and Coverage	2026-05-11T03:07:40.6781210Z 
+test	Run Tests and Coverage	2026-05-11T03:07:40.6871948Z SshHandshakeCoordinatorTest > configureHostKeyVerifier creates Tofu verifier if none provided PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:40.8759091Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.getAuthenticator throws if identity has no password and no key took 128ms
+test	Run Tests and Coverage	2026-05-11T03:07:40.8787304Z 
+test	Run Tests and Coverage	2026-05-11T03:07:40.8842039Z SshHandshakeCoordinatorTest > getAuthenticator throws if identity has no password and no key PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:40.9733141Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.getAuthenticator returns CompositeAuthenticator for identity with password took 129ms
+test	Run Tests and Coverage	2026-05-11T03:07:40.9772557Z 
+test	Run Tests and Coverage	2026-05-11T03:07:40.9851209Z SshHandshakeCoordinatorTest > getAuthenticator returns CompositeAuthenticator for identity with password PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:41.1794318Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.CompositeAuthenticator loops and throws UserAuthException when all fail took 173ms
+test	Run Tests and Coverage	2026-05-11T03:07:41.1851252Z 
+test	Run Tests and Coverage	2026-05-11T03:07:41.1881871Z SshHandshakeCoordinatorTest > CompositeAuthenticator loops and throws UserAuthException when all fail PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:41.2762773Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.loadKeyPairFromIdentity parses valid string took 148ms
+test	Run Tests and Coverage	2026-05-11T03:07:41.2821268Z 
+test	Run Tests and Coverage	2026-05-11T03:07:41.2851767Z SshHandshakeCoordinatorTest > loadKeyPairFromIdentity parses valid string PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:41.3752805Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.configureHostKeyVerifier uses provided verifier took 110ms
+test	Run Tests and Coverage	2026-05-11T03:07:41.3791092Z 
+test	Run Tests and Coverage	2026-05-11T03:07:41.3812000Z SshHandshakeCoordinatorTest > configureHostKeyVerifier uses provided verifier PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:41.5727433Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.executeWithConnection handles thread interruption gracefully took 123ms
+test	Run Tests and Coverage	2026-05-11T03:07:41.5764413Z 
+test	Run Tests and Coverage	2026-05-11T03:07:41.5775395Z SshHandshakeCoordinatorTest > executeWithConnection handles thread interruption gracefully PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:41.5792602Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.getAuthenticator throws if KEY auth but no keypair took 78ms
+test	Run Tests and Coverage	2026-05-11T03:07:41.5794501Z 
+test	Run Tests and Coverage	2026-05-11T03:07:41.5795082Z SshHandshakeCoordinatorTest > getAuthenticator throws if KEY auth but no keypair PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:44.3727328Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.executeWithConnection handles identity resolution and connects took 2819ms
+test	Run Tests and Coverage	2026-05-11T03:07:44.3751175Z 
+test	Run Tests and Coverage	2026-05-11T03:07:44.3781830Z SshHandshakeCoordinatorTest > executeWithConnection handles identity resolution and connects PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:44.4755886Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.loadKeyPairFromIdentity with malformed key throws but gracefully recovers took 63ms
+test	Run Tests and Coverage	2026-05-11T03:07:44.4757253Z 
+test	Run Tests and Coverage	2026-05-11T03:07:44.4781938Z SshHandshakeCoordinatorTest > loadKeyPairFromIdentity with malformed key throws but gracefully recovers PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:45.1734933Z ⏱️ TEST-METRIC: com.adamoutler.ssh.sync.SyncWorkerTest.test doWork with cloud sync enabled and password returns retry due to network error took 7116ms
+test	Run Tests and Coverage	2026-05-11T03:07:45.1739295Z 
+test	Run Tests and Coverage	2026-05-11T03:07:45.1739996Z SyncWorkerTest > test doWork with cloud sync enabled and password returns retry due to network error PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:45.2732899Z ⏱️ TEST-METRIC: com.adamoutler.ssh.sync.SyncWorkerTest.test doWork with cloud sync enabled but no password returns failure took 97ms
+test	Run Tests and Coverage	2026-05-11T03:07:45.2734240Z 
+test	Run Tests and Coverage	2026-05-11T03:07:45.2739449Z SyncWorkerTest > test doWork with cloud sync enabled but no password returns failure PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:45.3726748Z ⏱️ TEST-METRIC: com.adamoutler.ssh.sync.SyncWorkerTest.testDoWorkWithoutCloudSync_returnsSuccess took 69ms
+test	Run Tests and Coverage	2026-05-11T03:07:45.3732329Z 
+test	Run Tests and Coverage	2026-05-11T03:07:45.3732918Z SyncWorkerTest > testDoWorkWithoutCloudSync_returnsSuccess PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:47.0764268Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.executeWithConnection without identity uses raw profile credentials took 2631ms
+test	Run Tests and Coverage	2026-05-11T03:07:47.0805818Z 
+test	Run Tests and Coverage	2026-05-11T03:07:47.0831997Z SshHandshakeCoordinatorTest > executeWithConnection without identity uses raw profile credentials PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:47.1729407Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.configureHostKeyVerifier throws if no verifier and no context took 103ms
+test	Run Tests and Coverage	2026-05-11T03:07:47.1761189Z 
+test	Run Tests and Coverage	2026-05-11T03:07:47.1776398Z SshHandshakeCoordinatorTest > configureHostKeyVerifier throws if no verifier and no context PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:49.8732833Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.executeWithConnection with identity injects credentials took 2669ms
+test	Run Tests and Coverage	2026-05-11T03:07:49.8761096Z 
+test	Run Tests and Coverage	2026-05-11T03:07:49.8791836Z SshHandshakeCoordinatorTest > executeWithConnection with identity injects credentials PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:49.9726270Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.resolveIdentity returns identity if id matches took 124ms
+test	Run Tests and Coverage	2026-05-11T03:07:49.9761080Z 
+test	Run Tests and Coverage	2026-05-11T03:07:49.9761704Z SshHandshakeCoordinatorTest > resolveIdentity returns identity if id matches PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:50.0734127Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.resolveIdentity returns null if profile has no identityId took 103ms
+test	Run Tests and Coverage	2026-05-11T03:07:50.0755027Z 
+test	Run Tests and Coverage	2026-05-11T03:07:50.0841129Z SshHandshakeCoordinatorTest > resolveIdentity returns null if profile has no identityId PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:50.1735187Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.getAuthenticator returns PasswordAuthenticator if only profile auth is password and no identity took 55ms
+test	Run Tests and Coverage	2026-05-11T03:07:50.1782647Z 
+test	Run Tests and Coverage	2026-05-11T03:07:50.1812695Z SshHandshakeCoordinatorTest > getAuthenticator returns PasswordAuthenticator if only profile auth is password and no identity PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:50.2753016Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.getAuthenticator returns CompositeAuthenticator with key and password auth took 71ms
+test	Run Tests and Coverage	2026-05-11T03:07:50.2771113Z 
+test	Run Tests and Coverage	2026-05-11T03:07:50.2832067Z SshHandshakeCoordinatorTest > getAuthenticator returns CompositeAuthenticator with key and password auth PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:59.0735370Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.HostKeyPromptDialogScreenshotTest.changedKeyWarningScreen took 12619ms
+test	Run Tests and Coverage	2026-05-11T03:07:59.0764280Z 
+test	Run Tests and Coverage	2026-05-11T03:07:59.0791951Z HostKeyPromptDialogScreenshotTest > changedKeyWarningScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:07:59.7762630Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.HostKeyPromptDialogScreenshotTest.tofuDialogScreen took 621ms
+test	Run Tests and Coverage	2026-05-11T03:07:59.7803485Z 
+test	Run Tests and Coverage	2026-05-11T03:07:59.7831712Z HostKeyPromptDialogScreenshotTest > tofuDialogScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:01.3742759Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test service onDestroy stops all connections took 8411ms
+test	Run Tests and Coverage	2026-05-11T03:08:01.3777426Z 
+test	Run Tests and Coverage	2026-05-11T03:08:01.3779456Z SshServiceForegroundTest > test service onDestroy stops all connections PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:02.1731631Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test service intentional disconnect does not transition to error took 795ms
+test	Run Tests and Coverage	2026-05-11T03:08:02.1761290Z 
+test	Run Tests and Coverage	2026-05-11T03:08:02.1798400Z SshServiceForegroundTest > test service intentional disconnect does not transition to error PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:02.2782588Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test start command with ACTION_DISCONNECT without session ID stops all for profile took 118ms
+test	Run Tests and Coverage	2026-05-11T03:08:02.2831351Z 
+test	Run Tests and Coverage	2026-05-11T03:08:02.2832576Z SshServiceForegroundTest > test start command with ACTION_DISCONNECT without session ID stops all for profile PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:02.4742719Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test service onBind returns null took 122ms
+test	Run Tests and Coverage	2026-05-11T03:08:02.4760547Z 
+test	Run Tests and Coverage	2026-05-11T03:08:02.4795760Z SshServiceForegroundTest > test service onBind returns null PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:02.4852418Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test service connection state transitions to error on failure took 0ms
+test	Run Tests and Coverage	2026-05-11T03:08:02.4861369Z 
+test	Run Tests and Coverage	2026-05-11T03:08:02.4884642Z SshServiceForegroundTest > test service connection state transitions to error on failure SKIPPED
+test	Run Tests and Coverage	2026-05-11T03:08:02.5728145Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.starting service on API 34 calls startForeground with type took 154ms
+test	Run Tests and Coverage	2026-05-11T03:08:02.5771300Z 
+test	Run Tests and Coverage	2026-05-11T03:08:02.5772298Z SshServiceForegroundTest > starting service on API 34 calls startForeground with type PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:02.7732879Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test mapExceptionMessage formats correctly took 201ms
+test	Run Tests and Coverage	2026-05-11T03:08:02.7763190Z 
+test	Run Tests and Coverage	2026-05-11T03:08:02.7832011Z SshServiceForegroundTest > test mapExceptionMessage formats correctly PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:02.8793278Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test start command with ACTION_DISCONNECT without profile ID calls stopAllConnections and stopSelf took 111ms
+test	Run Tests and Coverage	2026-05-11T03:08:02.8891081Z 
+test	Run Tests and Coverage	2026-05-11T03:08:02.8922024Z SshServiceForegroundTest > test start command with ACTION_DISCONNECT without profile ID calls stopAllConnections and stopSelf PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:05.0772668Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshSessionProviderTest.test addConnection and removeConnection took 60ms
+test	Run Tests and Coverage	2026-05-11T03:08:05.0791048Z 
+test	Run Tests and Coverage	2026-05-11T03:08:05.0861682Z SshSessionProviderTest > test addConnection and removeConnection PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:05.2730703Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshSessionProviderTest.test mockTestTranscript took 113ms
+test	Run Tests and Coverage	2026-05-11T03:08:05.2735311Z 
+test	Run Tests and Coverage	2026-05-11T03:08:05.2735915Z SshSessionProviderTest > test mockTestTranscript PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:05.2737496Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshSessionProviderTest.test isHeadlessTest setter and getter took 1ms
+test	Run Tests and Coverage	2026-05-11T03:08:05.2738593Z 
+test	Run Tests and Coverage	2026-05-11T03:08:05.2739508Z SshSessionProviderTest > test isHeadlessTest setter and getter PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:05.2742208Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshSessionProviderTest.test ptyOutputStream and terminalSession are null when empty took 7ms
+test	Run Tests and Coverage	2026-05-11T03:08:05.2743509Z 
+test	Run Tests and Coverage	2026-05-11T03:08:05.2744253Z SshSessionProviderTest > test ptyOutputStream and terminalSession are null when empty PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:10.1727448Z ⏱️ TEST-METRIC: com.adamoutler.ssh.network.TofuHostKeyVerifierTest.testAtomicKeyUpdate took 2833ms
+test	Run Tests and Coverage	2026-05-11T03:08:10.1751856Z 
+test	Run Tests and Coverage	2026-05-11T03:08:10.1771550Z TofuHostKeyVerifierTest > testAtomicKeyUpdate PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:22.4733234Z ⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testUploadBackupUnauthenticated took 9517ms
+test	Run Tests and Coverage	2026-05-11T03:08:22.4751054Z 
+test	Run Tests and Coverage	2026-05-11T03:08:22.4751484Z DriveSyncManagerTest > testUploadBackupUnauthenticated PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:22.6745616Z ⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testDownloadBackupUnauthenticated took 119ms
+test	Run Tests and Coverage	2026-05-11T03:08:22.6748667Z 
+test	Run Tests and Coverage	2026-05-11T03:08:22.6749357Z DriveSyncManagerTest > testDownloadBackupUnauthenticated PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:22.8727431Z ⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testAuthenticate took 189ms
+test	Run Tests and Coverage	2026-05-11T03:08:22.8729961Z 
+test	Run Tests and Coverage	2026-05-11T03:08:22.8730649Z DriveSyncManagerTest > testAuthenticate PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:23.0727512Z ⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testEncryptDecrypt took 257ms
+test	Run Tests and Coverage	2026-05-11T03:08:23.0730343Z 
+test	Run Tests and Coverage	2026-05-11T03:08:23.0731196Z DriveSyncManagerTest > testEncryptDecrypt PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:23.4770491Z ⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testFindBackupFileId_Unauthenticated took 378ms
+test	Run Tests and Coverage	2026-05-11T03:08:23.4801302Z 
+test	Run Tests and Coverage	2026-05-11T03:08:23.4815356Z DriveSyncManagerTest > testFindBackupFileId_Unauthenticated PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:23.5734913Z ⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testReadFully took 69ms
+test	Run Tests and Coverage	2026-05-11T03:08:23.5771427Z 
+test	Run Tests and Coverage	2026-05-11T03:08:23.5799935Z DriveSyncManagerTest > testReadFully PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:23.5813797Z ⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testUpdateFileMetadata_Unauthenticated took 84ms
+test	Run Tests and Coverage	2026-05-11T03:08:23.5833570Z 
+test	Run Tests and Coverage	2026-05-11T03:08:23.5858504Z DriveSyncManagerTest > testUpdateFileMetadata_Unauthenticated PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:23.8726082Z ⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testDecryptWithWrongPassword took 288ms
+test	Run Tests and Coverage	2026-05-11T03:08:23.8727548Z 
+test	Run Tests and Coverage	2026-05-11T03:08:23.8728070Z DriveSyncManagerTest > testDecryptWithWrongPassword PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:23.9734071Z ⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testSetOAuthToken took 41ms
+test	Run Tests and Coverage	2026-05-11T03:08:23.9751870Z 
+test	Run Tests and Coverage	2026-05-11T03:08:23.9752518Z DriveSyncManagerTest > testSetOAuthToken PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:23.9754081Z ⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testHandleAuthorizationResult_invalidCode took 42ms
+test	Run Tests and Coverage	2026-05-11T03:08:23.9755193Z 
+test	Run Tests and Coverage	2026-05-11T03:08:23.9755741Z DriveSyncManagerTest > testHandleAuthorizationResult_invalidCode PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:24.1743955Z ⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testUploadBackupAuthenticated_Failure took 221ms
+test	Run Tests and Coverage	2026-05-11T03:08:24.1745191Z 
+test	Run Tests and Coverage	2026-05-11T03:08:24.1745836Z DriveSyncManagerTest > testUploadBackupAuthenticated_Failure PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:34.5726746Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.UserJourneyIntegrationTest.testUserJourney_ConnectionResumeAndConcurrentSessions took 31849ms
+test	Run Tests and Coverage	2026-05-11T03:08:34.5754331Z 
+test	Run Tests and Coverage	2026-05-11T03:08:34.5778498Z UserJourneyIntegrationTest > testUserJourney_ConnectionResumeAndConcurrentSessions PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:39.3734976Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigation_KeystoreInvalidated_Dismiss took 13263ms
+test	Run Tests and Coverage	2026-05-11T03:08:39.3752800Z 
+test	Run Tests and Coverage	2026-05-11T03:08:39.3753587Z AppNavigationCoverageTest > testAppNavigation_KeystoreInvalidated_Dismiss PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:39.6727216Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigationRenders took 232ms
+test	Run Tests and Coverage	2026-05-11T03:08:39.6738353Z 
+test	Run Tests and Coverage	2026-05-11T03:08:39.6739071Z AppNavigationCoverageTest > testAppNavigationRenders PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:40.5744894Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testPasswordPromptDialog took 871ms
+test	Run Tests and Coverage	2026-05-11T03:08:40.5781921Z 
+test	Run Tests and Coverage	2026-05-11T03:08:40.5786331Z AppNavigationCoverageTest > testPasswordPromptDialog PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:40.7782807Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.UserJourneyIntegrationTest.testUserJourney_AddProfileAndSeeInList took 6244ms
+test	Run Tests and Coverage	2026-05-11T03:08:40.7811346Z 
+test	Run Tests and Coverage	2026-05-11T03:08:40.7847918Z UserJourneyIntegrationTest > testUserJourney_AddProfileAndSeeInList PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:41.2741771Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigation_ConnectionListNavigatesToSettings took 768ms
+test	Run Tests and Coverage	2026-05-11T03:08:41.2801266Z 
+test	Run Tests and Coverage	2026-05-11T03:08:41.2826077Z AppNavigationCoverageTest > testAppNavigation_ConnectionListNavigatesToSettings PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:42.5756571Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigation_ConnectionListNavigatesToAddProfile took 1266ms
+test	Run Tests and Coverage	2026-05-11T03:08:42.5811353Z 
+test	Run Tests and Coverage	2026-05-11T03:08:42.5872080Z AppNavigationCoverageTest > testAppNavigation_ConnectionListNavigatesToAddProfile PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:44.6726421Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigation_UiEvents took 2099ms
+test	Run Tests and Coverage	2026-05-11T03:08:44.6761244Z 
+test	Run Tests and Coverage	2026-05-11T03:08:44.6831582Z AppNavigationCoverageTest > testAppNavigation_UiEvents PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:44.9772806Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testHostKeyPromptDialog_UnknownHost took 297ms
+test	Run Tests and Coverage	2026-05-11T03:08:44.9791292Z 
+test	Run Tests and Coverage	2026-05-11T03:08:44.9820353Z AppNavigationCoverageTest > testHostKeyPromptDialog_UnknownHost PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:45.1762839Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testHostKeyPromptDialog_KeyChanged took 234ms
+test	Run Tests and Coverage	2026-05-11T03:08:45.1781227Z 
+test	Run Tests and Coverage	2026-05-11T03:08:45.1841755Z AppNavigationCoverageTest > testHostKeyPromptDialog_KeyChanged PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:45.4762970Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigation_ConnectionListNavigatesToIdentities took 312ms
+test	Run Tests and Coverage	2026-05-11T03:08:45.4791328Z 
+test	Run Tests and Coverage	2026-05-11T03:08:45.4811864Z AppNavigationCoverageTest > testAppNavigation_ConnectionListNavigatesToIdentities PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:46.0732987Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigation_KeystoreInvalidated_Confirm took 532ms
+test	Run Tests and Coverage	2026-05-11T03:08:46.0781055Z 
+test	Run Tests and Coverage	2026-05-11T03:08:46.0821810Z AppNavigationCoverageTest > testAppNavigation_KeystoreInvalidated_Confirm PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:46.3726066Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigation_HandlesIntent took 385ms
+test	Run Tests and Coverage	2026-05-11T03:08:46.3751752Z 
+test	Run Tests and Coverage	2026-05-11T03:08:46.3752493Z AppNavigationCoverageTest > testAppNavigation_HandlesIntent PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:58.0753270Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.HoldToConfirmButtonTest.testHoldToConfirmButton_LongClickConfirms took 14620ms
+test	Run Tests and Coverage	2026-05-11T03:08:58.0771121Z 
+test	Run Tests and Coverage	2026-05-11T03:08:58.0792286Z HoldToConfirmButtonTest > testHoldToConfirmButton_LongClickConfirms PASSED
+test	Run Tests and Coverage	2026-05-11T03:08:58.3752698Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.HoldToConfirmButtonTest.testHoldToConfirmButton_DisplaysText took 335ms
+test	Run Tests and Coverage	2026-05-11T03:08:58.3781194Z 
+test	Run Tests and Coverage	2026-05-11T03:08:58.3811721Z HoldToConfirmButtonTest > testHoldToConfirmButton_DisplaysText PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:04.2742801Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.PasswordPromptDialogScreenshotTest.passwordPromptDialogScreen took 15795ms
+test	Run Tests and Coverage	2026-05-11T03:09:04.2771377Z 
+test	Run Tests and Coverage	2026-05-11T03:09:04.2789051Z PasswordPromptDialogScreenshotTest > passwordPromptDialogScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:16.4742587Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.SectionHeaderWithInfoKtTest.testSectionHeaderWithInfo_displaysTitleAndHandlesClick took 15263ms
+test	Run Tests and Coverage	2026-05-11T03:09:16.4781082Z 
+test	Run Tests and Coverage	2026-05-11T03:09:16.4781803Z SectionHeaderWithInfoKtTest > testSectionHeaderWithInfo_displaysTitleAndHandlesClick PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:16.6762695Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.base.BaseViewModelTest.testCoroutineExceptionIsCaughtAndEmitsUiEvent took 9454ms
+test	Run Tests and Coverage	2026-05-11T03:09:16.6821237Z 
+test	Run Tests and Coverage	2026-05-11T03:09:16.6861721Z BaseViewModelTest > testCoroutineExceptionIsCaughtAndEmitsUiEvent PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:33.3727146Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.KeystoreInvalidatedDialogScreenshotTest.keystoreInvalidatedDialogScreen took 14897ms
+test	Run Tests and Coverage	2026-05-11T03:09:33.3731048Z 
+test	Run Tests and Coverage	2026-05-11T03:09:33.3749952Z KeystoreInvalidatedDialogScreenshotTest > keystoreInvalidatedDialogScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:33.7726659Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalExtraKeysScreenshotTest.page1_withModifiers took 15157ms
+test	Run Tests and Coverage	2026-05-11T03:09:33.7751078Z 
+test	Run Tests and Coverage	2026-05-11T03:09:33.7781547Z TerminalExtraKeysScreenshotTest > page1_withModifiers PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:34.1738176Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalExtraKeysScreenshotTest.page3_f1_f12_keys took 410ms
+test	Run Tests and Coverage	2026-05-11T03:09:34.1790631Z 
+test	Run Tests and Coverage	2026-05-11T03:09:34.1818877Z TerminalExtraKeysScreenshotTest > page3_f1_f12_keys PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:34.4732819Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalExtraKeysScreenshotTest.page1_noModifiers took 326ms
+test	Run Tests and Coverage	2026-05-11T03:09:34.4750197Z 
+test	Run Tests and Coverage	2026-05-11T03:09:34.4752822Z TerminalExtraKeysScreenshotTest > page1_noModifiers PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:50.9758648Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalDialogsTest.testSessionDisconnectedDialog took 15297ms
+test	Run Tests and Coverage	2026-05-11T03:09:50.9801005Z 
+test	Run Tests and Coverage	2026-05-11T03:09:50.9841473Z TerminalDialogsTest > testSessionDisconnectedDialog PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:51.3782765Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalDialogsTest.testKeepAliveDialog took 452ms
+test	Run Tests and Coverage	2026-05-11T03:09:51.3811352Z 
+test	Run Tests and Coverage	2026-05-11T03:09:51.3831540Z TerminalDialogsTest > testKeepAliveDialog PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:51.7737780Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalDialogsTest.testConnectionFailedDialog took 363ms
+test	Run Tests and Coverage	2026-05-11T03:09:51.7739295Z 
+test	Run Tests and Coverage	2026-05-11T03:09:51.7762630Z TerminalDialogsTest > testConnectionFailedDialog PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:52.2726357Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalDialogsTest.testTerminateConfirmDialog took 489ms
+test	Run Tests and Coverage	2026-05-11T03:09:52.2764683Z 
+test	Run Tests and Coverage	2026-05-11T03:09:52.2809154Z TerminalDialogsTest > testTerminateConfirmDialog PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:53.2752597Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalExtraKeysUITest.testF1AndF12KeysSendCorrectBytes took 15878ms
+test	Run Tests and Coverage	2026-05-11T03:09:53.2754023Z 
+test	Run Tests and Coverage	2026-05-11T03:09:53.2774367Z TerminalExtraKeysUITest > testF1AndF12KeysSendCorrectBytes PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:55.6742601Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLogicTest.testCtrlC_Encoding took 16ms
+test	Run Tests and Coverage	2026-05-11T03:09:55.6766056Z 
+test	Run Tests and Coverage	2026-05-11T03:09:55.6791432Z TerminalModifierLogicTest > testCtrlC_Encoding PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:55.9726592Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLogicTest.testAltA_Encoding took 271ms
+test	Run Tests and Coverage	2026-05-11T03:09:55.9781146Z 
+test	Run Tests and Coverage	2026-05-11T03:09:55.9807470Z TerminalModifierLogicTest > testAltA_Encoding PASSED
+test	Run Tests and Coverage	2026-05-11T03:09:55.9809315Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLogicTest.testTerminalInputLockout took 18ms
+test	Run Tests and Coverage	2026-05-11T03:09:55.9810371Z 
+test	Run Tests and Coverage	2026-05-11T03:09:55.9812870Z TerminalModifierLogicTest > testTerminalInputLockout PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:09.7751936Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalExtraKeysTest.testTerminalExtraKeys_rendersKeys took 14965ms
+test	Run Tests and Coverage	2026-05-11T03:10:09.7780966Z 
+test	Run Tests and Coverage	2026-05-11T03:10:09.7841516Z TerminalExtraKeysTest > testTerminalExtraKeys_rendersKeys PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:11.9772887Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLatchingTest.testStickyConsumption took 6ms
+test	Run Tests and Coverage	2026-05-11T03:10:11.9801007Z 
+test	Run Tests and Coverage	2026-05-11T03:10:11.9811587Z TerminalModifierLatchingTest > testStickyConsumption PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:11.9829898Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLatchingTest.testLockedPersistence took 0ms
+test	Run Tests and Coverage	2026-05-11T03:10:11.9855047Z 
+test	Run Tests and Coverage	2026-05-11T03:10:11.9881644Z TerminalModifierLatchingTest > testLockedPersistence PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:11.9902067Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLatchingTest.testModifierStateTransitions took 3ms
+test	Run Tests and Coverage	2026-05-11T03:10:11.9922342Z 
+test	Run Tests and Coverage	2026-05-11T03:10:11.9942224Z TerminalModifierLatchingTest > testModifierStateTransitions PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:12.1773054Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLatchingTest.testAltStickyConsumption took 234ms
+test	Run Tests and Coverage	2026-05-11T03:10:12.1801276Z 
+test	Run Tests and Coverage	2026-05-11T03:10:12.1823283Z TerminalModifierLatchingTest > testAltStickyConsumption PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:12.7762777Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenContentCoverageTest.testTerminalScreenBase took 14065ms
+test	Run Tests and Coverage	2026-05-11T03:10:12.7821252Z 
+test	Run Tests and Coverage	2026-05-11T03:10:12.7831692Z TerminalScreenContentCoverageTest > testTerminalScreenBase PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:13.9733064Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenContentCoverageTest.testTerminalScreenContentVariousStates took 1240ms
+test	Run Tests and Coverage	2026-05-11T03:10:13.9751144Z 
+test	Run Tests and Coverage	2026-05-11T03:10:13.9751764Z TerminalScreenContentCoverageTest > testTerminalScreenContentVariousStates PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:29.3752811Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreen256ColorScreenshotTest.terminalShows256Colors took 15002ms
+test	Run Tests and Coverage	2026-05-11T03:10:29.3771301Z 
+test	Run Tests and Coverage	2026-05-11T03:10:29.3811611Z TerminalScreen256ColorScreenshotTest > terminalShows256Colors PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:32.6728317Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenContentUITest.testTerminalExtraKeysTriggerCallbacks took 15651ms
+test	Run Tests and Coverage	2026-05-11T03:10:32.6751524Z 
+test	Run Tests and Coverage	2026-05-11T03:10:32.6781694Z TerminalScreenContentUITest > testTerminalExtraKeysTriggerCallbacks PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:46.3742924Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenContentScreenshotTest.terminalScreen_Connected_TelnetWarning took 14763ms
+test	Run Tests and Coverage	2026-05-11T03:10:46.3771239Z 
+test	Run Tests and Coverage	2026-05-11T03:10:46.3772066Z TerminalScreenContentScreenshotTest > terminalScreen_Connected_TelnetWarning PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:46.7725861Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenContentScreenshotTest.terminalScreen_Connected_WithExtraKeys took 452ms
+test	Run Tests and Coverage	2026-05-11T03:10:46.7761280Z 
+test	Run Tests and Coverage	2026-05-11T03:10:46.7781758Z TerminalScreenContentScreenshotTest > terminalScreen_Connected_WithExtraKeys PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:47.1772626Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenContentScreenshotTest.terminalScreen_Connected_Normal took 347ms
+test	Run Tests and Coverage	2026-05-11T03:10:47.1773748Z 
+test	Run Tests and Coverage	2026-05-11T03:10:47.1801828Z TerminalScreenContentScreenshotTest > terminalScreen_Connected_Normal PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:47.8724520Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenContentScreenshotTest.terminalScreen_Disconnected_ErrorDialog took 742ms
+test	Run Tests and Coverage	2026-05-11T03:10:47.8781305Z 
+test	Run Tests and Coverage	2026-05-11T03:10:47.8811778Z TerminalScreenContentScreenshotTest > terminalScreen_Disconnected_ErrorDialog PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:48.9806131Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogScreenshotTest.sessionDisconnectedDialogScreen took 14174ms
+test	Run Tests and Coverage	2026-05-11T03:10:48.9811320Z 
+test	Run Tests and Coverage	2026-05-11T03:10:48.9841565Z TerminalScreenDialogScreenshotTest > sessionDisconnectedDialogScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:49.5763803Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogScreenshotTest.keepAliveDialogScreen took 589ms
+test	Run Tests and Coverage	2026-05-11T03:10:49.5791143Z 
+test	Run Tests and Coverage	2026-05-11T03:10:49.5813668Z TerminalScreenDialogScreenshotTest > keepAliveDialogScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:50.1724697Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogScreenshotTest.connectionFailedDialogScreen took 546ms
+test	Run Tests and Coverage	2026-05-11T03:10:50.1751228Z 
+test	Run Tests and Coverage	2026-05-11T03:10:50.1781690Z TerminalScreenDialogScreenshotTest > connectionFailedDialogScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:50.5725636Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogScreenshotTest.terminateConfirmDialogScreen took 467ms
+test	Run Tests and Coverage	2026-05-11T03:10:50.5751123Z 
+test	Run Tests and Coverage	2026-05-11T03:10:50.5769660Z TerminalScreenDialogScreenshotTest > terminateConfirmDialogScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:10:59.2742861Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenCopyTest.testTerminalCopyTextStripsTrailingSpaces took 9009ms
+test	Run Tests and Coverage	2026-05-11T03:10:59.2747834Z 
+test	Run Tests and Coverage	2026-05-11T03:10:59.2748933Z TerminalScreenCopyTest > testTerminalCopyTextStripsTrailingSpaces PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:08.7752841Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenLogicTest.testTerminalScreenContentKeyboardInteractions took 14918ms
+test	Run Tests and Coverage	2026-05-11T03:11:08.7771298Z 
+test	Run Tests and Coverage	2026-05-11T03:11:08.7804508Z TerminalScreenLogicTest > testTerminalScreenContentKeyboardInteractions PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:09.0734766Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenLogicTest.testTerminalScreenLogic took 314ms
+test	Run Tests and Coverage	2026-05-11T03:11:09.0761429Z 
+test	Run Tests and Coverage	2026-05-11T03:11:09.0801476Z TerminalScreenLogicTest > testTerminalScreenLogic PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:18.0792736Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogsCoverageTest.testSessionDisconnectedDialog took 15513ms
+test	Run Tests and Coverage	2026-05-11T03:11:18.0871186Z 
+test	Run Tests and Coverage	2026-05-11T03:11:18.0931781Z TerminalScreenDialogsCoverageTest > testSessionDisconnectedDialog PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:18.6724981Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogsCoverageTest.testKeepAliveDialog took 621ms
+test	Run Tests and Coverage	2026-05-11T03:11:18.6726207Z 
+test	Run Tests and Coverage	2026-05-11T03:11:18.6761534Z TerminalScreenDialogsCoverageTest > testKeepAliveDialog PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:18.9732808Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogsCoverageTest.testConnectionFailedDialog took 303ms
+test	Run Tests and Coverage	2026-05-11T03:11:18.9758505Z 
+test	Run Tests and Coverage	2026-05-11T03:11:18.9759190Z TerminalScreenDialogsCoverageTest > testConnectionFailedDialog PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:19.2724559Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogsCoverageTest.testTerminateConfirmDialog took 325ms
+test	Run Tests and Coverage	2026-05-11T03:11:19.2751299Z 
+test	Run Tests and Coverage	2026-05-11T03:11:19.2758491Z TerminalScreenDialogsCoverageTest > testTerminateConfirmDialog PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:24.8725089Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenOverlayScreenshotTest.overlayButtonsVisible took 13517ms
+test	Run Tests and Coverage	2026-05-11T03:11:24.8751070Z 
+test	Run Tests and Coverage	2026-05-11T03:11:24.8781504Z TerminalScreenOverlayScreenshotTest > overlayButtonsVisible PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:25.8726745Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenOverlayScreenshotTest.overlayButtonsVisibleTelnet took 935ms
+test	Run Tests and Coverage	2026-05-11T03:11:25.8811096Z 
+test	Run Tests and Coverage	2026-05-11T03:11:25.8841696Z TerminalScreenOverlayScreenshotTest > overlayButtonsVisibleTelnet PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:26.2726608Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenOverlayScreenshotTest.overlayButtonsHidden took 396ms
+test	Run Tests and Coverage	2026-05-11T03:11:26.2728076Z 
+test	Run Tests and Coverage	2026-05-11T03:11:26.2728718Z TerminalScreenOverlayScreenshotTest > overlayButtonsHidden PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:30.4742754Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenNewlineBleedThroughTest.testBleedThroughKeyEventIsIgnored took 8274ms
+test	Run Tests and Coverage	2026-05-11T03:11:30.4762578Z 
+test	Run Tests and Coverage	2026-05-11T03:11:30.4778032Z TerminalScreenNewlineBleedThroughTest > testBleedThroughKeyEventIsIgnored PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:38.1741265Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalSessionPersistenceTest.testTerminalSessionIsPersistedInProvider took 9185ms
+test	Run Tests and Coverage	2026-05-11T03:11:38.1771068Z 
+test	Run Tests and Coverage	2026-05-11T03:11:38.1823253Z TerminalSessionPersistenceTest > testTerminalSessionIsPersistedInProvider PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:47.0744998Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenResumeScreenshotTest.terminalShowsPersistedHistoryOnResume took 14479ms
+test	Run Tests and Coverage	2026-05-11T03:11:47.0751140Z 
+test	Run Tests and Coverage	2026-05-11T03:11:47.0788924Z TerminalScreenResumeScreenshotTest > terminalShowsPersistedHistoryOnResume PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:47.9734854Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenResumeScreenshotTest.terminalShowsTelnetHeaderWarning took 878ms
+test	Run Tests and Coverage	2026-05-11T03:11:47.9736680Z 
+test	Run Tests and Coverage	2026-05-11T03:11:47.9791656Z TerminalScreenResumeScreenshotTest > terminalShowsTelnetHeaderWarning PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:55.6732981Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.keys.KeyManagementScreenScreenshotTest.screenWithGeneratedKey took 15175ms
+test	Run Tests and Coverage	2026-05-11T03:11:55.6751118Z 
+test	Run Tests and Coverage	2026-05-11T03:11:55.6781758Z KeyManagementScreenScreenshotTest > screenWithGeneratedKey PASSED
+test	Run Tests and Coverage	2026-05-11T03:11:56.0762619Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.keys.KeyManagementScreenScreenshotTest.defaultScreen took 397ms
+test	Run Tests and Coverage	2026-05-11T03:11:56.0781188Z 
+test	Run Tests and Coverage	2026-05-11T03:11:56.0841640Z KeyManagementScreenScreenshotTest > defaultScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:00.7733069Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalSettingsIntegrationTest.testTogglingButtonBarTriggersBackgroundWrite took 9503ms
+test	Run Tests and Coverage	2026-05-11T03:12:00.7801127Z 
+test	Run Tests and Coverage	2026-05-11T03:12:00.7861942Z TerminalSettingsIntegrationTest > testTogglingButtonBarTriggersBackgroundWrite PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:00.9757941Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalSettingsIntegrationTest.testConnectionCanStartWithButtonBarClosed took 245ms
+test	Run Tests and Coverage	2026-05-11T03:12:00.9781230Z 
+test	Run Tests and Coverage	2026-05-11T03:12:00.9821847Z TerminalSettingsIntegrationTest > testConnectionCanStartWithButtonBarClosed PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:01.3733100Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalSettingsIntegrationTest.testConnectionCanStartWithButtonBarOpen took 366ms
+test	Run Tests and Coverage	2026-05-11T03:12:01.3734666Z 
+test	Run Tests and Coverage	2026-05-11T03:12:01.3781608Z TerminalSettingsIntegrationTest > testConnectionCanStartWithButtonBarOpen PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:14.4727051Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ActiveSessionSelectorDialogTest.testSelectSession_ResumesSession took 15692ms
+test	Run Tests and Coverage	2026-05-11T03:12:14.4741104Z 
+test	Run Tests and Coverage	2026-05-11T03:12:14.4778968Z ActiveSessionSelectorDialogTest > testSelectSession_ResumesSession PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:14.9732815Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ActiveSessionSelectorDialogTest.testStartNew_StartsNewSession took 483ms
+test	Run Tests and Coverage	2026-05-11T03:12:14.9741209Z 
+test	Run Tests and Coverage	2026-05-11T03:12:14.9824451Z ActiveSessionSelectorDialogTest > testStartNew_StartsNewSession PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:20.9738238Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.keys.KeyManagementScreenTest.testKeyManagementScreenDisplaysAndGeneratesKey took 16400ms
+test	Run Tests and Coverage	2026-05-11T03:12:20.9761281Z 
+test	Run Tests and Coverage	2026-05-11T03:12:20.9831855Z KeyManagementScreenTest > testKeyManagementScreenDisplaysAndGeneratesKey PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:26.0732731Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileViewModelTest.test updateState and resetState took 8269ms
+test	Run Tests and Coverage	2026-05-11T03:12:26.0770968Z 
+test	Run Tests and Coverage	2026-05-11T03:12:26.0793715Z AddEditProfileViewModelTest > test updateState and resetState PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:26.5727052Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileViewModelTest.test save and retrieve profile took 487ms
+test	Run Tests and Coverage	2026-05-11T03:12:26.5751239Z 
+test	Run Tests and Coverage	2026-05-11T03:12:26.5799827Z AddEditProfileViewModelTest > test save and retrieve profile PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:26.8727681Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileViewModelTest.test getAvailableKeys and getIdentities took 215ms
+test	Run Tests and Coverage	2026-05-11T03:12:26.8778145Z 
+test	Run Tests and Coverage	2026-05-11T03:12:26.8816353Z AddEditProfileViewModelTest > test getAvailableKeys and getIdentities PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:26.9726362Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileViewModelTest.test loadProfileIfNeeded took 127ms
+test	Run Tests and Coverage	2026-05-11T03:12:26.9756897Z 
+test	Run Tests and Coverage	2026-05-11T03:12:26.9821544Z AddEditProfileViewModelTest > test loadProfileIfNeeded PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:39.9732854Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileScreenScreenshotTest.portForwardDialogScreen took 16698ms
+test	Run Tests and Coverage	2026-05-11T03:12:39.9761984Z 
+test	Run Tests and Coverage	2026-05-11T03:12:39.9841102Z AddEditProfileScreenScreenshotTest > portForwardDialogScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:40.8727211Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileScreenScreenshotTest.portForwardTableScreen took 882ms
+test	Run Tests and Coverage	2026-05-11T03:12:40.8752349Z 
+test	Run Tests and Coverage	2026-05-11T03:12:40.8861909Z AddEditProfileScreenScreenshotTest > portForwardTableScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:41.7732865Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileScreenScreenshotTest.telnetScreenWarningBanner took 859ms
+test	Run Tests and Coverage	2026-05-11T03:12:41.7781127Z 
+test	Run Tests and Coverage	2026-05-11T03:12:41.7781680Z AddEditProfileScreenScreenshotTest > telnetScreenWarningBanner PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:42.3726606Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileScreenScreenshotTest.defaultScreenKeyAuth took 688ms
+test	Run Tests and Coverage	2026-05-11T03:12:42.3733985Z 
+test	Run Tests and Coverage	2026-05-11T03:12:42.3734666Z AddEditProfileScreenScreenshotTest > defaultScreenKeyAuth PASSED
+test	Run Tests and Coverage	2026-05-11T03:12:45.4728449Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListMenuTest.testManageIdentitiesMenuOptionNavigates took 15646ms
+test	Run Tests and Coverage	2026-05-11T03:12:45.4798915Z 
+test	Run Tests and Coverage	2026-05-11T03:12:45.4871652Z ConnectionListMenuTest > testManageIdentitiesMenuOptionNavigates PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:02.6731764Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListDialogIntegrationTest.testConnectionList_ShowsSessionSelector_AndNavigates took 17441ms
+test	Run Tests and Coverage	2026-05-11T03:13:02.6761154Z 
+test	Run Tests and Coverage	2026-05-11T03:13:02.6762238Z ConnectionListDialogIntegrationTest > testConnectionList_ShowsSessionSelector_AndNavigates PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:04.2750058Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenTest.testActiveSessionsDialog_renders took 15632ms
+test	Run Tests and Coverage	2026-05-11T03:13:04.2781064Z 
+test	Run Tests and Coverage	2026-05-11T03:13:04.2841599Z ConnectionListScreenTest > testActiveSessionsDialog_renders PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:04.5738469Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenTest.testExportBackupDialog_submit took 236ms
+test	Run Tests and Coverage	2026-05-11T03:13:04.5754770Z 
+test	Run Tests and Coverage	2026-05-11T03:13:04.5807329Z ConnectionListScreenTest > testExportBackupDialog_submit PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:06.2732605Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenTest.testExportBackupDialog_renders took 1729ms
+test	Run Tests and Coverage	2026-05-11T03:13:06.2781268Z 
+test	Run Tests and Coverage	2026-05-11T03:13:06.2831687Z ConnectionListScreenTest > testExportBackupDialog_renders PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:06.4737567Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenTest.testImportBackupDialog_submit took 213ms
+test	Run Tests and Coverage	2026-05-11T03:13:06.4761086Z 
+test	Run Tests and Coverage	2026-05-11T03:13:06.4791516Z ConnectionListScreenTest > testImportBackupDialog_submit PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:06.8730388Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenTest.testImportBackupDialog_renders took 448ms
+test	Run Tests and Coverage	2026-05-11T03:13:06.8751251Z 
+test	Run Tests and Coverage	2026-05-11T03:13:06.8781783Z ConnectionListScreenTest > testImportBackupDialog_renders PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:18.8724835Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelDragDropTest.testCategoryDragAndDropReordersItems took 9000ms
+test	Run Tests and Coverage	2026-05-11T03:13:18.8741136Z 
+test	Run Tests and Coverage	2026-05-11T03:13:18.8771883Z ConnectionListViewModelDragDropTest > testCategoryDragAndDropReordersItems PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:18.9742780Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelDragDropTest.testDragAndDropReordersItems took 167ms
+test	Run Tests and Coverage	2026-05-11T03:13:18.9743978Z 
+test	Run Tests and Coverage	2026-05-11T03:13:18.9744551Z ConnectionListViewModelDragDropTest > testDragAndDropReordersItems PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:19.8743137Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.exportBackupDialogScreen took 15051ms
+test	Run Tests and Coverage	2026-05-11T03:13:19.8801155Z 
+test	Run Tests and Coverage	2026-05-11T03:13:19.8861351Z ConnectionListScreenScreenshotTest > exportBackupDialogScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:20.3760572Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.draggedConnectionItemScreen took 410ms
+test	Run Tests and Coverage	2026-05-11T03:13:20.3761990Z 
+test	Run Tests and Coverage	2026-05-11T03:13:20.3762417Z ConnectionListScreenScreenshotTest > draggedConnectionItemScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:20.9724654Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.reorderModeScreen took 673ms
+test	Run Tests and Coverage	2026-05-11T03:13:20.9751446Z 
+test	Run Tests and Coverage	2026-05-11T03:13:20.9811790Z ConnectionListScreenScreenshotTest > reorderModeScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:21.8754555Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.activeConnectionBadgeScreen took 868ms
+test	Run Tests and Coverage	2026-05-11T03:13:21.8781239Z 
+test	Run Tests and Coverage	2026-05-11T03:13:21.8811857Z ConnectionListScreenScreenshotTest > activeConnectionBadgeScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:22.3802716Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.activeSessionsDialogScreen took 454ms
+test	Run Tests and Coverage	2026-05-11T03:13:22.3821058Z 
+test	Run Tests and Coverage	2026-05-11T03:13:22.3861617Z ConnectionListScreenScreenshotTest > activeSessionsDialogScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:22.8726232Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.menuExpandedScreen took 581ms
+test	Run Tests and Coverage	2026-05-11T03:13:22.8751459Z 
+test	Run Tests and Coverage	2026-05-11T03:13:22.8752153Z ConnectionListScreenScreenshotTest > menuExpandedScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:23.3752907Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.renamedDefaultGroupScreen took 473ms
+test	Run Tests and Coverage	2026-05-11T03:13:23.3776772Z 
+test	Run Tests and Coverage	2026-05-11T03:13:23.3831772Z ConnectionListScreenScreenshotTest > renamedDefaultGroupScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:23.8727021Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.defaultScreen took 453ms
+test	Run Tests and Coverage	2026-05-11T03:13:23.8741104Z 
+test	Run Tests and Coverage	2026-05-11T03:13:23.8785313Z ConnectionListScreenScreenshotTest > defaultScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:24.1762888Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.importBackupDialogScreen took 348ms
+test	Run Tests and Coverage	2026-05-11T03:13:24.1791087Z 
+test	Run Tests and Coverage	2026-05-11T03:13:24.1851795Z ConnectionListScreenScreenshotTest > importBackupDialogScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:29.2802966Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testUpdateStateAndResetState took 7905ms
+test	Run Tests and Coverage	2026-05-11T03:13:29.2861282Z 
+test	Run Tests and Coverage	2026-05-11T03:13:29.2871656Z IdentityViewModelTest > testUpdateStateAndResetState PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:29.4762713Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testLoadIdentityIfNeededNull took 192ms
+test	Run Tests and Coverage	2026-05-11T03:13:29.4821270Z 
+test	Run Tests and Coverage	2026-05-11T03:13:29.4891749Z IdentityViewModelTest > testLoadIdentityIfNeededNull PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:30.3742656Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testInjectPublicKeyFailure took 979ms
+test	Run Tests and Coverage	2026-05-11T03:13:30.3791221Z 
+test	Run Tests and Coverage	2026-05-11T03:13:30.3851543Z IdentityViewModelTest > testInjectPublicKeyFailure PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:30.8726527Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testSaveAndLoadIdentities took 485ms
+test	Run Tests and Coverage	2026-05-11T03:13:30.8761558Z 
+test	Run Tests and Coverage	2026-05-11T03:13:30.8800285Z IdentityViewModelTest > testSaveAndLoadIdentities PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:34.0723933Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testGenerateRSAKeyPair took 3182ms
+test	Run Tests and Coverage	2026-05-11T03:13:34.0731017Z 
+test	Run Tests and Coverage	2026-05-11T03:13:34.0753472Z IdentityViewModelTest > testGenerateRSAKeyPair PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:34.1726036Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testLoadIdentityIfNeeded took 149ms
+test	Run Tests and Coverage	2026-05-11T03:13:34.1731443Z 
+test	Run Tests and Coverage	2026-05-11T03:13:34.1771476Z IdentityViewModelTest > testLoadIdentityIfNeeded PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:34.3772754Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testGenerateEd25519KeyPair took 180ms
+test	Run Tests and Coverage	2026-05-11T03:13:34.3811141Z 
+test	Run Tests and Coverage	2026-05-11T03:13:34.3835489Z IdentityViewModelTest > testGenerateEd25519KeyPair PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:34.5752795Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testDeleteIdentity took 171ms
+test	Run Tests and Coverage	2026-05-11T03:13:34.5811215Z 
+test	Run Tests and Coverage	2026-05-11T03:13:34.5881514Z IdentityViewModelTest > testDeleteIdentity PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:34.6742520Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testGetIdentity took 120ms
+test	Run Tests and Coverage	2026-05-11T03:13:34.6743397Z 
+test	Run Tests and Coverage	2026-05-11T03:13:34.6743654Z IdentityViewModelTest > testGetIdentity PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:41.5763039Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListSessionSelectorScreenshotTest.sessionSelectorDialogScreen took 15274ms
+test	Run Tests and Coverage	2026-05-11T03:13:41.5821092Z 
+test	Run Tests and Coverage	2026-05-11T03:13:41.5851602Z ConnectionListSessionSelectorScreenshotTest > sessionSelectorDialogScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:51.7752543Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SectionHeaderWithInfoTest.testInfoIconOpensWiki took 14074ms
+test	Run Tests and Coverage	2026-05-11T03:13:51.7772472Z 
+test	Run Tests and Coverage	2026-05-11T03:13:51.7831592Z SectionHeaderWithInfoTest > testInfoIconOpensWiki PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:56.6726601Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelTest.test moveProfileInFlatList updates sorting and folder took 12162ms
+test	Run Tests and Coverage	2026-05-11T03:13:56.6801328Z 
+test	Run Tests and Coverage	2026-05-11T03:13:56.6814118Z ConnectionListViewModelTest > test moveProfileInFlatList updates sorting and folder PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:58.8726498Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelTest.test loadProfiles updates state took 2187ms
+test	Run Tests and Coverage	2026-05-11T03:13:58.8751101Z 
+test	Run Tests and Coverage	2026-05-11T03:13:58.8781738Z ConnectionListViewModelTest > test loadProfiles updates state PASSED
+test	Run Tests and Coverage	2026-05-11T03:13:59.8726384Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelTest.test deleteProfile removes profile took 1049ms
+test	Run Tests and Coverage	2026-05-11T03:13:59.8731015Z 
+test	Run Tests and Coverage	2026-05-11T03:13:59.8759223Z ConnectionListViewModelTest > test deleteProfile removes profile PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:03.2752749Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelTest.test updateSearchQuery filters profiles took 3383ms
+test	Run Tests and Coverage	2026-05-11T03:14:03.2783058Z 
+test	Run Tests and Coverage	2026-05-11T03:14:03.2811855Z ConnectionListViewModelTest > test updateSearchQuery filters profiles PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:05.0726611Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsScreenSyncPassphraseScreenshotTest.syncPassphraseDialogScreen took 11405ms
+test	Run Tests and Coverage	2026-05-11T03:14:05.0729755Z 
+test	Run Tests and Coverage	2026-05-11T03:14:05.0730621Z SettingsScreenSyncPassphraseScreenshotTest > syncPassphraseDialogScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:05.5733130Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelTest.test moveToFolder updates profile took 2270ms
+test	Run Tests and Coverage	2026-05-11T03:14:05.5791074Z 
+test	Run Tests and Coverage	2026-05-11T03:14:05.5821808Z ConnectionListViewModelTest > test moveToFolder updates profile PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:12.5746090Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelTest.test backup import and export flow via VM took 6969ms
+test	Run Tests and Coverage	2026-05-11T03:14:12.5771183Z 
+test	Run Tests and Coverage	2026-05-11T03:14:12.5771942Z ConnectionListViewModelTest > test backup import and export flow via VM PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:12.9726402Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.TerminalViewModelTest.test onCopyTextToClipboard sets primary clip took 5976ms
+test	Run Tests and Coverage	2026-05-11T03:14:12.9771063Z 
+test	Run Tests and Coverage	2026-05-11T03:14:12.9816824Z TerminalViewModelTest > test onCopyTextToClipboard sets primary clip PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:13.2732427Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.TerminalViewModelTest.test initFontSize uses profile size took 313ms
+test	Run Tests and Coverage	2026-05-11T03:14:13.2761134Z 
+test	Run Tests and Coverage	2026-05-11T03:14:13.2811694Z TerminalViewModelTest > test initFontSize uses profile size PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:13.5772950Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.TerminalViewModelTest.test updateFontSize coerces minimum and updates flow took 285ms
+test	Run Tests and Coverage	2026-05-11T03:14:13.5811171Z 
+test	Run Tests and Coverage	2026-05-11T03:14:13.5891907Z TerminalViewModelTest > test updateFontSize coerces minimum and updates flow PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:13.6733133Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.TerminalViewModelTest.test initFontSize uses global size when profile size is null took 118ms
+test	Run Tests and Coverage	2026-05-11T03:14:13.6808201Z 
+test	Run Tests and Coverage	2026-05-11T03:14:13.6831804Z TerminalViewModelTest > test initFontSize uses global size when profile size is null PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:13.7775687Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.TerminalViewModelTest.test getOrCreateSession creates new session and stores it took 101ms
+test	Run Tests and Coverage	2026-05-11T03:14:13.7801089Z 
+test	Run Tests and Coverage	2026-05-11T03:14:13.7801673Z TerminalViewModelTest > test getOrCreateSession creates new session and stores it PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:13.8732741Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.TerminalViewModelTest.test no-op methods do not crash took 158ms
+test	Run Tests and Coverage	2026-05-11T03:14:13.8758102Z 
+test	Run Tests and Coverage	2026-05-11T03:14:13.8771674Z TerminalViewModelTest > test no-op methods do not crash PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:31.2775768Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.InitialDirectoryScreenshotTest.initialDirectoryScreen took 16663ms
+test	Run Tests and Coverage	2026-05-11T03:14:31.2784605Z 
+test	Run Tests and Coverage	2026-05-11T03:14:31.2791691Z InitialDirectoryScreenshotTest > initialDirectoryScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:32.0736181Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.connectionlist.dialogs.ActiveSessionSelectorDialogTest.testActiveSessionSelectorDialog took 15373ms
+test	Run Tests and Coverage	2026-05-11T03:14:32.0761102Z 
+test	Run Tests and Coverage	2026-05-11T03:14:32.0767584Z ActiveSessionSelectorDialogTest > testActiveSessionSelectorDialog PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:48.8742818Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsScreenScreenshotTest.screenWithRenamedGroup took 15929ms
+test	Run Tests and Coverage	2026-05-11T03:14:48.8811372Z 
+test	Run Tests and Coverage	2026-05-11T03:14:48.8851640Z SettingsScreenScreenshotTest > screenWithRenamedGroup PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:49.4740146Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsScreenScreenshotTest.screenWithCloudSyncEnabledAndPassphraseSet took 563ms
+test	Run Tests and Coverage	2026-05-11T03:14:49.4761023Z 
+test	Run Tests and Coverage	2026-05-11T03:14:49.4791794Z SettingsScreenScreenshotTest > screenWithCloudSyncEnabledAndPassphraseSet PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:49.6726248Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.identity.IdentityListScreenScreenshotTest.defaultEmptyScreen took 14999ms
+test	Run Tests and Coverage	2026-05-11T03:14:49.6755617Z 
+test	Run Tests and Coverage	2026-05-11T03:14:49.6771712Z IdentityListScreenScreenshotTest > defaultEmptyScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:49.9744551Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsScreenScreenshotTest.defaultScreen took 520ms
+test	Run Tests and Coverage	2026-05-11T03:14:49.9781179Z 
+test	Run Tests and Coverage	2026-05-11T03:14:49.9811595Z SettingsScreenScreenshotTest > defaultScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:50.1742183Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.identity.IdentityListScreenScreenshotTest.populatedListScreen took 585ms
+test	Run Tests and Coverage	2026-05-11T03:14:50.1746444Z 
+test	Run Tests and Coverage	2026-05-11T03:14:50.1747433Z IdentityListScreenScreenshotTest > populatedListScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:50.2739586Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsScreenScreenshotTest.screenWithCloudSyncEnabledAndSyncing took 287ms
+test	Run Tests and Coverage	2026-05-11T03:14:50.2741643Z 
+test	Run Tests and Coverage	2026-05-11T03:14:50.2744318Z SettingsScreenScreenshotTest > screenWithCloudSyncEnabledAndSyncing PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:57.4733342Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testUpdateDefaultGroupName_emptyString_fallsBackToUncategorized took 5816ms
+test	Run Tests and Coverage	2026-05-11T03:14:57.4743999Z 
+test	Run Tests and Coverage	2026-05-11T03:14:57.4766964Z SettingsViewModelTest > testUpdateDefaultGroupName_emptyString_fallsBackToUncategorized PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:58.5726419Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testPurchaseCloudSync took 1115ms
+test	Run Tests and Coverage	2026-05-11T03:14:58.5735228Z 
+test	Run Tests and Coverage	2026-05-11T03:14:58.5737570Z SettingsViewModelTest > testPurchaseCloudSync PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:58.8742869Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testAuthenticateGoogleWhenPassphraseIsSet took 297ms
+test	Run Tests and Coverage	2026-05-11T03:14:58.8761400Z 
+test	Run Tests and Coverage	2026-05-11T03:14:58.8791625Z SettingsViewModelTest > testAuthenticateGoogleWhenPassphraseIsSet PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:58.9737594Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testShowAndDismissPassphraseDialog took 78ms
+test	Run Tests and Coverage	2026-05-11T03:14:58.9742462Z 
+test	Run Tests and Coverage	2026-05-11T03:14:58.9742905Z SettingsViewModelTest > testShowAndDismissPassphraseDialog PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:59.0726898Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testAuthenticateGoogleShowsPassphraseDialogIfNotSet took 107ms
+test	Run Tests and Coverage	2026-05-11T03:14:59.0751974Z 
+test	Run Tests and Coverage	2026-05-11T03:14:59.0781729Z SettingsViewModelTest > testAuthenticateGoogleShowsPassphraseDialogIfNotSet PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:59.0807771Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testInitialState took 61ms
+test	Run Tests and Coverage	2026-05-11T03:14:59.0834627Z 
+test	Run Tests and Coverage	2026-05-11T03:14:59.0835085Z SettingsViewModelTest > testInitialState PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:59.1733106Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testUpdateDefaultGroupName took 73ms
+test	Run Tests and Coverage	2026-05-11T03:14:59.1751239Z 
+test	Run Tests and Coverage	2026-05-11T03:14:59.1751734Z SettingsViewModelTest > testUpdateDefaultGroupName PASSED
+test	Run Tests and Coverage	2026-05-11T03:14:59.3732094Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testSavePassphraseAndSync took 126ms
+test	Run Tests and Coverage	2026-05-11T03:14:59.3735277Z 
+test	Run Tests and Coverage	2026-05-11T03:14:59.3735709Z SettingsViewModelTest > testSavePassphraseAndSync PASSED
+test	Run Tests and Coverage	2026-05-11T03:15:08.5724304Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.connectionlist.components.MoveToFolderBottomSheetScreenshotTest.defaultState took 8104ms
+test	Run Tests and Coverage	2026-05-11T03:15:08.5725926Z 
+test	Run Tests and Coverage	2026-05-11T03:15:08.5726617Z MoveToFolderBottomSheetScreenshotTest > defaultState PASSED
+test	Run Tests and Coverage	2026-05-11T03:15:18.5724597Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.identity.AddEditIdentityScreenScreenshotTest.showInjectDialogScreen took 8856ms
+test	Run Tests and Coverage	2026-05-11T03:15:18.5728177Z 
+test	Run Tests and Coverage	2026-05-11T03:15:18.5728986Z AddEditIdentityScreenScreenshotTest > showInjectDialogScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:15:18.9725297Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.identity.AddEditIdentityScreenScreenshotTest.filledEditScreenWithKeys took 437ms
+test	Run Tests and Coverage	2026-05-11T03:15:18.9729828Z 
+test	Run Tests and Coverage	2026-05-11T03:15:18.9730667Z AddEditIdentityScreenScreenshotTest > filledEditScreenWithKeys PASSED
+test	Run Tests and Coverage	2026-05-11T03:15:19.2724371Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.identity.AddEditIdentityScreenScreenshotTest.passwordVisibleScreen took 298ms
+test	Run Tests and Coverage	2026-05-11T03:15:19.2725582Z 
+test	Run Tests and Coverage	2026-05-11T03:15:19.2726009Z AddEditIdentityScreenScreenshotTest > passwordVisibleScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:15:19.5724146Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.identity.AddEditIdentityScreenScreenshotTest.defaultAddScreen took 258ms
+test	Run Tests and Coverage	2026-05-11T03:15:19.5725291Z 
+test	Run Tests and Coverage	2026-05-11T03:15:19.5725674Z AddEditIdentityScreenScreenshotTest > defaultAddScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:15:28.7723959Z ⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.identity.InjectKeyDialogScreenshotTest.placeholderScreen took 8157ms
+test	Run Tests and Coverage	2026-05-11T03:15:28.7725287Z 
+test	Run Tests and Coverage	2026-05-11T03:15:28.7725638Z InjectKeyDialogScreenshotTest > placeholderScreen PASSED
+test	Run Tests and Coverage	2026-05-11T03:15:28.9724224Z ℹ️  Standard test suite completed. Note: Long-running @FullTest tests were SKIPPED.
+test	Run Tests and Coverage	2026-05-11T03:15:28.9727647Z ℹ️  Recommendation: Run './gradlew test connectedAndroidTest -PfullTestRun' for a complete overview.
+test	Run Tests and Coverage	2026-05-11T03:15:29.2726135Z See the Paparazzi report at: file:///home/runner/work/cossh/cossh/app/build/reports/paparazzi/debug/index.html
+test	Run Tests and Coverage	2026-05-11T03:15:31.5725247Z 
+test	Run Tests and Coverage	2026-05-11T03:15:31.5768776Z > Task :app:jacocoTestReport
+test	Run Tests and Coverage	2026-05-11T03:15:31.5795279Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_3-1778468655627.json
+test	Run Tests and Coverage	2026-05-11T03:15:31.5822831Z 
+test	Run Tests and Coverage	2026-05-11T03:15:31.5891714Z BUILD SUCCESSFUL in 11m 21s
+lint	Run Lint	2026-05-11T03:04:02.3610789Z > Configure project :app
+lint	Run Lint	2026-05-11T03:04:02.3641247Z The 'sonarqube' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+lint	Run Lint	2026-05-11T03:04:02.3644338Z The 'sonar' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+lint	Run Lint	2026-05-11T03:04:02.4597744Z ⚠️  Release keystore not found or not configured. Falling back to default debug keystore.
+lint	Run Lint	2026-05-11T03:04:03.3567365Z WARNING: The following problems were found when resolving the SDK location:
+lint	Run Lint	2026-05-11T03:04:03.3570594Z Where: sdk.dir property in local.properties file. Problem: Directory does not exist
+lint	Run Lint	2026-05-11T03:04:03.3571480Z 
+lint	Run Lint	2026-05-11T03:04:05.2568720Z 
+lint	Run Lint	2026-05-11T03:04:05.2576343Z > Task :app:checkKotlinGradlePluginConfigurationErrors
+lint	Run Lint	2026-05-11T03:04:05.2578056Z > Task :app:preBuild UP-TO-DATE
+lint	Run Lint	2026-05-11T03:04:05.2578682Z > Task :app:preDebugBuild UP-TO-DATE
+lint	Run Lint	2026-05-11T03:04:05.3570585Z > Task :app:generateDebugBuildConfig
+lint	Run Lint	2026-05-11T03:04:05.8604084Z > Task :app:generateDebugResValues
+lint	Run Lint	2026-05-11T03:04:05.9570466Z > Task :app:checkDebugAarMetadata
+lint	Run Lint	2026-05-11T03:04:05.9572226Z > Task :app:mapDebugSourceSetPaths
+lint	Run Lint	2026-05-11T03:04:05.9600148Z > Task :app:generateDebugResources
+lint	Run Lint	2026-05-11T03:04:07.8590745Z > Task :app:packageDebugResources
+lint	Run Lint	2026-05-11T03:04:08.5570542Z > Task :app:createDebugCompatibleScreenManifests
+lint	Run Lint	2026-05-11T03:04:08.6569070Z > Task :app:extractDeepLinksDebug
+lint	Run Lint	2026-05-11T03:04:08.7571833Z > Task :app:parseDebugLocalResources
+lint	Run Lint	2026-05-11T03:04:08.7612538Z > Task :app:mergeDebugResources
+lint	Run Lint	2026-05-11T03:04:09.0587099Z > Task :app:processDebugMainManifest
+lint	Run Lint	2026-05-11T03:04:09.1577112Z > Task :app:processDebugManifest
+lint	Run Lint	2026-05-11T03:04:09.1577983Z > Task :app:preDebugAndroidTestBuild SKIPPED
+lint	Run Lint	2026-05-11T03:04:09.1578726Z > Task :app:generateDebugAndroidTestResValues
+lint	Run Lint	2026-05-11T03:04:09.1579212Z > Task :app:javaPreCompileDebug
+lint	Run Lint	2026-05-11T03:04:09.1579963Z > Task :app:processDebugManifestForPackage
+lint	Run Lint	2026-05-11T03:04:09.4567239Z > Task :app:extractProguardFiles
+lint	Run Lint	2026-05-11T03:04:09.4568229Z > Task :app:preDebugUnitTestBuild UP-TO-DATE
+lint	Run Lint	2026-05-11T03:04:10.1571529Z > Task :app:processDebugResources
+lint	Run Lint	2026-05-11T03:04:40.1616292Z > Task :app:compileDebugKotlin
+lint	Run Lint	2026-05-11T03:04:44.1590626Z > Task :app:compileDebugJavaWithJavac
+lint	Run Lint	2026-05-11T03:04:44.3569732Z > Task :app:bundleDebugClassesToCompileJar
+lint	Run Lint	2026-05-11T03:04:44.8575608Z > Task :app:generateDebugLintReportModel
+lint	Run Lint	2026-05-11T03:04:45.6574748Z 
+lint	Run Lint	2026-05-11T03:04:45.6593179Z > Task :app:generateDebugAndroidTestLintModel
+lint	Run Lint	2026-05-11T03:04:45.6612279Z The dependency resolution engine wasn't able to find a version of module androidx.compose.ui:ui-test which satisfied all requirements because the graph wasn't stable enough. The highest version was selected in order to stabilize selection.
+lint	Run Lint	2026-05-11T03:04:45.6615438Z Features available in a stable graph like version alignment are not guaranteed in this case.
+lint	Run Lint	2026-05-11T03:04:45.8572372Z 
+lint	Run Lint	2026-05-11T03:04:45.8630816Z > Task :app:generateDebugUnitTestLintModel
+lint	Run Lint	2026-05-11T03:05:12.6566079Z > Task :app:lintAnalyzeDebugAndroidTest
+lint	Run Lint	2026-05-11T03:05:15.8590724Z > Task :app:lintAnalyzeDebug
+lint	Run Lint	2026-05-11T03:05:15.9570458Z > Task :app:lintAnalyzeDebugUnitTest
+lint	Run Lint	2026-05-11T03:05:36.0590545Z > Task :app:lintReportDebug
+lint	Run Lint	2026-05-11T03:05:36.0591379Z > Task :app:lintDebug
+lint	Run Lint	2026-05-11T03:05:36.0591931Z > Task :app:lint
+lint	Run Lint	2026-05-11T03:05:36.1566427Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1778468635571.json
+lint	Run Lint	2026-05-11T03:05:36.1583476Z 
+lint	Run Lint	2026-05-11T03:05:36.1583938Z BUILD SUCCESSFUL in 1m 46s
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:05.3075228Z > Configure project :app
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:05.3082422Z The 'sonarqube' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:05.3093330Z The 'sonar' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:05.4907362Z ⚠️  Release keystore not found or not configured. Falling back to default debug keystore.
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:06.4900885Z WARNING: The following problems were found when resolving the SDK location:
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:06.4902056Z Where: sdk.dir property in local.properties file. Problem: Directory does not exist
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:06.4902629Z 
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:07.1919115Z 
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:07.1920327Z > Task :ForceDependencyResolutionPlugin_resolveProjectDependencies
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:08.7907045Z 
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:08.7910181Z > Task :app:ForceDependencyResolutionPlugin_resolveProjectDependencies
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:08.7912585Z The dependency resolution engine wasn't able to find a version of module androidx.compose.ui:ui-test which satisfied all requirements because the graph wasn't stable enough. The highest version was selected in order to stabilize selection.
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:08.7914752Z Features available in a stable graph like version alignment are not guaranteed in this case.
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:08.7915536Z 
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:08.7916019Z > Task :ForceDependencyResolutionPlugin_resolveAllDependencies
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:08.7917179Z Constructing renderer: org.gradle.github.dependencygraph.GitHubDependencyGraphRenderer
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:09.4904779Z 
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:09.4915161Z GitHubDependencyGraphRenderer: Wrote dependency snapshot to 
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:09.4916433Z /home/runner/work/cossh/cossh/dependency-graph-reports/ci-dependency-submission.json
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:09.4917867Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__gradle_actions-1778468638940.json
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:09.4919299Z 
+dependency-submission	Submit Dependency Graph	2026-05-11T03:04:09.4919646Z BUILD SUCCESSFUL in 16s
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:25.2039861Z > Configure project :app
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:25.2071028Z The 'sonarqube' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:25.2100795Z The 'sonar' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:25.3984522Z ⚠️  Release keystore not found or not configured. Falling back to default debug keystore.
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:26.2962006Z WARNING: The following problems were found when resolving the SDK location:
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:26.2963056Z Where: sdk.dir property in local.properties file. Problem: Directory does not exist
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:26.2963635Z 
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:28.2951222Z 
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:28.2952474Z > Task :app:checkKotlinGradlePluginConfigurationErrors
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:28.2953197Z > Task :app:preBuild UP-TO-DATE
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:28.2953671Z > Task :app:preDebugBuild UP-TO-DATE
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:28.3952956Z > Task :app:generateDebugBuildConfig
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:28.8965339Z > Task :app:generateDebugResValues
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:28.8980021Z > Task :app:checkDebugAarMetadata
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:28.9949522Z > Task :app:mapDebugSourceSetPaths
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:28.9950393Z > Task :app:generateDebugResources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:30.5949814Z > Task :app:packageDebugResources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:31.3952552Z > Task :app:createDebugCompatibleScreenManifests
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:31.4011005Z > Task :app:extractDeepLinksDebug
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:31.5952096Z > Task :app:parseDebugLocalResources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:31.7960187Z > Task :app:mergeDebugResources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:31.8960738Z > Task :app:processDebugMainManifest
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:31.9950196Z > Task :app:processDebugManifest
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:31.9956677Z > Task :app:preDebugAndroidTestBuild SKIPPED
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:31.9957585Z > Task :app:javaPreCompileDebug
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:32.6952786Z 
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:32.6980203Z > Task :app:processDebugAndroidTestManifest
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:32.6982638Z The dependency resolution engine wasn't able to find a version of module androidx.compose.ui:ui-test which satisfied all requirements because the graph wasn't stable enough. The highest version was selected in order to stabilize selection.
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:32.7000094Z Features available in a stable graph like version alignment are not guaranteed in this case.
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:32.7000903Z 
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:32.7001377Z > Task :app:generateDebugAndroidTestBuildConfig
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:32.7949632Z > Task :app:checkDebugAndroidTestAarMetadata
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:32.7954534Z > Task :app:generateDebugAndroidTestResValues
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:32.7961219Z > Task :app:mapDebugAndroidTestSourceSetPaths
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:32.7962060Z > Task :app:generateDebugAndroidTestResources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:32.9950675Z > Task :app:processDebugManifestForPackage
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:33.0949712Z > Task :app:javaPreCompileDebugAndroidTest
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:33.1951294Z > Task :app:mergeDebugAndroidTestResources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:33.3958864Z > Task :app:preDebugUnitTestBuild UP-TO-DATE
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:33.3989604Z > Task :app:javaPreCompileDebugUnitTest
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:33.6948512Z > Task :app:processDebugAndroidTestResources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:16:34.0948866Z > Task :app:processDebugResources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:04.0954741Z > Task :app:compileDebugKotlin
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:09.2960377Z > Task :app:compileDebugJavaWithJavac
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:09.4951683Z > Task :app:bundleDebugClassesToCompileJar
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:16.4978108Z > Task :app:compileDebugAndroidTestKotlin
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:18.1959892Z > Task :app:compileDebugAndroidTestJavaWithJavac
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:25.5947785Z > Task :app:compileDebugUnitTestKotlin
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:25.5969706Z > Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:39.7953946Z 
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:39.7991214Z > Task :app:sonar
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:39.8009838Z File 'LazyDsl.kt' not found in project sources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:39.8042344Z File 'Effects.kt' not found in project sources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:39.8066781Z File 'Comparisons.kt' not found in project sources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:39.8099535Z File 'CoroutineExceptionHandler.kt' not found in project sources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:39.8128222Z File 'Effects.kt' not found in project sources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:39.8150105Z File 'LazyDsl.kt' not found in project sources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:39.8179937Z File 'Effects.kt' not found in project sources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:39.8210311Z File 'Effects.kt' not found in project sources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:39.8219262Z File 'Effects.kt' not found in project sources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:17:39.8220170Z File 'LazyDsl.kt' not found in project sources
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:18:24.7948989Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_3-1778469378338.json
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:18:24.7961230Z 
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:18:24.7962163Z Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:18:24.7963034Z 
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:18:24.7963929Z You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:18:24.7965078Z 
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:18:24.7966251Z For more on this, please refer to https://docs.gradle.org/8.9/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:18:24.7967517Z 
+sonar	SonarCloud Scan & Quality Gate	2026-05-11T03:18:24.7967876Z BUILD SUCCESSFUL in 2m 11s
