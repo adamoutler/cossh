@@ -453,6 +453,7 @@ fun TerminalScreenContent(
 
                                 coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                                     profile?.copy(terminalInputState = terminalInputState)?.let { updatedProfile ->
+                                        // Log stripped for security
                                         com.adamoutler.ssh.crypto.SecurityStorageManager(ctx).saveProfile(updatedProfile)
                                     }
                                 }

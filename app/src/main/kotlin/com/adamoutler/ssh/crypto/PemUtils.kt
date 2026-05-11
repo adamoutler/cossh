@@ -153,6 +153,7 @@ object PemUtils {
                             val pubInfo = SubjectPublicKeyInfoFactory.createSubjectPublicKeyInfo(pubParams)
                             pubKey = converter.getPublicKey(pubInfo)
                         } catch (e: Exception) {
+                            // Log stripped for security
                         }
                     }
                     KeyPair(pubKey, privKey)

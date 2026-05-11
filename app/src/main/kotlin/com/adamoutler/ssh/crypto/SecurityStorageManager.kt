@@ -2,7 +2,6 @@ package com.adamoutler.ssh.crypto
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.adamoutler.ssh.data.ConnectionProfile
@@ -24,10 +23,12 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
                         .setRequestStrongBoxBacked(true)
                         .build()
                 } catch (e: java.security.ProviderException) {
+                    // Log stripped for security
                     MasterKey.Builder(context)
                         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                         .build()
                 } catch (e: java.security.KeyStoreException) {
+                    // Log stripped for security
                     MasterKey.Builder(context)
                         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                         .build()
@@ -49,6 +50,7 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
                     false
                 }
                 if (isRobolectric) {
+                    // Log stripped for security
                     return@run context.getSharedPreferences("secret_ssh_profiles_fallback", Context.MODE_PRIVATE)
                 }
                 e.handleKeystoreExceptions(
@@ -67,6 +69,7 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
             context.getSharedPreferences("secret_ssh_profiles", Context.MODE_PRIVATE)
                 .edit().clear().apply()
         } catch (e: Exception) {
+            // Log stripped for security
         }
     }
 
@@ -101,8 +104,10 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
             profile.password = decryptPassword(encryptedPrefs.getString("${id}_pwd", null))
             return profile
         } catch (e: kotlinx.serialization.SerializationException) {
+            // Log stripped for security
             return null
         } catch (e: IllegalArgumentException) {
+            // Log stripped for security
             return null
         } catch (e: Exception) {
             if (e is CryptoException) throw e
@@ -121,7 +126,9 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
                         profile.password = decryptPassword(encryptedPrefs.getString("${profile.id}_pwd", null))
                         profiles.add(profile)
                     } catch (e: kotlinx.serialization.SerializationException) {
+                        // Log stripped for security
                     } catch (e: IllegalArgumentException) {
+                        // Log stripped for security
                     }
                 }
             }

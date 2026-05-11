@@ -2,7 +2,6 @@ package com.adamoutler.ssh.crypto
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.adamoutler.ssh.data.IdentityProfile
@@ -29,6 +28,7 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
                         .setRequestStrongBoxBacked(true)
                         .build()
                 } catch (e: Exception) {
+                    // Log stripped for security
                     MasterKey.Builder(context)
                         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                         .build()
@@ -44,6 +44,7 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
             } catch (e: Exception) {
                 val isRobolectric = System.getProperty("robolectric.logging") != null || android.os.Build.FINGERPRINT.contains("robolectric")
                 if (isRobolectric) {
+                    // Log stripped for security
                     return@run context.getSharedPreferences("secret_ssh_identities_fallback", Context.MODE_PRIVATE)
                 }
                 e.handleKeystoreExceptions(
@@ -62,7 +63,7 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
             context.getSharedPreferences("secret_ssh_identities", Context.MODE_PRIVATE)
                 .edit().clear().apply()
         } catch (e: Exception) {
-            // Error handling intentionally silent to prevent information leakage
+            // Log stripped for security
         }
     }
 
@@ -71,6 +72,7 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
         return try {
             Base64.getDecoder().decode(encryptedBase64)
         } catch (e: Exception) {
+            // Log stripped for security
             null
         }
     }
@@ -112,6 +114,7 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
         } catch (e: Exception) {
             if (e is CryptoException) throw e
             if (e is kotlinx.serialization.SerializationException || e is IllegalArgumentException) {
+                // Log stripped for security
                 return null
             }
             e.handleKeystoreExceptions("Failed to retrieve identity due to Keystore error.")
