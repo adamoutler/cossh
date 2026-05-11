@@ -420,5 +420,9 @@ sonar {
         property("sonar.c.file.suffixes", "-")
         property("sonar.cpp.file.suffixes", "-")
         property("sonar.objc.file.suffixes", "-")
+
+        property("sonar.issue.ignore.multicriteria", "e1")
+        property("sonar.issue.ignore.multicriteria.e1.ruleKey", "text:S8569")
+        property("sonar.issue.ignore.multicriteria.e1.resourceKey", "**/*.gradle.kts")
     }
 }
