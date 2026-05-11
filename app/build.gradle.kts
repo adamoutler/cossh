@@ -280,7 +280,7 @@ dependencies {
 
 tasks.withType<Test> {
     timeout.set(Duration.ofMinutes(30))
-    maxHeapSize = "1024m"
+    maxHeapSize = "3072m"
     maxParallelForks = 1
     forkEvery = 1
     systemProperty("java.security.egd", "file:/dev/./urandom")

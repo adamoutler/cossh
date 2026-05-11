@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 echo "Starting emulator..."
-$HOME/Android/Sdk/emulator/emulator -avd Agent_Device -no-window -no-snapshot -no-audio -no-boot-anim -accel on > /dev/null 2>&1 &
+$HOME/Android/Sdk/emulator/emulator -avd Agent_Device -no-window -no-audio -no-boot-anim -accel on > /dev/null 2>&1 &
 EMULATOR_PID=$!
 adb wait-for-device
 while [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" != "1" ]; do sleep 1; done
