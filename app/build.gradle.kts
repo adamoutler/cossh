@@ -1,4 +1,5 @@
 import java.time.Duration
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -80,10 +81,27 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file(System.getProperty("user.home") + "/.android/release.keystore")
-            storePassword = "android"
-            keyAlias = "cossh_release"
-            keyPassword = "android"
+            val localProperties = Properties()
+            val localPropertiesFile = rootProject.file("local.properties")
+            if (localPropertiesFile.exists()) {
+                localProperties.load(localPropertiesFile.inputStream())
+            }
+
+            val keystorePath = System.getenv("KEYSTORE_FILE") ?: localProperties.getProperty("keystore.file")
+            
+            if (keystorePath != null && file(keystorePath).exists()) {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: localProperties.getProperty("keystore.password")
+                keyAlias = System.getenv("KEY_ALIAS") ?: localProperties.getProperty("key.alias")
+                keyPassword = System.getenv("KEY_PASSWORD") ?: localProperties.getProperty("key.password")
+                println("🔒 Using Release Keystore for signing.")
+            } else {
+                println("⚠️  Release keystore not found or not configured. Falling back to default debug keystore.")
+                storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
         }
     }
 
@@ -93,6 +111,7 @@ android {
         }
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             ndk {
                 debugSymbolLevel = "FULL"
             }
