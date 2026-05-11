@@ -1,11 +1,6 @@
---- Android Backup Verification ---
-Backup File Size: 549 bytes
-Magic: ANDROID BACKUP
-Version: 5
-Compression: 1
-Encryption: AES-256
-
-VERIFICATION SUCCESS: The backup file is extraordinarily small (< 1KB).
-This proves that the backup contains ONLY the Android Backup header and an empty tarball payload.
-The data extraction rules successfully prevented all sensitive app files, identity SharedPreferences, and known_hosts from being included in the backup archive.
-If the files were included, the archive would be several hundred kilobytes or megabytes.
+apps/
+apps/com.adamoutler.cobaltssh.debug/
+apps/com.adamoutler.cobaltssh.debug/f/
+apps/com.adamoutler.cobaltssh.debug/f/normal_file.txt
+apps/com.adamoutler.cobaltssh.debug/sp/
+apps/com.adamoutler.cobaltssh.debug/sp/normal_prefs.xml
