@@ -26,4 +26,7 @@ plugins {
 }
 
 allprojects {
+    dependencyLocking {
+        lockAllConfigurations()
+    }
 }
