@@ -37,6 +37,7 @@ class TerminalDialogsTest {
     fun testKeepAliveDialog() {
         var onKeepAliveClicked = false
         var onTerminateClicked = false
+
         var onDismissClicked = false
         composeTestRule.setContent {
             KeepAliveDialog(

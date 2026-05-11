@@ -66,8 +66,11 @@ class ConnectionListScreenTest {
 
     @Test
     fun testActiveSessionsDialog_renders() {
+        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var dismissed = false
         var startNewClicked = false
+
+        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var resumedSessionId = ""
         val activeSessions = listOf(
             ActiveSessionState(profileId = "profile1", sessionId = "session1", connectedAt = 1000L, ptyOutputStream = null, sshShell = null),

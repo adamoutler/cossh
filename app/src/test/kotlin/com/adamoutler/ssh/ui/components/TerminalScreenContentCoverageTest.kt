@@ -29,6 +29,7 @@ class TerminalScreenContentCoverageTest {
     fun testTerminalScreenContentVariousStates() {
         var navigateBackClicked = false
         var clearErrorClicked = false
+
         var updateFontSizeCalled = false
 
         val mockSessionId = "test-session-123"
@@ -36,6 +37,7 @@ class TerminalScreenContentCoverageTest {
         ConnectionStateRepository.isHeadlessTest = true
 
         val pos = PipedOutputStream()
+
         val pis = PipedInputStream(pos)
 
         val mockSession = TerminalSession(

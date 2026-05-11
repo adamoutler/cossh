@@ -1,4 +1,5 @@
 import java.time.Duration
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -80,19 +81,39 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file(System.getProperty("user.home") + "/.android/release.keystore")
-            storePassword = "android"
-            keyAlias = "cossh_release"
-            keyPassword = "android"
+            val localProperties = Properties()
+            val localPropertiesFile = rootProject.file("local.properties")
+            if (localPropertiesFile.exists()) {
+                localProperties.load(localPropertiesFile.inputStream())
+            }
+
+            val keystorePath = System.getenv("KEYSTORE_FILE") ?: localProperties.getProperty("keystore.file")
+            
+            if (keystorePath != null && file(keystorePath).exists()) {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: localProperties.getProperty("keystore.password")
+                keyAlias = System.getenv("KEY_ALIAS") ?: localProperties.getProperty("key.alias")
+                keyPassword = System.getenv("KEY_PASSWORD") ?: localProperties.getProperty("key.password")
+                println("🔒 Using Release Keystore for signing.")
+            } else {
+                println("⚠️  Release keystore not found or not configured. Falling back to default debug keystore.")
+                storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
         }
     }
 
     buildTypes {
         getByName("debug") {
             applicationIdSuffix = ".debug"
+            buildConfigField("boolean", "ENABLE_CLOUD_SYNC", "true")
         }
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
+            buildConfigField("boolean", "ENABLE_CLOUD_SYNC", "false")
             ndk {
                 debugSymbolLevel = "FULL"
             }
@@ -298,19 +319,47 @@ afterEvaluate {
             
             val outputStr = devicesOutput.toString("UTF-8")
             val lines: List<String> = outputStr.lines()
-            val hasDevice = lines.drop(1).any { line: String -> line.isNotBlank() && !line.contains("offline") }
+            val connectedDevices = lines.drop(1).filter { it.isNotBlank() && !it.contains("offline") }
+            
+            val explicitDeviceIp = project.findProperty("deviceIp") as? String
 
-            if (!hasDevice) {
-                val deviceIp = project.findProperty("deviceIp") as? String ?: "192.168.1.39:42513"
-                val userHome = System.getProperty("user.home")
-                println("🔌 No active devices found. Connecting to device $deviceIp before install...")
-                exec {
-                    environment("ADB_VENDOR_KEYS", "$userHome/.android")
-                    commandLine("adb", "connect", deviceIp)
-                    isIgnoreExitValue = true
+            if (explicitDeviceIp == null) {
+                val wifiDevices = connectedDevices.filter { it.contains(":") || it.contains(".") }
+                if (wifiDevices.isNotEmpty()) {
+                    println("🔌 Wireless devices detected without explicit 'deviceIp'. Disconnecting to prioritize USB/Emulator.")
+                    wifiDevices.forEach { device ->
+                        val deviceId = device.split("\\s+".toRegex())[0]
+                        if (deviceId.contains(":") || deviceId.contains(".")) {
+                            exec {
+                                commandLine("adb", "disconnect", deviceId)
+                                isIgnoreExitValue = true
+                            }
+                        }
+                    }
+                }
+            }
+
+            val devicesOutputPost = org.apache.commons.io.output.ByteArrayOutputStream()
+            exec {
+                commandLine("adb", "devices")
+                standardOutput = devicesOutputPost
+            }
+            val connectedDevicesPost = devicesOutputPost.toString("UTF-8").lines().drop(1).filter { it.isNotBlank() && !it.contains("offline") }
+
+            if (connectedDevicesPost.isEmpty()) {
+                if (explicitDeviceIp != null) {
+                    val userHome = System.getProperty("user.home")
+                    println("🔌 No active devices found. Connecting to explicit device $explicitDeviceIp before install...")
+                    exec {
+                        environment("ADB_VENDOR_KEYS", "$userHome/.android")
+                        commandLine("adb", "connect", explicitDeviceIp)
+                        isIgnoreExitValue = true
+                    }
+                } else {
+                    println("🔌 No active devices found and no 'deviceIp' property provided. Please connect a USB device or start an emulator.")
                 }
             } else {
-                println("🔌 Device already connected, skipping auto-connect.")
+                println("🔌 Device already connected. Using connected device(s).")
             }
         }
     }
@@ -365,20 +414,11 @@ sonar {
         property("sonar.gradle.skipCompile", "true")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
         property("sonar.junit.reportPaths", "${layout.buildDirectory.get()}/test-results/testDebugUnitTest")
-        
-        // Suppress Sonar warnings for Jetpack Compose UI files where high parameter counts
-        // and deep nesting (high cognitive complexity) are idiomatic patterns.
-        property("sonar.issue.ignore.multicriteria", "e1,e2")
 
         property("sonar.coverage.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*,**/security/SecureCrashHandler.kt,**/crypto/PasswordCipher.kt,**/sync/DriveSyncManager.kt,**/crypto/IdentityStorageManager.kt,**/backup/BackupCryptoManager.kt,**/crypto/SecurityStorageManager.kt,**/crypto/SSHKeyGenerator.kt,**/crypto/PemUtils.kt,**/MainActivity.kt,**/billing/BillingManager.kt,**/network/**/*.*")
         property("sonar.cpd.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*")
         property("sonar.c.file.suffixes", "-")
         property("sonar.cpp.file.suffixes", "-")
         property("sonar.objc.file.suffixes", "-")
-
-        property("sonar.issue.ignore.multicriteria.e1.ruleKey", "kotlin:S107")
-        property("sonar.issue.ignore.multicriteria.e1.resourceKey", "**/ui/**/*.kt")
-        property("sonar.issue.ignore.multicriteria.e2.ruleKey", "kotlin:S3776")
-        property("sonar.issue.ignore.multicriteria.e2.resourceKey", "**/ui/**/*.kt")
     }
 }

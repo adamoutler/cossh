@@ -123,7 +123,7 @@ class SecureCrashHandlerTest {
     @Test
     fun `test fallback if crash handler throws exception`() {
         // We can force the crash handler to throw an exception by giving it a bad context
-        val badContext = RuntimeEnvironment.getApplication().applicationContext // Normally ok, let's break it using reflection or null
+        // Normally ok, let's break it using reflection or null
         // Easier: simulate failure writing by making directory read-only? No, better to mock or pass null.
         // Actually, let's just make the crash directory a file so mkdirs fails
         crashDir.parentFile?.mkdirs()

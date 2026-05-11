@@ -14,7 +14,6 @@ object PasswordCipher {
 
     private var fallbackKey: SecretKey? = null
 
-    @Suppress("DEPRECATION")
     private fun getOrGenerateKey(): SecretKey {
         return try {
             val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }

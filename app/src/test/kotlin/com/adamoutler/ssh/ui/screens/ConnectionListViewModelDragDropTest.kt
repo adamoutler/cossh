@@ -91,4 +91,79 @@ class ConnectionListViewModelDragDropTest {
 
         println("SUCCESS: Reorder correctly preserved across reloads")
     }
+
+    @Test
+    fun testCategoryDragAndDropReordersItems() {
+        val p1 = ConnectionProfile("id1", "Nick1", "host1", username = "u1", authType = AuthType.PASSWORD, sortOrder = 0, folderId = "Folder A")
+        val p2 = ConnectionProfile("id2", "Nick2", "host2", username = "u2", authType = AuthType.PASSWORD, sortOrder = 1, folderId = "Folder B")
+        val p3 = ConnectionProfile("id3", "Nick3", "host3", username = "u3", authType = AuthType.PASSWORD, sortOrder = 2, folderId = "Folder B")
+
+        storageManager.saveProfile(p1)
+        storageManager.saveProfile(p2)
+        storageManager.saveProfile(p3)
+
+        viewModel.loadProfiles()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+        // Wait for items to load
+        var retries = 0
+        while (viewModel.flatItems.value.size < 5 && retries < 100) {
+            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+            Thread.sleep(10)
+            retries++
+        }
+
+        // Expected initial layout: 
+        // 0: Header("Folder A")
+        // 1: Profile("id1")
+        // 2: Header("Folder B")
+        // 3: Profile("id2")
+        // 4: Profile("id3")
+
+        // Drag "Folder A" header down past "Folder B" block. 
+        // Original index: 0. We drag it down to overlap with the item at index 4.
+        viewModel.moveProfileInFlatList(0, 4)
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+        retries = 0
+        while (retries < 100) {
+            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+            val savedP1 = storageManager.getProfile("id1")
+            val savedP2 = storageManager.getProfile("id2")
+            if (savedP1 != null && savedP2 != null && savedP1.sortOrder > savedP2.sortOrder) break
+            Thread.sleep(10)
+            retries++
+        }
+
+        val app = ApplicationProvider.getApplicationContext<Application>()
+        val newViewModel = ConnectionListViewModel(app, storageManager, BackupManager(app, storageManager, com.adamoutler.ssh.crypto.IdentityStorageManager(app)))
+
+        retries = 0
+        while (newViewModel.flatItems.value.size < 5 && retries < 100) {
+            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+            Thread.sleep(10)
+            retries++
+        }
+
+        // Expected layout after move: Folder B block, then Folder A block
+        // 0: Header("Folder B")
+        // 1: Profile("id2")
+        // 2: Profile("id3")
+        // 3: Header("Folder A")
+        // 4: Profile("id1")
+
+        val newHeader1 = newViewModel.flatItems.value[0] as ConnectionListItem.Header
+        val newP2 = newViewModel.flatItems.value[1] as ConnectionListItem.Profile
+        val newP3 = newViewModel.flatItems.value[2] as ConnectionListItem.Profile
+        val newHeader2 = newViewModel.flatItems.value[3] as ConnectionListItem.Header
+        val newP1 = newViewModel.flatItems.value[4] as ConnectionListItem.Profile
+
+        assertEquals("Folder B", newHeader1.folderId)
+        assertEquals("id2", newP2.profile.id)
+        assertEquals("id3", newP3.profile.id)
+        assertEquals("Folder A", newHeader2.folderId)
+        assertEquals("id1", newP1.profile.id)
+
+        println("SUCCESS: Category reorder correctly moved entire blocks and preserved across reloads")
+    }
 }

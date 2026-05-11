@@ -35,7 +35,7 @@ class PortForwardingOrchestratorTest {
         sshd.host = "127.0.0.1"
         sshd.port = 0 // Auto-assign port
         sshd.keyPairProvider = SimpleGeneratorHostKeyProvider(Paths.get("hostkey.ser"))
-        sshd.passwordAuthenticator = PasswordAuthenticator { username, password, session ->
+        sshd.passwordAuthenticator = PasswordAuthenticator { username, password, _ ->
             username == "testuser" && password == "testpass"
         }
         // Enable port forwarding

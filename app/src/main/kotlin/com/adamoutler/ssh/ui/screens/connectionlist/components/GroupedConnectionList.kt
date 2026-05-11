@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -39,7 +40,7 @@ fun GroupedConnectionList(
     var profileToDelete by remember { mutableStateOf<ConnectionProfile?>(null) }
 
     val listState = rememberLazyListState()
-    var draggedItemKey by remember { mutableStateOf<Any?>(null) }
+    var draggedItemId by remember { mutableStateOf<Any?>(null) }
     var dragOffset by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
 
     LazyColumn(
@@ -58,42 +59,25 @@ fun GroupedConnectionList(
         ) { index ->
             when (val item = flatItems[index]) {
                 is ConnectionListItem.Header -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                    ) {
-                        Text(
-                            text = item.title,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-
-                is ConnectionListItem.Profile -> {
-                    val profile = item.profile
-                    val activeCount = activeConnectionCounts[profile.id] ?: 0
-
-                    val isDragging = profile.id == draggedItemKey
+                    val headerId = "header_${item.folderId ?: "default"}"
+                    val isDragging = headerId == draggedItemId
                     val translationY = if (isDragging) dragOffset else 0f
 
                     val dragModifier = Modifier.pointerInput(isReordering) {
                         if (!isReordering) return@pointerInput
                         detectDragGestures(
                             onDragStart = { _ ->
-                                draggedItemKey = profile.id
+                                draggedItemId = headerId
                                 dragOffset = 0f
                             },
                             onDrag = { change, dragAmount ->
                                 change.consume()
                                 dragOffset += dragAmount.y
-                                val draggedItem = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggedItemKey }
+                                val draggedItem = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggedItemId }
                                 if (draggedItem != null) {
                                     val currentCenter = draggedItem.offset + dragOffset + (draggedItem.size / 2)
                                     val targetItem = listState.layoutInfo.visibleItemsInfo.firstOrNull {
-                                        it.key != draggedItemKey && currentCenter.toInt() in it.offset..(it.offset + it.size)
+                                        it.key != draggedItemId && currentCenter.toInt() in it.offset..(it.offset + it.size)
                                     }
                                     if (targetItem != null) {
                                         val targetGlobalIndex = targetItem.index
@@ -104,11 +88,83 @@ fun GroupedConnectionList(
                                 }
                             },
                             onDragEnd = {
-                                draggedItemKey = null
+                                draggedItemId = null
                                 dragOffset = 0f
                             },
                             onDragCancel = {
-                                draggedItemKey = null
+                                draggedItemId = null
+                                dragOffset = 0f
+                            },
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .zIndex(if (isDragging) 1f else 0f)
+                            .graphicsLayer { this.translationY = translationY }
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = item.title,
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            if (isReordering) {
+                                Icon(
+                                    imageVector = Icons.Default.DragHandle,
+                                    contentDescription = "Reorder Category",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = dragModifier.padding(8.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                is ConnectionListItem.Profile -> {
+                    val profile = item.profile
+                    val activeCount = activeConnectionCounts[profile.id] ?: 0
+
+                    val isDragging = profile.id == draggedItemId
+                    val translationY = if (isDragging) dragOffset else 0f
+
+                    val dragModifier = Modifier.pointerInput(isReordering) {
+                        if (!isReordering) return@pointerInput
+                        detectDragGestures(
+                            onDragStart = { _ ->
+                                draggedItemId = profile.id
+                                dragOffset = 0f
+                            },
+                            onDrag = { change, dragAmount ->
+                                change.consume()
+                                dragOffset += dragAmount.y
+                                val draggedItem = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggedItemId }
+                                if (draggedItem != null) {
+                                    val currentCenter = draggedItem.offset + dragOffset + (draggedItem.size / 2)
+                                    val targetItem = listState.layoutInfo.visibleItemsInfo.firstOrNull {
+                                        it.key != draggedItemId && currentCenter.toInt() in it.offset..(it.offset + it.size)
+                                    }
+                                    if (targetItem != null) {
+                                        val targetGlobalIndex = targetItem.index
+                                        val sourceGlobalIndex = draggedItem.index
+                                        onMoveProfile(sourceGlobalIndex, targetGlobalIndex)
+                                        dragOffset = 0f
+                                    }
+                                }
+                            },
+                            onDragEnd = {
+                                draggedItemId = null
+                                dragOffset = 0f
+                            },
+                            onDragCancel = {
+                                draggedItemId = null
                                 dragOffset = 0f
                             },
                         )

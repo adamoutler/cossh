@@ -1,21 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <base-config cleartextTrafficPermitted="false">
-        <certificateTransparency>true</certificateTransparency>
-        <trust-anchors>
-            <certificates src="system" />
-        </trust-anchors>
-    </base-config>
     <domain-config>
-        <domain includeSubdomains="true">googleapis.com</domain>
-        <trust-anchors>
-            <certificates src="system" />
-        </trust-anchors>
-        <pin-set expiration="2026-12-31">
-            <!-- Google API root CA pinning example -->
-            <pin digest="SHA-256">hxqRlPTu1bMS/0DITB1SSu0vd4u/8l8TjPgfaAp63Gc=</pin>
-            <!-- Backup pin -->
-            <pin digest="SHA-256">Vjs8r4z+80wjNcr1YKepWQboSIRi63WsWXhIMN+eWys=</pin>
+        <domain includeSubdomains="true">example.com</domain>
+        <pin-set expiration="2027-01-01">
+            <pin digest="SHA-256">7HIpactkIAq2Y49orFOOQKurWxmmSFZhBCoQYcRhJ3Y=</pin>
+            <pin digest="SHA-256">fwza0LRMXouZHRC8Ei+4PyuldPDcf3UKgO/04cDM1oE=</pin>
         </pin-set>
     </domain-config>
 </network-security-config>

@@ -50,6 +50,10 @@ jobs:
         run: |
           mkdir -p ~/.android
           keytool -genkey -v -keystore ~/.android/release.keystore -alias cossh_release -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=test"
+          export KEYSTORE_FILE=~/.android/release.keystore
+          export KEYSTORE_PASSWORD=android
+          export KEY_ALIAS=cossh_release
+          export KEY_PASSWORD=android
           ./gradlew assembleRelease
 
   test:

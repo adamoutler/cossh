@@ -72,12 +72,15 @@ class TerminalViewModel(application: Application) :
     fun getOrCreateSession(sessionId: String, context: Context): TerminalSession {
         getContext = { context }
         return sessions.getOrPut(sessionId) {
+            // Limit the buffer byte size to roughly 2MB.
+            // 2MB / (120 columns * 5 bytes/char * 2 for utf16) = ~1600 rows max scrollback.
+            val transcriptRows = 1600
             TerminalSession(
                 "/system/bin/sh",
                 "/",
                 arrayOf("sh", "-c", "stty -echo 2>/dev/null; exec sleep 2147483647"),
                 arrayOf("TERM=xterm-256color"),
-                0,
+                transcriptRows,
                 this,
             )
         }
@@ -85,7 +88,38 @@ class TerminalViewModel(application: Application) :
 
     override fun onTextChanged(session: TerminalSession) { /* No-op */ }
     override fun onTitleChanged(session: TerminalSession) { /* No-op */ }
-    override fun onSessionFinished(session: TerminalSession) { /* No-op */ }
+    
+    override fun onSessionFinished(session: TerminalSession) {
+        // Explicitly zero out the terminal buffer backing arrays to ensure sensitive 
+        // output is scrubbed from memory and not left for the garbage collector.
+        try {
+            val emulator = session.emulator
+            if (emulator != null) {
+                val screenField = emulator.javaClass.getDeclaredMethod("getScreen")
+                screenField.isAccessible = true
+                val buffer = screenField.invoke(emulator)
+                
+                val mLinesField = buffer.javaClass.getDeclaredField("mLines")
+                mLinesField.isAccessible = true
+                val lines = mLinesField.get(buffer) as Array<*> // Array of TerminalRow
+                
+                if (lines.isNotEmpty()) {
+                    val mTextField = lines[0]?.javaClass?.getDeclaredField("mText")
+                    mTextField?.isAccessible = true
+                    
+                    for (row in lines) {
+                        if (row != null) {
+                            val textArray = mTextField?.get(row) as? CharArray
+                            if (textArray != null) {
+                                java.util.Arrays.fill(textArray, '\u0000') // Securely scrub memory
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+        }
+    }
 
     override fun onCopyTextToClipboard(session: TerminalSession, text: String) {
         val context = getContext?.invoke() ?: return

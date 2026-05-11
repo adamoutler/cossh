@@ -459,10 +459,10 @@ fun TerminalScreenContent(
                                 }
 
                                 terminalView.requestFocus()
-                                val window = (ctx as? android.app.Activity)?.window
+                                val activityWindow = (ctx as? android.app.Activity)?.window
                                 if (terminalInputState != 0) {
-                                    if (window != null) {
-                                        val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, terminalView)
+                                    if (activityWindow != null) {
+                                        val insetsController = androidx.core.view.WindowInsetsControllerCompat(activityWindow, terminalView)
                                         insetsController.show(androidx.core.view.WindowInsetsCompat.Type.ime())
                                     } else {
                                         val imm = ctx.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager

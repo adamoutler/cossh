@@ -223,6 +223,7 @@ class ConnectionListScreenScreenshotTest {
                 username = "admin",
                 authType = AuthType.KEY,
                 sshKeyPasswordReferenceId = "mock-key-1",
+                folderId = "Servers"
             ),
             ConnectionProfile(
                 id = "2",
@@ -231,6 +232,7 @@ class ConnectionListScreenScreenshotTest {
                 port = 2222,
                 username = "dev",
                 authType = AuthType.PASSWORD,
+                folderId = "Servers"
             ),
         )
         paparazzi.snapshot {
@@ -241,7 +243,11 @@ class ConnectionListScreenScreenshotTest {
                 ) {
                     ConnectionListContent(
                         groupedProfiles = mockProfiles.groupBy { it.folderId },
-                        flatItems = mockProfiles.map { ConnectionListItem.Profile(it) },
+                        flatItems = listOf(
+                            ConnectionListItem.Header("Servers", "Servers"),
+                            ConnectionListItem.Profile(mockProfiles[0]),
+                            ConnectionListItem.Profile(mockProfiles[1])
+                        ),
                         searchQuery = "",
                         onSearchQueryChange = {},
                         onAddConnection = {},

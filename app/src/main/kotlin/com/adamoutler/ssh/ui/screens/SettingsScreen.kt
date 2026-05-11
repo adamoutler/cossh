@@ -17,6 +17,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.adamoutler.ssh.BuildConfig
+import com.adamoutler.ssh.ui.components.GatedFeatureWrapper
 import com.adamoutler.ssh.billing.BillingManager
 import com.adamoutler.ssh.sync.DriveSyncManager
 
@@ -163,58 +165,63 @@ fun SettingsScreenContent(
                 }
             }
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            GatedFeatureWrapper(
+                isEnabled = BuildConfig.ENABLE_CLOUD_SYNC,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 ) {
-                    Text(text = "Cloud Sync & Backup", style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        text = "Securely sync your encrypted profiles across devices using your hidden Google Drive App Data folder.",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(text = "Cloud Sync & Backup", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = "Securely sync your encrypted profiles across devices using your hidden Google Drive App Data folder.",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
 
-                    if (!isCloudSyncEnabled) {
-                        Button(
-                            onClick = onPurchaseCloudSync,
-                            modifier = Modifier.align(Alignment.End),
-                        ) {
-                            Text("Unlock Cloud Sync ($10.00)")
-                        }
-                    } else {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            Text("Cloud Sync Enabled", style = MaterialTheme.typography.bodyLarge)
-                            Switch(
-                                checked = true,
-                                onCheckedChange = { /* TODO Disable sync */ },
-                            )
-                        }
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            if (isPassphraseSet) {
-                                TextButton(onClick = onResetPassphrase) {
-                                    Text("Reset Passphrase")
-                                }
-                            } else {
-                                Spacer(modifier = Modifier.width(8.dp))
+                        if (!isCloudSyncEnabled) {
+                            Button(
+                                onClick = onPurchaseCloudSync,
+                                modifier = Modifier.align(Alignment.End),
+                            ) {
+                                Text("Unlock Cloud Sync ($10.00)")
+                            }
+                        } else {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text("Cloud Sync Enabled", style = MaterialTheme.typography.bodyLarge)
+                                Switch(
+                                    checked = true,
+                                    onCheckedChange = { /* TODO Disable sync */ },
+                                )
                             }
 
-                            Button(
-                                onClick = onAuthenticateGoogle,
-                                enabled = !isSyncing,
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text(if (isSyncing) "Authenticating..." else "Authenticate with Google")
+                                if (isPassphraseSet) {
+                                    TextButton(onClick = onResetPassphrase) {
+                                        Text("Reset Passphrase")
+                                    }
+                                } else {
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                }
+
+                                Button(
+                                    onClick = onAuthenticateGoogle,
+                                    enabled = !isSyncing,
+                                ) {
+                                    Text(if (isSyncing) "Authenticating..." else "Authenticate with Google")
+                                }
                             }
                         }
                     }

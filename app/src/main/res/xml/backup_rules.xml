@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Identity and Profile Encrypted SharedPreferences -->
+    <exclude domain="sharedpref" path="secret_ssh_profiles.xml" />
+    <exclude domain="sharedpref" path="secret_ssh_profiles_fallback.xml" />
+    <exclude domain="sharedpref" path="secret_ssh_identities.xml" />
+    <exclude domain="sharedpref" path="secret_ssh_identities_fallback.xml" />
+    
+    <!-- Trust On First Use (TOFU) / MITM Prevention -->
+    <exclude domain="file" path="ssh_known_hosts" />
+    
+    <!-- Exclude EncryptedSharedPreferences Master Key (if stored in preferences) -->
+    <exclude domain="sharedpref" path="crypto_prefs.xml" />
+</full-backup-content>
