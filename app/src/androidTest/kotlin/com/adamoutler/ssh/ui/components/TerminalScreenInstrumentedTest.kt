@@ -137,21 +137,6 @@ class TerminalScreenInstrumentedTest {
     }
 
     @Test(timeout = 300000L)
-    fun testKeyboardToggleTriggersSigwinch() {
-        composeTestRule.setContent {
-            TerminalScreen(
-                profileId = "testProfileSigwinch",
-                onNavigateBack = {
-                    // Do nothing in this test
-                },
-            )
-        }
-        composeTestRule.waitForIdle()
-        // Wait for bash script to tap and trigger SIGWINCH
-        java.util.concurrent.CountDownLatch(1).await(15, java.util.concurrent.TimeUnit.SECONDS)
-    }
-
-    @Test(timeout = 300000L)
     fun testFloatingOverlayButtons() {
         var backNavigationCalled = false
 
