@@ -16,6 +16,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 
 /**
  * @FullTest Note (SSH-49):
@@ -27,6 +28,8 @@ import org.junit.runner.RunWith
 @LargeTest
 @FullTest
 class SshServiceInstrumentationTest {
+    @get:Rule
+    val composeTestRule = createEmptyComposeRule()
 
     @get:Rule
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
@@ -65,15 +68,14 @@ class SshServiceInstrumentationTest {
 
         // Wait for notification to be posted
         var notificationPosted = false
-        for (i in 1..50) {
-            val activeNotifications = notificationManager.activeNotifications
-            if (activeNotifications.any { it.id == 1000 }) { // SUMMARY_NOTIFICATION_ID is 1000
-                notificationPosted = true
-                println("REAL LOG: Notification successfully posted to NotificationManager.")
-                break
+        try {
+            composeTestRule.waitUntil(10000) {
+                val activeNotifications = notificationManager.activeNotifications
+                activeNotifications.any { it.id == 1000 } // SUMMARY_NOTIFICATION_ID is 1000
             }
-            Thread.sleep(200) // Polling instead of arbitrary long sleep
-        }
+            notificationPosted = true
+            println("REAL LOG: Notification successfully posted to NotificationManager.")
+        } catch (e: Exception) {}
         assertTrue("Notification was not posted", notificationPosted)
 
         // Background the activity

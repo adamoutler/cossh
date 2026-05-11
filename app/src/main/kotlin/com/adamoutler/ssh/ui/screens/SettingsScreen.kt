@@ -18,9 +18,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.adamoutler.ssh.BuildConfig
-import com.adamoutler.ssh.ui.components.GatedFeatureWrapper
 import com.adamoutler.ssh.billing.BillingManager
 import com.adamoutler.ssh.sync.DriveSyncManager
+import com.adamoutler.ssh.ui.components.GatedFeatureWrapper
 
 @Composable
 fun SettingsScreen(
@@ -167,7 +167,7 @@ fun SettingsScreenContent(
 
             GatedFeatureWrapper(
                 isEnabled = BuildConfig.ENABLE_CLOUD_SYNC,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),

@@ -88,9 +88,9 @@ class TerminalViewModel(application: Application) :
 
     override fun onTextChanged(session: TerminalSession) { /* No-op */ }
     override fun onTitleChanged(session: TerminalSession) { /* No-op */ }
-    
+
     override fun onSessionFinished(session: TerminalSession) {
-        // Explicitly zero out the terminal buffer backing arrays to ensure sensitive 
+        // Explicitly zero out the terminal buffer backing arrays to ensure sensitive
         // output is scrubbed from memory and not left for the garbage collector.
         try {
             val emulator = session.emulator
@@ -98,15 +98,15 @@ class TerminalViewModel(application: Application) :
                 val screenField = emulator.javaClass.getDeclaredMethod("getScreen")
                 screenField.isAccessible = true
                 val buffer = screenField.invoke(emulator)
-                
+
                 val mLinesField = buffer.javaClass.getDeclaredField("mLines")
                 mLinesField.isAccessible = true
                 val lines = mLinesField.get(buffer) as Array<*> // Array of TerminalRow
-                
+
                 if (lines.isNotEmpty()) {
                     val mTextField = lines[0]?.javaClass?.getDeclaredField("mText")
                     mTextField?.isAccessible = true
-                    
+
                     for (row in lines) {
                         if (row != null) {
                             val textArray = mTextField?.get(row) as? CharArray

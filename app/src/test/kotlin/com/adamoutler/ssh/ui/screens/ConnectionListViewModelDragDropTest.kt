@@ -113,14 +113,14 @@ class ConnectionListViewModelDragDropTest {
             retries++
         }
 
-        // Expected initial layout: 
+        // Expected initial layout:
         // 0: Header("Folder A")
         // 1: Profile("id1")
         // 2: Header("Folder B")
         // 3: Profile("id2")
         // 4: Profile("id3")
 
-        // Drag "Folder A" header down past "Folder B" block. 
+        // Drag "Folder A" header down past "Folder B" block.
         // Original index: 0. We drag it down to overlap with the item at index 4.
         viewModel.moveProfileInFlatList(0, 4)
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()

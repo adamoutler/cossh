@@ -17,6 +17,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import java.io.File
 import java.security.MessageDigest
 import java.util.UUID
@@ -30,6 +31,9 @@ import java.util.UUID
 @RunWith(AndroidJUnit4::class)
 @FullTest
 class OcrVerificationTest {
+
+    @get:Rule
+    val composeTestRule = createEmptyComposeRule()
 
     @get:Rule
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
@@ -89,7 +93,7 @@ class OcrVerificationTest {
                 device.pressBack()
                 device.waitForIdle()
             }
-            Thread.sleep(2000)
+            device.wait(androidx.test.uiautomator.Until.hasObject(androidx.test.uiautomator.By.textContains("UI OCR Test Profile")), 5000)
 
             // Click the profile using UiAutomator
             val profileSelector = UiSelector().textContains("UI OCR Test Profile")
@@ -113,32 +117,51 @@ class OcrVerificationTest {
             // Wait for connection to establish and PTY output stream
             device.waitForIdle()
             var connected = false
-            for (i in 1..20) { // Wait up to 20 seconds for remote connection
-                if (com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream != null) {
-                    connected = true
-                    break
+            try {
+                composeTestRule.waitUntil(20000) {
+                    com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream != null
                 }
-                Thread.sleep(1000)
-            }
+                connected = true
+            } catch (e: Exception) {}
             assertTrue("SSH Connection should be established", connected)
 
             // Wait for MOTD
-            Thread.sleep(3000)
+            try {
+                composeTestRule.waitUntil(5000) {
+                    val transcript = com.adamoutler.ssh.network.SshSessionProvider.terminalSession?.emulator?.screen?.transcriptText ?: ""
+                    transcript.isNotEmpty()
+                }
+            } catch (e: Exception) {}
 
             // Step 1: `cat foo`
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("cat foo\n".toByteArray())
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
-            Thread.sleep(2000)
+            try {
+                composeTestRule.waitUntil(5000) {
+                    val transcript = com.adamoutler.ssh.network.SshSessionProvider.terminalSession?.emulator?.screen?.transcriptText ?: ""
+                    transcript.contains("cat foo")
+                }
+            } catch (e: Exception) {}
 
             // Step 2: `123456`
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("123456\n".toByteArray())
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
-            Thread.sleep(2000)
+            try {
+                composeTestRule.waitUntil(5000) {
+                    val transcript = com.adamoutler.ssh.network.SshSessionProvider.terminalSession?.emulator?.screen?.transcriptText ?: ""
+                    transcript.contains("123456")
+                }
+            } catch (e: Exception) {}
 
             // Step 3: `verify` (with simulated alt+n truncature if that was a typo by the user, we will just send verify)
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("verify\n".toByteArray())
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
-            Thread.sleep(2000)
+            try {
+                composeTestRule.waitUntil(5000) {
+                    val transcript = com.adamoutler.ssh.network.SshSessionProvider.terminalSession?.emulator?.screen?.transcriptText ?: ""
+                    transcript.contains("verify")
+                }
+            } catch (e: Exception) {}
 
             // Step 4: UUID & Checksum
             val testUuid = UUID.randomUUID().toString()
@@ -151,7 +174,12 @@ class OcrVerificationTest {
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
 
             // Wait for response to render fully
-            Thread.sleep(3000)
+            try {
+                composeTestRule.waitUntil(5000) {
+                    val transcript = com.adamoutler.ssh.network.SshSessionProvider.terminalSession?.emulator?.screen?.transcriptText ?: ""
+                    transcript.contains(testUuid)
+                }
+            } catch (e: Exception) {}
 
             // TA-DA! Capture screenshot for visual validation natively
             val screenshotFile = File(context.getExternalFilesDir(null), "ocr_test_screenshot.png")

@@ -1,12 +1,12 @@
 Starting atomic update test...
 Initial connection with Key A...
 known_hosts after initial TOFU:
-192.168.1.100 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDBzQYp2sWpXcqoe/N86n3oBbFzFpRx1XV4jGFJ+0Y5CCbyM1ZzOPHUH4Vg5RBjfIKC2EJjY0CTOJjnRGWJfkD2t2q60MzWmHY8BI1X2d3gH63nPVhMEyrJ7/2APH2yL2Uz2jYIORQEkHYEMQGJkjFkBqWq0jim27RoU1VO5oauCw==
+192.168.1.100 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCsafAJrGiCYEe07XZ/q1x96eMLjVRRUaPAGDrH1nHGaOv9vOxpOG5a2H8xpvwkdXpc4wMr4uXUUNucZerD7tgw5ymt47dKX3BORqvX6Nx/Hi6aS+fuNBBBZvVNvtVQ1ede4KS+21801tQ5TjHZllhng0UJb+i96y6tH16PB+ZOHw==
 
 
 Detecting changed host key! MITM Warning triggered...
 User actively held confirmation button to accept the risk.
 known_hosts after atomic update:
-192.168.1.100 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCnTbjQsCdww4+WntFlLvhxEakbicLuVC3Rp3ftbvU6L6NsYPZu3sTNIRVU/s1qLNAnoDZl8/vECp+diJwdjNggtCGsoqxD9o6glXx6Gl0uerC8MEsMcczAEkVGc9WtK/0M8sxZrd3K9SbUDY2rflUXMl1N0ZjcBHD24o78SvWLPw==
+192.168.1.100 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDq8Dw0WwhsPhGBKv0bRC5Ef9mnDcYQ9w4OV6vjIgNBhbOT/NUgoN8YZOO1qs0VibGJeMtoDc6+6F4kuvzoR1wRG+zldUctp4bbEPkRpstHzebJBLkKz9GPvC4g62nMXCpGHMItSjleWIhiBe+lKokotGcUv7umuGxSkdQkt2VH0w==
 
 Test PASSED: Old key was atomically removed and the new key was saved. No duplicates exist.

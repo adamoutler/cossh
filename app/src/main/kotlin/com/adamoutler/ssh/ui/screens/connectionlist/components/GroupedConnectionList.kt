@@ -109,7 +109,7 @@ fun GroupedConnectionList(
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Text(
                                 text = item.title,
@@ -121,7 +121,7 @@ fun GroupedConnectionList(
                                     imageVector = Icons.Default.DragHandle,
                                     contentDescription = "Reorder Category",
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = dragModifier.padding(8.dp)
+                                    modifier = dragModifier.padding(8.dp),
                                 )
                             }
                         }

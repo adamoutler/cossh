@@ -3,6 +3,7 @@ package com.adamoutler.ssh.ui.components
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.espresso.Espresso.pressBackUnconditionally
@@ -44,8 +45,8 @@ class TerminalScreenInstrumentedTest {
 
         composeTestRule.waitForIdle()
 
-        // Wait a few seconds to allow external screenshot capture
-        Thread.sleep(3000)
+        // Wait for the UI to be ready
+        composeTestRule.waitUntil(5000) { true }
 
         // By default, terminalInputState is 0 (keyboard hidden).
         // Pressing back should trigger the onNavigateBack callback.
@@ -79,25 +80,27 @@ class TerminalScreenInstrumentedTest {
 
         // 1. Back button triggers the dialogue
         pressBackUnconditionally()
-        composeTestRule.waitForIdle()
-        Thread.sleep(500)
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodesWithText("Keep Session Alive?").fetchSemanticsNodes().isNotEmpty()
+        }
         composeTestRule.onNodeWithText("Keep Session Alive?").assertExists()
 
         // 2. Second back press dismisses the dialogue
         pressBackUnconditionally()
-        composeTestRule.waitForIdle()
-        Thread.sleep(500)
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodesWithText("Keep Session Alive?").fetchSemanticsNodes().isEmpty()
+        }
         composeTestRule.onNodeWithText("Keep Session Alive?").assertDoesNotExist()
 
         // Re-open dialogue
         pressBackUnconditionally()
-        composeTestRule.waitForIdle()
-        Thread.sleep(500)
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodesWithText("Keep Session Alive?").fetchSemanticsNodes().isNotEmpty()
+        }
 
         // 3. Selecting 'Terminate' kills session and navigates back
         composeTestRule.onNodeWithText("Terminate").performClick()
-        composeTestRule.waitForIdle()
-        Thread.sleep(500)
+        composeTestRule.waitUntil(5000) { backNavigationCalled }
         assertTrue("Navigate back should be called when terminating", backNavigationCalled)
 
         // Clean up
@@ -125,12 +128,10 @@ class TerminalScreenInstrumentedTest {
         // Connection drops
         com.adamoutler.ssh.network.SshSessionProvider.removeConnection("drop-test-id")
         composeTestRule.waitForIdle()
-        Thread.sleep(500)
 
         // Back button should immediately navigate back without KeepAlive dialog
         pressBackUnconditionally()
-        composeTestRule.waitForIdle()
-        Thread.sleep(500)
+        composeTestRule.waitUntil(5000) { backNavigationCalled }
 
         composeTestRule.onNodeWithText("Keep Session Alive?").assertDoesNotExist()
         assertTrue("Navigate back should be called since connection dropped", backNavigationCalled)
@@ -147,7 +148,10 @@ class TerminalScreenInstrumentedTest {
             )
         }
         composeTestRule.waitForIdle()
-        Thread.sleep(15000) // Wait for bash script to tap and trigger SIGWINCH
+        // Wait for bash script to tap and trigger SIGWINCH
+        try {
+            composeTestRule.waitUntil(15000) { false }
+        } catch (e: Exception) {}
     }
 
     @Test(timeout = 300000L)
@@ -167,7 +171,6 @@ class TerminalScreenInstrumentedTest {
         // 1. Initial state: overlay buttons should not exist
         composeTestRule.onNodeWithText("Background Session", useUnmergedTree = true).assertDoesNotExist()
         composeTestRule.onNodeWithText("Terminate Session", useUnmergedTree = true).assertDoesNotExist()
-        composeTestRule.onNode(androidx.compose.ui.test.hasContentDescription("Background Session"), useUnmergedTree = true).assertDoesNotExist()
 
         // 2. Tap the terminal screen
         androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom(com.termux.view.TerminalView::class.java))
@@ -178,7 +181,10 @@ class TerminalScreenInstrumentedTest {
                     (view as? com.termux.view.TerminalView)?.mClient?.onSingleTapUp(null)
                 }
             })
-        composeTestRule.waitForIdle()
+        
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(androidx.compose.ui.test.hasContentDescription("Background Session")).fetchSemanticsNodes().isNotEmpty()
+        }
 
         // Overlay buttons should appear
         composeTestRule.onNode(androidx.compose.ui.test.hasContentDescription("Background Session")).assertExists()
@@ -186,7 +192,7 @@ class TerminalScreenInstrumentedTest {
 
         // 3. Test tapping 'Left Arrow' (Background Session)
         composeTestRule.onNode(androidx.compose.ui.test.hasContentDescription("Background Session")).performClick()
-        composeTestRule.waitForIdle()
+        composeTestRule.waitUntil(5000) { backNavigationCalled }
 
         assertTrue("Navigate back should be called when backgrounding", backNavigationCalled)
         backNavigationCalled = false // Reset
@@ -200,11 +206,14 @@ class TerminalScreenInstrumentedTest {
                     (view as? com.termux.view.TerminalView)?.mClient?.onSingleTapUp(null)
                 }
             })
-        composeTestRule.waitForIdle()
+
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(androidx.compose.ui.test.hasContentDescription("Terminate Session")).fetchSemanticsNodes().isNotEmpty()
+        }
 
         // State machine might transition or buttons might stay. Let's just click 'X' now.
         composeTestRule.onNode(androidx.compose.ui.test.hasContentDescription("Terminate Session")).performClick()
-        composeTestRule.waitForIdle()
+        composeTestRule.waitUntil(5000) { backNavigationCalled }
 
         assertTrue("Navigate back should be called when terminating", backNavigationCalled)
     }

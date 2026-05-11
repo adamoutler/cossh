@@ -17,6 +17,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 
 /**
  * @FullTest Note (SSH-49):
@@ -27,6 +28,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @FullTest
 class ConnectionCrashTest {
+    @get:Rule
+    val composeTestRule = createEmptyComposeRule()
+
     @get:Rule
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
         android.Manifest.permission.POST_NOTIFICATIONS,
@@ -81,7 +85,7 @@ class ConnectionCrashTest {
                 device.pressBack()
                 device.waitForIdle()
             }
-            Thread.sleep(2000)
+            device.wait(androidx.test.uiautomator.Until.hasObject(androidx.test.uiautomator.By.textContains("UI Crash Test")), 5000)
 
             // Click the profile using UiAutomator
             val profileSelector = UiSelector().textContains("UI Crash Test")
@@ -105,34 +109,55 @@ class ConnectionCrashTest {
             // Wait for connection to establish and PTY output stream
             device.waitForIdle()
             var connected = false
-            for (i in 1..40) { // Wait up to 20 seconds for remote connection
-                val acceptButton = device.findObject(UiSelector().textMatches("(?i).*accept.*|(?i).*yes.*|(?i).*ok.*|(?i).*continue.*"))
-                if (acceptButton.waitForExists(500)) acceptButton.click()
-                if (com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream != null) {
-                    connected = true
-                    break
+            try {
+                composeTestRule.waitUntil(20000) {
+                    val acceptButton = device.findObject(UiSelector().textMatches("(?i).*accept.*|(?i).*yes.*|(?i).*ok.*|(?i).*continue.*"))
+                    if (acceptButton.exists()) acceptButton.click()
+                    com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream != null
                 }
-                Thread.sleep(500)
-            }
+                connected = true
+            } catch (e: Exception) {}
             assertTrue("SSH Connection should be established", connected)
 
             // Since server enforces 1 req/sec rate limits, we sleep accordingly between commands
-            Thread.sleep(1500)
+            try {
+                composeTestRule.waitUntil(5000) {
+                    val transcript = com.adamoutler.ssh.network.SshSessionProvider.terminalSession?.emulator?.screen?.transcriptText ?: ""
+                    transcript.isNotEmpty()
+                }
+            } catch (e: Exception) {}
 
             // Send multiple requests directly to the PTY
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("test1\n".toByteArray())
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
 
-            Thread.sleep(1500)
+            try {
+                composeTestRule.waitUntil(5000) {
+                    val transcript = com.adamoutler.ssh.network.SshSessionProvider.terminalSession?.emulator?.screen?.transcriptText ?: ""
+                    transcript.contains("test1")
+                }
+            } catch (e: Exception) {}
+            
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("test2\n".toByteArray())
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
 
-            Thread.sleep(1500)
+            try {
+                composeTestRule.waitUntil(5000) {
+                    val transcript = com.adamoutler.ssh.network.SshSessionProvider.terminalSession?.emulator?.screen?.transcriptText ?: ""
+                    transcript.contains("test2")
+                }
+            } catch (e: Exception) {}
+            
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("exit\n".toByteArray())
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
 
             // Wait for SSH to process, echo back
-            Thread.sleep(2000)
+            try {
+                composeTestRule.waitUntil(5000) {
+                    val transcript = com.adamoutler.ssh.network.SshSessionProvider.terminalSession?.emulator?.screen?.transcriptText ?: ""
+                    com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream == null || transcript.contains("exit")
+                }
+            } catch (e: Exception) {}
 
             // Verify the command output sequence is visible on the screen transcript
             val session = com.adamoutler.ssh.network.SshSessionProvider.terminalSession

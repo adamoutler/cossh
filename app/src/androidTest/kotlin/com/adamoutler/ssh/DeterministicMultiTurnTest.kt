@@ -22,6 +22,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
 import java.security.MessageDigest
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 
 /**
  * # DeterministicMultiTurnTest — The Golden Path E2E Verification
@@ -103,6 +104,8 @@ import java.security.MessageDigest
 @RunWith(AndroidJUnit4::class)
 @FullTest
 class DeterministicMultiTurnTest {
+    @get:Rule
+    val composeTestRule = createEmptyComposeRule()
 
     companion object {
         /** Deterministic seed for reproducible pseudorandom payloads. "COBALT" in hex-ish. */
@@ -243,7 +246,7 @@ class DeterministicMultiTurnTest {
 
                 // ── DISMISS: Handle any compatibility dialogs (16KB, etc.) ──
                 dismissCompatibilityDialogs(device)
-                Thread.sleep(2000)
+                device.wait(androidx.test.uiautomator.Until.hasObject(androidx.test.uiautomator.By.textContains("E2E Deterministic Test")), 5000)
 
                 // ── CONNECT: Tap the test profile to initiate SSH connection ──
                 val profileSelector = UiSelector().textContains("E2E Deterministic Test")
@@ -268,26 +271,22 @@ class DeterministicMultiTurnTest {
                 )
 
                 // Tap the profile row to initiate connection
-                Thread.sleep(1500) // Ensure animations/drawing are done
+                device.waitForIdle()
                 val clicked = profileNode.click()
                 assertTrue("Must be able to tap the profile to connect", clicked)
 
                 // ── WAIT FOR CONNECTION: Poll for SSH PTY output stream ──
                 device.waitForIdle()
                 var connected = false
-                for (i in 1..CONNECTION_TIMEOUT_S) {
-                    // Accept Host Key verification dialog if it appears
-                    val acceptButton = device.findObject(UiSelector().textMatches("(?i)accept|yes|ok|continue"))
-                    if (acceptButton.waitForExists(500)) {
-                        acceptButton.click()
+                try {
+                    composeTestRule.waitUntil(20000) {
+                        val acceptButton = device.findObject(UiSelector().textMatches("(?i)accept|yes|ok|continue"))
+                        if (acceptButton.exists()) acceptButton.click()
+                        SshSessionProvider.ptyOutputStream != null
                     }
-
-                    if (SshSessionProvider.ptyOutputStream != null) {
-                        connected = true
-                        break
-                    }
-                    Thread.sleep(500)
-                }
+                    connected = true
+                } catch (e: Exception) {}
+                
                 if (!connected) {
                     val diagnosticFile = File(context.filesDir, "timeout_diagnostic.png")
                     device.takeScreenshot(diagnosticFile)
@@ -301,7 +300,12 @@ class DeterministicMultiTurnTest {
                 println("✓ SSH connection established")
 
                 // ── WAIT FOR MOTD: Let the welcome message render ──
-                Thread.sleep(MOTD_WAIT_MS)
+                try {
+                    composeTestRule.waitUntil(10000) {
+                        val transcript = readTerminalScreenContent()
+                        transcript.isNotEmpty()
+                    }
+                } catch (e: Exception) {}
 
                 // ── EXECUTE: Send each payload with 1-second spacing and verify ──
                 val verificationResults = mutableListOf<String>()
@@ -318,11 +322,14 @@ class DeterministicMultiTurnTest {
                     // Wait for server rate limit + render buffer
                     var screenContent = ""
                     var found = false
-                    for (retry in 1..5) {
-                        Thread.sleep(1000)
+                    try {
+                        composeTestRule.waitUntil(10000) {
+                            screenContent = readTerminalScreenContent()
+                            screenContent.contains(expectedResponse)
+                        }
+                        found = true
+                    } catch (e: Exception) {
                         screenContent = readTerminalScreenContent()
-                        found = screenContent.contains(expectedResponse)
-                        if (found) break
                     }
                     val status = if (found) "✓ PASS" else "✗ FAIL"
                     println("  $status: CMD $cmdNum expected \"$expectedResponse\"")
@@ -355,12 +362,14 @@ class DeterministicMultiTurnTest {
 
                 println("→ Tapping screen to toggle keyboard on")
                 device.click(device.displayWidth / 2, device.displayHeight / 2)
-                Thread.sleep(1500)
+                device.waitForIdle()
+                try { composeTestRule.waitUntil(1500) { false } } catch(e: Exception){}
                 device.takeScreenshot(File(context.filesDir, "during_keyboard.png"))
 
                 println("→ Pressing back to hide keyboard")
                 device.pressBack()
-                Thread.sleep(1500)
+                device.waitForIdle()
+                try { composeTestRule.waitUntil(1500) { false } } catch(e: Exception){}
                 device.takeScreenshot(File(context.filesDir, "after_keyboard.png"))
 
                 val expectedResponseFromLastCmd = payloadSequence.last().second
@@ -376,12 +385,16 @@ class DeterministicMultiTurnTest {
                 }
                 SshSessionProvider.ptyOutputStream?.write(rapidFireBuilder.toString().toByteArray())
                 SshSessionProvider.ptyOutputStream?.flush()
-                Thread.sleep(4000) // Wait for text to flow through PTY and render
+                try {
+                    composeTestRule.waitUntil(10000) {
+                        readTerminalScreenContent().contains("Rapid fire line 100")
+                    }
+                } catch (e: Exception) {}
                 device.takeScreenshot(File(context.filesDir, "after_rapid_fire.png"))
 
                 println("→ Tapping screen to toggle keyboard on again")
                 device.click(device.displayWidth / 2, device.displayHeight / 2)
-                Thread.sleep(1500)
+                device.waitForIdle()
 
                 println("→ Scrolling to top of terminal")
                 for (i in 1..3) {
@@ -392,7 +405,7 @@ class DeterministicMultiTurnTest {
                         device.displayHeight * 3 / 4,
                         10,
                     )
-                    Thread.sleep(500)
+                    device.waitForIdle()
                 }
                 device.takeScreenshot(File(context.filesDir, "scrolled_to_top_with_keyboard.png"))
 
@@ -408,11 +421,15 @@ class DeterministicMultiTurnTest {
 
                 // We don't verify "Goodbye" visually because the session disconnects
                 // and the PTY buffer is destroyed instantly, which we WANT to happen!
-                Thread.sleep(1000)
+                try {
+                    composeTestRule.waitUntil(5000) {
+                        SshSessionProvider.ptyOutputStream == null || readTerminalScreenContent().contains("Goodbye")
+                    }
+                } catch(e: Exception){}
                 println("✓ Sent exit command — session terminating")
 
                 // ── SCREENSHOT: Capture visual evidence ──
-                Thread.sleep(FINAL_RENDER_WAIT_MS)
+                device.waitForIdle()
                 val screenshotFile = File(
                     context.getExternalFilesDir(null),
                     "deterministic_e2e_screenshot.png",

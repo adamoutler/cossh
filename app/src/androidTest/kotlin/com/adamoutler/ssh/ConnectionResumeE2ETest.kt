@@ -20,9 +20,13 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 
 @RunWith(AndroidJUnit4::class)
 class ConnectionResumeE2ETest {
+    @get:Rule
+    val composeTestRule = createEmptyComposeRule()
+
     @get:Rule
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
         android.Manifest.permission.POST_NOTIFICATIONS,
@@ -75,27 +79,36 @@ class ConnectionResumeE2ETest {
             // 3. Wait for connection and type something
             device.waitForIdle()
             var connected = false
-            for (i in 1..40) {
-                val acceptButton = device.findObject(UiSelector().textMatches("(?i).*accept.*|(?i).*yes.*|(?i).*ok.*|(?i).*continue.*"))
-                if (acceptButton.waitForExists(500)) acceptButton.click()
-                if (SshSessionProvider.ptyOutputStream != null) {
-                    connected = true
-                    break
+            try {
+                composeTestRule.waitUntil(20000) {
+                    val acceptButton = device.findObject(UiSelector().textMatches("(?i).*accept.*|(?i).*yes.*|(?i).*ok.*|(?i).*continue.*"))
+                    if (acceptButton.exists()) acceptButton.click()
+                    SshSessionProvider.ptyOutputStream != null
                 }
-                Thread.sleep(500)
-            }
+                connected = true
+            } catch (e: Exception) {}
             assertTrue("Must connect", connected)
 
             // Wait for TerminalView to be measured and initialize its emulator
-            Thread.sleep(2000)
+            try {
+                composeTestRule.waitUntil(5000) {
+                    val transcript = SshSessionProvider.terminalSession?.emulator?.screen?.transcriptText ?: ""
+                    transcript.isNotEmpty()
+                }
+            } catch (e: Exception) {}
 
             SshSessionProvider.ptyOutputStream?.write("echo 'Hello Resume'\n".toByteArray())
             SshSessionProvider.ptyOutputStream?.flush()
-            Thread.sleep(2000)
+            try {
+                composeTestRule.waitUntil(5000) {
+                    val transcript = SshSessionProvider.terminalSession?.emulator?.screen?.transcriptText ?: ""
+                    transcript.contains("Hello Resume")
+                }
+            } catch (e: Exception) {}
 
             // 4. Press Android Home button
             device.pressHome()
-            Thread.sleep(2000)
+            device.waitForIdle()
 
             // 5. Observe silent notification (implicitly tested by resuming Activity)
             // 6. Tap notification (we simulate resuming the app via recent apps or launcher)
@@ -104,16 +117,16 @@ class ConnectionResumeE2ETest {
             launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             context.startActivity(launchIntent)
             device.waitForIdle()
-            Thread.sleep(2000)
 
             // 7. Observe text entered
             var transcript = ""
-            for (retry in 1..5) {
-                val session = SshSessionProvider.terminalSession
-                transcript = session?.emulator?.screen?.transcriptText?.trim() ?: ""
-                if (transcript.contains("Hello Resume")) break
-                Thread.sleep(1000)
-            }
+            try {
+                composeTestRule.waitUntil(5000) {
+                    val session = SshSessionProvider.terminalSession
+                    transcript = session?.emulator?.screen?.transcriptText?.trim() ?: ""
+                    transcript.contains("Hello Resume")
+                }
+            } catch (e: Exception) {}
             println("=== TERMINAL OUTPUT (RESUME) ===")
             println(transcript)
             println("=========================================")
@@ -140,7 +153,6 @@ class ConnectionResumeE2ETest {
             // Ensure we are completely on the main menu before proceeding
             assertTrue("Main menu should be visible", fabAdd.waitForExists(5000))
             device.waitForIdle()
-            Thread.sleep(1000)
 
             // 9. Tap connection again
             val profileNode2 = device.findObject(profileSelector)
@@ -156,16 +168,19 @@ class ConnectionResumeE2ETest {
             device.waitForIdle()
 
             // Wait for second connection
-            Thread.sleep(3000)
+            try {
+                composeTestRule.waitUntil(10000) {
+                    SshSessionProvider.ptyOutputStream != null
+                }
+            } catch (e: Exception) {}
 
             // 12. Press Home button
             device.pressHome()
-            Thread.sleep(1000)
+            device.waitForIdle()
 
             // 14. Reopen app
             context.startActivity(launchIntent)
             device.waitForIdle()
-            Thread.sleep(2000)
 
             // 15. Press back button
             device.pressBack()
@@ -180,7 +195,6 @@ class ConnectionResumeE2ETest {
             }
             assertTrue("Main menu should be visible at end", fabAdd.waitForExists(5000))
             device.waitForIdle()
-            Thread.sleep(1000)
 
             // 16. Tap connection
             val profileNode3 = device.findObject(profileSelector)
@@ -194,14 +208,12 @@ class ConnectionResumeE2ETest {
             // 18. Select "Resume"
             resumeBtn.click()
             device.waitForIdle()
-            Thread.sleep(2000)
 
             // 19. Verify active connection badge (implicitly tested because dialog appeared for 2 sessions)
             // But we can check UI for badge '2' if we go back
             device.pressBack()
             if (keepAliveBtn.waitForExists(1000)) keepAliveBtn.click()
             device.waitForIdle()
-            Thread.sleep(1000)
 
             // Find badge "2" (it's tricky with UiAutomator, but we can take a screenshot)
             val screenshotFile = File(context.getExternalFilesDir(null), "resume_e2e_screenshot.png")
