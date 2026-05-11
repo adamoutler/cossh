@@ -29,7 +29,6 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
                         .setRequestStrongBoxBacked(true)
                         .build()
                 } catch (e: Exception) {
-                    Log.w(TAG, "StrongBox unavailable, falling back to standard Keystore")
                     MasterKey.Builder(context)
                         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                         .build()

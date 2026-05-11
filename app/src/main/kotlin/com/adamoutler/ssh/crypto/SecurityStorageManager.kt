@@ -24,12 +24,10 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
                         .setRequestStrongBoxBacked(true)
                         .build()
                 } catch (e: java.security.ProviderException) {
-                    Log.w(TAG, "StrongBox unavailable, falling back to standard Keystore", e)
                     MasterKey.Builder(context)
                         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                         .build()
                 } catch (e: java.security.KeyStoreException) {
-                    Log.w(TAG, "KeyStore initialization failed, trying fallback", e)
                     MasterKey.Builder(context)
                         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                         .build()
@@ -51,7 +49,6 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
                     false
                 }
                 if (isRobolectric) {
-                    Log.d(TAG, "Robolectric detected, using fallback shared preferences")
                     return@run context.getSharedPreferences("secret_ssh_profiles_fallback", Context.MODE_PRIVATE)
                 }
                 e.handleKeystoreExceptions(
@@ -70,7 +67,6 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
             context.getSharedPreferences("secret_ssh_profiles", Context.MODE_PRIVATE)
                 .edit().clear().apply()
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to reset Keystore", e)
         }
     }
 
@@ -105,10 +101,8 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
             profile.password = decryptPassword(encryptedPrefs.getString("${id}_pwd", null))
             return profile
         } catch (e: kotlinx.serialization.SerializationException) {
-            Log.e(TAG, "Failed to deserialize profile", e)
             return null
         } catch (e: IllegalArgumentException) {
-            Log.e(TAG, "Invalid profile format", e)
             return null
         } catch (e: Exception) {
             if (e is CryptoException) throw e
@@ -127,9 +121,7 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
                         profile.password = decryptPassword(encryptedPrefs.getString("${profile.id}_pwd", null))
                         profiles.add(profile)
                     } catch (e: kotlinx.serialization.SerializationException) {
-                        Log.e(TAG, "Failed to deserialize profile during list generation", e)
                     } catch (e: IllegalArgumentException) {
-                        Log.e(TAG, "Invalid profile format during list generation", e)
                     }
                 }
             }
