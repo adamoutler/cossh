@@ -154,19 +154,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew sonar -Dsonar.projectKey=adamoutler_cossh -Dsonar.organization=adamoutler -Dsonar.host.url=https://sonarcloud.io -Dsonar.qualitygate.wait=true -Dsonar.c.file.suffixes=- -Dsonar.cpp.file.suffixes=- -Dsonar.objc.file.suffixes=-
 
-  dependency-submission:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Submit Dependency Graph
-        uses: gradle/actions/dependency-submission@v4
 
   security_scan:
     runs-on: ubuntu-latest
@@ -182,7 +169,7 @@ jobs:
           sarif_file: results.sarif
 
   status:
-    needs: [build-debug, build-release, test, lint, sonar, dependency-submission, security_scan]
+    needs: [build-debug, build-release, test, lint, sonar, security_scan]
     runs-on: ubuntu-latest
     if: always()
     steps:
