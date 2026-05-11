@@ -128,16 +128,44 @@ class ConnectionListViewModel(
         if (fromIndex !in currentList.indices || toIndex !in currentList.indices) return
 
         val item = currentList[fromIndex]
-        if (item !is ConnectionListItem.Profile) return // Cannot drag headers
 
-        // Avoid dropping a profile before the very first header
-        var effectiveToIndex = toIndex
-        if (effectiveToIndex == 0 && currentList.firstOrNull() is ConnectionListItem.Header) {
-            effectiveToIndex = 1
+        if (item is ConnectionListItem.Header) {
+            // Find the entire block for this category
+            var blockEnd = fromIndex + 1
+            while (blockEnd < currentList.size && currentList[blockEnd] is ConnectionListItem.Profile) {
+                blockEnd++
+            }
+            val block = currentList.subList(fromIndex, blockEnd).toList()
+
+            // If dragging within its own block, ignore
+            if (toIndex in fromIndex until blockEnd) return
+
+            // Calculate the target index.
+            // If dragging down, we want to place the block AFTER the target item.
+            // If dragging up, we want to place the block BEFORE the target item.
+            var insertIndex = toIndex
+            if (toIndex >= blockEnd) {
+                // We dragged it down past our own block.
+                // We remove our block first, which shifts everything down by block.size.
+                insertIndex -= block.size
+                // Since we want to drop it AFTER the item we are currently hovering over,
+                // and that item just shifted left by block.size, we add 1.
+                insertIndex += 1
+            }
+
+            currentList.subList(fromIndex, blockEnd).clear()
+            currentList.addAll(insertIndex, block)
+        } else if (item is ConnectionListItem.Profile) {
+            // Avoid dropping a profile before the very first header
+            var effectiveToIndex = toIndex
+            if (effectiveToIndex == 0 && currentList.firstOrNull() is ConnectionListItem.Header) {
+                effectiveToIndex = 1
+            }
+
+            currentList.removeAt(fromIndex)
+            currentList.add(effectiveToIndex, item)
         }
 
-        currentList.removeAt(fromIndex)
-        currentList.add(effectiveToIndex, item)
         _flatItems.value = currentList // Optimistic UI update
 
         var currentFolderId: String? = null

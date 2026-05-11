@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -58,17 +59,72 @@ fun GroupedConnectionList(
         ) { index ->
             when (val item = flatItems[index]) {
                 is ConnectionListItem.Header -> {
+                    val headerKey = "header_${item.folderId ?: "default"}"
+                    val isDragging = headerKey == draggedItemKey
+                    val translationY = if (isDragging) dragOffset else 0f
+
+                    val dragModifier = Modifier.pointerInput(isReordering) {
+                        if (!isReordering) return@pointerInput
+                        detectDragGestures(
+                            onDragStart = { _ ->
+                                draggedItemKey = headerKey
+                                dragOffset = 0f
+                            },
+                            onDrag = { change, dragAmount ->
+                                change.consume()
+                                dragOffset += dragAmount.y
+                                val draggedItem = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggedItemKey }
+                                if (draggedItem != null) {
+                                    val currentCenter = draggedItem.offset + dragOffset + (draggedItem.size / 2)
+                                    val targetItem = listState.layoutInfo.visibleItemsInfo.firstOrNull {
+                                        it.key != draggedItemKey && currentCenter.toInt() in it.offset..(it.offset + it.size)
+                                    }
+                                    if (targetItem != null) {
+                                        val targetGlobalIndex = targetItem.index
+                                        val sourceGlobalIndex = draggedItem.index
+                                        onMoveProfile(sourceGlobalIndex, targetGlobalIndex)
+                                        dragOffset = 0f
+                                    }
+                                }
+                            },
+                            onDragEnd = {
+                                draggedItemKey = null
+                                dragOffset = 0f
+                            },
+                            onDragCancel = {
+                                draggedItemKey = null
+                                dragOffset = 0f
+                            },
+                        )
+                    }
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .zIndex(if (isDragging) 1f else 0f)
+                            .graphicsLayer { this.translationY = translationY }
                             .background(MaterialTheme.colorScheme.surfaceVariant)
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                     ) {
-                        Text(
-                            text = item.title,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = item.title,
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            if (isReordering) {
+                                Icon(
+                                    imageVector = Icons.Default.DragHandle,
+                                    contentDescription = "Reorder Category",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = dragModifier.padding(8.dp)
+                                )
+                            }
+                        }
                     }
                 }
 
