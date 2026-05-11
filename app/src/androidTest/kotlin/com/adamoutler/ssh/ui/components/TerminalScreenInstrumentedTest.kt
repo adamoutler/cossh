@@ -46,7 +46,6 @@ class TerminalScreenInstrumentedTest {
         composeTestRule.waitForIdle()
 
         // Wait for the UI to be ready
-        composeTestRule.waitUntil(5000) { true }
 
         // By default, terminalInputState is 0 (keyboard hidden).
         // Pressing back should trigger the onNavigateBack callback.
@@ -149,9 +148,7 @@ class TerminalScreenInstrumentedTest {
         }
         composeTestRule.waitForIdle()
         // Wait for bash script to tap and trigger SIGWINCH
-        try {
-            composeTestRule.waitUntil(15000) { false }
-        } catch (e: Exception) {}
+        java.util.concurrent.CountDownLatch(1).await(15, java.util.concurrent.TimeUnit.SECONDS)
     }
 
     @Test(timeout = 300000L)

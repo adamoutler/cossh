@@ -363,13 +363,13 @@ class DeterministicMultiTurnTest {
                 println("→ Tapping screen to toggle keyboard on")
                 device.click(device.displayWidth / 2, device.displayHeight / 2)
                 device.waitForIdle()
-                try { composeTestRule.waitUntil(1500) { false } } catch(e: Exception){}
+                device.waitForWindowUpdate(null, 1500)
                 device.takeScreenshot(File(context.filesDir, "during_keyboard.png"))
 
                 println("→ Pressing back to hide keyboard")
                 device.pressBack()
                 device.waitForIdle()
-                try { composeTestRule.waitUntil(1500) { false } } catch(e: Exception){}
+                device.waitForWindowUpdate(null, 1500)
                 device.takeScreenshot(File(context.filesDir, "after_keyboard.png"))
 
                 val expectedResponseFromLastCmd = payloadSequence.last().second
