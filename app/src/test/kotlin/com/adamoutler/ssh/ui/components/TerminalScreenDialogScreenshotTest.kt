@@ -86,4 +86,42 @@ class TerminalScreenDialogScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun authPromptDialogScreen() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    AuthPromptDialog(
+                        requireUsername = true,
+                        isRetry = false,
+                        onConfirm = {},
+                        onDismiss = {}
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun authPromptDialogScreen_Retry() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    AuthPromptDialog(
+                        requireUsername = false,
+                        isRetry = true,
+                        onConfirm = {},
+                        onDismiss = {}
+                    )
+                }
+            }
+        }
+    }
 }

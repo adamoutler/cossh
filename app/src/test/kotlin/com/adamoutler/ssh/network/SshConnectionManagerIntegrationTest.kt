@@ -136,6 +136,27 @@ class SshConnectionManagerIntegrationTest {
     }
 
     @Test(timeout = 300000L)
+    fun testHeadlessConnectionMissingCredentialsRequestsPrompt() = runBlocking {
+        val profile = ConnectionProfile(
+            id = "test-missing-creds",
+            nickname = "Test Server",
+            host = "mock.hackedyour.info",
+            port = 32222,
+            username = "", // Blank username
+            authType = AuthType.PASSWORD,
+            password = null, // Null password
+        )
+
+        val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
+        try {
+            manager.connectAndExecute(profile, "echo test", null)
+            org.junit.Assert.fail("Expected IllegalStateException due to missing credentials prompt in headless mode")
+        } catch (e: IllegalStateException) {
+            assertTrue(e.message?.contains("Headless test: cannot prompt for credentials") == true)
+        }
+    }
+
+    @Test(timeout = 300000L)
     fun testTelnetConnectionAndPtyInteraction() = runBlocking {
         val profile = ConnectionProfile(
             id = "test-telnet",
