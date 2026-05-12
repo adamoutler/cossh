@@ -29,9 +29,13 @@ data class HostKeyPromptRequest(
     val deferred: kotlinx.coroutines.CompletableDeferred<Boolean>,
 )
 
-data class PasswordPromptRequest(
+data class AuthCredentials(val username: String, val password: CharArray?)
+
+data class AuthPromptRequest(
     val profileId: String,
-    val deferred: kotlinx.coroutines.CompletableDeferred<CharArray?>,
+    val requireUsername: Boolean,
+    val isRetry: Boolean, // True if prompt is due to UserAuthException
+    val deferred: kotlinx.coroutines.CompletableDeferred<AuthCredentials?>,
 )
 
 data class ActiveSessionState(
@@ -64,18 +68,18 @@ object ConnectionStateRepository {
     private val _promptRequest = MutableStateFlow<HostKeyPromptRequest?>(null)
     val promptRequest = _promptRequest.asStateFlow()
 
-    private val _passwordPromptRequest = MutableStateFlow<PasswordPromptRequest?>(null)
-    val passwordPromptRequest = _passwordPromptRequest.asStateFlow()
+    private val _authPromptRequest = MutableStateFlow<AuthPromptRequest?>(null)
+    val authPromptRequest = _authPromptRequest.asStateFlow()
 
-    suspend fun requestPasswordPrompt(profileId: String): CharArray? {
-        val deferred = kotlinx.coroutines.CompletableDeferred<CharArray?>()
-        _passwordPromptRequest.value = PasswordPromptRequest(profileId, deferred)
+    suspend fun requestAuthPrompt(profileId: String, requireUsername: Boolean, isRetry: Boolean): AuthCredentials? {
+        val deferred = kotlinx.coroutines.CompletableDeferred<AuthCredentials?>()
+        _authPromptRequest.value = AuthPromptRequest(profileId, requireUsername, isRetry, deferred)
         return deferred.await()
     }
 
-    fun resolvePasswordPrompt(password: CharArray?) {
-        _passwordPromptRequest.value?.deferred?.complete(password)
-        _passwordPromptRequest.value = null
+    fun resolveAuthPrompt(credentials: AuthCredentials?) {
+        _authPromptRequest.value?.deferred?.complete(credentials)
+        _authPromptRequest.value = null
     }
 
     suspend fun requestPrompt(hostname: String, expectedFingerprint: String?, receivedFingerprint: String, isKeyChanged: Boolean): Boolean {

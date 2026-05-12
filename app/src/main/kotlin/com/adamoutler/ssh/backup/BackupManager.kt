@@ -12,8 +12,9 @@ class BackupManager(
 ) {
 
     fun exportBackup(uri: Uri, password: CharArray) {
-        val profiles = securityStorageManager.getAllProfiles()
-        val identities = identityStorageManager.getAllIdentities()
+        // Fetch fully hydrated profiles and identities for export (SSH-138)
+        val profiles = securityStorageManager.getAllProfiles().mapNotNull { securityStorageManager.getProfile(it.id) }
+        val identities = identityStorageManager.getAllIdentities().mapNotNull { identityStorageManager.getIdentity(it.id) }
         context.contentResolver.openOutputStream(uri)?.use { outputStream ->
             BackupCryptoManager.exportProfilesToZip(profiles, identities, password, outputStream)
         } ?: throw IllegalStateException("Could not open output stream for URI: $uri")

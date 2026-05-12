@@ -30,8 +30,9 @@ class SyncWorker(
         return try {
             val pass = securityStorageManager.getSyncPassphrase() ?: return Result.failure()
 
-            val profiles = securityStorageManager.getAllProfiles()
-            val identities = identityStorageManager.getAllIdentities()
+            // Fetch fully hydrated profiles and identities for export (SSH-138)
+            val profiles = securityStorageManager.getAllProfiles().mapNotNull { securityStorageManager.getProfile(it.id) }
+            val identities = identityStorageManager.getAllIdentities().mapNotNull { identityStorageManager.getIdentity(it.id) }
 
             val outputStream = ByteArrayOutputStream()
             BackupCryptoManager.exportProfilesToZip(profiles, identities, pass, outputStream)

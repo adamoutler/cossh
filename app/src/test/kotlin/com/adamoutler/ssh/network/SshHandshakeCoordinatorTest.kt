@@ -36,6 +36,7 @@ class SshHandshakeCoordinatorTest {
 
     @Before
     fun setup() {
+        com.adamoutler.ssh.network.ConnectionStateRepository.isHeadlessTest = true
         context = ApplicationProvider.getApplicationContext()
         val prefs = context.getSharedPreferences("test_identities", Context.MODE_PRIVATE)
         identityStorageManager = IdentityStorageManager(context, prefs)

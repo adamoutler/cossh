@@ -75,13 +75,19 @@ class BackupManagerTest {
         val restoredIdentities = identityStorageManager.getAllIdentities()
 
         assertEquals(1, restoredProfiles.size)
-        val restored1 = restoredProfiles.find { it.id == "id1" }
+        val restored1 = securityStorageManager.getProfile("id1") // Fetch hydrated profile
         assertNotNull(restored1)
         assertEquals("Host 1", restored1?.nickname)
+        assertNotNull(restored1?.password)
+        assertArrayEquals(passwordBytes, restored1?.password)
 
         assertEquals(1, restoredIdentities.size)
-        val restoredIdent1 = restoredIdentities.find { it.id == "ident1" }
+        val restoredIdent1 = identityStorageManager.getIdentity("ident1") // Fetch hydrated identity
         assertNotNull(restoredIdent1)
         assertEquals("My Identity", restoredIdent1?.name)
+        assertNotNull(restoredIdent1?.password)
+        assertArrayEquals(identityPasswordBytes, restoredIdent1?.password)
+        assertNotNull(restoredIdent1?.privateKey)
+        assertArrayEquals(identityPrivateKeyBytes, restoredIdent1?.privateKey)
     }
 }

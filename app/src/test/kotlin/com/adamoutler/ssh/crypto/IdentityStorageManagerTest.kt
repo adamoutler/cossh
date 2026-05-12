@@ -99,6 +99,28 @@ class IdentityStorageManagerTest {
     }
 
     @Test
+    fun testMetadataOnlyLoading_DoesNotHydrateSecrets() {
+        val passwordBytes = "mypassword".toByteArray()
+        val privateKeyBytes = "fake-private-key-data".toByteArray()
+        val identity = IdentityProfile(
+            id = "metadata-identity-id",
+            name = "Metadata Test",
+            username = "adam",
+            password = passwordBytes,
+            privateKey = privateKeyBytes,
+            authType = AuthType.KEY,
+        )
+        storageManager.saveIdentity(identity)
+
+        // The list API must return the identity, but with null secrets (Metadata-Only)
+        val allIdentities = storageManager.getAllIdentities()
+        val retrievedSummary = allIdentities.find { it.id == "metadata-identity-id" }
+        assertNotNull(retrievedSummary)
+        assertNull("Password must not be hydrated during list fetching!", retrievedSummary?.password)
+        assertNull("PrivateKey must not be hydrated during list fetching!", retrievedSummary?.privateKey)
+    }
+
+    @Test
     fun testGetAllIdentitiesSkipsPwdAndKey() {
         storageManager.encryptedPrefs.edit().putString("test_id_pwd", "fake_pwd").apply()
         storageManager.encryptedPrefs.edit().putString("test_id_key", "fake_key").apply()

@@ -124,10 +124,18 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
     fun getAllIdentities(): List<IdentityProfile> {
         val identities = mutableListOf<IdentityProfile>()
         try {
-            for ((key, _) in encryptedPrefs.all) {
+            for ((key, value) in encryptedPrefs.all) {
                 // Main entries are identified by UUID strings (not ending in _pwd or _key)
-                if (!key.endsWith("_pwd") && !key.endsWith("_key")) {
-                    getIdentity(key)?.let { identities.add(it) }
+                if (value is String && !key.endsWith("_pwd") && !key.endsWith("_key")) {
+                    try {
+                        val identity = Json.decodeFromString<IdentityProfile>(value)
+                        // Metadata-only loading: DO NOT hydrate the password or private key here. (SSH-138)
+                        identities.add(identity)
+                    } catch (e: kotlinx.serialization.SerializationException) {
+                        // Log stripped for security
+                    } catch (e: IllegalArgumentException) {
+                        // Log stripped for security
+                    }
                 }
             }
         } catch (e: Exception) {

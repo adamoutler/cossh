@@ -18,6 +18,11 @@ import java.io.File
 @RunWith(RobolectricTestRunner::class)
 class AppConnectionIntegrationTest {
 
+    @org.junit.Before
+    fun setup() {
+        com.adamoutler.ssh.network.ConnectionStateRepository.isHeadlessTest = true
+    }
+
     companion object {
         var currentPort = 3200
     }

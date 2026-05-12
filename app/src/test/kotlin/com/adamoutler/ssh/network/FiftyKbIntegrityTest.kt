@@ -21,6 +21,11 @@ import kotlin.random.Random
 @RunWith(RobolectricTestRunner::class)
 class FiftyKbIntegrityTest {
 
+    @org.junit.Before
+    fun setup() {
+        com.adamoutler.ssh.network.ConnectionStateRepository.isHeadlessTest = true
+    }
+
     companion object {
         var currentPort = 3100
     }

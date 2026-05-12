@@ -114,6 +114,17 @@ fun TerminalScreen(
     val disconnectedStateEntry = connectionStates.entries.firstOrNull { it.key == profileId && (it.value is com.adamoutler.ssh.network.ConnectionState.Disconnected || it.value is com.adamoutler.ssh.network.ConnectionState.Disconnecting) }
     val isDisconnected = disconnectedStateEntry != null
 
+    val authPromptRequest by ConnectionStateRepository.authPromptRequest.collectAsState()
+
+    if (authPromptRequest != null && authPromptRequest?.profileId == profileId) {
+        AuthPromptDialog(
+            requireUsername = authPromptRequest!!.requireUsername,
+            isRetry = authPromptRequest!!.isRetry,
+            onConfirm = { credentials -> ConnectionStateRepository.resolveAuthPrompt(credentials) },
+            onDismiss = { ConnectionStateRepository.resolveAuthPrompt(null) }
+        )
+    }
+
     androidx.compose.runtime.LaunchedEffect(isDisconnected) {
         if (isDisconnected) {
             disconnectedStateEntry?.key?.let { ConnectionStateRepository.clearConnectionState(it) }

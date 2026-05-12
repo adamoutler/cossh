@@ -207,53 +207,6 @@ fun AppNavigation() {
 }
 
 @Composable
-fun PasswordPromptDialog() {
-    val promptRequest by com.adamoutler.ssh.network.ConnectionStateRepository.passwordPromptRequest.collectAsState()
-
-    promptRequest?.let { _ ->
-        val passwordBuffer = androidx.compose.runtime.remember { java.util.concurrent.atomic.AtomicReference(CharArray(0)) }
-
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = {
-                passwordBuffer.get().fill('\u0000')
-                com.adamoutler.ssh.network.ConnectionStateRepository.resolvePasswordPrompt(null)
-            },
-            title = { androidx.compose.material3.Text("Password Required") },
-            text = {
-                androidx.compose.foundation.layout.Column {
-                    androidx.compose.material3.Text("Please enter the password for the connection.")
-                    androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(16.dp))
-                    com.adamoutler.ssh.ui.components.SecurePasswordEditText(
-                        hint = "Password",
-                        onPasswordChanged = {
-                            passwordBuffer.get().fill('\u0000')
-                            passwordBuffer.set(it)
-                        },
-                    )
-                }
-            },
-            confirmButton = {
-                androidx.compose.material3.TextButton(onClick = {
-                    val pass = passwordBuffer.get()
-                    com.adamoutler.ssh.network.ConnectionStateRepository.resolvePasswordPrompt(pass.clone())
-                    pass.fill('\u0000')
-                }) {
-                    androidx.compose.material3.Text("Connect")
-                }
-            },
-            dismissButton = {
-                androidx.compose.material3.TextButton(onClick = {
-                    passwordBuffer.get().fill('\u0000')
-                    com.adamoutler.ssh.network.ConnectionStateRepository.resolvePasswordPrompt(null)
-                }) {
-                    androidx.compose.material3.Text("Cancel")
-                }
-            },
-        )
-    }
-}
-
-@Composable
 fun HostKeyPromptDialog() {
     val promptRequest by com.adamoutler.ssh.network.ConnectionStateRepository.promptRequest.collectAsState()
 

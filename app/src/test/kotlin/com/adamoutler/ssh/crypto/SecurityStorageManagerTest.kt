@@ -207,6 +207,26 @@ class SecurityStorageManagerTest {
     }
 
     @Test
+    fun testMetadataOnlyLoading_DoesNotHydrateSecrets() {
+        val passwordBytes = "supersecretpassword".toByteArray()
+        val profile = ConnectionProfile(
+            id = "metadata-test-id",
+            nickname = "Metadata Test",
+            host = "10.0.0.99",
+            username = "admin",
+            authType = AuthType.PASSWORD,
+            password = passwordBytes,
+        )
+        storageManager.saveProfile(profile)
+
+        // The list API must return the profile, but with null password (Metadata-Only)
+        val allProfiles = storageManager.getAllProfiles()
+        val retrievedSummary = allProfiles.find { it.id == "metadata-test-id" }
+        assertNotNull(retrievedSummary)
+        assertNull("Password must not be hydrated during list fetching!", retrievedSummary?.password)
+    }
+
+    @Test
     fun testGetAllProfilesSkipsPwdAndKey() {
         storageManager.encryptedPrefs.edit().putString("test_id_pwd", "fake_pwd").apply()
         storageManager.encryptedPrefs.edit().putString("key_123", "fake_key").apply()

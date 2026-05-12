@@ -123,7 +123,8 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
                 if (value is String && !key.endsWith("_pwd") && !key.startsWith("key_")) {
                     try {
                         val profile = Json.decodeFromString<ConnectionProfile>(value)
-                        profile.password = decryptPassword(encryptedPrefs.getString("${profile.id}_pwd", null))
+                        // Metadata-only loading: DO NOT hydrate the password here. (SSH-138)
+                        // profile.password = decryptPassword(encryptedPrefs.getString("${profile.id}_pwd", null))
                         profiles.add(profile)
                     } catch (e: kotlinx.serialization.SerializationException) {
                         // Log stripped for security

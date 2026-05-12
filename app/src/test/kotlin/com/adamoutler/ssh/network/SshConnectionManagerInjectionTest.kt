@@ -19,6 +19,11 @@ import java.io.File
 @Config(sdk = [34])
 class SshConnectionManagerInjectionTest {
 
+    @org.junit.Before
+    fun setup() {
+        com.adamoutler.ssh.network.ConnectionStateRepository.isHeadlessTest = true
+    }
+
     companion object {
         var currentPort = 3300
     }

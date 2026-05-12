@@ -7,10 +7,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import java.io.OutputStream
 
 class SshConnectionManagerIntegrationTest {
+
+    @Before
+    fun setup() {
+        ConnectionStateRepository.isHeadlessTest = true
+    }
 
     @Test(timeout = 300000L)
     fun testHeadlessPasswordConnectionAndPtyInteraction() = runBlocking {
