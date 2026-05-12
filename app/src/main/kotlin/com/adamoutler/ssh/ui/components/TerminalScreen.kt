@@ -121,7 +121,7 @@ fun TerminalScreen(
             requireUsername = authPromptRequest!!.requireUsername,
             isRetry = authPromptRequest!!.isRetry,
             onConfirm = { credentials -> ConnectionStateRepository.resolveAuthPrompt(credentials) },
-            onDismiss = { ConnectionStateRepository.resolveAuthPrompt(null) }
+            onDismiss = { ConnectionStateRepository.resolveAuthPrompt(null) },
         )
     }
 

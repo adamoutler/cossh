@@ -1,5 +1,6 @@
 package com.adamoutler.ssh.network
 
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.adamoutler.ssh.MainActivity
@@ -8,7 +9,6 @@ import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.compose.ui.test.junit4.createEmptyComposeRule
 
 /**
  * @FullTest Note (SSH-49):

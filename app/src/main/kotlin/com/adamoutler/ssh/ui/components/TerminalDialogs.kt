@@ -86,7 +86,7 @@ fun AuthPromptDialog(
     requireUsername: Boolean,
     isRetry: Boolean,
     onConfirm: (com.adamoutler.ssh.network.AuthCredentials) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     val usernameState = remember { mutableStateOf("") }
     val passwordBuffer = remember { AtomicReference(CharArray(0)) }
@@ -104,33 +104,33 @@ fun AuthPromptDialog(
                         text = "Please try again.",
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = 8.dp),
                     )
                 } else {
                     Text(
                         text = "Enter your credentials to connect.",
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = 8.dp),
                     )
                 }
-                
+
                 if (requireUsername) {
                     OutlinedTextField(
                         value = usernameState.value,
                         onValueChange = { usernameState.value = it },
                         label = { Text("Username") },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                
+
                 SecurePasswordEditText(
                     hint = "Password",
                     onPasswordChanged = {
                         passwordBuffer.get().fill('\u0000')
                         passwordBuffer.set(it)
                     },
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 )
             }
         },
@@ -140,7 +140,7 @@ fun AuthPromptDialog(
                     val pass = passwordBuffer.get()
                     onConfirm(com.adamoutler.ssh.network.AuthCredentials(usernameState.value, pass.clone()))
                     pass.fill('\u0000')
-                }
+                },
             ) { Text("Connect") }
         },
         dismissButton = {
@@ -148,6 +148,6 @@ fun AuthPromptDialog(
                 passwordBuffer.get().fill('\u0000')
                 onDismiss()
             }) { Text("Cancel") }
-        }
+        },
     )
 }

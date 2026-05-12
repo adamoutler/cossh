@@ -115,11 +115,8 @@ class ConnectionListViewModelTest {
         val uri = Uri.fromFile(backupFile)
         val pwd = "test_password".toCharArray()
 
-        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-        var exportSuccess = false
         var latch = CountDownLatch(1)
-        viewModel.exportBackup(uri, pwd) { success ->
-            exportSuccess = success
+        viewModel.exportBackup(uri, pwd) { _ ->
             latch.countDown()
         }
 

@@ -2,6 +2,7 @@ package com.adamoutler.ssh
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -22,7 +23,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
 import java.security.MessageDigest
-import androidx.compose.ui.test.junit4.createEmptyComposeRule
 
 /**
  * # DeterministicMultiTurnTest — The Golden Path E2E Verification
@@ -286,7 +286,7 @@ class DeterministicMultiTurnTest {
                     }
                     connected = true
                 } catch (e: Exception) {}
-                
+
                 if (!connected) {
                     val diagnosticFile = File(context.filesDir, "timeout_diagnostic.png")
                     device.takeScreenshot(diagnosticFile)
@@ -423,7 +423,7 @@ class DeterministicMultiTurnTest {
                     composeTestRule.waitUntil(5000) {
                         SshSessionProvider.ptyOutputStream == null || readTerminalScreenContent().contains("Goodbye")
                     }
-                } catch(e: Exception){}
+                } catch (e: Exception) {}
                 println("✓ Sent exit command — session terminating")
 
                 // ── SCREENSHOT: Capture visual evidence ──

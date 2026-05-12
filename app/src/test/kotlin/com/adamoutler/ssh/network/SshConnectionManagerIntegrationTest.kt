@@ -160,7 +160,7 @@ class SshConnectionManagerIntegrationTest {
     fun testEphemeralPromptEndToEnd() = runBlocking {
         // Temporarily allow prompts
         ConnectionStateRepository.isHeadlessTest = false
-        
+
         val profile = ConnectionProfile(
             id = "test-ephemeral",
             nickname = "Test Ephemeral",
@@ -170,9 +170,9 @@ class SshConnectionManagerIntegrationTest {
             authType = AuthType.PASSWORD,
             password = null,
         )
-        
+
         val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
-        
+
         // Launch a coroutine to resolve the prompt once it is requested
         val resolverJob = launch {
             while (ConnectionStateRepository.authPromptRequest.value == null) {
@@ -181,12 +181,12 @@ class SshConnectionManagerIntegrationTest {
             println("Test: Auth prompt requested, injecting credentials...")
             ConnectionStateRepository.resolveAuthPrompt(AuthCredentials("testuser", "testpassword".toCharArray()))
         }
-        
+
         try {
             manager.connectAndExecute(
                 profile = profile,
                 command = "echo \"Ephemeral_Test_Success\"",
-                keyPair = null
+                keyPair = null,
             )
             println("Test: Connection succeeded.")
         } finally {

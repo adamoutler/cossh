@@ -99,7 +99,7 @@ class TerminalScreenDialogScreenshotTest {
                         requireUsername = true,
                         isRetry = false,
                         onConfirm = {},
-                        onDismiss = {}
+                        onDismiss = {},
                     )
                 }
             }
@@ -118,7 +118,7 @@ class TerminalScreenDialogScreenshotTest {
                         requireUsername = false,
                         isRetry = true,
                         onConfirm = {},
-                        onDismiss = {}
+                        onDismiss = {},
                     )
                 }
             }

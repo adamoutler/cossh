@@ -42,14 +42,14 @@ class PasswordAuthenticator(private val identityPassword: ByteArray? = null) : S
                         override fun reqPassword(resource: Resource<*>?): CharArray = finalChars
                         override fun shouldRetry(resource: Resource<*>?): Boolean = false
                     }
-                    
+
                     // Attempt authentication
                     client.authPassword(currentUsername, passwordFinder)
                     return // Exit loop on success
                 } catch (e: UserAuthException) {
                     // Prepare for retry on auth failure
                     isRetry = true
-                    activePasswordBytes = null // Invalidate bad password 
+                    activePasswordBytes = null // Invalidate bad password
                 } finally {
                     // Ensure volatile state sanitization
                     passwordChars?.fill('\u0000')

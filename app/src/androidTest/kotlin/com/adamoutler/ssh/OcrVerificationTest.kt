@@ -1,6 +1,7 @@
 package com.adamoutler.ssh
 
 import android.content.Context
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -17,7 +18,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import java.io.File
 import java.security.MessageDigest
 import java.util.UUID

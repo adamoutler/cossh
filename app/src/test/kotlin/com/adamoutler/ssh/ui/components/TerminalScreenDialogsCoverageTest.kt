@@ -3,6 +3,7 @@ package com.adamoutler.ssh.ui.components
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -36,7 +37,6 @@ class TerminalScreenDialogsCoverageTest {
 
     @Test
     fun testKeepAliveDialog() {
-        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var onDismissClicked = false
         var onConfirmClicked = false
         var onTerminateClicked = false
@@ -56,6 +56,7 @@ class TerminalScreenDialogsCoverageTest {
         composeTestRule.onNodeWithText("Terminate").performClick()
         composeTestRule.waitForIdle()
         assertTrue(onTerminateClicked)
+        assertFalse(onDismissClicked)
     }
 
     @Test

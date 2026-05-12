@@ -191,7 +191,7 @@ class AppNavigationCoverageTest {
                 requireUsername = false,
                 isRetry = false,
                 onConfirm = {},
-                onDismiss = {}
+                onDismiss = {},
             )
         }
 

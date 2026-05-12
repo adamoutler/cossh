@@ -7,6 +7,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.adamoutler.ssh.network.ActiveSessionState
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -66,11 +68,9 @@ class ConnectionListScreenTest {
 
     @Test
     fun testActiveSessionsDialog_renders() {
-        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var dismissed = false
         var startNewClicked = false
 
-        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var resumedSessionId = ""
         val activeSessions = listOf(
             ActiveSessionState(profileId = "profile1", sessionId = "session1", connectedAt = 1000L, ptyOutputStream = null, sshShell = null),
@@ -90,5 +90,7 @@ class ConnectionListScreenTest {
         composeTestRule.onAllNodesWithText("Active Sessions: My Profile").onFirst().assertExists()
         composeTestRule.onAllNodesWithText("Start New").onFirst().performClick()
         assertTrue(startNewClicked)
+        assertFalse(dismissed)
+        assertEquals("", resumedSessionId)
     }
 }

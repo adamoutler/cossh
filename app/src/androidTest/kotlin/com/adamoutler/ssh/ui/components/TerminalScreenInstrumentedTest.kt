@@ -163,7 +163,7 @@ class TerminalScreenInstrumentedTest {
                     (view as? com.termux.view.TerminalView)?.mClient?.onSingleTapUp(null)
                 }
             })
-        
+
         composeTestRule.waitUntil(5000) {
             composeTestRule.onAllNodes(androidx.compose.ui.test.hasContentDescription("Background Session")).fetchSemanticsNodes().isNotEmpty()
         }

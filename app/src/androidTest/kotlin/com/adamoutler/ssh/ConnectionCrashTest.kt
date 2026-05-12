@@ -1,6 +1,7 @@
 package com.adamoutler.ssh
 
 import android.content.Context
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -17,7 +18,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.compose.ui.test.junit4.createEmptyComposeRule
 
 /**
  * @FullTest Note (SSH-49):
@@ -137,7 +137,7 @@ class ConnectionCrashTest {
                     transcript.contains("test1")
                 }
             } catch (e: Exception) {}
-            
+
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("test2\n".toByteArray())
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
 
@@ -147,7 +147,7 @@ class ConnectionCrashTest {
                     transcript.contains("test2")
                 }
             } catch (e: Exception) {}
-            
+
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.write("exit\n".toByteArray())
             com.adamoutler.ssh.network.SshSessionProvider.ptyOutputStream?.flush()
 

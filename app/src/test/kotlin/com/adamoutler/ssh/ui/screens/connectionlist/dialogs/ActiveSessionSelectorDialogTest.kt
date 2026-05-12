@@ -24,7 +24,6 @@ class ActiveSessionSelectorDialogTest {
 
     @Test
     fun testActiveSessionSelectorDialog() {
-        @Suppress("UNUSED_VARIABLE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
         var dismissed = false
         var selectedProfileId = ""
         var startNewClicked = false
@@ -57,5 +56,6 @@ class ActiveSessionSelectorDialogTest {
         // Test Start New
         composeTestRule.onAllNodesWithText("Start New").onFirst().performClick()
         assertTrue(startNewClicked)
+        org.junit.Assert.assertFalse(dismissed)
     }
 }
