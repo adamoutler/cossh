@@ -157,6 +157,45 @@ class SshConnectionManagerIntegrationTest {
     }
 
     @Test(timeout = 300000L)
+    fun testEphemeralPromptEndToEnd() = runBlocking {
+        // Temporarily allow prompts
+        ConnectionStateRepository.isHeadlessTest = false
+        
+        val profile = ConnectionProfile(
+            id = "test-ephemeral",
+            nickname = "Test Ephemeral",
+            host = "mock.hackedyour.info",
+            port = 32222,
+            username = "",
+            authType = AuthType.PASSWORD,
+            password = null,
+        )
+        
+        val manager = SshConnectionManager(net.schmizz.sshj.transport.verification.PromiscuousVerifier())
+        
+        // Launch a coroutine to resolve the prompt once it is requested
+        val resolverJob = launch {
+            while (ConnectionStateRepository.authPromptRequest.value == null) {
+                delay(10)
+            }
+            println("Test: Auth prompt requested, injecting credentials...")
+            ConnectionStateRepository.resolveAuthPrompt(AuthCredentials("testuser", "testpassword".toCharArray()))
+        }
+        
+        try {
+            manager.connectAndExecute(
+                profile = profile,
+                command = "echo \"Ephemeral_Test_Success\"",
+                keyPair = null
+            )
+            println("Test: Connection succeeded.")
+        } finally {
+            resolverJob.cancel()
+            ConnectionStateRepository.isHeadlessTest = true
+        }
+    }
+
+    @Test(timeout = 300000L)
     fun testTelnetConnectionAndPtyInteraction() = runBlocking {
         val profile = ConnectionProfile(
             id = "test-telnet",
