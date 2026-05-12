@@ -62,7 +62,7 @@ fun ConnectionListTopBar(
                         },
                         trailingIcon = {
                             IconButton(
-                                onClick = { uriHandler.openUri("https://github.com/adamoutler/ssh/wiki") },
+                                onClick = { uriHandler.openUri("https://github.com/adamoutler/ssh/wiki/Manage-Identities") },
                                 modifier = Modifier
                                     .size(48.dp)
                                     .clearAndSetSemantics {

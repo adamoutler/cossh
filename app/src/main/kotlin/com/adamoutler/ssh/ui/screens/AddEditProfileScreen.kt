@@ -349,7 +349,7 @@ fun AddEditProfileScreenContent(
                             trailingIcon = {
                                 val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
                                 IconButton(
-                                    onClick = { uriHandler.openUri("https://github.com/adamoutler/ssh/wiki") },
+                                    onClick = { uriHandler.openUri("https://github.com/adamoutler/ssh/wiki/Manage-Identities") },
                                     modifier = Modifier
                                         .size(48.dp)
                                         .clearAndSetSemantics {
@@ -739,7 +739,7 @@ fun SectionHeaderWithInfo(title: String, topic: String, modifier: Modifier = Mod
     ) {
         Text(title, style = MaterialTheme.typography.titleSmall)
         IconButton(
-            onClick = { uriHandler.openUri("https://github.com/adamoutler/ssh/wiki") },
+            onClick = { uriHandler.openUri("https://github.com/adamoutler/ssh/wiki/${topic.replace(" ", "-")}") },
             modifier = Modifier
                 .size(48.dp)
                 .clearAndSetSemantics {

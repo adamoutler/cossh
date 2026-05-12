@@ -454,29 +454,28 @@ fun TerminalScreenContent(
 
                             override fun onSingleTapUp(e: android.view.MotionEvent?) {
                                 showOverlayButtons = true
-                                if (terminalInputState == 0) {
-                                    terminalInputState = 1
-                                } else if (terminalInputState == 1) {
-                                    terminalInputState = 2
-                                } else {
-                                    terminalInputState = 0
-                                }
-
-                                coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                                    profile?.copy(terminalInputState = terminalInputState)?.let { updatedProfile ->
-                                        // Log stripped for security
-                                        com.adamoutler.ssh.crypto.SecurityStorageManager(ctx).saveProfile(updatedProfile)
+                                val isFixed = terminalInputState == 2
+                                
+                                if (!isFixed) {
+                                    // Standard mode: Toggle between 0 (hidden) and 1 (shown keyboard+buttons temporarily)
+                                    terminalInputState = if (terminalInputState == 0) 1 else 0
+                                    
+                                    coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                        profile?.copy(terminalInputState = terminalInputState)?.let { updatedProfile ->
+                                            com.adamoutler.ssh.crypto.SecurityStorageManager(ctx).saveProfile(updatedProfile)
+                                        }
                                     }
                                 }
 
                                 terminalView.requestFocus()
                                 val activityWindow = (ctx as? android.app.Activity)?.window
-                                if (terminalInputState != 0) {
+                                val imm = ctx.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+
+                                if (isFixed || terminalInputState == 1) {
                                     if (activityWindow != null) {
                                         val insetsController = androidx.core.view.WindowInsetsControllerCompat(activityWindow, terminalView)
                                         insetsController.show(androidx.core.view.WindowInsetsCompat.Type.ime())
                                     } else {
-                                        val imm = ctx.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
                                         imm.showSoftInput(terminalView, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
                                     }
                                 } else {
@@ -484,7 +483,6 @@ fun TerminalScreenContent(
                                         val insetsController = androidx.core.view.WindowInsetsControllerCompat(window, terminalView)
                                         insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.ime())
                                     } else {
-                                        val imm = ctx.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
                                         imm.hideSoftInputFromWindow(terminalView.windowToken, 0)
                                     }
                                 }
@@ -617,8 +615,7 @@ fun TerminalScreenContent(
                                 return true
                             }
                             override fun onLongPress(e: android.view.MotionEvent?): Boolean {
-                                showTerminalMenuBottomSheet = true
-                                return true
+                                return false
                             }
                             override fun onEmulatorSet() { /* No-op */ }
                             override fun logError(tag: String?, msg: String?) { /* No-op */ }
@@ -657,10 +654,74 @@ fun TerminalScreenContent(
                         terminalViewRef = terminalView
                         terminalView.onScreenUpdated()
                         terminalView.requestFocus()
-                        terminalView
+                        
+                        val wrapper = object : android.widget.FrameLayout(ctx) {
+                            override fun startActionModeForChild(originalView: android.view.View, callback: android.view.ActionMode.Callback, type: Int): android.view.ActionMode? {
+                                val wrapped = object : android.view.ActionMode.Callback2() {
+                                    override fun onCreateActionMode(mode: android.view.ActionMode, menu: android.view.Menu): Boolean {
+                                        val res = callback.onCreateActionMode(mode, menu)
+                                        menu.add(android.view.Menu.NONE, 999, android.view.Menu.NONE, "Terminal settings")
+                                        return res
+                                    }
+                                    override fun onPrepareActionMode(mode: android.view.ActionMode, menu: android.view.Menu): Boolean {
+                                        return callback.onPrepareActionMode(mode, menu)
+                                    }
+                                    override fun onActionItemClicked(mode: android.view.ActionMode, item: android.view.MenuItem): Boolean {
+                                        if (item.itemId == 999) {
+                                            showTerminalMenuBottomSheet = true
+                                            mode.finish()
+                                            return true
+                                        }
+                                        return callback.onActionItemClicked(mode, item)
+                                    }
+                                    override fun onDestroyActionMode(mode: android.view.ActionMode) {
+                                        callback.onDestroyActionMode(mode)
+                                    }
+                                    override fun onGetContentRect(mode: android.view.ActionMode, view: android.view.View, outRect: android.graphics.Rect) {
+                                        if (callback is android.view.ActionMode.Callback2) {
+                                            callback.onGetContentRect(mode, view, outRect)
+                                        }
+                                    }
+                                }
+                                return super.startActionModeForChild(originalView, wrapped, type)
+                            }
+                            
+                            override fun startActionModeForChild(originalView: android.view.View, callback: android.view.ActionMode.Callback): android.view.ActionMode? {
+                                val wrapped = object : android.view.ActionMode.Callback2() {
+                                    override fun onCreateActionMode(mode: android.view.ActionMode, menu: android.view.Menu): Boolean {
+                                        val res = callback.onCreateActionMode(mode, menu)
+                                        menu.add(android.view.Menu.NONE, 999, android.view.Menu.NONE, "Terminal settings")
+                                        return res
+                                    }
+                                    override fun onPrepareActionMode(mode: android.view.ActionMode, menu: android.view.Menu): Boolean {
+                                        return callback.onPrepareActionMode(mode, menu)
+                                    }
+                                    override fun onActionItemClicked(mode: android.view.ActionMode, item: android.view.MenuItem): Boolean {
+                                        if (item.itemId == 999) {
+                                            showTerminalMenuBottomSheet = true
+                                            mode.finish()
+                                            return true
+                                        }
+                                        return callback.onActionItemClicked(mode, item)
+                                    }
+                                    override fun onDestroyActionMode(mode: android.view.ActionMode) {
+                                        callback.onDestroyActionMode(mode)
+                                    }
+                                    override fun onGetContentRect(mode: android.view.ActionMode, view: android.view.View, outRect: android.graphics.Rect) {
+                                        if (callback is android.view.ActionMode.Callback2) {
+                                            callback.onGetContentRect(mode, view, outRect)
+                                        }
+                                    }
+                                }
+                                return super.startActionModeForChild(originalView, wrapped)
+                            }
+                        }
+                        wrapper.addView(terminalView)
+                        wrapper
                     },
                     update = { view ->
-                        view.setTextSize((currentFontSize * density.density * density.fontScale).toInt())
+                        val tv = (view as android.widget.FrameLayout).getChildAt(0) as TerminalView
+                        tv.setTextSize((currentFontSize * density.density * density.fontScale).toInt())
                     },
                 )
             }
@@ -688,7 +749,7 @@ fun TerminalScreenContent(
                 )
             }
         }
-        if (terminalInputState == 2) {
+        if (terminalInputState == 2 || terminalInputState == 1) {
             TerminalExtraKeys(
                 ctrlState = ctrlState.value,
                 altState = altState.value,
@@ -753,10 +814,10 @@ fun TerminalScreenContent(
                 Text(profile?.nickname ?: "Terminal Settings", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Default Input Mode", style = MaterialTheme.typography.labelMedium)
+                Text("Extra Buttons", style = MaterialTheme.typography.labelMedium)
                 androidx.compose.foundation.layout.Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)) {
                     FilterChip(
-                        selected = terminalInputState == 0,
+                        selected = terminalInputState != 2,
                         onClick = {
                             terminalInputState = 0
                             coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
@@ -768,18 +829,6 @@ fun TerminalScreenContent(
                         label = { Text("Standard") },
                     )
                     FilterChip(
-                        selected = terminalInputState == 1,
-                        onClick = {
-                            terminalInputState = 1
-                            coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                                profile?.copy(terminalInputState = 1)?.let { updatedProfile ->
-                                    com.adamoutler.ssh.crypto.SecurityStorageManager(context).saveProfile(updatedProfile)
-                                }
-                            }
-                        },
-                        label = { Text("Keyboard") },
-                    )
-                    FilterChip(
                         selected = terminalInputState == 2,
                         onClick = {
                             terminalInputState = 2
@@ -789,7 +838,7 @@ fun TerminalScreenContent(
                                 }
                             }
                         },
-                        label = { Text("Keyboard & Buttons") },
+                        label = { Text("Fixed") },
                     )
                 }
 

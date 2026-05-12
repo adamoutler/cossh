@@ -36,6 +36,6 @@ class SectionHeaderWithInfoTest {
         composeTestRule.onNodeWithContentDescription("Learn more about TestTopic. Opens external browser.")
             .performClick()
 
-        assertEquals("https://github.com/adamoutler/ssh/wiki", openedUri)
+        assertEquals("https://github.com/adamoutler/ssh/wiki/TestTopic", openedUri)
     }
 }
