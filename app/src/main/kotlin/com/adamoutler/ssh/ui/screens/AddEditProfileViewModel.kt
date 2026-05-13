@@ -33,6 +33,7 @@ data class ProfileFormState(
     val initialDirectory: String = "",
     val terminalInputState: Int = 0,
     val keepScreenOnMode: KeepScreenOnMode = KeepScreenOnMode.SYSTEM_DEFAULT,
+    val useLocalDns: Boolean = false,
     val isLoaded: Boolean = false,
 )
 
@@ -77,6 +78,7 @@ class AddEditProfileViewModel(
                         initialDirectory = profile.initialDirectory ?: "",
                         terminalInputState = profile.terminalInputState,
                         keepScreenOnMode = profile.keepScreenOnMode,
+                        useLocalDns = profile.useLocalDns,
                         isLoaded = true,
                     )
                 }
@@ -106,6 +108,7 @@ class AddEditProfileViewModel(
         initialDirectory: String? = null,
         terminalInputState: Int = 0,
         keepScreenOnMode: KeepScreenOnMode = KeepScreenOnMode.SYSTEM_DEFAULT,
+        useLocalDns: Boolean = false,
     ) {
         val profileId = id ?: UUID.randomUUID().toString()
         val profile = ConnectionProfile(
@@ -124,6 +127,7 @@ class AddEditProfileViewModel(
             initialDirectory = initialDirectory?.takeIf { it.isNotBlank() },
             terminalInputState = terminalInputState,
             keepScreenOnMode = keepScreenOnMode,
+            useLocalDns = useLocalDns,
         )
         storageManager.saveProfile(profile)
         resetState()

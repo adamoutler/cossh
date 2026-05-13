@@ -67,6 +67,7 @@ data class ConnectionProfile(
     val initialDirectory: String? = null,
     val terminalInputState: Int = 0,
     val keepScreenOnMode: KeepScreenOnMode = KeepScreenOnMode.SYSTEM_DEFAULT,
+    val useLocalDns: Boolean = false,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -97,6 +98,7 @@ data class ConnectionProfile(
         if (initialDirectory != other.initialDirectory) return false
         if (terminalInputState != other.terminalInputState) return false
         if (keepScreenOnMode != other.keepScreenOnMode) return false
+        if (useLocalDns != other.useLocalDns) return false
 
         return true
     }
@@ -120,6 +122,7 @@ data class ConnectionProfile(
         result = 31 * result + (initialDirectory?.hashCode() ?: 0)
         result = 31 * result + terminalInputState
         result = 31 * result + keepScreenOnMode.hashCode()
+        result = 31 * result + useLocalDns.hashCode()
         return result
     }
 

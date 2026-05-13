@@ -160,7 +160,24 @@ class SshHandshakeCoordinator(
 
         try {
             configureHostKeyVerifier(client)
-            client.connect(profile.host, profile.port)
+            
+            if (profile.useLocalDns && context != null) {
+                val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+                val network = cm.activeNetwork
+                if (network != null) {
+                    val inetAddresses = network.getAllByName(profile.host)
+                    if (inetAddresses.isNotEmpty()) {
+                        val inetAddress = java.net.InetAddress.getByAddress(profile.host, inetAddresses[0].address)
+                        client.connect(inetAddress, profile.port)
+                    } else {
+                        client.connect(profile.host, profile.port)
+                    }
+                } else {
+                    client.connect(profile.host, profile.port)
+                }
+            } else {
+                client.connect(profile.host, profile.port)
+            }
 
             val effectiveProfile = if (identity != null) {
                 profile.copy(username = identity.username, password = identity.password)

@@ -1,12 +1,15 @@
 package com.adamoutler.ssh.ui.screens
 
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.adamoutler.ssh.network.ActiveSessionState
+import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -22,6 +25,36 @@ class ConnectionListScreenTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    @Test
+    fun testBackNavigationExitsReorderMode() {
+        var dispatcher: androidx.activity.OnBackPressedDispatcher? = null
+
+        composeTestRule.setContent {
+            dispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
+            ConnectionListContent(
+                groupedProfiles = emptyMap(),
+                flatItems = emptyList(),
+                searchQuery = "",
+                onSearchQueryChange = {},
+                onAddConnection = {},
+                onEditConnection = {},
+                onDeleteConnection = {},
+                onConnect = {},
+                isReorderingPreview = true // Start in reorder mode
+            )
+        }
+
+        // When in reorder mode, the Add FAB is hidden
+        composeTestRule.onNodeWithContentDescription("Add Connection").assertDoesNotExist()
+
+        // Trigger back press
+        dispatcher?.onBackPressed()
+
+        // After back press, it should exit reorder mode, making the Add FAB visible
+        composeTestRule.onNodeWithContentDescription("Add Connection").assertExists()
+    }
 
     @Test
     fun testExportBackupDialog_submit() {

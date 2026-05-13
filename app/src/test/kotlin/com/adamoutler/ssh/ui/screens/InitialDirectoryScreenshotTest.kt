@@ -54,6 +54,8 @@ class InitialDirectoryScreenshotTest {
                         onTerminalInputStateChange = {},
                         keepScreenOnMode = com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT,
                         onKeepScreenOnModeChange = {},
+                        useLocalDns = false,
+                        onUseLocalDnsChange = {},
                         onSave = {},
                         onNavigateBack = {},
                         protocol = Protocol.SSH,

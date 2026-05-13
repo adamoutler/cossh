@@ -115,6 +115,8 @@ fun AddEditProfileScreen(
         onTerminalInputStateChange = { newState -> viewModel.updateState { it.copy(terminalInputState = newState) } },
         keepScreenOnMode = uiState.keepScreenOnMode,
         onKeepScreenOnModeChange = { newMode -> viewModel.updateState { it.copy(keepScreenOnMode = newMode) } },
+        useLocalDns = uiState.useLocalDns,
+        onUseLocalDnsChange = { newValue -> viewModel.updateState { it.copy(useLocalDns = newValue) } },
         onSave = {
             val selectedIdent = identities.find { it.id == uiState.identityId }
             val finalUsername = if (selectedIdent != null && uiState.protocol == Protocol.SSH) selectedIdent.username else uiState.username
@@ -157,8 +159,9 @@ fun AddEditProfileScreen(
                 initialDirectory = uiState.initialDirectory,
                 terminalInputState = uiState.terminalInputState,
                 keepScreenOnMode = uiState.keepScreenOnMode,
-            )
-            onNavigateBack()
+                useLocalDns = uiState.useLocalDns,
+                )
+                onNavigateBack()
         },
         onNavigateBack = {
             viewModel.resetState()
@@ -204,6 +207,8 @@ fun AddEditProfileScreenContent(
     onTerminalInputStateChange: (Int) -> Unit,
     keepScreenOnMode: com.adamoutler.ssh.data.KeepScreenOnMode,
     onKeepScreenOnModeChange: (com.adamoutler.ssh.data.KeepScreenOnMode) -> Unit,
+    useLocalDns: Boolean,
+    onUseLocalDnsChange: (Boolean) -> Unit,
     onSave: () -> Unit,
     onNavigateBack: () -> Unit,
     defaultPasswordVisible: Boolean = false,
@@ -498,6 +503,27 @@ fun AddEditProfileScreenContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Advanced Configuration", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f).padding(end = 16.dp)) {
+                    Text("Use Local Network DNS", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "Overrides secure Private DNS to resolve local hostnames. Queries may be unencrypted and visible to the network.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                androidx.compose.material3.Switch(
+                    checked = useLocalDns,
+                    onCheckedChange = onUseLocalDnsChange,
+                    modifier = Modifier.testTag("UseLocalDnsToggle")
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(

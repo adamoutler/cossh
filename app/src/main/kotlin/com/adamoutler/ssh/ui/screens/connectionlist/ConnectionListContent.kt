@@ -1,5 +1,6 @@
 package com.adamoutler.ssh.ui.screens.connectionlist
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -40,6 +41,10 @@ fun ConnectionListContent(
 ) {
     var profileIdMovingToFolder by remember { mutableStateOf<String?>(null) }
     var isReordering by remember { mutableStateOf(isReorderingPreview) }
+
+    BackHandler(enabled = isReordering) {
+        isReordering = false
+    }
 
     Scaffold(
         topBar = {
