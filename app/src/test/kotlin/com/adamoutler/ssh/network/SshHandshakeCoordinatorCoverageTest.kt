@@ -73,7 +73,7 @@ class SshHandshakeCoordinatorCoverageTest {
         identity.password = "pass".toByteArray()
         
         val authenticator = coordinator.getAuthenticator(profile, null, identity)
-        assertTrue(authenticator != null)
+        assertTrue(authenticator::class.java.simpleName == "CompositeAuthenticator")
     }
 
     @Test
