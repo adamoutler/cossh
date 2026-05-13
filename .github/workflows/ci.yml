@@ -11,116 +11,7 @@ permissions:
   security-events: write
 
 jobs:
-  build-debug:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Build with Gradle
-        run: ./gradlew assembleDebug
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 7
-
-  build-release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Run Tests and Coverage for Reality Checker
-        run: ./gradlew testDebugUnitTest jacocoTestReport
-      - name: Build Release (ProGuard Check)
-        run: |
-          mkdir -p ~/.android
-          keytool -genkey -v -keystore ~/.android/release.keystore -alias cossh_release -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=test"
-          export KEYSTORE_FILE=~/.android/release.keystore
-          export KEYSTORE_PASSWORD=android
-          export KEY_ALIAS=cossh_release
-          export KEY_PASSWORD=android
-          ./gradlew assembleRelease
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Install dependencies
-        run: pip install paramiko
-      # Important: Tests and JaCoCo coverage report generation are run here.
-      # We separate `test` from `sonar` so these heavy JVM test suites run concurrently with `lint` and builds.
-      - name: Run Tests and Coverage
-        run: |
-          set -o pipefail
-          ./gradlew testDebugUnitTest jacocoTestReport | tee build-test.log
-      # Important: Upload the generated jacocoTestReport.xml and JUnit test-results.
-      # The `sonar` job will download this artifact to ingest the coverage metrics without re-running the tests.
-      - name: Upload Test Results and Coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-artifacts
-          path: |
-            app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
-            app/build/test-results/testDebugUnitTest/
-          retention-days: 1
-      - name: Echo Test Results for Reality Checker
-        run: |
-          echo "==== TEST RESULTS FOR REALITY CHECKER ===="
-          grep -i "PASSED" build-test.log || true
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Run Lint
-        run: ./gradlew lint
-      - name: Parse Compose Metrics
-        run: |
-          grep -i "unstable" app/build/compose_metrics/*-classes.txt || echo "No unstable classes"
-      - name: Upload Lint Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint-artifacts
-          path: app/build/reports/
-          retention-days: 1
-
-  sonar:
-    needs: [test, lint]
+  ci-pipeline:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -135,32 +26,32 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Download Test Results and Coverage
-        uses: actions/download-artifact@v4
-        with:
-          name: test-artifacts
-          path: app/build/
-      - name: Download Lint Results
-        uses: actions/download-artifact@v4
-        with:
-          name: lint-artifacts
-          path: app/build/reports/
-      - name: Debug Downloaded Artifacts
+        
+      - name: Build Debug
+        run: ./gradlew assembleDebug
+        
+      - name: Run Lint
+        run: ./gradlew lint
+        
+      - name: Run Tests and Coverage
+        run: ./gradlew testDebugUnitTest jacocoTestReport
+        
+      - name: Build Release (ProGuard Check)
         run: |
-          echo "==== Debug Artifacts ===="
-          find app/build/reports/ || true
-          find app/build/test-results/ || true
+          mkdir -p ~/.android
+          keytool -genkey -v -keystore ~/.android/release.keystore -alias cossh_release -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=test"
+          export KEYSTORE_FILE=~/.android/release.keystore
+          export KEYSTORE_PASSWORD=android
+          export KEY_ALIAS=cossh_release
+          export KEY_PASSWORD=android
+          ./gradlew assembleRelease
+          
       - name: SonarCloud Scan & Quality Gate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew sonar -Dsonar.projectKey=adamoutler_cossh -Dsonar.organization=adamoutler -Dsonar.host.url=https://sonarcloud.io -Dsonar.qualitygate.wait=true -Dsonar.c.file.suffixes=- -Dsonar.cpp.file.suffixes=- -Dsonar.objc.file.suffixes=-
-
-
-  security_scan:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+        
       - name: Run MobSF Static Analysis
         uses: MobSF/mobsfscan@main
         with:
@@ -169,18 +60,3 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif
-
-  status:
-    needs: [build-debug, build-release, test, lint, sonar, security_scan]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Check final status
-        run: |
-          if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = "true" ]; then
-            echo "One or more jobs failed or were cancelled."
-            exit 1
-          else
-            echo "All jobs passed."
-            exit 0
-          fi
