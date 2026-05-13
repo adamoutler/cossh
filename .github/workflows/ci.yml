@@ -33,15 +33,6 @@ jobs:
       - name: Run Lint
         run: ./gradlew lint
         
-      - name: Run Tests and Coverage
-        run: ./gradlew testDebugUnitTest jacocoTestReport
-        
-      - name: Upload Jacoco Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: jacoco-report
-          path: app/build/reports/jacoco/jacocoTestReport/
-          
       - name: Build Release (ProGuard Check)
         run: |
           mkdir -p ~/.android
@@ -66,3 +57,12 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif
+
+      - name: Run Tests and Coverage
+        run: ./gradlew testDebugUnitTest jacocoTestReport --console=plain
+        
+      - name: Upload Jacoco Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: app/build/reports/jacoco/jacocoTestReport/
