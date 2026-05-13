@@ -1,0 +1,1105 @@
+
+> Configure project :app
+The 'sonarqube' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+The 'sonar' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+⚠️  Release keystore not found or not configured. Falling back to default debug keystore.
+
+> Task :app:checkKotlinGradlePluginConfigurationErrors
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:preparePaparazziDebugResources UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+> Task :app:packageDebugUnitTestForUnitTest
+> Task :app:generateDebugUnitTestConfig
+> Task :app:compileDebugKotlin
+> Task :app:compileDebugJavaWithJavac
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:compileDebugUnitTestKotlin
+> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:transformDebugUnitTestClassesWithAsm
+
+> Task :app:testDebugUnitTest
+⏱️ TEST-METRIC: com.adamoutler.ssh.ViewModelReflectionTest.testReflection took 95ms
+
+ViewModelReflectionTest > testReflection PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ExceptionTest.testException took 237ms
+
+ExceptionTest > testException PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.backup.BackupCryptoManagerTest.test BackupPayload serialization took 1214ms
+
+BackupCryptoManagerTest > test BackupPayload serialization PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.backup.BackupPayloadTest.testSerializationAndDeserialization took 1439ms
+
+BackupPayloadTest > testSerializationAndDeserialization PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.backup.BackupCryptoManagerTest.test export and import profiles took 1017ms
+
+BackupCryptoManagerTest > test export and import profiles PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingCoverageTest.testParseEmptyPem took 204ms
+
+PemParsingCoverageTest > testParseEmptyPem PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingCoverageTest.testParseEd25519Invalid took 934ms
+
+PemParsingCoverageTest > testParseEd25519Invalid PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingCoverageTest.testParseInvalidPem took 197ms
+
+PemParsingCoverageTest > testParseInvalidPem PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.ParsePublicKeyTest.testParse took 4385ms
+
+ParsePublicKeyTest > testParse PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.ConnectionProfileTest.testAuthTypeAndProtocol took 62ms
+
+ConnectionProfileTest > testAuthTypeAndProtocol PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingSuccessCoverageTest.testParseValidRsa took 594ms
+
+PemParsingSuccessCoverageTest > testParseValidRsa PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingSuccessCoverageTest.testParseValidEd25519 took 78ms
+
+PemParsingSuccessCoverageTest > testParseValidEd25519 PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingSuccessCoverageTest.testSubjectPublicKeyInfo_Throws took 10ms
+
+PemParsingSuccessCoverageTest > testSubjectPublicKeyInfo_Throws PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.ConnectionProfileTest.testSerialization took 979ms
+
+ConnectionProfileTest > testSerialization PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.ConnectionProfileTest.testSerializationWithDefaults took 12ms
+
+ConnectionProfileTest > testSerializationWithDefaults PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.ConnectionProfileTest.testEqualsAndHashCode took 7ms
+
+ConnectionProfileTest > testEqualsAndHashCode PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemUtilsTest.test parsePemToKeyPair with OpenSSH RSA Key took 6757ms
+
+PemUtilsTest > test parsePemToKeyPair with OpenSSH RSA Key PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemUtilsTest.test parsePemToKeyPair with OpenSSH Ed25519 Key took 86ms
+
+PemUtilsTest > test parsePemToKeyPair with OpenSSH Ed25519 Key PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.DataSerializersTest.test ConnectionProfile partial deserialization took 416ms
+
+DataSerializersTest > test ConnectionProfile partial deserialization PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.DataSerializersTest.test IdentityProfile partial deserialization took 22ms
+
+DataSerializersTest > test IdentityProfile partial deserialization PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.DataSerializersTest.test PortForwardConfig serialization and deserialization took 375ms
+
+DataSerializersTest > test PortForwardConfig serialization and deserialization PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.DataSerializersTest.test IdentityProfile serialization and deserialization took 99ms
+
+DataSerializersTest > test IdentityProfile serialization and deserialization PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.DataSerializersTest.test ConnectionProfile serialization and deserialization took 18ms
+
+DataSerializersTest > test ConnectionProfile serialization and deserialization PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.CoSshApplicationTest.testBouncyCastleProviderIsRegistered took 13637ms
+
+CoSshApplicationTest > testBouncyCastleProviderIsRegistered PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.CoSshApplicationTest.testSecureCrashHandlerIsRegistered took 319ms
+
+CoSshApplicationTest > testSecureCrashHandlerIsRegistered PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.CoSshApplicationTest.testSecureCrashHandlerRedactsAndWritesToDisk took 1001ms
+
+CoSshApplicationTest > testSecureCrashHandlerRedactsAndWritesToDisk PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.SerializerCoverageTest.testConnectionProfileSerializationCoverage took 1255ms
+
+SerializerCoverageTest > testConnectionProfileSerializationCoverage PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.SerializerCoverageTest.testPortForwardConfigSerializationCoverage took 7ms
+
+SerializerCoverageTest > testPortForwardConfigSerializationCoverage PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.SerializerCoverageTest.testBackupPayloadSerializationCoverage took 23ms
+
+SerializerCoverageTest > testBackupPayloadSerializationCoverage PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.SerializerCoverageTest.testIdentityProfileSerializationCoverage took 57ms
+
+SerializerCoverageTest > testIdentityProfileSerializationCoverage PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.billing.BillingManagerCoverageTest.testOnPurchasesUpdated_VariousCodes took 15479ms
+
+BillingManagerCoverageTest > testOnPurchasesUpdated_VariousCodes PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.backup.BackupManagerTest.test exportBackup and importBackup took 16565ms
+
+BackupManagerTest > test exportBackup and importBackup PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.billing.BillingManagerTest.testOnPurchasesUpdated took 16072ms
+
+BillingManagerTest > testOnPurchasesUpdated PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.billing.BillingManagerTest.testPurchaseCloudSync took 598ms
+
+BillingManagerTest > testPurchaseCloudSync PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.billing.BillingManagerTest.testOnPurchasesUpdated_withValidPurchase took 553ms
+
+BillingManagerTest > testOnPurchasesUpdated_withValidPurchase PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.billing.BillingManagerTest.testInitialState took 209ms
+
+BillingManagerTest > testInitialState PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.billing.BillingManagerTest.testOnPurchasesUpdated_withUnacknowledgedPurchase took 213ms
+
+BillingManagerTest > testOnPurchasesUpdated_withUnacknowledgedPurchase PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.billing.BillingManagerTest.testForceCloudSyncEnabled took 317ms
+
+BillingManagerTest > testForceCloudSyncEnabled PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.PortForwardingOrchestratorTest.test startLocalPortForwarding took 6441ms
+
+PortForwardingOrchestratorTest > test startLocalPortForwarding PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.PortForwardingOrchestratorTest.test startPortForwards handles exception gracefully when failing to bind took 141ms
+
+PortForwardingOrchestratorTest > test startPortForwards handles exception gracefully when failing to bind PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.PortForwardingOrchestratorTest.test startPortForwards gracefully handles null SSHClient or invalid config took 127ms
+
+PortForwardingOrchestratorTest > test startPortForwards gracefully handles null SSHClient or invalid config PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.PlaceholderScreenScreenshotTest.defaultScreen took 26261ms
+
+PlaceholderScreenScreenshotTest > defaultScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.PortForwardingOrchestratorTest.test startRemotePortForwarding took 809ms
+
+PortForwardingOrchestratorTest > test startRemotePortForwarding PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerIntegrationTest.testHeadlessKeyConnection took 4990ms
+
+SshConnectionManagerIntegrationTest > testHeadlessKeyConnection PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerIntegrationTest.testEnvVarTransmission took 16ms
+
+SshConnectionManagerIntegrationTest > testEnvVarTransmission PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SSHKeyGeneratorTest.testGenerateRSAKeyPair took 1726ms
+
+SSHKeyGeneratorTest > testGenerateRSAKeyPair PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SSHKeyGeneratorTest.testGenerateEd25519KeyPair took 201ms
+
+SSHKeyGeneratorTest > testGenerateEd25519KeyPair PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerIntegrationTest.testHeadlessPasswordConnectionAndPtyInteraction took 1450ms
+
+SshConnectionManagerIntegrationTest > testHeadlessPasswordConnectionAndPtyInteraction PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerIntegrationTest.testHeadlessPasswordConnectionFailsAndClearsMemory took 192ms
+
+SshConnectionManagerIntegrationTest > testHeadlessPasswordConnectionFailsAndClearsMemory PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerIntegrationTest.testEphemeralPromptEndToEnd took 232ms
+
+SshConnectionManagerIntegrationTest > testEphemeralPromptEndToEnd PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerIntegrationTest.testHeadlessConnectionMissingCredentialsRequestsPrompt took 118ms
+
+SshConnectionManagerIntegrationTest > testHeadlessConnectionMissingCredentialsRequestsPrompt PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testUserNotAuthenticatedException_WrapsInCryptoException took 14558ms
+
+SecurityStorageManagerTest > testUserNotAuthenticatedException_WrapsInCryptoException PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testCorruptedProfileDeserialization took 518ms
+
+SecurityStorageManagerTest > testCorruptedProfileDeserialization PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testSaveProfile_KeystoreExceptionFallback took 113ms
+
+SecurityStorageManagerTest > testSaveProfile_KeystoreExceptionFallback PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testResetInvalidatedKeys_WithMockKeyStore_HandlesException took 118ms
+
+SecurityStorageManagerTest > testResetInvalidatedKeys_WithMockKeyStore_HandlesException PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testStrongBoxFallbackLogic took 200ms
+
+SecurityStorageManagerTest > testStrongBoxFallbackLogic PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerIntegrationTest.testTelnetConnectionAndPtyInteraction took 1245ms
+
+SshConnectionManagerIntegrationTest > testTelnetConnectionAndPtyInteraction PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testDeleteProfile_WithNullId_DoesNotThrow took 265ms
+
+SecurityStorageManagerTest > testDeleteProfile_WithNullId_DoesNotThrow PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testResetInvalidatedKeys took 181ms
+
+SecurityStorageManagerTest > testResetInvalidatedKeys PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testCorruptPassphraseDeserialization took 189ms
+
+SecurityStorageManagerTest > testCorruptPassphraseDeserialization PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testMetadataOnlyLoading_DoesNotHydrateSecrets took 268ms
+
+SecurityStorageManagerTest > testMetadataOnlyLoading_DoesNotHydrateSecrets PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testDecryptNullPassword took 184ms
+
+SecurityStorageManagerTest > testDecryptNullPassword PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllProfiles_IllegalArgumentException took 198ms
+
+SecurityStorageManagerTest > testGetAllProfiles_IllegalArgumentException PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllKeys took 152ms
+
+SecurityStorageManagerTest > testGetAllKeys PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllKeys_KeystoreExceptionFallback took 96ms
+
+SecurityStorageManagerTest > testGetAllKeys_KeystoreExceptionFallback PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.SerializerThoroughCoverageTest.testIdentityProfileSerializer_AllIndices took 197ms
+
+SerializerThoroughCoverageTest > testIdentityProfileSerializer_AllIndices PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAndSaveSyncPassphrase took 160ms
+
+SecurityStorageManagerTest > testGetAndSaveSyncPassphrase PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.SerializerThoroughCoverageTest.testConnectionProfileSerializer_AllIndices took 130ms
+
+SerializerThoroughCoverageTest > testConnectionProfileSerializer_AllIndices PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.SerializerThoroughCoverageTest.testBackupPayloadSerializer_AllIndices took 7ms
+
+SerializerThoroughCoverageTest > testBackupPayloadSerializer_AllIndices PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testKeyPermanentlyInvalidatedException_WrapsInCryptoException took 175ms
+
+SecurityStorageManagerTest > testKeyPermanentlyInvalidatedException_WrapsInCryptoException PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetProfile_KeystoreExceptionFallback took 164ms
+
+SecurityStorageManagerTest > testGetProfile_KeystoreExceptionFallback PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllProfilesSkipsPwdAndKey took 180ms
+
+SecurityStorageManagerTest > testGetAllProfilesSkipsPwdAndKey PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetProfile_SerializationException took 94ms
+
+SecurityStorageManagerTest > testGetProfile_SerializationException PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testDeleteProfile_KeystoreExceptionFallback took 110ms
+
+SecurityStorageManagerTest > testDeleteProfile_KeystoreExceptionFallback PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testSaveAndRetrieveProfile took 176ms
+
+SecurityStorageManagerTest > testSaveAndRetrieveProfile PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetProfile_IllegalArgumentException took 101ms
+
+SecurityStorageManagerTest > testGetProfile_IllegalArgumentException PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testDeleteProfile took 201ms
+
+SecurityStorageManagerTest > testDeleteProfile PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testCryptoExceptionBubblesUp took 134ms
+
+SecurityStorageManagerTest > testCryptoExceptionBubblesUp PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllProfiles took 175ms
+
+SecurityStorageManagerTest > testGetAllProfiles PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllProfiles_SerializationException took 120ms
+
+SecurityStorageManagerTest > testGetAllProfiles_SerializationException PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerTest.testGetAllProfiles_KeystoreExceptionFallback took 136ms
+
+SecurityStorageManagerTest > testGetAllProfiles_KeystoreExceptionFallback PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.AppLaunchTest.testAppLaunchesSuccessfully took 32509ms
+
+AppLaunchTest > testAppLaunchesSuccessfully PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.TofuHostKeyVerifierPortBugTest.testPort22AndOtherPortDoNotOverwriteEachOther took 4908ms
+
+TofuHostKeyVerifierPortBugTest > testPort22AndOtherPortDoNotOverwriteEachOther PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.ConnectionStateRepositoryTest.test output is buffered before UI attaches and emitted after took 1084ms
+
+ConnectionStateRepositoryTest > test output is buffered before UI attaches and emitted after PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testGetAllIdentitiesSkipsPwdAndKey took 14201ms
+
+IdentityStorageManagerTest > testGetAllIdentitiesSkipsPwdAndKey PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testDefaultInitialization took 212ms
+
+IdentityStorageManagerTest > testDefaultInitialization PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testResetInvalidatedKeys took 124ms
+
+IdentityStorageManagerTest > testResetInvalidatedKeys PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.NotificationScreenshotTest.testForegroundNotification took 24682ms
+
+NotificationScreenshotTest > testForegroundNotification PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testMetadataOnlyLoading_DoesNotHydrateSecrets took 478ms
+
+IdentityStorageManagerTest > testMetadataOnlyLoading_DoesNotHydrateSecrets PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testSaveAndRetrieveIdentity took 158ms
+
+IdentityStorageManagerTest > testSaveAndRetrieveIdentity PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testGetAllIdentities took 240ms
+
+IdentityStorageManagerTest > testGetAllIdentities PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.NotificationScreenshotTest.testMultipleForegroundNotifications took 783ms
+
+NotificationScreenshotTest > testMultipleForegroundNotifications PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testDecryptNullSensitiveData took 160ms
+
+IdentityStorageManagerTest > testDecryptNullSensitiveData PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testDeleteIdentity took 205ms
+
+IdentityStorageManagerTest > testDeleteIdentity PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerTest.testGetIdentityWithCorruptedData took 254ms
+
+IdentityStorageManagerTest > testGetIdentityWithCorruptedData PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SSHKeyGeneratorEncodingTest.testGenerateAndEncodeRSA took 18042ms
+
+SSHKeyGeneratorEncodingTest > testGenerateAndEncodeRSA PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshSessionProviderTest.test addConnection and removeConnection took 177ms
+
+SshSessionProviderTest > test addConnection and removeConnection PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test service connection state transitions to error on failure took 5ms
+
+SshServiceForegroundTest > test service connection state transitions to error on failure SKIPPED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshSessionProviderTest.test mockTestTranscript took 160ms
+
+SshSessionProviderTest > test mockTestTranscript PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshSessionProviderTest.test isHeadlessTest setter and getter took 4ms
+
+SshSessionProviderTest > test isHeadlessTest setter and getter PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshSessionProviderTest.test ptyOutputStream and terminalSession are null when empty took 18ms
+
+SshSessionProviderTest > test ptyOutputStream and terminalSession are null when empty PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SSHKeyGeneratorEncodingTest.testGenerateAndEncodeEd25519 took 545ms
+
+SSHKeyGeneratorEncodingTest > testGenerateAndEncodeEd25519 PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingTest.testParseRawDerBytesRsa took 18528ms
+
+PemParsingTest > testParseRawDerBytesRsa PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingTest.testParseRawDerBytes took 410ms
+
+PemParsingTest > testParseRawDerBytes PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PasswordCipherTest.test decrypt with invalid data throws exception took 12952ms
+
+PasswordCipherTest > test decrypt with invalid data throws exception PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PasswordCipherTest.test encrypt and decrypt roundtrip took 265ms
+
+PasswordCipherTest > test encrypt and decrypt roundtrip PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.SerializerMissedCoverageTest.testIdentityProfileSerializer_Exceptions took 139ms
+
+SerializerMissedCoverageTest > testIdentityProfileSerializer_Exceptions PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.SerializerMissedCoverageTest.testConnectionProfileSerializer_Exceptions took 82ms
+
+SerializerMissedCoverageTest > testConnectionProfileSerializer_Exceptions PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.SerializerMissedCoverageTest.testPortForwardConfigSerializer_Exceptions took 10ms
+
+SerializerMissedCoverageTest > testPortForwardConfigSerializer_Exceptions PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.SerializerMissedCoverageTest.testBackupPayloadSerializer_Exceptions took 13ms
+
+SerializerMissedCoverageTest > testBackupPayloadSerializer_Exceptions PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.security.SecureCrashHandlerTest.test recursive cause redaction took 11949ms
+
+SecureCrashHandlerTest > test recursive cause redaction PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.security.SecureCrashHandlerTest.test fallback if crash handler throws exception took 307ms
+
+SecureCrashHandlerTest > test fallback if crash handler throws exception PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.security.SecureCrashHandlerTest.test uncaughtException sanitizes and writes log took 267ms
+
+SecureCrashHandlerTest > test uncaughtException sanitizes and writes log PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.security.SecureCrashHandlerTest.test isSensitiveException completely redacts message took 185ms
+
+SecureCrashHandlerTest > test isSensitiveException completely redacts message PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.security.SecureCrashHandlerTest.test PEM redaction took 184ms
+
+SecureCrashHandlerTest > test PEM redaction PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.loadKeyPairFromIdentity without private key throws took 12403ms
+
+SshHandshakeCoordinatorTest > loadKeyPairFromIdentity without private key throws PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingTest.testParsePublicKeyInsteadOfPrivate took 5600ms
+
+PemParsingTest > testParsePublicKeyInsteadOfPrivate PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingTest.testParseOpenSshEd25519 took 308ms
+
+PemParsingTest > testParseOpenSshEd25519 PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.ByteArrayAsBase64SerializerTest.testSerialization took 1270ms
+
+ByteArrayAsBase64SerializerTest > testSerialization PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.ByteArrayAsBase64SerializerTest.testDeserialization took 36ms
+
+ByteArrayAsBase64SerializerTest > testDeserialization PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingTest.testParseInvalidPem took 183ms
+
+PemParsingTest > testParseInvalidPem PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerCoverageTest.testResetInvalidatedKeys took 12354ms
+
+IdentityStorageManagerCoverageTest > testResetInvalidatedKeys PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.executeWithConnection default arguments took 3305ms
+
+SshHandshakeCoordinatorTest > executeWithConnection default arguments PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.getAuthenticator returns PasswordAuthenticator for profile PASSWORD auth took 158ms
+
+SshHandshakeCoordinatorTest > getAuthenticator returns PasswordAuthenticator for profile PASSWORD auth PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerCoverageTest.testExceptionInEncryptedPrefs took 277ms
+
+IdentityStorageManagerCoverageTest > testExceptionInEncryptedPrefs PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.configureHostKeyVerifier creates Tofu verifier if none provided took 191ms
+
+SshHandshakeCoordinatorTest > configureHostKeyVerifier creates Tofu verifier if none provided PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.getAuthenticator throws if identity has no password and no key took 130ms
+
+SshHandshakeCoordinatorTest > getAuthenticator throws if identity has no password and no key PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.getAuthenticator returns CompositeAuthenticator for identity with password took 147ms
+
+SshHandshakeCoordinatorTest > getAuthenticator returns CompositeAuthenticator for identity with password PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.PemParsingTest.testParsePem took 2494ms
+
+PemParsingTest > testParsePem PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.IdentityStorageManagerCoverageTest.testDecryptSensitive_InvalidBase64 took 421ms
+
+IdentityStorageManagerCoverageTest > testDecryptSensitive_InvalidBase64 PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.CompositeAuthenticator loops and throws UserAuthException when all fail took 206ms
+
+SshHandshakeCoordinatorTest > CompositeAuthenticator loops and throws UserAuthException when all fail PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.loadKeyPairFromIdentity parses valid string took 288ms
+
+SshHandshakeCoordinatorTest > loadKeyPairFromIdentity parses valid string PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.configureHostKeyVerifier uses provided verifier took 138ms
+
+SshHandshakeCoordinatorTest > configureHostKeyVerifier uses provided verifier PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.executeWithConnection handles thread interruption gracefully took 151ms
+
+SshHandshakeCoordinatorTest > executeWithConnection handles thread interruption gracefully PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.getAuthenticator throws if KEY auth but no keypair took 146ms
+
+SshHandshakeCoordinatorTest > getAuthenticator throws if KEY auth but no keypair PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.FiftyKbIntegrityTest.test50KbDataIntegrity took 8ms
+
+FiftyKbIntegrityTest > test50KbDataIntegrity SKIPPED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.executeWithConnection handles identity resolution and connects took 2370ms
+
+SshHandshakeCoordinatorTest > executeWithConnection handles identity resolution and connects PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.loadKeyPairFromIdentity with malformed key throws but gracefully recovers took 235ms
+
+SshHandshakeCoordinatorTest > loadKeyPairFromIdentity with malformed key throws but gracefully recovers PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerExceptionCoverageTest.testExceptionInEncryptedPrefs took 12616ms
+
+SecurityStorageManagerExceptionCoverageTest > testExceptionInEncryptedPrefs PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test service onDestroy stops all connections took 15210ms
+
+SshServiceForegroundTest > test service onDestroy stops all connections PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.IdentityProfileTest.testSerializationWithDefaults took 694ms
+
+IdentityProfileTest > testSerializationWithDefaults PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.data.IdentityProfileTest.testEqualsAndHashCode took 5ms
+
+IdentityProfileTest > testEqualsAndHashCode PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test service intentional disconnect does not transition to error took 1143ms
+
+SshServiceForegroundTest > test service intentional disconnect does not transition to error PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test start command with ACTION_DISCONNECT without session ID stops all for profile took 191ms
+
+SshServiceForegroundTest > test start command with ACTION_DISCONNECT without session ID stops all for profile PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test service onBind returns null took 169ms
+
+SshServiceForegroundTest > test service onBind returns null PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.executeWithConnection without identity uses raw profile credentials took 3206ms
+
+SshHandshakeCoordinatorTest > executeWithConnection without identity uses raw profile credentials PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.starting service on API 34 calls startForeground with type took 231ms
+
+SshServiceForegroundTest > starting service on API 34 calls startForeground with type PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.configureHostKeyVerifier throws if no verifier and no context took 192ms
+
+SshHandshakeCoordinatorTest > configureHostKeyVerifier throws if no verifier and no context PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test mapExceptionMessage formats correctly took 262ms
+
+SshServiceForegroundTest > test mapExceptionMessage formats correctly PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceForegroundTest.test start command with ACTION_DISCONNECT without profile ID calls stopAllConnections and stopSelf took 241ms
+
+SshServiceForegroundTest > test start command with ACTION_DISCONNECT without profile ID calls stopAllConnections and stopSelf PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.ConnectionStateRepositoryCoverageTest.testRequestPrompt took 803ms
+
+ConnectionStateRepositoryCoverageTest > testRequestPrompt PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.ConnectionStateRepositoryCoverageTest.testRequestAuthPrompt took 221ms
+
+ConnectionStateRepositoryCoverageTest > testRequestAuthPrompt PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerInjectionTest.testInjectPublicKey_ValidKey_AttemptConnect took 2ms
+
+SshConnectionManagerInjectionTest > testInjectPublicKey_ValidKey_AttemptConnect SKIPPED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshConnectionManagerInjectionTest.testInjectPublicKey_InvalidKey_ReturnsFalse took 1ms
+
+SshConnectionManagerInjectionTest > testInjectPublicKey_InvalidKey_ReturnsFalse SKIPPED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.executeWithConnection with identity injects credentials took 3776ms
+
+SshHandshakeCoordinatorTest > executeWithConnection with identity injects credentials PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.resolveIdentity returns identity if id matches took 280ms
+
+SshHandshakeCoordinatorTest > resolveIdentity returns identity if id matches PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.resolveIdentity returns null if profile has no identityId took 105ms
+
+SshHandshakeCoordinatorTest > resolveIdentity returns null if profile has no identityId PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.getAuthenticator returns PasswordAuthenticator if only profile auth is password and no identity took 112ms
+
+SshHandshakeCoordinatorTest > getAuthenticator returns PasswordAuthenticator if only profile auth is password and no identity PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorTest.getAuthenticator returns CompositeAuthenticator with key and password auth took 185ms
+
+SshHandshakeCoordinatorTest > getAuthenticator returns CompositeAuthenticator with key and password auth PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceErrorMappingTest.testOtherExceptionMapping took 341ms
+
+SshServiceErrorMappingTest > testOtherExceptionMapping PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceErrorMappingTest.testAuthenticationExhaustedMapping took 6ms
+
+SshServiceErrorMappingTest > testAuthenticationExhaustedMapping PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorCoverageTest.testGetAuthenticator_Password took 13891ms
+
+SshHandshakeCoordinatorCoverageTest > testGetAuthenticator_Password PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorCoverageTest.testGetAuthenticator_Key took 677ms
+
+SshHandshakeCoordinatorCoverageTest > testGetAuthenticator_Key PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorCoverageTest.testConfigureHostKeyVerifier_withoutContext_throws took 642ms
+
+SshHandshakeCoordinatorCoverageTest > testConfigureHostKeyVerifier_withoutContext_throws PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorCoverageTest.testConfigureHostKeyVerifier_withContext took 246ms
+
+SshHandshakeCoordinatorCoverageTest > testConfigureHostKeyVerifier_withContext PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorCoverageTest.testLoadKeyPairFromIdentity_missingPrivateKey took 126ms
+
+SshHandshakeCoordinatorCoverageTest > testLoadKeyPairFromIdentity_missingPrivateKey PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorCoverageTest.testExecuteWithConnection_fails took 919ms
+
+SshHandshakeCoordinatorCoverageTest > testExecuteWithConnection_fails PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorCoverageTest.testLoadKeyPairFromIdentity_invalidPublicKeyFormat took 454ms
+
+SshHandshakeCoordinatorCoverageTest > testLoadKeyPairFromIdentity_invalidPublicKeyFormat PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorCoverageTest.testGetAuthenticator_Identity took 199ms
+
+SshHandshakeCoordinatorCoverageTest > testGetAuthenticator_Identity PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshHandshakeCoordinatorCoverageTest.testResolveIdentity took 178ms
+
+SshHandshakeCoordinatorCoverageTest > testResolveIdentity PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.PasswordPromptDialogScreenshotTest.passwordPromptDialogScreen took 23673ms
+
+PasswordPromptDialogScreenshotTest > passwordPromptDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.TofuHostKeyVerifierTest.testAtomicKeyUpdate took 3844ms
+
+TofuHostKeyVerifierTest > testAtomicKeyUpdate PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.crypto.SecurityStorageManagerCoverageTest.testSaveAndGetProfile took 13741ms
+
+SecurityStorageManagerCoverageTest > testSaveAndGetProfile PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.mapExceptionMessage formats authentication errors cleanly took 12329ms
+
+SshServiceTest > mapExceptionMessage formats authentication errors cleanly PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.ACTION_DISCONNECT with session ID stops specific connection took 309ms
+
+SshServiceTest > ACTION_DISCONNECT with session ID stops specific connection PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.ACTION_DISCONNECT with no session ID and no profile ID stops all connections and self took 295ms
+
+SshServiceTest > ACTION_DISCONNECT with no session ID and no profile ID stops all connections and self PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.ACTION_START with no profile ID stops self took 194ms
+
+SshServiceTest > ACTION_START with no profile ID stops self PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.mapExceptionMessage passes through other errors took 168ms
+
+SshServiceTest > mapExceptionMessage passes through other errors PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.onBind returns null took 150ms
+
+SshServiceTest > onBind returns null PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.test startSshConnection with missing profile transitions to Error state took 591ms
+
+SshServiceTest > test startSshConnection with missing profile transitions to Error state PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.ACTION_DISCONNECT with profile ID stops matching sessions took 139ms
+
+SshServiceTest > ACTION_DISCONNECT with profile ID stops matching sessions PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.HoldToConfirmButtonTest.testHoldToConfirmButton_LongClickConfirms took 22271ms
+
+HoldToConfirmButtonTest > testHoldToConfirmButton_LongClickConfirms PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.HoldToConfirmButtonTest.testHoldToConfirmButton_DisplaysText took 645ms
+
+HoldToConfirmButtonTest > testHoldToConfirmButton_DisplaysText PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.AppConnectionIntegrationTest.testInAppTerminalConnectionAndDataTransfer took 5ms
+
+AppConnectionIntegrationTest > testInAppTerminalConnectionAndDataTransfer SKIPPED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.AppConnectionIntegrationTest.test19StepWorkflow_ConnectionResumeAndConcurrentSessions took 0ms
+
+AppConnectionIntegrationTest > test19StepWorkflow_ConnectionResumeAndConcurrentSessions SKIPPED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerEdgeCasesCoverageTest.testDownloadBackup_NotAuthenticated took 13328ms
+
+DriveSyncManagerEdgeCasesCoverageTest > testDownloadBackup_NotAuthenticated PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.UserJourneyIntegrationTest.testUserJourney_ConnectionResumeAndConcurrentSessions took 44411ms
+
+UserJourneyIntegrationTest > testUserJourney_ConnectionResumeAndConcurrentSessions PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerEdgeCasesCoverageTest.testUploadBackup_NotAuthenticated took 1090ms
+
+DriveSyncManagerEdgeCasesCoverageTest > testUploadBackup_NotAuthenticated PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.SyncWorkerTest.test doWork with cloud sync enabled and password returns retry due to network error took 15967ms
+
+SyncWorkerTest > test doWork with cloud sync enabled and password returns retry due to network error PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerCompanionCoverageTest.testHandleAuthorizationResult took 12060ms
+
+DriveSyncManagerCompanionCoverageTest > testHandleAuthorizationResult PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.test startSshConnection with failing connection updates state to Error took 11027ms
+
+SshServiceTest > test startSshConnection with failing connection updates state to Error PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.ACTION_START starts connection and service coroutine took 179ms
+
+SshServiceTest > ACTION_START starts connection and service coroutine PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.SyncWorkerTest.test doWork with cloud sync enabled but no password returns failure took 304ms
+
+SyncWorkerTest > test doWork with cloud sync enabled but no password returns failure PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceTest.onDestroy stops all connections took 156ms
+
+SshServiceTest > onDestroy stops all connections PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.SyncWorkerTest.testDoWorkWithoutCloudSync_returnsSuccess took 208ms
+
+SyncWorkerTest > testDoWorkWithoutCloudSync_returnsSuccess PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.base.BaseViewModelTest.testCoroutineExceptionIsCaughtAndEmitsUiEvent took 12427ms
+
+BaseViewModelTest > testCoroutineExceptionIsCaughtAndEmitsUiEvent PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalExtraButtonsUITest.testTerminalExtraButtonsVisibility took 47ms
+
+TerminalExtraButtonsUITest > testTerminalExtraButtonsVisibility PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.UserJourneyIntegrationTest.testUserJourney_AddProfileAndSeeInList took 8680ms
+
+UserJourneyIntegrationTest > testUserJourney_AddProfileAndSeeInList PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLogicTest.testCtrlC_Encoding took 41ms
+
+TerminalModifierLogicTest > testCtrlC_Encoding PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLogicTest.testAltA_Encoding took 606ms
+
+TerminalModifierLogicTest > testAltA_Encoding PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLogicTest.testTerminalInputLockout took 40ms
+
+TerminalModifierLogicTest > testTerminalInputLockout PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigation_KeystoreInvalidated_Dismiss took 27792ms
+
+AppNavigationCoverageTest > testAppNavigation_KeystoreInvalidated_Dismiss PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigationRenders took 837ms
+
+AppNavigationCoverageTest > testAppNavigationRenders PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalExtraKeysUITest.testF1AndF12KeysSendCorrectBytes took 20524ms
+
+TerminalExtraKeysUITest > testF1AndF12KeysSendCorrectBytes PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLatchingTest.testStickyConsumption took 24ms
+
+TerminalModifierLatchingTest > testStickyConsumption PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLatchingTest.testLockedPersistence took 1ms
+
+TerminalModifierLatchingTest > testLockedPersistence PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLatchingTest.testModifierStateTransitions took 7ms
+
+TerminalModifierLatchingTest > testModifierStateTransitions PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigation_ConnectionListNavigatesToSettings took 2432ms
+
+AppNavigationCoverageTest > testAppNavigation_ConnectionListNavigatesToSettings PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalModifierLatchingTest.testAltStickyConsumption took 566ms
+
+TerminalModifierLatchingTest > testAltStickyConsumption PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.network.SshServiceCoverageTest.testOnStartCommand took 15292ms
+
+SshServiceCoverageTest > testOnStartCommand PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigation_ConnectionListNavigatesToAddProfile took 3181ms
+
+AppNavigationCoverageTest > testAppNavigation_ConnectionListNavigatesToAddProfile PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigation_UiEvents took 4166ms
+
+AppNavigationCoverageTest > testAppNavigation_UiEvents PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testHostKeyPromptDialog_UnknownHost took 469ms
+
+AppNavigationCoverageTest > testHostKeyPromptDialog_UnknownHost PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testHostKeyPromptDialog_KeyChanged took 428ms
+
+AppNavigationCoverageTest > testHostKeyPromptDialog_KeyChanged PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreen256ColorScreenshotTest.terminalShows256Colors took 25154ms
+
+TerminalScreen256ColorScreenshotTest > terminalShows256Colors PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigation_ConnectionListNavigatesToIdentities took 886ms
+
+AppNavigationCoverageTest > testAppNavigation_ConnectionListNavigatesToIdentities PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAuthPromptDialog took 1379ms
+
+AppNavigationCoverageTest > testAuthPromptDialog PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigation_KeystoreInvalidated_Confirm took 827ms
+
+AppNavigationCoverageTest > testAppNavigation_KeystoreInvalidated_Confirm PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.AppNavigationCoverageTest.testAppNavigation_HandlesIntent took 519ms
+
+AppNavigationCoverageTest > testAppNavigation_HandlesIntent PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenCopyTest.testTerminalCopyTextStripsTrailingSpaces took 16252ms
+
+TerminalScreenCopyTest > testTerminalCopyTextStripsTrailingSpaces PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.SectionHeaderWithInfoKtTest.testSectionHeaderWithInfo_displaysTitleAndHandlesClick took 26743ms
+
+SectionHeaderWithInfoKtTest > testSectionHeaderWithInfo_displaysTitleAndHandlesClick PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.KeystoreInvalidatedDialogScreenshotTest.keystoreInvalidatedDialogScreen took 27242ms
+
+KeystoreInvalidatedDialogScreenshotTest > keystoreInvalidatedDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.HostKeyPromptDialogScreenshotTest.changedKeyWarningScreen took 27060ms
+
+HostKeyPromptDialogScreenshotTest > changedKeyWarningScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenNewlineBleedThroughTest.testBleedThroughKeyEventIsIgnored took 15099ms
+
+TerminalScreenNewlineBleedThroughTest > testBleedThroughKeyEventIsIgnored PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.HostKeyPromptDialogScreenshotTest.tofuDialogScreen took 1121ms
+
+HostKeyPromptDialogScreenshotTest > tofuDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testDownloadBackupFileNotFound took 16358ms
+
+DriveSyncManagerTest > testDownloadBackupFileNotFound PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testEncryptDecrypt took 1280ms
+
+DriveSyncManagerTest > testEncryptDecrypt PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenOverlayScreenshotTest.overlayButtonsVisible took 27142ms
+
+TerminalScreenOverlayScreenshotTest > overlayButtonsVisible PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testDownloadBackupSuccess took 844ms
+
+DriveSyncManagerTest > testDownloadBackupSuccess PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testUploadBackupSuccess took 748ms
+
+DriveSyncManagerTest > testUploadBackupSuccess PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testDownloadBackupHttpError took 245ms
+
+DriveSyncManagerTest > testDownloadBackupHttpError PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenOverlayScreenshotTest.overlayButtonsVisibleTelnet took 1775ms
+
+TerminalScreenOverlayScreenshotTest > overlayButtonsVisibleTelnet PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testUploadBackupFailure took 604ms
+
+DriveSyncManagerTest > testUploadBackupFailure PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testHandleAuthorizationResult_validCode_ok took 419ms
+
+DriveSyncManagerTest > testHandleAuthorizationResult_validCode_ok PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testSetOAuthToken took 292ms
+
+DriveSyncManagerTest > testSetOAuthToken PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testHandleAuthorizationResult_validCode_cancelled took 206ms
+
+DriveSyncManagerTest > testHandleAuthorizationResult_validCode_cancelled PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenOverlayScreenshotTest.overlayButtonsHidden took 1344ms
+
+TerminalScreenOverlayScreenshotTest > overlayButtonsHidden PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testUploadBackupSuccessWithExistingFile took 360ms
+
+DriveSyncManagerTest > testUploadBackupSuccessWithExistingFile PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.sync.DriveSyncManagerTest.testHandleAuthorizationResult_invalidCode took 154ms
+
+DriveSyncManagerTest > testHandleAuthorizationResult_invalidCode PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenLogicTest.testTerminalScreenContentKeyboardInteractions took 27040ms
+
+TerminalScreenLogicTest > testTerminalScreenContentKeyboardInteractions PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenLogicTest.testTerminalScreenLogic took 618ms
+
+TerminalScreenLogicTest > testTerminalScreenLogic PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenResumeScreenshotTest.terminalShowsPersistedHistoryOnResume took 27556ms
+
+TerminalScreenResumeScreenshotTest > terminalShowsPersistedHistoryOnResume PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenResumeScreenshotTest.terminalShowsTelnetHeaderWarning took 1129ms
+
+TerminalScreenResumeScreenshotTest > terminalShowsTelnetHeaderWarning PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalExtraKeysScreenshotTest.page1_withModifiers took 28865ms
+
+TerminalExtraKeysScreenshotTest > page1_withModifiers PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalExtraKeysScreenshotTest.page3_f1_f12_keys took 906ms
+
+TerminalExtraKeysScreenshotTest > page3_f1_f12_keys PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalExtraKeysScreenshotTest.page1_noModifiers took 683ms
+
+TerminalExtraKeysScreenshotTest > page1_noModifiers PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenContentScreenshotTest.terminalScreen_Connected_TelnetWarning took 26062ms
+
+TerminalScreenContentScreenshotTest > terminalScreen_Connected_TelnetWarning PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenContentScreenshotTest.terminalScreen_Connected_WithExtraKeys took 650ms
+
+TerminalScreenContentScreenshotTest > terminalScreen_Connected_WithExtraKeys PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.keys.KeyManagementScreenTest.testKeyManagementScreenDisplaysAndGeneratesKey took 27143ms
+
+KeyManagementScreenTest > testKeyManagementScreenDisplaysAndGeneratesKey PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenContentScreenshotTest.terminalScreen_Connected_Normal took 741ms
+
+TerminalScreenContentScreenshotTest > terminalScreen_Connected_Normal PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenContentScreenshotTest.terminalScreen_Disconnected_ErrorDialog took 1563ms
+
+TerminalScreenContentScreenshotTest > terminalScreen_Disconnected_ErrorDialog PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileViewModelTest.test updateState and resetState took 12315ms
+
+AddEditProfileViewModelTest > test updateState and resetState PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileViewModelTest.test save and retrieve profile took 719ms
+
+AddEditProfileViewModelTest > test save and retrieve profile PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenContentCoverageTest.testTerminalScreenBase took 25497ms
+
+TerminalScreenContentCoverageTest > testTerminalScreenBase PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileViewModelTest.test getAvailableKeys and getIdentities took 367ms
+
+AddEditProfileViewModelTest > test getAvailableKeys and getIdentities PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileViewModelTest.test loadProfileIfNeeded took 319ms
+
+AddEditProfileViewModelTest > test loadProfileIfNeeded PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalExtraKeysTest.testTerminalExtraKeys_rendersKeys took 25263ms
+
+TerminalExtraKeysTest > testTerminalExtraKeys_rendersKeys PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenContentCoverageTest.testTerminalScreenContentVariousStates took 2783ms
+
+TerminalScreenContentCoverageTest > testTerminalScreenContentVariousStates PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListDialogIntegrationTest.testConnectionList_ShowsSessionSelector_AndNavigates took 29406ms
+
+ConnectionListDialogIntegrationTest > testConnectionList_ShowsSessionSelector_AndNavigates PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalDialogsTest.testSessionDisconnectedDialog took 25018ms
+
+TerminalDialogsTest > testSessionDisconnectedDialog PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalDialogsTest.testKeepAliveDialog took 1042ms
+
+TerminalDialogsTest > testKeepAliveDialog PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalDialogsTest.testConnectionFailedDialog took 839ms
+
+TerminalDialogsTest > testConnectionFailedDialog PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalDialogsTest.testTerminateConfirmDialog took 952ms
+
+TerminalDialogsTest > testTerminateConfirmDialog PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListMenuTest.testManageIdentitiesMenuOptionNavigates took 29071ms
+
+ConnectionListMenuTest > testManageIdentitiesMenuOptionNavigates PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.exportBackupDialogScreen took 25862ms
+
+ConnectionListScreenScreenshotTest > exportBackupDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.draggedConnectionItemScreen took 995ms
+
+ConnectionListScreenScreenshotTest > draggedConnectionItemScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.reorderModeScreen took 1081ms
+
+ConnectionListScreenScreenshotTest > reorderModeScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.activeConnectionBadgeScreen took 1722ms
+
+ConnectionListScreenScreenshotTest > activeConnectionBadgeScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogScreenshotTest.sessionDisconnectedDialogScreen took 25272ms
+
+TerminalScreenDialogScreenshotTest > sessionDisconnectedDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.activeSessionsDialogScreen took 838ms
+
+ConnectionListScreenScreenshotTest > activeSessionsDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalSettingsIntegrationTest.testTogglingButtonBarTriggersBackgroundWrite took 16453ms
+
+TerminalSettingsIntegrationTest > testTogglingButtonBarTriggersBackgroundWrite PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogScreenshotTest.keepAliveDialogScreen took 1052ms
+
+TerminalScreenDialogScreenshotTest > keepAliveDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalSettingsIntegrationTest.testConnectionCanStartWithButtonBarClosed took 435ms
+
+TerminalSettingsIntegrationTest > testConnectionCanStartWithButtonBarClosed PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.menuExpandedScreen took 1146ms
+
+ConnectionListScreenScreenshotTest > menuExpandedScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalSettingsIntegrationTest.testConnectionCanStartWithButtonBarOpen took 539ms
+
+TerminalSettingsIntegrationTest > testConnectionCanStartWithButtonBarOpen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelTest.test moveProfileInFlatList updates sorting and folder took 19911ms
+
+ConnectionListViewModelTest > test moveProfileInFlatList updates sorting and folder PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.renamedDefaultGroupScreen took 798ms
+
+ConnectionListScreenScreenshotTest > renamedDefaultGroupScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalSessionPersistenceTest.testTerminalSessionIsPersistedInProvider took 14398ms
+
+TerminalSessionPersistenceTest > testTerminalSessionIsPersistedInProvider PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.defaultScreen took 722ms
+
+ConnectionListScreenScreenshotTest > defaultScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenScreenshotTest.importBackupDialogScreen took 577ms
+
+ConnectionListScreenScreenshotTest > importBackupDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogScreenshotTest.authPromptDialogScreen took 2544ms
+
+TerminalScreenDialogScreenshotTest > authPromptDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogScreenshotTest.connectionFailedDialogScreen took 599ms
+
+TerminalScreenDialogScreenshotTest > connectionFailedDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogScreenshotTest.terminateConfirmDialogScreen took 833ms
+
+TerminalScreenDialogScreenshotTest > terminateConfirmDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogScreenshotTest.authPromptDialogScreen_Retry took 624ms
+
+TerminalScreenDialogScreenshotTest > authPromptDialogScreen_Retry PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelTest.test loadProfiles updates state took 3997ms
+
+ConnectionListViewModelTest > test loadProfiles updates state PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SectionHeaderWithInfoTest.testInfoIconOpensWiki took 22912ms
+
+SectionHeaderWithInfoTest > testInfoIconOpensWiki PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogsCoverageTest.testSessionDisconnectedDialog took 23967ms
+
+TerminalScreenDialogsCoverageTest > testSessionDisconnectedDialog PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogsCoverageTest.testKeepAliveDialog took 928ms
+
+TerminalScreenDialogsCoverageTest > testKeepAliveDialog PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogsCoverageTest.testConnectionFailedDialog took 548ms
+
+TerminalScreenDialogsCoverageTest > testConnectionFailedDialog PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenDialogsCoverageTest.testTerminateConfirmDialog took 559ms
+
+TerminalScreenDialogsCoverageTest > testTerminateConfirmDialog PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelTest.test deleteProfile removes profile took 9434ms
+
+ConnectionListViewModelTest > test deleteProfile removes profile PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsScreenScreenshotTest.screenWithRenamedGroup took 26631ms
+
+SettingsScreenScreenshotTest > screenWithRenamedGroup PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsScreenScreenshotTest.screenWithCloudSyncEnabledAndPassphraseSet took 955ms
+
+SettingsScreenScreenshotTest > screenWithCloudSyncEnabledAndPassphraseSet PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsScreenScreenshotTest.defaultScreen took 834ms
+
+SettingsScreenScreenshotTest > defaultScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsScreenScreenshotTest.screenWithCloudSyncEnabledAndSyncing took 709ms
+
+SettingsScreenScreenshotTest > screenWithCloudSyncEnabledAndSyncing PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelTest.test updateSearchQuery filters profiles took 3144ms
+
+ConnectionListViewModelTest > test updateSearchQuery filters profiles PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsScreenSyncPassphraseScreenshotTest.syncPassphraseDialogScreen took 25074ms
+
+SettingsScreenSyncPassphraseScreenshotTest > syncPassphraseDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.components.TerminalScreenContentUITest.testTerminalExtraKeysTriggerCallbacks took 23356ms
+
+TerminalScreenContentUITest > testTerminalExtraKeysTriggerCallbacks PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelTest.test moveToFolder updates profile took 2047ms
+
+ConnectionListViewModelTest > test moveToFolder updates profile PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testUpdateDefaultGroupName_emptyString_fallsBackToUncategorized took 13768ms
+
+SettingsViewModelTest > testUpdateDefaultGroupName_emptyString_fallsBackToUncategorized PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelTest.test backup import and export flow via VM took 4042ms
+
+ConnectionListViewModelTest > test backup import and export flow via VM PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testPurchaseCloudSync took 2371ms
+
+SettingsViewModelTest > testPurchaseCloudSync PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testAuthenticateGoogleWhenPassphraseIsSet took 381ms
+
+SettingsViewModelTest > testAuthenticateGoogleWhenPassphraseIsSet PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testShowAndDismissPassphraseDialog took 198ms
+
+SettingsViewModelTest > testShowAndDismissPassphraseDialog PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListSessionSelectorScreenshotTest.sessionSelectorDialogScreen took 21645ms
+
+ConnectionListSessionSelectorScreenshotTest > sessionSelectorDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testAuthenticateGoogleShowsPassphraseDialogIfNotSet took 283ms
+
+SettingsViewModelTest > testAuthenticateGoogleShowsPassphraseDialogIfNotSet PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testInitialState took 136ms
+
+SettingsViewModelTest > testInitialState PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testUpdateDefaultGroupName took 195ms
+
+SettingsViewModelTest > testUpdateDefaultGroupName PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.SettingsViewModelTest.testSavePassphraseAndSync took 271ms
+
+SettingsViewModelTest > testSavePassphraseAndSync PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenTest.testActiveSessionsDialog_renders took 19811ms
+
+ConnectionListScreenTest > testActiveSessionsDialog_renders PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenTest.testExportBackupDialog_submit took 390ms
+
+ConnectionListScreenTest > testExportBackupDialog_submit PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ActiveSessionSelectorDialogTest.testSelectSession_ResumesSession took 18770ms
+
+ActiveSessionSelectorDialogTest > testSelectSession_ResumesSession PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenTest.testExportBackupDialog_renders took 1943ms
+
+ConnectionListScreenTest > testExportBackupDialog_renders PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenTest.testImportBackupDialog_submit took 265ms
+
+ConnectionListScreenTest > testImportBackupDialog_submit PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ActiveSessionSelectorDialogTest.testStartNew_StartsNewSession took 721ms
+
+ActiveSessionSelectorDialogTest > testStartNew_StartsNewSession PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListScreenTest.testImportBackupDialog_renders took 607ms
+
+ConnectionListScreenTest > testImportBackupDialog_renders PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileScreenScreenshotTest.portForwardDialogScreen took 20785ms
+
+AddEditProfileScreenScreenshotTest > portForwardDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileScreenScreenshotTest.portForwardTableScreen took 1450ms
+
+AddEditProfileScreenScreenshotTest > portForwardTableScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileScreenScreenshotTest.telnetScreenWarningBanner took 736ms
+
+AddEditProfileScreenScreenshotTest > telnetScreenWarningBanner PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.AddEditProfileScreenScreenshotTest.defaultScreenKeyAuth took 869ms
+
+AddEditProfileScreenScreenshotTest > defaultScreenKeyAuth PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.keys.KeyManagementScreenScreenshotTest.screenWithGeneratedKey took 18454ms
+
+KeyManagementScreenScreenshotTest > screenWithGeneratedKey PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.keys.KeyManagementScreenScreenshotTest.defaultScreen took 456ms
+
+KeyManagementScreenScreenshotTest > defaultScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testUpdateStateAndResetState took 8856ms
+
+IdentityViewModelTest > testUpdateStateAndResetState PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testLoadIdentityIfNeededNull took 104ms
+
+IdentityViewModelTest > testLoadIdentityIfNeededNull PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.identity.AddEditIdentityScreenScreenshotTest.showInjectDialogScreen took 18284ms
+
+AddEditIdentityScreenScreenshotTest > showInjectDialogScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.TerminalViewModelTest.test onCopyTextToClipboard sets primary clip took 8881ms
+
+TerminalViewModelTest > test onCopyTextToClipboard sets primary clip PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.TerminalViewModelTest.test initFontSize uses profile size took 361ms
+
+TerminalViewModelTest > test initFontSize uses profile size PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testInjectPublicKeyFailure took 865ms
+
+IdentityViewModelTest > testInjectPublicKeyFailure PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.TerminalViewModelTest.test onPasteTextFromClipboard pastes text took 129ms
+
+TerminalViewModelTest > test onPasteTextFromClipboard pastes text PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testSaveAndLoadIdentities took 392ms
+
+IdentityViewModelTest > testSaveAndLoadIdentities PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.TerminalViewModelTest.test updateFontSize coerces minimum and updates flow took 272ms
+
+TerminalViewModelTest > test updateFontSize coerces minimum and updates flow PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.identity.AddEditIdentityScreenScreenshotTest.filledEditScreenWithKeys took 917ms
+
+AddEditIdentityScreenScreenshotTest > filledEditScreenWithKeys PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.TerminalViewModelTest.test initFontSize uses global size when profile size is null took 194ms
+
+TerminalViewModelTest > test initFontSize uses global size when profile size is null PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.TerminalViewModelTest.test onCleared clears sessions took 83ms
+
+TerminalViewModelTest > test onCleared clears sessions PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.TerminalViewModelTest.test getOrCreateSession creates new session and stores it took 71ms
+
+TerminalViewModelTest > test getOrCreateSession creates new session and stores it PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.TerminalViewModelTest.test no-op methods do not crash took 101ms
+
+TerminalViewModelTest > test no-op methods do not crash PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.connectionlist.components.MoveToFolderBottomSheetScreenshotTest.defaultState took 15888ms
+
+MoveToFolderBottomSheetScreenshotTest > defaultState PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.identity.AddEditIdentityScreenScreenshotTest.passwordVisibleScreen took 503ms
+
+AddEditIdentityScreenScreenshotTest > passwordVisibleScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.identity.AddEditIdentityScreenScreenshotTest.defaultAddScreen took 414ms
+
+AddEditIdentityScreenScreenshotTest > defaultAddScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testGenerateRSAKeyPair took 1589ms
+
+IdentityViewModelTest > testGenerateRSAKeyPair PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testLoadIdentityIfNeeded took 80ms
+
+IdentityViewModelTest > testLoadIdentityIfNeeded PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testGenerateEd25519KeyPair took 79ms
+
+IdentityViewModelTest > testGenerateEd25519KeyPair PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testDeleteIdentity took 81ms
+
+IdentityViewModelTest > testDeleteIdentity PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.IdentityViewModelTest.testGetIdentity took 71ms
+
+IdentityViewModelTest > testGetIdentity PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelDragDropTest.testCategoryDragAndDropReordersItems took 6265ms
+
+ConnectionListViewModelDragDropTest > testCategoryDragAndDropReordersItems PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.ConnectionListViewModelDragDropTest.testDragAndDropReordersItems took 136ms
+
+ConnectionListViewModelDragDropTest > testDragAndDropReordersItems PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.InitialDirectoryScreenshotTest.initialDirectoryScreen took 11627ms
+
+InitialDirectoryScreenshotTest > initialDirectoryScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.identity.IdentityListScreenScreenshotTest.defaultEmptyScreen took 8331ms
+
+IdentityListScreenScreenshotTest > defaultEmptyScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.identity.IdentityListScreenScreenshotTest.populatedListScreen took 556ms
+
+IdentityListScreenScreenshotTest > populatedListScreen PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.connectionlist.dialogs.ActiveSessionSelectorDialogTest.testActiveSessionSelectorDialog took 8133ms
+
+ActiveSessionSelectorDialogTest > testActiveSessionSelectorDialog PASSED
+⏱️ TEST-METRIC: com.adamoutler.ssh.ui.screens.identity.InjectKeyDialogScreenshotTest.placeholderScreen took 7186ms
+
+InjectKeyDialogScreenshotTest > placeholderScreen PASSED
+ℹ️  Standard test suite completed. Note: Long-running @FullTest tests were SKIPPED.
+ℹ️  Recommendation: Run './gradlew test connectedAndroidTest -PfullTestRun' for a complete overview.
+See the Paparazzi report at: file:///home/adamoutler/git/ssh/app/build/reports/paparazzi/debug/index.html
+
+> Task :app:jacocoTestReport
+
+BUILD SUCCESSFUL in 4m 5s
+32 actionable tasks: 17 executed, 15 up-to-date
