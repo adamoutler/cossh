@@ -285,4 +285,57 @@ class AddEditProfileScreenScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun useLocalDnsToggleScreen() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    AddEditProfileScreenContent(
+                        profileId = null,
+                        nickname = "Local Server",
+                        onNicknameChange = {},
+                        host = "raspberrypi.local",
+                        onHostChange = {},
+                        port = "22",
+                        onPortChange = {},
+                        protocol = com.adamoutler.ssh.data.Protocol.SSH,
+                        onProtocolChange = {},
+                        username = "pi",
+                        onUsernameChange = {},
+                        password = "",
+                        onPasswordChange = {},
+                        isPasswordLocked = false,
+                        onPasswordLockedChange = {},
+                        authType = AuthType.PASSWORD,
+                        onAuthTypeChange = {},
+                        availableKeys = emptyList(),
+                        keyReference = "",
+                        onKeyReferenceChange = {},
+                        identities = emptyList(),
+                        identityId = null,
+                        onIdentityChange = {},
+                        onManageIdentities = {},
+                        envVarsText = "",
+                        onEnvVarsTextChange = {},
+                        portForwards = emptyList(),
+                        onPortForwardsChange = {},
+                        initialDirectory = "",
+                        onInitialDirectoryChange = {},
+                        terminalInputState = 0,
+                        onTerminalInputStateChange = {},
+                        keepScreenOnMode = com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT,
+                        onKeepScreenOnModeChange = {},
+                        useLocalDns = true,
+                        onUseLocalDnsChange = {},
+                        onSave = {},
+                        onNavigateBack = {},
+                    )
+                }
+            }
+        }
+    }
 }
