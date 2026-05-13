@@ -61,6 +61,8 @@ class AddEditProfileScreenInstrumentedTest {
                 onTerminalInputStateChange = {},
                 keepScreenOnMode = com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT,
                 onKeepScreenOnModeChange = {},
+                useLocalDns = false,
+                onUseLocalDnsChange = {},
             )
         }
 
