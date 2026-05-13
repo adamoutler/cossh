@@ -46,6 +46,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+      - name: Run Tests and Coverage for Reality Checker
+        run: ./gradlew testDebugUnitTest jacocoTestReport
       - name: Build Release (ProGuard Check)
         run: |
           mkdir -p ~/.android
