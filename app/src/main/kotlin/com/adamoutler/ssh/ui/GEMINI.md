@@ -1,24 +1,27 @@
-# UI Module (`com.adamoutler.ssh.ui`)
+# UI Module Context
 
-This module contains the Jetpack Compose visual layer and presentation logic of CoSSH.
+## Logical Purpose
+The `com.adamoutler.ssh.ui` package implements the presentation layer of CoSSH using a modern Jetpack Compose architecture following strict MVVM (Model-View-ViewModel) principles. It handles user interactions, navigation, state rendering, and bridges the gap between the user and the underlying business logic (`data`, `network`, `crypto`). It enforces a "cobalt-blue" aesthetic and a strong focus on security and reactivity.
 
-## Package Responsibility
-The UI package renders the application's "cobalt-blue" aesthetic and manages user interactions following the MVVM pattern. It is responsible for navigation, dialog presentation, and bridging user actions to the underlying business logic (network, crypto, backup).
+## Key Architectural Components & APIs
+- **State Management (UDF)**: ViewModels expose state via `MutableStateFlow` (read-only `StateFlow` to the UI). The UI is exclusively reactive, observing these flows and dispatching events back to the ViewModels.
+- **`BaseAndroidViewModel` & Error Handling**: All Android-aware ViewModels extend this base class to utilize `launchWithHandler`. This standardizes coroutine error interception, mapping exceptions to generic UI alerts or specific domain states without crashing the app. A critical contract here is catching `KeyInvalidatedException` and globally triggering the `KeystoreInvalidatedDialog`.
+- **`UiEventBus`**: A decoupled, global event bus used for transient effects (e.g., Snackbars, programmatic navigation) that do not fit well into standard persistent state flows.
+- **`AppNavigation`**: The central routing hub. It defines the `NavHost` and manages global UI overlays like the `HostKeyPromptDialog` (for TOFU SSH handshakes) which reacts directly to the `ConnectionStateRepository`.
+- **`TerminalScreen` & `TerminalViewModel`**: The most complex UI component. It bridges Jetpack Compose with the legacy Android `View`-based `TerminalView` (from Termux).
+  - Implements a **Tri-state Modifier System** (`INACTIVE` -> `STICKY` -> `LOCKED`) for mobile touch-friendly Ctrl/Alt key combinations.
+  - Handles secure clipboard pasting and explicit memory scrubbing when the session finishes.
 
-## Core Structure
-- **`navigation/AppNavigation`**: Defines the entry point and routes for all composable screens.
-- **`screens/`**: Contains the primary Views and ViewModels (e.g., `ConnectionListViewModel`, `AddEditProfileViewModel`, `TerminalScreen`).
-- **`events/UiEventBus`**: Implements a decoupled event system for handling one-time UI actions (snackbars, navigation triggers) asynchronously.
-- **`theme/` & `components/`**: Manages visual styling, colors, and reusable UI widgets.
+## Behavioral Contracts & Design Patterns
+- **Unidirectional Data Flow (UDF)**: Strict adherence. UI components should never mutate state directly.
+- **Optimistic Updates**: Used in lists (like `ConnectionListViewModel`) to provide immediate visual feedback (e.g., drag-and-drop reordering) before persistence completes.
+- **Security-First Lifecycle**: The `TerminalViewModel` must proactively scrub terminal session buffers from memory upon termination to prevent credential leakage using `java.util.Arrays.fill(textArray, '\u0000')`.
+- **Gated Features**: The `GatedFeatureWrapper` component provides a consistent way to handle premium features by intercepting interactions and applying visual dimming.
+- **Theming**: Defined in `theme/Theme.kt` and `Color.kt`. Relies heavily on a "Cobalt Blue" Material3 palette for brand identity.
 
 ## Dependencies
-- **`com.adamoutler.ssh.data`**: Consumes models to display and edit profiles and keys.
-- **`com.adamoutler.ssh.network`**: Reads connection states and terminal output; sends user keystrokes.
-- **`com.adamoutler.ssh.crypto`**: Triggers storage saving and key generation.
-- **`com.adamoutler.ssh.backup`**: Initiates export and import flows.
-
-## Dependents
-- **`com.adamoutler.ssh` (Root)**: The `MainActivity` hosts the navigation graph defined in this package.
-
-## Testing Context
-Testing must reflect real user journeys rather than fully isolated mock component testing. Every UI test must map directly to a defined User Story. Tests must involve the ViewModel, verify integration with UI components, and actively handle and assert state changes.
+- `androidx.compose.*` (Foundation, Material3, UI)
+- `androidx.lifecycle.ViewModel`
+- `androidx.navigation.compose`
+- `com.termux.terminal` (Core emulation engine)
+- Internal packages: `data`, `network`, `crypto`, `billing`.

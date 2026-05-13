@@ -1,20 +1,25 @@
-# Backup Module (`com.adamoutler.ssh.backup`)
+# Backup Module Context
 
-This module provides a secure mechanism for exporting and importing connection profiles.
+## Logical Purpose
+The `com.adamoutler.ssh.backup` package provides a secure mechanism for exporting and importing connection profiles and cryptographic identities. It acts as a bridge between the application's internal secure storage (Keystore-backed) and external portability (encrypted ZIP archives). It ensures that even sensitive fields marked as `@Transient` (passwords, private keys) are securely transported.
 
-## Package Responsibility
-The backup package acts as a high-level orchestrator for data portability. It allows users to export their connection profiles into encrypted ZIP archives and restore them. A critical aspect of this module is its explicit handling of `ConnectionProfile` passwords, which are marked as transient in the core data model and must be handled specially during backup and restore.
+## Key Components & APIs
+- **`BackupManager`**: A facade that handles Android-specific I/O (via `Uri` and `ContentResolver`) and coordinates with `SecurityStorageManager` and `IdentityStorageManager`.
+  - `exportBackup`: Coordinates the extraction and encryption of all local data.
+  - `importBackup`: Coordinates decryption and merging into local storage.
+- **`BackupCryptoManager`**: An object containing the pure logic for cryptographic operations and ZIP packaging.
+- **`BackupPayload`**: A data transfer object (DTO) that structures the backup data, including separate maps for sensitive bytes that are Base64-encoded.
 
-## Core Components
-- **`BackupManager`**: The high-level entry point providing a clean API for the UI layer to trigger exports and imports. Coordinates with the Android `ContentResolver` and `SecurityStorageManager`.
-- **`BackupCryptoManager`**: Handles the core cryptographic logic. Uses PBKDF2 (65,536 iterations) for key derivation from a user-provided password and AES-GCM (256-bit) for data encryption of the `BackupPayload`.
+## Behavioral Contracts & Design Patterns
+- **Confidentiality & Integrity**: Uses AES-256-GCM for authenticated encryption, ensuring data hasn't been tampered with.
+- **Key Derivation**: Uses PBKDF2 with 65,536 iterations and a 16-byte random salt to derive keys from user passwords.
+- **Transient Field Handling**: Explicitly extracts `password` and `privateKey` fields from profiles during export and re-injects them during import, as they are excluded from standard JSON serialization.
+- **Facade Pattern**: `BackupManager` simplifies the backup process for the UI layer.
 
 ## Dependencies
-- **`com.adamoutler.ssh.crypto`**: Depends on `SecurityStorageManager` to retrieve existing profiles for export and to save imported profiles.
-- **`com.adamoutler.ssh.data`**: Uses `ConnectionProfile` and `BackupPayload` models.
+- `com.adamoutler.ssh.crypto` (for storage managers)
+- `com.adamoutler.ssh.data` (for core data models like `ConnectionProfile`, `IdentityProfile`)
+- `kotlinx.serialization` (for JSON serialization)
+- Standard JCE (`Cipher`, `SecretKeyFactory`, `SecureRandom`)
 
-## Dependents
-- **`com.adamoutler.ssh.ui`**: `ConnectionListViewModel` is the primary consumer, integrating `BackupManager` into user-facing UI flows.
-
-## Testing Context
-Thoroughly tested through local unit tests (`BackupCryptoManagerTest`) and instrumented integration tests (`SecurityStorageManagerInstrumentedTest`). Ensure new backup features maintain cryptographic integrity and properly handle transient fields like passwords.
+**Note:** Any changes to `ConnectionProfile` or `IdentityProfile` that add sensitive fields must be mirrored in `BackupPayload` and handled in `BackupCryptoManager`'s mapping logic. Cryptographic constants are hardcoded; changes will break backward compatibility.

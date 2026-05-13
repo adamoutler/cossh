@@ -1,22 +1,29 @@
-# Network Module (`com.adamoutler.ssh.network`)
+# Network Module Context
 
-This module is the core engine for SSH connectivity and terminal session management.
+## Logical Purpose
+The `com.adamoutler.ssh.network` package is the core engine for remote connectivity in CoSSH. It provides a robust, multi-protocol (SSH, Telnet) infrastructure with advanced state management to bridge complex, blocking network operations with a reactive, asynchronous UI layer.
 
-## Package Responsibility
-The network package manages SSH session lifecycles, authenticates users (Password and RSA/ED25519 Keys), and provides the PTY streams necessary for the terminal emulator. It ensures connections persist in the background via Android Services and enforces strict network timeout security invariants (10s default).
+## Key Components & APIs
+- **`ConnectionProtocol` & `ConnectionProtocolFactory`**: Abstract the underlying protocol (SSH vs Telnet), providing a unified interface for connection lifecycle (`connect`, `disconnect`, `write`, `resizePty`).
+- **`ConnectionStateRepository`**: The central state broker between the background service and the UI.
+  - Manages `ActiveSessionState` for each connection.
+  - Employs an internal `outputBuffer` to prevent data loss when the UI is detached (e.g., during navigation or configuration changes).
+  - Handles **Synchronous-to-Asynchronous Bridging**: Uses `CompletableDeferred` to suspend background network threads while waiting for UI interaction (e.g., `requestPrompt`, `requestAuthPrompt`).
+- **`SshHandshakeCoordinator` & `SshConnectionManager`**: Orchestrates the complex SSH handshake phase.
+  - Implements **Trust On First Use (TOFU)** via `TofuHostKeyVerifier` with SHA-256 fingerprinting.
+  - Coordinates multiple authentication strategies (`PasswordAuthenticator`, `KeyAuthenticator`).
+- **`SshService`**: A Foreground Service that ensures session persistence and manages notification lifecycles, ensuring connections survive app backgrounding.
+- **`PortForwardingOrchestrator`**: Handles local and remote port forwards concurrently with the main PTY session.
+- **`TelnetConnectionHandler`**: Implements Telnet with specific CR/LF translation logic for terminal compatibility.
 
-## Core Components
-- **`SshConnectionManager`**: A functional wrapper for the `sshj` library that handles connecting, authenticating, and managing PTY sessions.
-- **`SshService`**: An Android Foreground Service that ensures SSH connections persist even when the app is backgrounded. It bridges the remote output to the local terminal emulator.
-- **`SshSessionProvider`**: A singleton state broker connecting the background `SshService` to the Jetpack Compose `TerminalScreen`. It holds the `TerminalSession` and the PTY `OutputStream`.
+## Behavioral Contracts & Design Patterns
+- **Memory Safety & Scrubbing**: Explicitly zeroes out sensitive data (passwords, private keys) after authentication attempts are completed.
+- **Background Blocking vs UI Reactivity**: The underlying libraries (`sshj`, `commons-net`) perform blocking operations. The network layer suspends these operations using coroutines when UI interaction is required (e.g., accepting an unknown host key), maintaining the connection without hanging the main thread.
+- **Error Mapping**: Translates complex, opaque network exceptions into user-friendly `UiText` messages, hiding protocol noise while preserving technical accuracy.
+- **Design Patterns**: Heavy use of Factory (protocols), Strategy (authenticators), and Repository (state management) patterns.
 
 ## Dependencies
-- **`com.adamoutler.ssh.data`**: Uses `ConnectionProfile` to determine connection targets.
-- **`com.adamoutler.ssh.crypto`**: Uses credentials and generated keys for authentication.
-- **External Libraries**: Heavibly relies on `com.hierynomus:sshj` (protocol), `com.github.termux.termux-app:terminal-view` (emulation), and `org.bouncycastle:bcprov-jdk18on` (crypto).
-
-## Dependents
-- **`com.adamoutler.ssh.ui`**: `TerminalScreen` and `ConnectionListScreen` depend on this package to initiate connections, monitor status, and read/write to the interactive terminal.
-
-## Testing Context
-Integration tests for SSH session lifecycles are mandatory. Tests must use real or robustly simulated containers to verify network operations and connection handling accurately.
+- `com.hierynomus.sshj` (SSH protocol)
+- `commons-net` (Telnet protocol)
+- `org.bouncycastle` (Cryptography for SSH)
+- `com.adamoutler.ssh.crypto` & `com.adamoutler.ssh.data` (Internal dependencies)

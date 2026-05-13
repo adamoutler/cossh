@@ -1,24 +1,24 @@
-# Crypto Module (`com.adamoutler.ssh.crypto`)
+# Crypto Module Context
 
-This module is the security core of CoSSH, managing key storage, encryption, and secure data persistence.
+## Logical Purpose
+The `com.adamoutler.ssh.crypto` package is the security core of CoSSH, providing hardened mechanisms for credential storage and cryptographic operations. It ensures that sensitive data (passwords, private keys) is protected at rest using hardware-backed Android Keystore and is handled in memory with a focus on 'Volatile State Sanitization' (preventing leaks via process death serialization or clipboard).
 
-## Package Responsibility
-The crypto package implements the application's security invariants. It provides secure storage for connection profiles, encrypts sensitive fields (like passwords) that are explicitly excluded from standard serialization, and generates SSH keys for authentication. It utilizes a layered encryption approach (JSON blob + separate encrypted passwords) and includes robust fallback mechanisms for hardware-backed security (StrongBox).
+## Key Components & APIs
+- **`SecurityStorageManager` & `IdentityStorageManager`**: The core persistence engines for Connection Profiles and Identities.
+  - They implement a **Layered Encryption** strategy, separating non-sensitive metadata (JSON) from secrets (passwords/keys) in storage. This allows for 'metadata-only' loading, enabling the UI to list profiles without decrypting sensitive fields.
+  - They utilize AndroidX `EncryptedSharedPreferences` for general metadata and separate hardware-backed encryption for secrets.
+  - They implement a **Hardware Fallback Strategy**, proactively attempting to use `StrongBox` but gracefully falling back to standard hardware-backed Keystore.
+- **`PasswordCipher`**: Provides authentication-gated AES-GCM encryption. It implements a 5-minute **Biometric Gating** window for the most sensitive data, requiring the UI to handle `AuthenticationRequiredException`.
+- **`PemUtils`**: A format-agnostic parser for various PEM structures. Crucially, it implements **Memory Safety**, explicitly clearing char/byte arrays in memory after parsing to prevent credential leakage.
+- **`SSHKeyGenerator`**: A factory for generating cryptographic keys (RSA-4096, Ed25519) and handling OpenSSH wire format encoding.
+- **`CryptoExceptions.kt`**: A robust, **Unified Error Handling** utility that translates opaque hardware Keystore errors into actionable domain exceptions (e.g., `KeystoreInvalidatedException`, `UserNotAuthenticatedException`).
 
-## Core Components
-- **`SecurityStorageManager`**: Primary manager for encrypted storage of connection profiles using Android's `EncryptedSharedPreferences`.
-- **`PasswordCipher`**: Provides low-level AES-GCM encryption for passwords, backed by the Android Keystore.
-- **`SSHKeyGenerator`**: Handles the generation of RSA-4096 and Ed25519 SSH key pairs.
+## Behavioral Contracts & Design Patterns
+- **Layered Encryption & Metadata Isolation**: Secrets must be stored separately from basic profile data to support metadata-only extraction.
+- **Volatile State Sanitization**: Operations dealing with private keys or passwords must zero out arrays after use. Avoid `String` allocations for secrets and explicitly zero out `ByteArray` buffers.
+- **Exception Recovery**: Consumers of these managers must anticipate and gracefully handle `CryptoException` variants, particularly regarding user authentication flows.
 
 ## Dependencies
-- **`com.adamoutler.ssh.data`**: Operates on `ConnectionProfile` models.
-- **Android Security Crypto**: Relies on `androidx.security.crypto` for `EncryptedSharedPreferences`.
-- **Kotlinx Serialization**: Used for converting models to JSON before encryption.
-
-## Dependents
-- **`com.adamoutler.ssh.ui`**: Uses `SecurityStorageManager` for profile persistence (e.g., `AddEditProfileViewModel`).
-- **`com.adamoutler.ssh.backup`**: Uses `SecurityStorageManager` for reading/writing profiles during export/import.
-- **`com.adamoutler.ssh.network`**: Retrieves credentials and generated keys to establish SSH connections.
-
-## Testing Context
-Encryption testing must be performed under real conditions. Avoid over-reliance on mocks for cryptographic operations. Mandate robust testing of Keystore fallbacks to ensure security invariants are maintained even when hardware-backed keystores fail.
+- AndroidX Security Crypto library (`EncryptedSharedPreferences`, `MasterKey`)
+- BouncyCastle (`org.bouncycastle.openssl`, `org.bouncycastle.jcajce`)
+- Android Keystore System (`AndroidKeyStore`)
