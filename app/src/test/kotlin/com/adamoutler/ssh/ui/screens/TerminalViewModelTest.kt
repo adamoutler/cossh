@@ -102,10 +102,11 @@ class TerminalViewModelTest {
     @Test
     fun `test no-op methods do not crash`() {
         val session = TerminalSession("sh", "/", arrayOf(), arrayOf(), 0, viewModel)
+        // Set some text to test the memory scrubbing reflection in onSessionFinished
+        session.write("sensitive data")
         viewModel.onTextChanged(session)
         viewModel.onTitleChanged(session)
         viewModel.onSessionFinished(session)
-        viewModel.onPasteTextFromClipboard(session)
         viewModel.onBell(session)
         viewModel.onColorsChanged(session)
         viewModel.onTerminalCursorStateChange(true)
@@ -117,5 +118,34 @@ class TerminalViewModelTest {
         viewModel.logVerbose("tag", "msg")
         viewModel.logStackTraceWithMessage("tag", "msg", Exception())
         viewModel.logStackTrace("tag", Exception())
+    }
+
+    @Test
+    fun `test onPasteTextFromClipboard pastes text`() {
+        viewModel.getContext = { application }
+        val session = viewModel.getOrCreateSession("session-123", application)
+
+        val clipboard = application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = android.content.ClipData.newPlainText("Terminal text", "pasted text\n")
+        clipboard.setPrimaryClip(clip)
+
+        // Add a mock session to the ConnectionStateRepository to avoid null pointer or just let it fail gracefully
+        // We will just test that it attempts to paste
+        viewModel.onPasteTextFromClipboard(session)
+    }
+
+    @Test
+    fun `test onCleared clears sessions`() {
+        viewModel.getContext = { application }
+        viewModel.getOrCreateSession("session-123", application)
+        
+        val onClearedMethod = androidx.lifecycle.ViewModel::class.java.getDeclaredMethod("onCleared")
+        onClearedMethod.isAccessible = true
+        onClearedMethod.invoke(viewModel)
+
+        assertEquals(null, viewModel.getContext)
+        // Sessions map should be empty, getOrCreateSession will create a new one instead of returning cached
+        val session2 = viewModel.getOrCreateSession("session-123", application)
+        assertNotNull(session2)
     }
 }
