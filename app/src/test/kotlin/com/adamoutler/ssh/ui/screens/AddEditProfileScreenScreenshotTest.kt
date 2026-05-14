@@ -81,6 +81,7 @@ class AddEditProfileScreenScreenshotTest {
                         onCommandSnippetsChange = {},
                         onSave = {},
                         onNavigateBack = {},
+                        defaultPortForwardType = com.adamoutler.ssh.data.PortForwardType.LOCAL,
                         defaultPasswordVisible = false,
                     )
                 }
@@ -150,6 +151,7 @@ class AddEditProfileScreenScreenshotTest {
                         onCommandSnippetsChange = {},
                         onSave = {},
                         onNavigateBack = {},
+                        defaultPortForwardType = com.adamoutler.ssh.data.PortForwardType.LOCAL,
                     )
                 }
             }
@@ -218,6 +220,7 @@ class AddEditProfileScreenScreenshotTest {
                         onCommandSnippetsChange = {},
                         onSave = {},
                         onNavigateBack = {},
+                        defaultPortForwardType = com.adamoutler.ssh.data.PortForwardType.LOCAL,
                     )
                 }
             }
@@ -286,6 +289,7 @@ class AddEditProfileScreenScreenshotTest {
                         onCommandSnippetsChange = {},
                         onSave = {},
                         onNavigateBack = {},
+                        defaultPortForwardType = com.adamoutler.ssh.data.PortForwardType.LOCAL,
                         defaultPasswordVisible = true,
                         defaultShowAddDialog = true,
                     )
@@ -332,7 +336,8 @@ class AddEditProfileScreenScreenshotTest {
                         portForwards = emptyList(),
                         onPortForwardsChange = {},
                         commandSnippets = emptyList(),
-                        onCommandSnippetsChange = {},                        initialDirectory = "",
+                        onCommandSnippetsChange = {},
+                        initialDirectory = "",
                         onInitialDirectoryChange = {},
                         terminalInputState = 0,
                         onTerminalInputStateChange = {},
@@ -342,6 +347,7 @@ class AddEditProfileScreenScreenshotTest {
                         onUseLocalDnsChange = {},
                         onSave = {},
                         onNavigateBack = {},
+                        defaultPortForwardType = com.adamoutler.ssh.data.PortForwardType.LOCAL,
                     )
                 }
             }
@@ -400,6 +406,7 @@ class AddEditProfileScreenScreenshotTest {
                         onUseLocalDnsChange = {},
                         onSave = {},
                         onNavigateBack = {},
+                        defaultPortForwardType = com.adamoutler.ssh.data.PortForwardType.LOCAL,
                     )
                 }
             }

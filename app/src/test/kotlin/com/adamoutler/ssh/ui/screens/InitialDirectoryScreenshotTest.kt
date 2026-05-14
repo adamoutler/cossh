@@ -49,7 +49,8 @@ class InitialDirectoryScreenshotTest {
                         portForwards = emptyList(),
                         onPortForwardsChange = {},
                         commandSnippets = emptyList(),
-                        onCommandSnippetsChange = {},                        initialDirectory = "/var/log",
+                        onCommandSnippetsChange = {},
+                        initialDirectory = "/var/log",
                         onInitialDirectoryChange = {},
                         terminalInputState = 0,
                         onTerminalInputStateChange = {},
@@ -61,6 +62,7 @@ class InitialDirectoryScreenshotTest {
                         onNavigateBack = {},
                         protocol = Protocol.SSH,
                         onProtocolChange = {},
+                        defaultPortForwardType = com.adamoutler.ssh.data.PortForwardType.LOCAL,
                     )
                 }
             }

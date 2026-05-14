@@ -65,6 +65,7 @@ class AddEditProfileScreenInstrumentedTest {
                 onUseLocalDnsChange = {},
                 commandSnippets = emptyList(),
                 onCommandSnippetsChange = {},
+                defaultPortForwardType = com.adamoutler.ssh.data.PortForwardType.LOCAL,
             )
         }
 
