@@ -101,6 +101,7 @@ data class ConnectionProfile(
         if (terminalInputState != other.terminalInputState) return false
         if (keepScreenOnMode != other.keepScreenOnMode) return false
         if (useLocalDns != other.useLocalDns) return false
+        if (commandSnippets != other.commandSnippets) return false
 
         return true
     }
@@ -125,6 +126,7 @@ data class ConnectionProfile(
         result = 31 * result + terminalInputState
         result = 31 * result + keepScreenOnMode.hashCode()
         result = 31 * result + useLocalDns.hashCode()
+        result = 31 * result + commandSnippets.hashCode()
         return result
     }
 

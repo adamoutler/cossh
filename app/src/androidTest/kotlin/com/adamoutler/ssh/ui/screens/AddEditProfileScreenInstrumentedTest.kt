@@ -63,6 +63,8 @@ class AddEditProfileScreenInstrumentedTest {
                 onKeepScreenOnModeChange = {},
                 useLocalDns = false,
                 onUseLocalDnsChange = {},
+                commandSnippets = emptyList(),
+                onCommandSnippetsChange = {},
             )
         }
 

@@ -765,7 +765,7 @@ fun TerminalScreenContent(
                 confirmButton = {
                     TextButton(onClick = {
                         val bytes = if (snippet.autoSend) "${snippet.command}\r".toByteArray() else snippet.command.toByteArray()
-                        activeSession.ptyOutputStream?.write(bytes)
+                        sendToTerminal(bytes)
                         snippetToConfirm = null
                     }) {
                         Text("Execute")
@@ -791,7 +791,7 @@ fun TerminalScreenContent(
                                 snippetToConfirm = snippet
                             } else {
                                 val bytes = if (snippet.autoSend) "${snippet.command}\r".toByteArray() else snippet.command.toByteArray()
-                                activeSession.ptyOutputStream?.write(bytes)
+                                sendToTerminal(bytes)
                             }
                         },
                         label = { Text(snippet.name) },
