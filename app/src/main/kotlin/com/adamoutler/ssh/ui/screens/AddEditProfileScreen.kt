@@ -218,6 +218,7 @@ fun AddEditProfileScreenContent(
     onNavigateBack: () -> Unit,
     defaultPasswordVisible: Boolean = false,
     defaultShowAddDialog: Boolean = false,
+    defaultPortForwardType: PortForwardType = PortForwardType.LOCAL,
 ) {
     var isKeyDropdownExpanded by remember { mutableStateOf(false) }
     var isIdentityDropdownExpanded by remember { mutableStateOf(false) }
@@ -661,7 +662,7 @@ fun AddEditProfileScreenContent(
             var showAddDialog by remember { mutableStateOf(defaultShowAddDialog) }
 
             if (showAddDialog) {
-                var type by remember { mutableStateOf(PortForwardType.LOCAL) }
+                var type by remember { mutableStateOf(defaultPortForwardType) }
                 var localPort by remember { mutableStateOf("") }
                 var remoteHost by remember { mutableStateOf("") }
                 var remotePort by remember { mutableStateOf("") }
