@@ -23,24 +23,25 @@ fun GatedFeatureWrapper(
     content: @Composable () -> Unit,
 ) {
     Box(modifier = modifier) {
-        Box(
-            modifier = Modifier.alpha(if (isEnabled) 1.0f else 0.5f),
-        ) {
+        // 1. Render the actual content, dimming it if disabled
+        Box(modifier = Modifier.alpha(if (isEnabled) 1.0f else 0.5f)) {
             content()
         }
 
         if (!isEnabled) {
-            // Invisible box that intercepts all clicks when disabled
+            // 2. Invisible touch interceptor: Consumes all click events
+            // so nested buttons/switches cannot be interacted with.
             Box(
                 modifier = Modifier
                     .matchParentSize()
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = {},
+                        indication = null, // No ripple effect
+                        onClick = {}, // Do nothing
                     ),
             )
 
+            // 3. Render the "COMING SOON" Badge overlay
             Text(
                 text = "COMING SOON",
                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),

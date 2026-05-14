@@ -9,6 +9,6 @@
     <!-- Trust On First Use (TOFU) / MITM Prevention -->
     <exclude domain="file" path="ssh_known_hosts" />
     
-    <!-- Exclude EncryptedSharedPreferences Master Key (if stored in preferences) -->
+    <!-- Exclude EncryptedSharedPreferences Master Key -->
     <exclude domain="sharedpref" path="crypto_prefs.xml" />
 </full-backup-content>
