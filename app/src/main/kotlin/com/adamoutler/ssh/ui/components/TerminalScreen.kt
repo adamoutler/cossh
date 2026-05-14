@@ -1,8 +1,12 @@
 package com.adamoutler.ssh.ui.components
 
-import android.view.ViewGroup
+import android.view.KeyEvent
 import android.widget.FrameLayout
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -749,6 +753,59 @@ fun TerminalScreenContent(
                 )
             }
         }
+
+        var snippetToConfirm by remember { mutableStateOf<com.adamoutler.ssh.data.CommandSnippet?>(null) }
+        
+        snippetToConfirm?.let { snippet ->
+            AlertDialog(
+                onDismissRequest = { snippetToConfirm = null },
+                title = { Text("Confirm Execution") },
+                text = { Text("Are you sure you want to execute '${snippet.name}'?\n\nCommand: ${snippet.command}") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        val bytes = if (snippet.autoSend) "${snippet.command}\r".toByteArray() else snippet.command.toByteArray()
+                        activeSession.ptyOutputStream?.write(bytes)
+                        snippetToConfirm = null
+                    }) {
+                        Text("Execute")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { snippetToConfirm = null }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
+        if (!profile?.commandSnippets.isNullOrEmpty()) {
+            androidx.compose.foundation.lazy.LazyRow(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(profile!!.commandSnippets) { snippet ->
+                    AssistChip(
+                        onClick = {
+                            if (snippet.requireAuth) {
+                                snippetToConfirm = snippet
+                            } else {
+                                val bytes = if (snippet.autoSend) "${snippet.command}\r".toByteArray() else snippet.command.toByteArray()
+                                activeSession.ptyOutputStream?.write(bytes)
+                            }
+                        },
+                        label = { Text(snippet.name) },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                            labelColor = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier.semantics {
+                            contentDescription = "Inject snippet: ${snippet.name}. ${if (snippet.autoSend) "Executes immediately." else "Requires confirmation."}"
+                        }
+                    )
+                }
+            }
+        }
+
         if (terminalInputState == 2 || terminalInputState == 1) {
             TerminalExtraKeys(
                 ctrlState = ctrlState.value,
