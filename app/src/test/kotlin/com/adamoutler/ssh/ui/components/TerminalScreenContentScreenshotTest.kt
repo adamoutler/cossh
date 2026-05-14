@@ -165,4 +165,37 @@ class TerminalScreenContentScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun terminalScreen_Connected_WithSnippets() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    TerminalScreenContent(
+                        profileId = mockProfileId,
+                        sessionId = mockSessionId,
+                        session = mockSession,
+                        activeSession = mockActiveSession,
+                        currentFontSize = 14,
+                        isConnectionActive = true,
+                        errorMessage = null,
+                        onUpdateFontSize = {},
+                        onNavigateBack = {},
+                        onClearError = {},
+                        profile = ConnectionProfile(
+                            id = "1", 
+                            nickname = "My Server", 
+                            host = "localhost", 
+                            protocol = Protocol.SSH,
+                            commandSnippets = listOf(
+                                com.adamoutler.ssh.data.CommandSnippet("1", "Restart Nginx", "systemctl restart nginx", true, true),
+                                com.adamoutler.ssh.data.CommandSnippet("2", "Tail Logs", "tail -f /var/log/syslog", false, false)
+                            )
+                        ),
+                        initialTerminalInputState = 0,
+                    )
+                }
+            }
+        }
+    }
 }
