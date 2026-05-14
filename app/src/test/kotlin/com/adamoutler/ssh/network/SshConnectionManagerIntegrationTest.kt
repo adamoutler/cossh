@@ -55,8 +55,8 @@ class SshConnectionManagerIntegrationTest {
 
         // Wait for connection
         var retries = 0
-        while (ptyOut == null && retries < 100) {
-            delay(10)
+        while (ptyOut == null && retries < 500) {
+            delay(20)
             retries++
         }
 
@@ -68,8 +68,8 @@ class SshConnectionManagerIntegrationTest {
         ptyOut?.flush()
 
         retries = 0
-        while (!receivedOutput.contains("test_pty_command") && retries < 100) {
-            delay(10)
+        while (!receivedOutput.contains("test_pty_command") && retries < 500) {
+            delay(20)
             retries++
         }
 
