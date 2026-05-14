@@ -69,6 +69,7 @@ class AddEditProfileViewModelTest {
             nickname = "Load",
             host = "test",
             envVars = mapOf("A" to "B"),
+            commandSnippets = listOf(com.adamoutler.ssh.data.CommandSnippet("c1", "Restart", "systemctl restart", true, false)),
         )
         storageManager.saveProfile(profile)
 
@@ -76,6 +77,7 @@ class AddEditProfileViewModelTest {
         assertEquals(true, viewModel.uiState.value.isLoaded)
         assertEquals("Load", viewModel.uiState.value.nickname)
         assertEquals("A=B", viewModel.uiState.value.envVarsText)
+        assertEquals(1, viewModel.uiState.value.commandSnippets.size)
 
         // Loading again shouldn't overwrite if modified
         viewModel.updateState { it.copy(nickname = "Modified") }

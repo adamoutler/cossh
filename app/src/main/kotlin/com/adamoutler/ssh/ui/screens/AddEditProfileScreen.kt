@@ -109,6 +109,8 @@ fun AddEditProfileScreen(
         onEnvVarsTextChange = { newEnv -> viewModel.updateState { it.copy(envVarsText = newEnv) } },
         portForwards = uiState.portForwards,
         onPortForwardsChange = { newPF -> viewModel.updateState { it.copy(portForwards = newPF) } },
+        commandSnippets = uiState.commandSnippets,
+        onCommandSnippetsChange = { newSnippets -> viewModel.updateState { it.copy(commandSnippets = newSnippets) } },
         initialDirectory = uiState.initialDirectory,
         onInitialDirectoryChange = { newInitialDirectory -> viewModel.updateState { it.copy(initialDirectory = newInitialDirectory) } },
         terminalInputState = uiState.terminalInputState,
@@ -156,6 +158,7 @@ fun AddEditProfileScreen(
                 identityId = if (uiState.protocol == Protocol.SSH) uiState.identityId else null,
                 envVars = parsedEnvVars,
                 portForwards = uiState.portForwards,
+                commandSnippets = uiState.commandSnippets,
                 initialDirectory = uiState.initialDirectory,
                 terminalInputState = uiState.terminalInputState,
                 keepScreenOnMode = uiState.keepScreenOnMode,
@@ -201,6 +204,8 @@ fun AddEditProfileScreenContent(
     onEnvVarsTextChange: (String) -> Unit,
     portForwards: List<PortForwardConfig>,
     onPortForwardsChange: (List<PortForwardConfig>) -> Unit,
+    commandSnippets: List<com.adamoutler.ssh.data.CommandSnippet>,
+    onCommandSnippetsChange: (List<com.adamoutler.ssh.data.CommandSnippet>) -> Unit,
     initialDirectory: String,
     onInitialDirectoryChange: (String) -> Unit,
     terminalInputState: Int,
@@ -787,6 +792,141 @@ fun AddEditProfileScreenContent(
                 Icon(Icons.Filled.Add, contentDescription = "Add Port Forward")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Add Port Forward")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SectionHeaderWithInfo(title = "Command Snippets", topic = "Command Snippets")
+            Spacer(modifier = Modifier.height(8.dp))
+
+            commandSnippets.forEach { snippet ->
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(8.dp).fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = snippet.name,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                            Text(
+                                text = snippet.command,
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 2,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                            )
+                            Row(modifier = Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                if (snippet.autoSend) {
+                                    Badge(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer) {
+                                        Text("Auto-Send", modifier = Modifier.padding(horizontal = 4.dp))
+                                    }
+                                }
+                                if (snippet.requireAuth) {
+                                    Badge(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer) {
+                                        Text("Auth Required", modifier = Modifier.padding(horizontal = 4.dp))
+                                    }
+                                }
+                            }
+                        }
+                        IconButton(onClick = {
+                            val newList = commandSnippets.toMutableList()
+                            newList.remove(snippet)
+                            onCommandSnippetsChange(newList)
+                        }) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Delete Snippet")
+                        }
+                    }
+                }
+            }
+
+            var showAddSnippetDialog by remember { mutableStateOf(false) }
+
+            if (showAddSnippetDialog) {
+                var snippetName by remember { mutableStateOf("") }
+                var snippetCommand by remember { mutableStateOf("") }
+                var autoSend by remember { mutableStateOf(false) }
+                var requireAuth by remember { mutableStateOf(false) }
+
+                AlertDialog(
+                    onDismissRequest = { showAddSnippetDialog = false },
+                    title = { Text("Add Command Snippet") },
+                    text = {
+                        Column {
+                            OutlinedTextField(
+                                value = snippetName,
+                                onValueChange = { snippetName = it },
+                                label = { Text("Name") },
+                                placeholder = { Text("e.g., Restart Nginx") },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = snippetCommand,
+                                onValueChange = { snippetCommand = it },
+                                label = { Text("Command") },
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp, max = 200.dp)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Execute Immediately", style = MaterialTheme.typography.bodyMedium)
+                                    Text("Appends Enter key automatically", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                androidx.compose.material3.Switch(checked = autoSend, onCheckedChange = { autoSend = it })
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Require Authentication", style = MaterialTheme.typography.bodyMedium)
+                                    Text("Requires device unlock to inject", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                androidx.compose.material3.Switch(checked = requireAuth, onCheckedChange = { requireAuth = it })
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            if (snippetName.isNotBlank() && snippetCommand.isNotBlank()) {
+                                val newList = commandSnippets.toMutableList()
+                                newList.add(com.adamoutler.ssh.data.CommandSnippet(java.util.UUID.randomUUID().toString(), snippetName, snippetCommand, autoSend, requireAuth))
+                                onCommandSnippetsChange(newList)
+                                showAddSnippetDialog = false
+                            }
+                        }) {
+                            Text("Add")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showAddSnippetDialog = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
+
+            Button(
+                onClick = { showAddSnippetDialog = true },
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Add Snippet")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Add Snippet")
             }
         }
     }

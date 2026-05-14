@@ -65,6 +65,7 @@ data class ConnectionProfile(
     val folderId: String? = null,
     val envVars: Map<String, String> = emptyMap(),
     val portForwards: List<PortForwardConfig> = emptyList(),
+    val commandSnippets: List<CommandSnippet> = emptyList(),
     val initialDirectory: String? = null,
     val terminalInputState: Int = 0,
     val keepScreenOnMode: KeepScreenOnMode = KeepScreenOnMode.SYSTEM_DEFAULT,
