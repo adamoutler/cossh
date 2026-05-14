@@ -40,7 +40,7 @@ class BackupManagerTest {
     @Test
     fun `test exportBackup and importBackup`() {
         val passwordBytes = "my_secret_password".toByteArray()
-        val profile1 = ConnectionProfile("id1", "Host 1", "host1.com", 22, Protocol.SSH, "user1", AuthType.PASSWORD, 0, passwordBytes, null, null, null, null, emptyMap(), emptyList(), "/var/www")
+        val profile1 = ConnectionProfile("id1", "Host 1", "host1.com", 22, Protocol.SSH, "user1", AuthType.PASSWORD, 0, passwordBytes, null, null, null, null, emptyMap(), emptyList(), emptyList(), "/var/www")
 
         val identityPasswordBytes = "identity_password".toByteArray()
         val identityPrivateKeyBytes = "identity_private_key".toByteArray()
