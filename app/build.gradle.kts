@@ -416,7 +416,7 @@ sonar {
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
         property("sonar.junit.reportPaths", "${layout.buildDirectory.get()}/test-results/testDebugUnitTest")
 
-        property("sonar.coverage.exclusions", "")
+        property("sonar.coverage.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*")
         property("sonar.cpd.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*")
         property("sonar.c.file.suffixes", "-")
         property("sonar.cpp.file.suffixes", "-")
