@@ -340,8 +340,6 @@ class AddEditProfileScreenScreenshotTest {
                         onKeepScreenOnModeChange = {},
                         useLocalDns = true,
                         onUseLocalDnsChange = {},
-                        commandSnippets = emptyList(),
-                        onCommandSnippetsChange = {},
                         onSave = {},
                         onNavigateBack = {},
                     )
