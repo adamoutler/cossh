@@ -629,12 +629,16 @@ fun AddEditProfileScreenContent(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = if (pf.type == PortForwardType.LOCAL) "Local Forward" else "Remote Forward",
+                                text = when (pf.type) {
+                                    PortForwardType.LOCAL -> "Local Forward"
+                                    PortForwardType.REMOTE -> "Remote Forward"
+                                    PortForwardType.DYNAMIC -> "Dynamic Proxy"
+                                },
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                             Text(
-                                text = "${pf.localPort} ➔ ${pf.remoteHost}:${pf.remotePort}",
+                                text = if (pf.type == PortForwardType.DYNAMIC) "Local Port: ${pf.localPort} ➔ SOCKS5" else "${pf.localPort} ➔ ${pf.remoteHost}:${pf.remotePort}",
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                         }
@@ -666,23 +670,30 @@ fun AddEditProfileScreenContent(
                                 SegmentedButton(
                                     selected = type == PortForwardType.LOCAL,
                                     onClick = { type = PortForwardType.LOCAL },
-                                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
                                 ) {
                                     Text("Local")
                                 }
                                 SegmentedButton(
                                     selected = type == PortForwardType.REMOTE,
                                     onClick = { type = PortForwardType.REMOTE },
-                                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
                                 ) {
                                     Text("Remote")
                                 }
+                                SegmentedButton(
+                                    selected = type == PortForwardType.DYNAMIC,
+                                    onClick = { type = PortForwardType.DYNAMIC },
+                                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+                                ) {
+                                    Text("Dynamic")
+                                }
                             }
                             Spacer(modifier = Modifier.height(4.dp))
-                            val helpText = if (type == PortForwardType.LOCAL) {
-                                "Forwards a local port on this device to a remote destination."
-                            } else {
-                                "Forwards a remote port on the server to this local device."
+                            val helpText = when (type) {
+                                PortForwardType.LOCAL -> "Forwards a local port on this device to a remote destination."
+                                PortForwardType.REMOTE -> "Forwards a remote port on the server to this local device."
+                                PortForwardType.DYNAMIC -> "Opens a local SOCKS5 proxy that dynamically forwards traffic over the secure connection."
                             }
                             androidx.compose.animation.AnimatedContent(
                                 targetState = helpText,
@@ -698,6 +709,24 @@ fun AddEditProfileScreenContent(
                                 )
                             }
                             Spacer(modifier = Modifier.height(16.dp))
+                            
+                            androidx.compose.animation.AnimatedVisibility(visible = type == PortForwardType.DYNAMIC) {
+                                Card(
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                                ) {
+                                    Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Filled.Warning, contentDescription = "Warning", tint = MaterialTheme.colorScheme.error)
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "⚠️ Warning: This turns your device into a proxy. Ensure the port is not exposed to untrusted networks.",
+                                            color = MaterialTheme.colorScheme.onErrorContainer,
+                                            style = MaterialTheme.typography.bodySmall,
+                                        )
+                                    }
+                                }
+                            }
+                            
                             OutlinedTextField(
                                 value = localPort,
                                 onValueChange = { localPort = it },
@@ -705,30 +734,37 @@ fun AddEditProfileScreenContent(
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 singleLine = true,
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            OutlinedTextField(
-                                value = remoteHost,
-                                onValueChange = { remoteHost = it },
-                                label = { Text("Remote Host") },
-                                singleLine = true,
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            OutlinedTextField(
-                                value = remotePort,
-                                onValueChange = { remotePort = it },
-                                label = { Text("Remote Port") },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                singleLine = true,
-                            )
+                            
+                            androidx.compose.animation.AnimatedVisibility(visible = type != PortForwardType.DYNAMIC) {
+                                Column {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    OutlinedTextField(
+                                        value = remoteHost,
+                                        onValueChange = { remoteHost = it },
+                                        label = { Text("Remote Host") },
+                                        singleLine = true,
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    OutlinedTextField(
+                                        value = remotePort,
+                                        onValueChange = { remotePort = it },
+                                        label = { Text("Remote Port") },
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        singleLine = true,
+                                    )
+                                }
+                            }
                         }
                     },
                     confirmButton = {
                         TextButton(onClick = {
                             val lp = localPort.toIntOrNull()
-                            val rp = remotePort.toIntOrNull()
-                            if (lp != null && rp != null && remoteHost.isNotBlank()) {
+                            val rp = remotePort.toIntOrNull() ?: 0
+                            val rh = if (type == PortForwardType.DYNAMIC) "" else remoteHost
+                            
+                            if (lp != null && (type == PortForwardType.DYNAMIC || (rp > 0 && rh.isNotBlank()))) {
                                 val newList = portForwards.toMutableList()
-                                newList.add(PortForwardConfig(type, lp, remoteHost, rp))
+                                newList.add(PortForwardConfig(type, lp, rh, rp))
                                 onPortForwardsChange(newList)
                                 showAddDialog = false
                             }

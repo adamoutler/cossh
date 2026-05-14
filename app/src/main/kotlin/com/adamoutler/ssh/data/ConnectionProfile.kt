@@ -23,6 +23,7 @@ object ByteArrayAsBase64Serializer : KSerializer<ByteArray> {
 enum class PortForwardType {
     LOCAL,
     REMOTE,
+    DYNAMIC,
 }
 
 @Serializable
