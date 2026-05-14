@@ -88,7 +88,9 @@ class PortForwardingOrchestrator {
             } finally {
                 try {
                     serverSocket.close()
-                } catch (e: Exception) {}
+                } catch (e: Exception) {
+                    println("Error closing dynamic server socket: $e")
+                }
             }
         }
     }
@@ -148,18 +150,8 @@ class PortForwardingOrchestrator {
             val targetPort = input.readUnsignedShort()
 
             // Open SSH tunnel
-            var channel: DirectTCPIPChannel? = null
-            try {
-                channel = net.schmizz.sshj.connection.channel.direct.ChannelFactory.createDirectTCPIPChannel(client.connection, LOCAL_HOST, socket.port, targetHost, targetPort)
-            } catch (e: Exception) {
-                // Reply: Host unreachable / connection refused
-                output.writeByte(0x05)
-                output.writeByte(0x04)
-                output.write(byteArrayOf(0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00))
-                output.flush()
-                throw e
-            }
-
+            val channel = net.schmizz.sshj.connection.channel.direct.ChannelFactory.createDirectTCPIPChannel(client.connection, LOCAL_HOST, socket.port, targetHost, targetPort)
+            
             // Reply: Success
             output.writeByte(0x05)
             output.writeByte(0x00) // Success
@@ -181,7 +173,11 @@ class PortForwardingOrchestrator {
 
         } catch (e: Exception) {
             println("SOCKS5 connection error: $e")
-            try { socket.close() } catch (ignored: Exception) {}
+            try { 
+                socket.close() 
+            } catch (ignored: Exception) {
+                println("Failed to close socket: $ignored")
+            }
         }
     }
 
