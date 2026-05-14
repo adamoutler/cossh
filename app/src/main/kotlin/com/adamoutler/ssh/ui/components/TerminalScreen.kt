@@ -1,6 +1,7 @@
 package com.adamoutler.ssh.ui.components
 
 import android.view.KeyEvent
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
