@@ -1,5 +1,6 @@
 package com.adamoutler.ssh.network
 
+import com.adamoutler.ssh.annotations.FullTest
 import com.adamoutler.ssh.crypto.SSHKeyGenerator
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
@@ -9,8 +10,11 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import java.io.OutputStream
 
+@Category(FullTest::class)
+@FullTest
 class SshConnectionManagerIntegrationTest {
 
     @Before
