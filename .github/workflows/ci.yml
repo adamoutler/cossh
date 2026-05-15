@@ -54,6 +54,15 @@ jobs:
           
       - name: Run Tests and Coverage
         run: ./gradlew testDebugUnitTest jacocoTestReport --console=plain
+
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-debug-unit-reports
+          path: |
+            app/build/reports/tests/testDebugUnitTest/
+            app/build/test-results/testDebugUnitTest/
         
       - name: Upload Jacoco Report
         uses: actions/upload-artifact@v4
