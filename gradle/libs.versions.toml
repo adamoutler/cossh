@@ -33,7 +33,7 @@ googleApiServicesDrive = "v3-rev20230822-2.0.0"
 googleApiClientAndroid = "2.0.0"
 googleAuthLibraryOauth2Http = "1.46.0"
 workManager = "2.9.0"
-googleid = "1.1.1"
+googleid = "1.2.0"
 playServicesAuth = "21.5.1"
 
 hamcrest = "2.2"
