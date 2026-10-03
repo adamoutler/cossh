@@ -163,8 +163,8 @@ fun AddEditProfileScreen(
                 terminalInputState = uiState.terminalInputState,
                 keepScreenOnMode = uiState.keepScreenOnMode,
                 useLocalDns = uiState.useLocalDns,
-                )
-                onNavigateBack()
+            )
+            onNavigateBack()
         },
         onNavigateBack = {
             viewModel.resetState()
@@ -514,20 +514,20 @@ fun AddEditProfileScreenContent(
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Column(modifier = Modifier.weight(1f).padding(end = 16.dp)) {
                     Text("Use Local Network DNS", style = MaterialTheme.typography.bodyLarge)
                     Text(
                         "Overrides secure Private DNS to resolve local hostnames. Queries may be unencrypted and visible to the network.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 androidx.compose.material3.Switch(
                     checked = useLocalDns,
                     onCheckedChange = onUseLocalDnsChange,
-                    modifier = Modifier.testTag("UseLocalDnsToggle")
+                    modifier = Modifier.testTag("UseLocalDnsToggle"),
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -715,7 +715,7 @@ fun AddEditProfileScreenContent(
                                 )
                             }
                             Spacer(modifier = Modifier.height(16.dp))
-                            
+
                             androidx.compose.animation.AnimatedVisibility(visible = type == PortForwardType.DYNAMIC) {
                                 Card(
                                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
@@ -732,7 +732,7 @@ fun AddEditProfileScreenContent(
                                     }
                                 }
                             }
-                            
+
                             OutlinedTextField(
                                 value = localPort,
                                 onValueChange = { localPort = it },
@@ -740,7 +740,7 @@ fun AddEditProfileScreenContent(
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 singleLine = true,
                             )
-                            
+
                             androidx.compose.animation.AnimatedVisibility(visible = type != PortForwardType.DYNAMIC) {
                                 Column {
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -767,7 +767,7 @@ fun AddEditProfileScreenContent(
                             val lp = localPort.toIntOrNull()
                             val rp = remotePort.toIntOrNull() ?: 0
                             val rh = if (type == PortForwardType.DYNAMIC) "" else remoteHost
-                            
+
                             if (lp != null && (type == PortForwardType.DYNAMIC || (rp > 0 && rh.isNotBlank()))) {
                                 val newList = portForwards.toMutableList()
                                 newList.add(PortForwardConfig(type, lp, rh, rp))
@@ -822,7 +822,7 @@ fun AddEditProfileScreenContent(
                                 text = snippet.command,
                                 style = MaterialTheme.typography.bodySmall,
                                 maxLines = 2,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                             )
                             Row(modifier = Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 if (snippet.autoSend) {
@@ -867,20 +867,20 @@ fun AddEditProfileScreenContent(
                                 label = { Text("Name") },
                                 placeholder = { Text("e.g., Restart Nginx") },
                                 singleLine = true,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             OutlinedTextField(
                                 value = snippetCommand,
                                 onValueChange = { snippetCommand = it },
                                 label = { Text("Command") },
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp, max = 200.dp)
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp, max = 200.dp),
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text("Execute Immediately", style = MaterialTheme.typography.bodyMedium)
@@ -891,7 +891,7 @@ fun AddEditProfileScreenContent(
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text("Require Authentication", style = MaterialTheme.typography.bodyMedium)
@@ -917,7 +917,7 @@ fun AddEditProfileScreenContent(
                         TextButton(onClick = { showAddSnippetDialog = false }) {
                             Text("Cancel")
                         }
-                    }
+                    },
                 )
             }
 

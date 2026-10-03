@@ -67,7 +67,9 @@ class SerializerMissedCoverageTest {
         assertTrue(thrown)
     }
 
-    open class FakeDecoder : Decoder, CompositeDecoder {
+    open class FakeDecoder :
+        Decoder,
+        CompositeDecoder {
         override val serializersModule: kotlinx.serialization.modules.SerializersModule
             get() = kotlinx.serialization.modules.EmptySerializersModule()
 
@@ -95,13 +97,11 @@ class SerializerMissedCoverageTest {
         override fun decodeInlineElement(descriptor: SerialDescriptor, index: Int): Decoder = this
         override fun decodeIntElement(descriptor: SerialDescriptor, index: Int): Int = 0
         override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long = 0L
-        
+
         @Suppress("UNCHECKED_CAST")
         override fun <T : Any> decodeNullableSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>, previousValue: T?): T? = null
-        
-        override fun <T> decodeSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>, previousValue: T?): T {
-            throw SerializationException("Fake")
-        }
+
+        override fun <T> decodeSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>, previousValue: T?): T = throw SerializationException("Fake")
         override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short = 0
         override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String = ""
         override fun endStructure(descriptor: SerialDescriptor) {}

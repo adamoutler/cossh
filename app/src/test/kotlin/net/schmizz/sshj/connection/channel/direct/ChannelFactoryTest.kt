@@ -7,7 +7,7 @@ import org.junit.Test
 class ChannelFactoryTest {
     @Test
     fun testParametersCreation() {
-        // We only test that we can create Parameters and assert its values, 
+        // We only test that we can create Parameters and assert its values,
         // to cover some of the ChannelFactory logic without needing a mock connection.
         val params = Parameters("localhost", 1080, "google.com", 80)
         assertEquals("localhost", params.localHost)

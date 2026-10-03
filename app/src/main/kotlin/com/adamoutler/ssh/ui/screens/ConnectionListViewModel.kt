@@ -6,6 +6,7 @@ import com.adamoutler.ssh.backup.BackupManager
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.ui.base.BaseAndroidViewModel
+import com.adamoutler.ssh.util.AppLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +23,10 @@ class ConnectionListViewModel(
     private val storageManager: SecurityStorageManager,
     private val backupManager: BackupManager,
 ) : BaseAndroidViewModel(application) {
+
+    companion object {
+        private const val TAG = "CoSSH:ConnectionListViewModel"
+    }
 
     constructor(application: Application) : this(
         application,
@@ -196,31 +201,51 @@ class ConnectionListViewModel(
     }
 
     fun exportBackup(uri: Uri, password: CharArray, onComplete: (Boolean) -> Unit) {
+        val passCopy = password.copyOf()
         launchWithHandler {
             try {
+                AppLog.i(TAG, "Requesting backup export to $uri")
                 withContext(Dispatchers.IO) {
-                    backupManager.exportBackup(uri, password)
+                    backupManager.exportBackup(uri, passCopy)
                 }
+                AppLog.i(TAG, "Backup export completed successfully")
                 onComplete(true)
             } catch (e: Exception) {
-                println(("ConnectionListViewModel").toString() + ": " + ("Export failed").toString() + " " + (e).toString())
+                AppLog.e(TAG, "Backup export failed: ${e.message}", e)
                 onComplete(false)
+            } finally {
+                passCopy.fill('\u0000')
+            }
+        }
+    }
+
+    fun importBackup(uri: Uri, password: CharArray, onComplete: (Boolean, String?) -> Unit) {
+        val passCopy = password.copyOf()
+        launchWithHandler {
+            try {
+                AppLog.i(TAG, "Requesting backup import from $uri")
+                val (profilesCount, identitiesCount) = withContext(Dispatchers.IO) {
+                    backupManager.importBackup(uri, passCopy)
+                }
+                loadProfiles()
+                AppLog.i(TAG, "Backup import succeeded: $profilesCount profiles and $identitiesCount identities loaded.")
+                onComplete(true, "Restored $profilesCount profiles and $identitiesCount identities")
+            } catch (e: Exception) {
+                AppLog.e(TAG, "Backup import failed: ${e.message}", e)
+                val errorReason = when {
+                    e is IllegalArgumentException -> e.message ?: "Invalid password or corrupted backup file"
+                    e.cause is javax.crypto.AEADBadTagException -> "Incorrect password or corrupted backup file"
+                    e is kotlinx.serialization.SerializationException -> "Backup data format incompatible: ${e.message}"
+                    else -> e.localizedMessage ?: e.message ?: "Unknown error occurred during import"
+                }
+                onComplete(false, errorReason)
+            } finally {
+                passCopy.fill('\u0000')
             }
         }
     }
 
     fun importBackup(uri: Uri, password: CharArray, onComplete: (Boolean) -> Unit) {
-        launchWithHandler {
-            try {
-                withContext(Dispatchers.IO) {
-                    backupManager.importBackup(uri, password)
-                }
-                loadProfiles()
-                onComplete(true)
-            } catch (e: Exception) {
-                println(("ConnectionListViewModel").toString() + ": " + ("Import failed").toString() + " " + (e).toString())
-                onComplete(false)
-            }
-        }
+        importBackup(uri, password) { success, _ -> onComplete(success) }
     }
 }

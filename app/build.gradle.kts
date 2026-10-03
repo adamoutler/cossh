@@ -30,8 +30,8 @@ android {
         applicationId = "com.adamoutler.cobaltssh"
         minSdk = 26
         targetSdk = 36
-        versionCode = gitCommitCount
-        versionName = "1.$gitCommitCount"
+        versionCode = gitCommitCount + 1
+        versionName = "1.${gitCommitCount + 1}"
 
         // We compile libtermux.so locally using the NDK to ensure it is aligned to 16KB page boundaries.
         // This clears Android 15/16 App Compatibility warnings on strict 16KB page-sized devices.
@@ -113,7 +113,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            buildConfigField("boolean", "ENABLE_CLOUD_SYNC", "false")
+            buildConfigField("boolean", "ENABLE_CLOUD_SYNC", "true")
             ndk {
                 debugSymbolLevel = "FULL"
             }

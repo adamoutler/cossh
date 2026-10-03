@@ -10,10 +10,12 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
 
 class BackupCryptoManagerTest {
 
@@ -90,5 +92,37 @@ class BackupCryptoManagerTest {
         assertEquals("i-1", importedIdentities[0].id)
         assertEquals("id-password", importedIdentities[0].password?.let { String(it) })
         assertEquals("id-priv-key", importedIdentities[0].privateKey?.let { String(it) })
+    }
+
+    @Test
+    fun `test import real backup from downloads`() {
+        val userHome = System.getProperty("user.home")
+        val candidateFiles = listOf(
+            File(userHome, "Downloads/connections_and_identities (5).cossh"),
+            File(userHome, "Downloads/connections_and_identities.cossh"),
+            File(userHome, "Downloads/connections_and_identities (3).cossh"),
+        )
+        val file = candidateFiles.firstOrNull { it.exists() }
+
+        // When running locally where the file was pulled to Downloads, verify it directly
+        org.junit.Assume.assumeTrue("Downloads backup file not present (skipped in CI)", file != null)
+
+        val password = "aaaaaaaa".toCharArray()
+        file!!.inputStream().use { stream ->
+            val (profiles, identities) = BackupCryptoManager.importProfilesFromZip(stream, password)
+            assertTrue("Profiles should be imported", profiles.isNotEmpty())
+            assertTrue("Identities should be imported", identities.isNotEmpty())
+            // 13 valid profiles (ghost profile with empty host & nickname dropped)
+            assertEquals(13, profiles.size)
+            assertEquals(4, identities.size)
+
+            val cameraProfile = profiles.find { it.id == "a0ccbaf4-3eb6-4090-82d9-f7132abab8f3" }
+            assertNotNull(cameraProfile)
+            assertEquals("camera", cameraProfile?.nickname) // whitespace trimmed
+
+            val desktopIdent = identities.find { it.id == "072d5954-3e62-4cad-a6ed-732ac8cbad2c" }
+            assertNotNull(desktopIdent)
+            assertEquals("adamoutler desktop", desktopIdent?.name) // whitespace trimmed
+        }
     }
 }

@@ -42,7 +42,7 @@ class ConnectionListScreenTest {
                 onEditConnection = {},
                 onDeleteConnection = {},
                 onConnect = {},
-                isReorderingPreview = true // Start in reorder mode
+                isReorderingPreview = true, // Start in reorder mode
             )
         }
 

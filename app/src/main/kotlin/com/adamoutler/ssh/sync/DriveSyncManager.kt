@@ -33,7 +33,7 @@ import kotlin.coroutines.resumeWithException
 class DriveSyncManager(context: Context) {
     private val appContext = context.applicationContext
     private val credentialManager = CredentialManager.create(appContext)
-    private val webClientId = "255929341577-6e1405jlnio601o2em8mr7n7dins7ni9.apps.googleusercontent.com"
+    private val webClientId = "255929341577-pcpa8cvp5gj2c4i4jaesq6iifk5n3a7q.apps.googleusercontent.com"
     private var oauthToken: String? = null
 
     // We request the strictly restricted appdata scope

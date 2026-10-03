@@ -17,26 +17,22 @@ class SerializerThoroughCoverageTest {
         val desc = serializer.descriptor
         val decoder = object : SerializerMissedCoverageTest.FakeDecoder() {
             var currentIndex = 0
-            override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-                return if (currentIndex < descriptor.elementsCount) currentIndex++ else CompositeDecoder.DECODE_DONE
-            }
+            override fun decodeElementIndex(descriptor: SerialDescriptor): Int = if (currentIndex < descriptor.elementsCount) currentIndex++ else CompositeDecoder.DECODE_DONE
 
             override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String = "string"
             override fun decodeIntElement(descriptor: SerialDescriptor, index: Int): Int = 1
             override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long = 1L
             override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean = false
-            
+
             @Suppress("UNCHECKED_CAST")
             override fun <T> decodeSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>, previousValue: T?): T {
                 if (deserializer.descriptor.serialName.contains("AuthType")) return AuthType.PASSWORD as T
                 if (deserializer.descriptor.serialName.contains("PortForwardConfig")) return emptyList<PortForwardConfig>() as T
                 return "mock" as T
             }
-            
+
             @Suppress("UNCHECKED_CAST")
-            override fun <T : Any> decodeNullableSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>, previousValue: T?): T? {
-                return null
-            }
+            override fun <T : Any> decodeNullableSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>, previousValue: T?): T? = null
         }
         try {
             val result = serializer.deserialize(decoder)
@@ -52,12 +48,10 @@ class SerializerThoroughCoverageTest {
         val desc = serializer.descriptor
         val decoder = object : SerializerMissedCoverageTest.FakeDecoder() {
             var currentIndex = 0
-            override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-                return if (currentIndex < descriptor.elementsCount) currentIndex++ else CompositeDecoder.DECODE_DONE
-            }
+            override fun decodeElementIndex(descriptor: SerialDescriptor): Int = if (currentIndex < descriptor.elementsCount) currentIndex++ else CompositeDecoder.DECODE_DONE
             override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String = "string"
             override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long = 1L
-            
+
             @Suppress("UNCHECKED_CAST")
             override fun <T> decodeSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>, previousValue: T?): T {
                 if (deserializer.descriptor.serialName.contains("ConnectionProfile")) return emptyList<ConnectionProfile>() as T
@@ -75,11 +69,10 @@ class SerializerThoroughCoverageTest {
         val serializer = IdentityProfile.serializer()
         val decoder = object : SerializerMissedCoverageTest.FakeDecoder() {
             var currentIndex = 0
-            override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-                return if (currentIndex < descriptor.elementsCount) currentIndex++ else CompositeDecoder.DECODE_DONE
-            }
+            override fun decodeElementIndex(descriptor: SerialDescriptor): Int = if (currentIndex < descriptor.elementsCount) currentIndex++ else CompositeDecoder.DECODE_DONE
             override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String = "string"
             override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long = 1L
+
             @Suppress("UNCHECKED_CAST")
             override fun <T : Any> decodeNullableSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>, previousValue: T?): T? {
                 return null // or mock if needed

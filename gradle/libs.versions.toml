@@ -27,7 +27,7 @@ jdom2 = "2.0.6.1"
 commonsIo = "2.22.0"
 protobuf = "3.25.5"
 guava = "33.6.0-jre"
-billing = "6.2.0"
+billing = "8.0.0"
 credentialManager = "1.2.1"
 googleApiServicesDrive = "v3-rev20230822-2.0.0"
 googleApiClientAndroid = "2.0.0"
@@ -89,7 +89,7 @@ protobuf-java = { group = "com.google.protobuf", name = "protobuf-java", version
 guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
 bcpkix-jdk18on = { group = "org.bouncycastle", name = "bcpkix-jdk18on", version.ref = "bouncycastle" }
 bcutil-jdk18on = { group = "org.bouncycastle", name = "bcutil-jdk18on", version.ref = "bouncycastle" }
-billing-client = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "billing" }
+billing-client = { group = "com.android.billingclient", name = "billing", version.ref = "billing" }
 credential-manager = { group = "androidx.credentials", name = "credentials", version.ref = "credentialManager" }
 credential-manager-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialManager" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }

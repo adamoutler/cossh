@@ -1,6 +1,7 @@
 package com.adamoutler.ssh.data
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -21,9 +22,9 @@ object ByteArrayAsBase64Serializer : KSerializer<ByteArray> {
 
 @Serializable
 enum class PortForwardType {
-    LOCAL,
-    REMOTE,
-    DYNAMIC,
+    @SerialName("LOCAL") LOCAL,
+    @SerialName("REMOTE") REMOTE,
+    @SerialName("DYNAMIC") DYNAMIC,
 }
 
 @Serializable
@@ -36,15 +37,15 @@ data class PortForwardConfig(
 
 @Serializable
 enum class Protocol {
-    SSH,
-    TELNET,
+    @SerialName("SSH") SSH,
+    @SerialName("TELNET") TELNET,
 }
 
 @Serializable
 enum class KeepScreenOnMode {
-    SYSTEM_DEFAULT,
-    SMART_AWAKE,
-    ALWAYS_ON,
+    @SerialName("SYSTEM_DEFAULT") SYSTEM_DEFAULT,
+    @SerialName("SMART_AWAKE") SMART_AWAKE,
+    @SerialName("ALWAYS_ON") ALWAYS_ON,
 }
 
 @Serializable
@@ -137,6 +138,6 @@ data class ConnectionProfile(
 
 @Serializable
 enum class AuthType {
-    PASSWORD,
-    KEY,
+    @SerialName("PASSWORD") PASSWORD,
+    @SerialName("KEY") KEY,
 }

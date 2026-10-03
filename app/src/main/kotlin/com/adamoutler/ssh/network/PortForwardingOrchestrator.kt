@@ -3,8 +3,8 @@ package com.adamoutler.ssh.network
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.PortForwardType
 import net.schmizz.sshj.SSHClient
-import net.schmizz.sshj.connection.channel.direct.DirectTCPIPChannel
 import net.schmizz.sshj.common.StreamCopier
+import net.schmizz.sshj.connection.channel.direct.DirectTCPIPChannel
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.IOException
@@ -73,7 +73,7 @@ class PortForwardingOrchestrator {
         serverSocket.reuseAddress = true
         serverSocket.bind(InetSocketAddress(LOCAL_HOST, config.localPort))
         localServerSockets.add(serverSocket)
-        
+
         thread(name = "DynamicPortForwarder_${config.localPort}") {
             try {
                 while (!serverSocket.isClosed) {
@@ -134,24 +134,27 @@ class PortForwardingOrchestrator {
                     input.readFully(ipv4)
                     targetHost = InetAddress.getByAddress(ipv4).hostAddress ?: ""
                 }
+
                 0x03 -> { // Domain name
                     val len = input.readUnsignedByte()
                     val domain = ByteArray(len)
                     input.readFully(domain)
                     targetHost = String(domain, Charsets.UTF_8)
                 }
+
                 0x04 -> { // IPv6
                     val ipv6 = ByteArray(16)
                     input.readFully(ipv6)
                     targetHost = InetAddress.getByAddress(ipv6).hostAddress ?: ""
                 }
+
                 else -> throw IOException("Unsupported SOCKS address type: $addressType")
             }
             val targetPort = input.readUnsignedShort()
 
             // Open SSH tunnel
             val channel = net.schmizz.sshj.connection.channel.direct.ChannelFactory.createDirectTCPIPChannel(client.connection, LOCAL_HOST, socket.port, targetHost, targetPort)
-            
+
             // Reply: Success
             output.writeByte(0x05)
             output.writeByte(0x00) // Success
@@ -170,11 +173,10 @@ class PortForwardingOrchestrator {
             toClient.await()
             channel.close()
             socket.close()
-
         } catch (e: Exception) {
             println("SOCKS5 connection error: $e")
-            try { 
-                socket.close() 
+            try {
+                socket.close()
             } catch (ignored: Exception) {
                 println("Failed to close socket: $ignored")
             }

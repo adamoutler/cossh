@@ -30,7 +30,7 @@ class PemParsingSuccessCoverageTest {
         val pw = JcaPEMWriter(sw)
         pw.writeObject(kp)
         pw.close()
-        
+
         val pemString = sw.toString()
         // It's probably a RSA PRIVATE KEY or just PRIVATE KEY. Let's see if it parses.
         val parsed = PemUtils.parsePemToKeyPair(pemString.toByteArray())
@@ -46,7 +46,7 @@ class PemParsingSuccessCoverageTest {
         val pw = JcaPEMWriter(sw)
         pw.writeObject(kp)
         pw.close()
-        
+
         val pemString = sw.toString()
         val parsed = PemUtils.parsePemToKeyPair(pemString.toByteArray())
         assertNotNull(parsed.private)

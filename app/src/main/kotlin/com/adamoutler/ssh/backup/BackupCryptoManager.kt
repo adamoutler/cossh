@@ -5,6 +5,8 @@ import com.adamoutler.ssh.data.IdentityProfile
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import com.adamoutler.ssh.util.AppLog
+import javax.crypto.AEADBadTagException
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
@@ -30,6 +32,7 @@ data class BackupPayload(
 )
 
 object BackupCryptoManager {
+    private const val TAG = "CoSSH:BackupCryptoManager"
     private const val ITERATION_COUNT = 65536
     private const val KEY_LENGTH = 256
     private const val SALT_LENGTH = 16
@@ -42,8 +45,11 @@ object BackupCryptoManager {
         password: CharArray,
         outputStream: OutputStream,
     ) {
+        val (cleanProfiles, cleanIdentities) = BackupSanitizer.sanitize(profiles, identities)
+        AppLog.i(TAG, "Exporting ${cleanProfiles.size} profiles and ${cleanIdentities.size} identities.")
+
         val passwordsMap = mutableMapOf<String, String>()
-        for (profile in profiles) {
+        for (profile in cleanProfiles) {
             profile.password?.let { pwdBytes ->
                 passwordsMap[profile.id] = Base64.getEncoder().encodeToString(pwdBytes)
             }
@@ -51,7 +57,7 @@ object BackupCryptoManager {
 
         val identityPasswordsMap = mutableMapOf<String, String>()
         val identityPrivateKeysMap = mutableMapOf<String, String>()
-        for (identity in identities) {
+        for (identity in cleanIdentities) {
             identity.password?.let {
                 identityPasswordsMap[identity.id] = Base64.getEncoder().encodeToString(it)
             }
@@ -62,9 +68,9 @@ object BackupCryptoManager {
 
         val payload = BackupPayload(
             version = 2,
-            profiles = profiles,
+            profiles = cleanProfiles,
             profilePasswords = passwordsMap,
-            identities = identities,
+            identities = cleanIdentities,
             identityPasswords = identityPasswordsMap,
             identityPrivateKeys = identityPrivateKeysMap,
         )
@@ -100,56 +106,105 @@ object BackupCryptoManager {
             zipOut.write(encryptedData)
             zipOut.closeEntry()
         }
+        AppLog.i(TAG, "Export completed successfully. Payload size: ${encryptedData.size} bytes.")
     }
 
     fun importProfilesFromZip(inputStream: InputStream, password: CharArray): Pair<List<ConnectionProfile>, List<IdentityProfile>> {
+        AppLog.i(TAG, "Opening backup ZIP archive...")
         var encryptedData: ByteArray? = null
-        ZipInputStream(inputStream).use { zipIn ->
-            var entry = zipIn.nextEntry
-            while (entry != null) {
-                if (entry.name == "backup.enc") {
-                    encryptedData = zipIn.readBytes()
-                    break
+        try {
+            ZipInputStream(inputStream).use { zipIn ->
+                var entry = zipIn.nextEntry
+                while (entry != null) {
+                    AppLog.d(TAG, "Found ZIP entry: ${entry.name}")
+                    if (entry.name == "backup.enc") {
+                        encryptedData = zipIn.readBytes()
+                        break
+                    }
+                    entry = zipIn.nextEntry
                 }
-                entry = zipIn.nextEntry
             }
+        } catch (e: Exception) {
+            AppLog.e(TAG, "Failed to read ZIP stream: ${e.message}", e)
+            throw IllegalArgumentException("Corrupted backup file: Not a valid ZIP archive (${e.message})", e)
         }
 
-        require(encryptedData != null) { "Invalid backup file" }
+        if (encryptedData == null) {
+            AppLog.e(TAG, "Missing 'backup.enc' inside ZIP archive.")
+            throw IllegalArgumentException("Invalid backup file: Missing encrypted payload entry ('backup.enc')")
+        }
+
         val data = encryptedData!!
-        require(data.size >= SALT_LENGTH + IV_LENGTH) { "Invalid backup file" }
+        if (data.size < SALT_LENGTH + IV_LENGTH) {
+            AppLog.e(TAG, "Payload too small: ${data.size} bytes (minimum expected: ${SALT_LENGTH + IV_LENGTH})")
+            throw IllegalArgumentException("Invalid backup file: Payload is too small (${data.size} bytes)")
+        }
+
         val salt = data.copyOfRange(0, SALT_LENGTH)
         val iv = data.copyOfRange(SALT_LENGTH, SALT_LENGTH + IV_LENGTH)
         val cipherText = data.copyOfRange(SALT_LENGTH + IV_LENGTH, data.size)
 
+        AppLog.d(TAG, "Deriving AES-256 key via PBKDF2WithHmacSHA256 (iterations=$ITERATION_COUNT)...")
         val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
         val keySpec = PBEKeySpec(password, salt, ITERATION_COUNT, KEY_LENGTH)
         val secretKeyBytes = secretKeyFactory.generateSecret(keySpec).encoded
         val secretKey = SecretKeySpec(secretKeyBytes, "AES")
 
+        AppLog.d(TAG, "Decrypting payload with AES/GCM/NoPadding (${cipherText.size} bytes)...")
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         val gcmSpec = GCMParameterSpec(TAG_LENGTH_BIT, iv)
         cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmSpec)
 
-        val plainTextBytes = cipher.doFinal(cipherText)
+        val plainTextBytes = try {
+            cipher.doFinal(cipherText)
+        } catch (e: AEADBadTagException) {
+            AppLog.e(TAG, "Decryption authentication failed: Incorrect password or corrupted payload.", e)
+            throw IllegalArgumentException("Incorrect password or corrupted backup file", e)
+        } catch (e: Exception) {
+            AppLog.e(TAG, "Decryption cipher error: ${e.message}", e)
+            throw IllegalArgumentException("Decryption error: ${e.message}", e)
+        }
+
+        AppLog.d(TAG, "Decrypted ${plainTextBytes.size} bytes. Parsing JSON payload...")
         val jsonString = String(plainTextBytes, Charsets.UTF_8)
 
-        val payload = Json { ignoreUnknownKeys = true }.decodeFromString<BackupPayload>(jsonString)
+        val payload = try {
+            Json { ignoreUnknownKeys = true }.decodeFromString<BackupPayload>(jsonString)
+        } catch (e: Exception) {
+            AppLog.e(TAG, "JSON deserialization failed: ${e.message}", e)
+            throw IllegalArgumentException("Incompatible backup format: ${e.message}", e)
+        }
+
+        AppLog.i(TAG, "Decoded payload: ${payload.profiles.size} profiles, ${payload.identities.size} identities.")
 
         for (profile in payload.profiles) {
             payload.profilePasswords[profile.id]?.let { pwdStr ->
-                profile.password = Base64.getDecoder().decode(pwdStr)
+                try {
+                    profile.password = Base64.getDecoder().decode(pwdStr)
+                } catch (e: Exception) {
+                    AppLog.w(TAG, "Failed to decode password for profile ${profile.id}: ${e.message}")
+                }
             }
         }
         for (identity in payload.identities) {
             payload.identityPasswords[identity.id]?.let { pwdStr ->
-                identity.password = Base64.getDecoder().decode(pwdStr)
+                try {
+                    identity.password = Base64.getDecoder().decode(pwdStr)
+                } catch (e: Exception) {
+                    AppLog.w(TAG, "Failed to decode password for identity ${identity.id}: ${e.message}")
+                }
             }
             payload.identityPrivateKeys[identity.id]?.let { pkStr ->
-                identity.privateKey = Base64.getDecoder().decode(pkStr)
+                try {
+                    identity.privateKey = Base64.getDecoder().decode(pkStr)
+                } catch (e: Exception) {
+                    AppLog.w(TAG, "Failed to decode private key for identity ${identity.id}: ${e.message}")
+                }
             }
         }
 
-        return Pair(payload.profiles, payload.identities)
+        AppLog.d(TAG, "Sanitizing unpacked profiles and identities...")
+        val (sanitizedProfiles, sanitizedIdentities) = BackupSanitizer.sanitize(payload.profiles, payload.identities)
+        return Pair(sanitizedProfiles, sanitizedIdentities)
     }
 }

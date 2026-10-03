@@ -160,7 +160,7 @@ class SshHandshakeCoordinator(
 
         try {
             configureHostKeyVerifier(client)
-            
+
             if (profile.useLocalDns && context != null) {
                 val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
                 val network = cm.activeNetwork

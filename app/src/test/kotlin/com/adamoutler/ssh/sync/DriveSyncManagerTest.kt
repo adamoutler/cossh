@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.runBlocking
+import org.json.JSONObject
 import org.junit.AfterClass
 import org.junit.Assert.*
 import org.junit.Before
@@ -21,7 +22,6 @@ import java.net.URLConnection
 import java.net.URLStreamHandler
 import java.net.URLStreamHandlerFactory
 import javax.crypto.AEADBadTagException
-import org.json.JSONObject
 
 open class MockHttpURLConnection(url: URL) : HttpURLConnection(url) {
     var mockResponseCode = 200
@@ -32,7 +32,7 @@ open class MockHttpURLConnection(url: URL) : HttpURLConnection(url) {
     override fun setRequestMethod(method: String) {
         requestMethodMock = method
     }
-    
+
     override fun connect() {}
     override fun disconnect() {}
     override fun usingProxy(): Boolean = false
@@ -41,9 +41,7 @@ open class MockHttpURLConnection(url: URL) : HttpURLConnection(url) {
         if (mockResponseCode >= 400) throw java.io.IOException("Error")
         return ByteArrayInputStream(mockResponseString.toByteArray())
     }
-    override fun getErrorStream(): InputStream? {
-        return ByteArrayInputStream("Error".toByteArray())
-    }
+    override fun getErrorStream(): InputStream? = ByteArrayInputStream("Error".toByteArray())
     override fun getOutputStream(): java.io.OutputStream = outputStreamMock
 }
 
@@ -52,9 +50,7 @@ object MockURLStreamHandlerFactory : URLStreamHandlerFactory {
     override fun createURLStreamHandler(protocol: String?): URLStreamHandler? {
         if (protocol == "https") {
             return object : URLStreamHandler() {
-                override fun openConnection(u: URL?): URLConnection {
-                    return mockConnection ?: MockHttpURLConnection(u!!)
-                }
+                override fun openConnection(u: URL?): URLConnection = mockConnection ?: MockHttpURLConnection(u!!)
             }
         }
         return null
@@ -85,7 +81,7 @@ class DriveSyncManagerTest {
         context = ApplicationProvider.getApplicationContext()
         driveSyncManager = DriveSyncManager(context)
         DriveSyncManager.authorizationContinuation = null
-        
+
         mockConnection = MockHttpURLConnection(URL("https://dummy"))
         MockURLStreamHandlerFactory.mockConnection = mockConnection
     }
@@ -153,28 +149,28 @@ class DriveSyncManagerTest {
     @Test
     fun testUploadBackupSuccess() = runBlocking {
         driveSyncManager.setOAuthToken("valid_token")
-        
+
         // Mock finding file ID (returns empty list -> null fileId -> will create new file)
         mockConnection.mockResponseCode = 200
         mockConnection.mockResponseString = JSONObject().put("id", "newFileId").put("files", org.json.JSONArray()).toString()
-        
+
         // Will create new file and then update metadata
         driveSyncManager.uploadBackup("testData".toByteArray(), "password".toCharArray())
-        
+
         // Ensure token was cleared
         val oauthTokenField = DriveSyncManager::class.java.getDeclaredField("oauthToken")
         oauthTokenField.isAccessible = true
         assertNull(oauthTokenField.get(driveSyncManager))
     }
-    
+
     @Test
     fun testUploadBackupSuccessWithExistingFile() = runBlocking {
         driveSyncManager.setOAuthToken("valid_token")
-        
+
         // Mock finding file ID (returns a file)
         val filesArray = org.json.JSONArray().put(JSONObject().put("id", "existingFileId"))
         mockConnection.mockResponseString = JSONObject().put("files", filesArray).toString()
-        
+
         driveSyncManager.uploadBackup("testData".toByteArray(), "password".toCharArray())
     }
 
@@ -182,7 +178,7 @@ class DriveSyncManagerTest {
     fun testUploadBackupFailure() = runBlocking {
         driveSyncManager.setOAuthToken("valid_token")
         mockConnection.mockResponseCode = 401 // Unauthorized
-        
+
         var exceptionThrown = false
         try {
             driveSyncManager.uploadBackup("testData".toByteArray(), "password".toCharArray())
@@ -195,20 +191,20 @@ class DriveSyncManagerTest {
     @Test
     fun testDownloadBackupSuccess() = runBlocking {
         driveSyncManager.setOAuthToken("valid_token")
-        
+
         // Pre-encrypt some payload so download parsing passes
         val encryptMethod = DriveSyncManager::class.java.getDeclaredMethod("encrypt", ByteArray::class.java, CharArray::class.java)
         encryptMethod.isAccessible = true
         val encryptedData = encryptMethod.invoke(driveSyncManager, "payload".toByteArray(), "password".toCharArray()) as ByteArray
-        
+
         // Mock finding file ID and downloading
         val filesArray = org.json.JSONArray().put(JSONObject().put("id", "existingFileId"))
         mockConnection.mockResponseString = JSONObject().put("files", filesArray).toString()
-        
+
         // For the second request (the download itself), we need to return the encrypted bytes
         // But our mock connection just returns mockResponseString. We can convert bytes to string.
         mockConnection.mockResponseString = String(encryptedData, Charsets.ISO_8859_1)
-        
+
         MockURLStreamHandlerFactory.mockConnection = object : MockHttpURLConnection(URL("https://dummy")) {
             var callCount = 0
             override fun getInputStream(): InputStream {
@@ -219,7 +215,7 @@ class DriveSyncManagerTest {
                 return ByteArrayInputStream(encryptedData)
             }
         }
-        
+
         val result = driveSyncManager.downloadBackup("password".toCharArray())
         assertNotNull(result)
         assertArrayEquals("payload".toByteArray(), result)
@@ -228,10 +224,10 @@ class DriveSyncManagerTest {
     @Test
     fun testDownloadBackupFileNotFound() = runBlocking {
         driveSyncManager.setOAuthToken("valid_token")
-        
+
         // Return empty files list
         mockConnection.mockResponseString = JSONObject().put("files", org.json.JSONArray()).toString()
-        
+
         val result = driveSyncManager.downloadBackup("password".toCharArray())
         assertNull(result)
     }
@@ -239,15 +235,13 @@ class DriveSyncManagerTest {
     @Test
     fun testDownloadBackupHttpError() = runBlocking {
         driveSyncManager.setOAuthToken("valid_token")
-        
+
         // finding file ID works
         val filesArray = org.json.JSONArray().put(JSONObject().put("id", "existingFileId"))
-        
+
         MockURLStreamHandlerFactory.mockConnection = object : MockHttpURLConnection(URL("https://dummy")) {
             var callCount = 0
-            override fun getResponseCode(): Int {
-                return if (callCount == 0) 200 else 500
-            }
+            override fun getResponseCode(): Int = if (callCount == 0) 200 else 500
             override fun getInputStream(): InputStream {
                 callCount++
                 if (callCount == 1) {
@@ -256,7 +250,7 @@ class DriveSyncManagerTest {
                 throw java.io.IOException("Error")
             }
         }
-        
+
         val result = driveSyncManager.downloadBackup("password".toCharArray())
         assertNull(result)
     }

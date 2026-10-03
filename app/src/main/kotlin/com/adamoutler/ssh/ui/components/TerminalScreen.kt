@@ -5,9 +5,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.items
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -35,6 +33,8 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -460,11 +460,11 @@ fun TerminalScreenContent(
                             override fun onSingleTapUp(e: android.view.MotionEvent?) {
                                 showOverlayButtons = true
                                 val isFixed = terminalInputState == 2
-                                
+
                                 if (!isFixed) {
                                     // Standard mode: Toggle between 0 (hidden) and 1 (shown keyboard+buttons temporarily)
                                     terminalInputState = if (terminalInputState == 0) 1 else 0
-                                    
+
                                     coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                                         profile?.copy(terminalInputState = terminalInputState)?.let { updatedProfile ->
                                             com.adamoutler.ssh.crypto.SecurityStorageManager(ctx).saveProfile(updatedProfile)
@@ -619,9 +619,7 @@ fun TerminalScreenContent(
                                 }
                                 return true
                             }
-                            override fun onLongPress(e: android.view.MotionEvent?): Boolean {
-                                return false
-                            }
+                            override fun onLongPress(e: android.view.MotionEvent?): Boolean = false
                             override fun onEmulatorSet() { /* No-op */ }
                             override fun logError(tag: String?, msg: String?) { /* No-op */ }
                             override fun logWarn(tag: String?, msg: String?) { /* No-op */ }
@@ -659,7 +657,7 @@ fun TerminalScreenContent(
                         terminalViewRef = terminalView
                         terminalView.onScreenUpdated()
                         terminalView.requestFocus()
-                        
+
                         val wrapper = object : android.widget.FrameLayout(ctx) {
                             override fun startActionModeForChild(originalView: android.view.View, callback: android.view.ActionMode.Callback, type: Int): android.view.ActionMode? {
                                 val wrapped = object : android.view.ActionMode.Callback2() {
@@ -668,9 +666,7 @@ fun TerminalScreenContent(
                                         menu.add(android.view.Menu.NONE, 999, android.view.Menu.NONE, "Terminal settings")
                                         return res
                                     }
-                                    override fun onPrepareActionMode(mode: android.view.ActionMode, menu: android.view.Menu): Boolean {
-                                        return callback.onPrepareActionMode(mode, menu)
-                                    }
+                                    override fun onPrepareActionMode(mode: android.view.ActionMode, menu: android.view.Menu): Boolean = callback.onPrepareActionMode(mode, menu)
                                     override fun onActionItemClicked(mode: android.view.ActionMode, item: android.view.MenuItem): Boolean {
                                         if (item.itemId == 999) {
                                             showTerminalMenuBottomSheet = true
@@ -690,7 +686,7 @@ fun TerminalScreenContent(
                                 }
                                 return super.startActionModeForChild(originalView, wrapped, type)
                             }
-                            
+
                             override fun startActionModeForChild(originalView: android.view.View, callback: android.view.ActionMode.Callback): android.view.ActionMode? {
                                 val wrapped = object : android.view.ActionMode.Callback2() {
                                     override fun onCreateActionMode(mode: android.view.ActionMode, menu: android.view.Menu): Boolean {
@@ -698,9 +694,7 @@ fun TerminalScreenContent(
                                         menu.add(android.view.Menu.NONE, 999, android.view.Menu.NONE, "Terminal settings")
                                         return res
                                     }
-                                    override fun onPrepareActionMode(mode: android.view.ActionMode, menu: android.view.Menu): Boolean {
-                                        return callback.onPrepareActionMode(mode, menu)
-                                    }
+                                    override fun onPrepareActionMode(mode: android.view.ActionMode, menu: android.view.Menu): Boolean = callback.onPrepareActionMode(mode, menu)
                                     override fun onActionItemClicked(mode: android.view.ActionMode, item: android.view.MenuItem): Boolean {
                                         if (item.itemId == 999) {
                                             showTerminalMenuBottomSheet = true
@@ -756,7 +750,7 @@ fun TerminalScreenContent(
         }
 
         var snippetToConfirm by remember { mutableStateOf<com.adamoutler.ssh.data.CommandSnippet?>(null) }
-        
+
         snippetToConfirm?.let { snippet ->
             AlertDialog(
                 onDismissRequest = { snippetToConfirm = null },
@@ -775,14 +769,14 @@ fun TerminalScreenContent(
                     TextButton(onClick = { snippetToConfirm = null }) {
                         Text("Cancel")
                     }
-                }
+                },
             )
         }
 
         if (!profile?.commandSnippets.isNullOrEmpty()) {
             androidx.compose.foundation.lazy.LazyRow(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(profile!!.commandSnippets) { snippet ->
                     AssistChip(
@@ -797,11 +791,11 @@ fun TerminalScreenContent(
                         label = { Text(snippet.name) },
                         colors = AssistChipDefaults.assistChipColors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
-                            labelColor = MaterialTheme.colorScheme.primary
+                            labelColor = MaterialTheme.colorScheme.primary,
                         ),
                         modifier = Modifier.semantics {
                             contentDescription = "Inject snippet: ${snippet.name}. ${if (snippet.autoSend) "Executes immediately." else "Requires confirmation."}"
-                        }
+                        },
                     )
                 }
             }

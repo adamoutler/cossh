@@ -1,19 +1,19 @@
 package com.adamoutler.ssh.network
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
 
 class ConnectionStateRepositoryCoverageTest {
 
     @Test
     fun testRequestAuthPrompt() = runBlocking {
         val repo = ConnectionStateRepository
-        
+
         launch {
             delay(100)
             repo.resolveAuthPrompt(AuthCredentials("user", "pass".toCharArray()))
@@ -23,7 +23,7 @@ class ConnectionStateRepositoryCoverageTest {
         assertNotNull(result)
         assertEquals("user", result?.username)
         assertEquals("pass", String(result?.password!!))
-        
+
         // Null resolve
         launch {
             delay(100)
@@ -36,7 +36,7 @@ class ConnectionStateRepositoryCoverageTest {
     @Test
     fun testRequestPrompt() = runBlocking {
         val repo = ConnectionStateRepository
-        
+
         launch {
             delay(100)
             repo.resolvePrompt(true)

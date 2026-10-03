@@ -138,7 +138,7 @@ class TerminalViewModelTest {
     fun `test onCleared clears sessions`() {
         viewModel.getContext = { application }
         viewModel.getOrCreateSession("session-123", application)
-        
+
         val onClearedMethod = androidx.lifecycle.ViewModel::class.java.getDeclaredMethod("onCleared")
         onClearedMethod.isAccessible = true
         onClearedMethod.invoke(viewModel)

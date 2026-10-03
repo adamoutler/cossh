@@ -1,5 +1,7 @@
 package com.adamoutler.ssh.network
 
+import android.os.Build
+import androidx.test.core.app.ApplicationProvider
 import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
@@ -9,12 +11,10 @@ import net.schmizz.sshj.SSHClient
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.io.File
-import androidx.test.core.app.ApplicationProvider
-import android.os.Build
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.io.File
 import java.security.KeyPairGenerator
 
 @RunWith(RobolectricTestRunner::class)
@@ -55,11 +55,11 @@ class SshHandshakeCoordinatorCoverageTest {
     fun testGetAuthenticator_Key() {
         val coordinator = SshHandshakeCoordinator()
         val profile = ConnectionProfile(id = "1", nickname = "test", host = "localhost", authType = AuthType.KEY)
-        
+
         val kpGen = KeyPairGenerator.getInstance("RSA")
         kpGen.initialize(2048)
         val keyPair = kpGen.generateKeyPair()
-        
+
         val authenticator = coordinator.getAuthenticator(profile, keyPair, null)
         assertTrue(authenticator is KeyAuthenticator)
     }
@@ -68,10 +68,10 @@ class SshHandshakeCoordinatorCoverageTest {
     fun testGetAuthenticator_Identity() {
         val coordinator = SshHandshakeCoordinator()
         val profile = ConnectionProfile(id = "1", nickname = "test", host = "localhost", authType = AuthType.PASSWORD)
-        
+
         val identity = IdentityProfile(id = "id1", name = "id", username = "user", authType = AuthType.PASSWORD)
         identity.password = "pass".toByteArray()
-        
+
         val authenticator = coordinator.getAuthenticator(profile, null, identity)
         assertTrue(authenticator::class.java.simpleName == "CompositeAuthenticator")
     }
@@ -82,10 +82,10 @@ class SshHandshakeCoordinatorCoverageTest {
         val storageManager = IdentityStorageManager(app, app.getSharedPreferences("test", 0))
         val identity = IdentityProfile(id = "id1", name = "id", username = "user", authType = AuthType.PASSWORD)
         storageManager.saveIdentity(identity)
-        
+
         val coordinator = SshHandshakeCoordinator(identityStorageManager = storageManager)
         val profile = ConnectionProfile(id = "1", nickname = "test", host = "localhost", identityId = "id1")
-        
+
         val resolved = coordinator.resolveIdentity(profile)
         assertEquals("user", resolved?.username)
     }
@@ -114,7 +114,7 @@ class SshHandshakeCoordinatorCoverageTest {
         pw.close()
         val identity = IdentityProfile(id = "id1", name = "id", username = "user", authType = AuthType.KEY, publicKey = "ssh-ed25519 INVALIDBASE64FORMAT")
         identity.privateKey = sw.toString().toByteArray()
-        
+
         // Should parse private key but public key extraction fails internally and falls back to PemUtils
         val kp = coordinator.loadKeyPairFromIdentity(identity)
         assertTrue(kp.private != null)
@@ -129,7 +129,7 @@ class SshHandshakeCoordinatorCoverageTest {
         storageManager.saveIdentity(identity)
         val coordinator = SshHandshakeCoordinator(identityStorageManager = storageManager, context = app)
         val profile = ConnectionProfile(id = "1", nickname = "test", host = "127.0.0.1", port = 12345, identityId = "id1")
-        
+
         var exceptionThrown = false
         try {
             coordinator.executeWithConnection(SSHClient(), profile, null) {
@@ -146,14 +146,14 @@ class SshHandshakeCoordinatorCoverageTest {
         val app = ApplicationProvider.getApplicationContext<android.app.Application>()
         val coordinator = SshHandshakeCoordinator(context = app)
         val profile = ConnectionProfile(
-            id = "1", 
-            nickname = "test", 
-            host = "localhost", 
-            port = 12345, 
+            id = "1",
+            nickname = "test",
+            host = "localhost",
+            port = 12345,
             authType = AuthType.PASSWORD,
-            useLocalDns = true
+            useLocalDns = true,
         )
-        
+
         var connectExceptionThrown = false
         try {
             coordinator.executeWithConnection(SSHClient(), profile, null) {
@@ -166,10 +166,9 @@ class SshHandshakeCoordinatorCoverageTest {
             connectExceptionThrown = true
         } catch (e: Exception) {
             // Other exceptions might be thrown depending on Robolectric's activeNetwork implementation
-            connectExceptionThrown = true 
+            connectExceptionThrown = true
         }
         // If it reaches here without crashing from NullPointer or ClassCast, the local DNS logic is safe
         assertTrue(connectExceptionThrown)
     }
 }
-

@@ -90,4 +90,23 @@ class BackupManagerTest {
         assertNotNull(restoredIdent1?.privateKey)
         assertArrayEquals(identityPrivateKeyBytes, restoredIdent1?.privateKey)
     }
+
+    @Test
+    fun `test import real backup file from downloads via BackupManager`() {
+        val userHome = System.getProperty("user.home")
+        val candidateFiles = listOf(
+            File(userHome, "Downloads/connections_and_identities (5).cossh"),
+            File(userHome, "Downloads/connections_and_identities.cossh"),
+            File(userHome, "Downloads/connections_and_identities (3).cossh"),
+        )
+        val file = candidateFiles.firstOrNull { it.exists() }
+        org.junit.Assume.assumeTrue("Downloads backup file not present (skipped in CI)", file != null)
+
+        val uri = Uri.fromFile(file!!)
+        backupManager.importBackup(uri, "aaaaaaaa".toCharArray())
+        val profiles = securityStorageManager.getAllProfiles()
+        val identities = identityStorageManager.getAllIdentities()
+        assertEquals(13, profiles.size)
+        assertEquals(4, identities.size)
+    }
 }

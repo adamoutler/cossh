@@ -50,6 +50,7 @@ fun ConnectionListScreen(
 
     var showExportPasswordDialog by remember { mutableStateOf<Uri?>(null) }
     var showImportPasswordDialog by remember { mutableStateOf<Uri?>(null) }
+    var importErrorDialogMessage by remember { mutableStateOf<String?>(null) }
 
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/octet-stream"),
@@ -132,18 +133,19 @@ fun ConnectionListScreen(
                 Button(
                     onClick = {
                         val uri = showExportPasswordDialog!!
-                        val pass = passwordBuffer.get()
+                        val passCopy = passwordBuffer.get().copyOf()
+                        passwordBuffer.get().fill('\u0000')
+                        confirmPasswordBuffer.get().fill('\u0000')
+                        showExportPasswordDialog = null
 
-                        viewModel.exportBackup(uri, pass) { success ->
-                            pass.fill('\u0000')
-                            confirmPasswordBuffer.get().fill('\u0000')
+                        viewModel.exportBackup(uri, passCopy) { success ->
+                            passCopy.fill('\u0000')
                             if (success) {
                                 Toast.makeText(context, "Export successful", Toast.LENGTH_SHORT).show()
                             } else {
                                 Toast.makeText(context, "Export failed", Toast.LENGTH_SHORT).show()
                             }
                         }
-                        showExportPasswordDialog = null
                     },
                     enabled = isFormValid,
                 ) {
@@ -191,17 +193,21 @@ fun ConnectionListScreen(
                 Button(
                     onClick = {
                         val uri = showImportPasswordDialog!!
-                        val pass = passwordBuffer.get()
+                        val passCopy = passwordBuffer.get().copyOf()
+                        passwordBuffer.get().fill('\u0000')
+                        showImportPasswordDialog = null
 
-                        viewModel.importBackup(uri, pass) { success ->
-                            pass.fill('\u0000')
+                        viewModel.importBackup(uri, passCopy) { success, detailMessage ->
+                            passCopy.fill('\u0000')
                             if (success) {
-                                Toast.makeText(context, "Import successful", Toast.LENGTH_SHORT).show()
+                                val message = if (!detailMessage.isNullOrBlank()) "Import successful: $detailMessage" else "Import successful"
+                                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                             } else {
-                                Toast.makeText(context, "Import failed", Toast.LENGTH_SHORT).show()
+                                val reason = detailMessage ?: "Unknown error"
+                                importErrorDialogMessage = reason
+                                Toast.makeText(context, "Import failed: $reason", Toast.LENGTH_LONG).show()
                             }
                         }
-                        showImportPasswordDialog = null
                     },
                     enabled = hasPassword,
                 ) { Text(ACTION_IMPORT_BACKUP) }
@@ -211,6 +217,24 @@ fun ConnectionListScreen(
                     showImportPasswordDialog = null
                     passwordBuffer.get().fill('\u0000')
                 }) { Text("Cancel") }
+            },
+        )
+    }
+
+    if (importErrorDialogMessage != null) {
+        AlertDialog(
+            onDismissRequest = { importErrorDialogMessage = null },
+            title = { Text("Import Failed", color = MaterialTheme.colorScheme.error) },
+            text = {
+                Text(
+                    text = importErrorDialogMessage ?: "",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            },
+            confirmButton = {
+                Button(onClick = { importErrorDialogMessage = null }) {
+                    Text("OK")
+                }
             },
         )
     }

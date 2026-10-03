@@ -2,8 +2,8 @@ package com.adamoutler.ssh.data
 
 import com.adamoutler.ssh.backup.BackupPayload
 import kotlinx.serialization.json.Json
-import org.junit.Test
 import org.junit.Assert.assertNotNull
+import org.junit.Test
 
 class SerializerCoverageTest {
 
@@ -26,14 +26,14 @@ class SerializerCoverageTest {
             portForwards = listOf(PortForwardConfig(type = PortForwardType.LOCAL, localPort = 8080, remoteHost = "localhost", remotePort = 80)),
             initialDirectory = "/tmp",
             terminalInputState = 1,
-            keepScreenOnMode = KeepScreenOnMode.ALWAYS_ON
+            keepScreenOnMode = KeepScreenOnMode.ALWAYS_ON,
         )
         profile.password = "test".toByteArray()
         val json = Json.encodeToString(ConnectionProfile.serializer(), profile)
         assertNotNull(json)
         val decoded = Json.decodeFromString(ConnectionProfile.serializer(), json)
         assertNotNull(decoded)
-        
+
         // Minimal JSON to trigger defaults in deserializer
         val minimalJson = """{"id":"min-id","nickname":"min-nick","host":"min-host"}"""
         val decodedMin = Json { ignoreUnknownKeys = true }.decodeFromString(ConnectionProfile.serializer(), minimalJson)
@@ -47,7 +47,7 @@ class SerializerCoverageTest {
             name = "test-identity",
             username = "root",
             publicKey = "pub",
-            authType = AuthType.KEY
+            authType = AuthType.KEY,
         )
         identity.password = "test".toByteArray()
         identity.privateKey = "key".toByteArray()
@@ -71,7 +71,7 @@ class SerializerCoverageTest {
             profilePasswords = mapOf("a" to "b"),
             identities = listOf(),
             identityPasswords = mapOf("c" to "d"),
-            identityPrivateKeys = mapOf("e" to "f")
+            identityPrivateKeys = mapOf("e" to "f"),
         )
         val json = Json.encodeToString(BackupPayload.serializer(), payload)
         assertNotNull(json)

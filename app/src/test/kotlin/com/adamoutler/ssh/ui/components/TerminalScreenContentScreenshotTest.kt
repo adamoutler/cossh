@@ -183,14 +183,14 @@ class TerminalScreenContentScreenshotTest {
                         onNavigateBack = {},
                         onClearError = {},
                         profile = ConnectionProfile(
-                            id = "1", 
-                            nickname = "My Server", 
-                            host = "localhost", 
+                            id = "1",
+                            nickname = "My Server",
+                            host = "localhost",
                             protocol = Protocol.SSH,
                             commandSnippets = listOf(
                                 com.adamoutler.ssh.data.CommandSnippet("1", "Restart Nginx", "systemctl restart nginx", true, true),
-                                com.adamoutler.ssh.data.CommandSnippet("2", "Tail Logs", "tail -f /var/log/syslog", false, false)
-                            )
+                                com.adamoutler.ssh.data.CommandSnippet("2", "Tail Logs", "tail -f /var/log/syslog", false, false),
+                            ),
                         ),
                         initialTerminalInputState = 0,
                     )

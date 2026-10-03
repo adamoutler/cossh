@@ -14,11 +14,11 @@ class CommandSnippetSerializationTest {
             name = "Restart Server",
             command = "sudo systemctl restart nginx",
             autoSend = true,
-            requireAuth = true
+            requireAuth = true,
         )
         val jsonString = Json.encodeToString(snippet)
         val deserialized = Json.decodeFromString<CommandSnippet>(jsonString)
-        
+
         assertEquals(snippet.id, deserialized.id)
         assertEquals(snippet.name, deserialized.name)
         assertEquals(snippet.command, deserialized.command)
@@ -30,7 +30,7 @@ class CommandSnippetSerializationTest {
     fun testConnectionProfileWithSnippets() {
         val snippets = listOf(
             CommandSnippet("1", "Test1", "echo 1", true, false),
-            CommandSnippet("2", "Test2", "echo 2", false, true)
+            CommandSnippet("2", "Test2", "echo 2", false, true),
         )
         val profile = ConnectionProfile(
             id = "test",
@@ -39,7 +39,7 @@ class CommandSnippetSerializationTest {
             port = 22,
             username = "root",
             authType = AuthType.PASSWORD,
-            commandSnippets = snippets
+            commandSnippets = snippets,
         )
         val jsonString = Json.encodeToString(profile)
         val deserialized = Json.decodeFromString<ConnectionProfile>(jsonString)
