@@ -412,6 +412,9 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 
 sonar {
     properties {
+        property("sonar.projectKey", "adamoutler_cossh")
+        property("sonar.organization", "adamoutler")
+        property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.gradle.skipCompile", "true")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
         property("sonar.junit.reportPaths", "${layout.buildDirectory.get()}/test-results/testDebugUnitTest")

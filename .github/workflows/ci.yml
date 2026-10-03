@@ -13,6 +13,8 @@ permissions:
 jobs:
   ci-pipeline:
     runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -74,4 +76,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonar -Dsonar.projectKey=adamoutler_cossh -Dsonar.organization=adamoutler -Dsonar.host.url=https://sonarcloud.io -Dsonar.qualitygate.wait=true -Dsonar.c.file.suffixes=- -Dsonar.cpp.file.suffixes=- -Dsonar.objc.file.suffixes=-
+        run: |
+          if [ -z "${SONAR_TOKEN}" ]; then
+            echo "::error ::SONAR_TOKEN secret is not set!"
+            exit 1
+          fi
+          echo "SONAR_TOKEN is set (length: ${#SONAR_TOKEN})"
+          ./gradlew sonar --no-daemon \
+            -Dsonar.token="${SONAR_TOKEN}" \
+            -Dsonar.login="${SONAR_TOKEN}" \
+            -Dsonar.projectKey=adamoutler_cossh \
+            -Dsonar.organization=adamoutler \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.qualitygate.wait=true \
+            -Dsonar.c.file.suffixes=- \
+            -Dsonar.cpp.file.suffixes=- \
+            -Dsonar.objc.file.suffixes=-
