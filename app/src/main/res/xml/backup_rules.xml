@@ -11,4 +11,7 @@
     
     <!-- Exclude EncryptedSharedPreferences Master Key -->
     <exclude domain="sharedpref" path="crypto_prefs.xml" />
+
+    <!-- Exclude plaintext crash dumps -->
+    <exclude domain="file" path="secure_crashes" />
 </full-backup-content>

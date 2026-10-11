@@ -1,0 +1,58 @@
+{
+  "prevent-curl-bypass": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./hooks/prevent-curl-bypass.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "qa-gate": {
+    "PreToolUse": [
+      {
+        "matcher": "call_mcp_tool",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ./hooks/qa-gate.py",
+            "timeout": 1500
+          }
+        ]
+      }
+    ]
+  },
+  "git-push-after": {
+    "PostToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./hooks/git-push-after.sh",
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  },
+  "remind-comment": {
+    "PostToolUse": [
+      {
+        "matcher": "call_mcp_tool",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./hooks/remind-comment.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

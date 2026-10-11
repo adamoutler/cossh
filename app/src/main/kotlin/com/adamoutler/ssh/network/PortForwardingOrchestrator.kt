@@ -12,6 +12,9 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 class PortForwardingOrchestrator {
@@ -19,8 +22,10 @@ class PortForwardingOrchestrator {
         private const val LOCAL_HOST = "127.0.0.1"
     }
 
-    private val localServerSockets = mutableListOf<ServerSocket>()
-    private val clientThreads = mutableListOf<Thread>()
+    private val localServerSockets = CopyOnWriteArrayList<ServerSocket>()
+    private val socksExecutor = Executors.newFixedThreadPool(16) { runnable ->
+        Thread(runnable, "SOCKS5_Worker").apply { isDaemon = true }
+    }
 
     fun startPortForwards(client: SSHClient, profile: ConnectionProfile) {
         profile.portForwards.forEach { config ->
@@ -78,10 +83,9 @@ class PortForwardingOrchestrator {
             try {
                 while (!serverSocket.isClosed) {
                     val socket = serverSocket.accept()
-                    val t = thread(name = "SOCKS5_Client_${socket.port}") {
+                    socksExecutor.execute {
                         handleSocks5Connection(client, socket)
                     }
-                    clientThreads.add(t)
                 }
             } catch (e: Exception) {
                 println("Dynamic port forwarder error: $e")
@@ -185,10 +189,12 @@ class PortForwardingOrchestrator {
 
     fun stopAll() {
         try {
-            localServerSockets.forEach { it.close() }
+            localServerSockets.forEach {
+                try { it.close() } catch (ignored: Exception) {}
+            }
             localServerSockets.clear()
-            clientThreads.forEach { it.interrupt() }
-            clientThreads.clear()
+            socksExecutor.shutdownNow()
+            socksExecutor.awaitTermination(1, TimeUnit.SECONDS)
         } catch (e: Exception) {
             println(("PortForwardingOrchestrator").toString() + ": " + ("Error closing local port forwarders").toString() + " " + (e).toString())
         }

@@ -12,6 +12,9 @@
         
         <!-- Exclude EncryptedSharedPreferences Master Key (if applicable) -->
         <exclude domain="sharedpref" path="crypto_prefs.xml" />
+        
+        <!-- Exclude plaintext crash dumps -->
+        <exclude domain="file" path="secure_crashes" />
     </cloud-backup>
     
     <device-transfer>
@@ -23,5 +26,8 @@
         
         <exclude domain="file" path="ssh_known_hosts" />
         <exclude domain="sharedpref" path="crypto_prefs.xml" />
+        
+        <!-- Exclude plaintext crash dumps -->
+        <exclude domain="file" path="secure_crashes" />
     </device-transfer>
 </data-extraction-rules>

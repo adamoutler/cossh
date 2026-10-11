@@ -139,4 +139,40 @@ class PortForwardingOrchestratorTest {
         orchestrator.startPortForwards(client, profile)
         Thread.sleep(500)
     }
+
+    @Test
+    fun `test startDynamicPortForwarding binds and accepts SOCKS handshake`() {
+        val testServer = ServerSocket(0)
+        val dynamicPort = testServer.localPort
+        testServer.close()
+
+        val profile = ConnectionProfile(
+            id = "test",
+            nickname = "test",
+            host = "localhost",
+            port = 22,
+            username = "test",
+            authType = AuthType.PASSWORD,
+            protocol = Protocol.SSH,
+            portForwards = listOf(
+                PortForwardConfig(PortForwardType.DYNAMIC, dynamicPort, "", 0),
+            ),
+        )
+
+        orchestrator.startPortForwards(client, profile)
+        Thread.sleep(300)
+
+        // Connect as a SOCKS5 client and send standard handshake: 0x05 (version 5), 0x01 (1 auth method), 0x00 (no auth)
+        Socket("127.0.0.1", dynamicPort).use { sock ->
+            val out = sock.getOutputStream()
+            val input = sock.getInputStream()
+            out.write(byteArrayOf(0x05, 0x01, 0x00))
+            out.flush()
+
+            val respVer = input.read()
+            val respMethod = input.read()
+            org.junit.Assert.assertEquals(0x05, respVer)
+            org.junit.Assert.assertEquals(0x00, respMethod)
+        }
+    }
 }
