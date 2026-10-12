@@ -459,7 +459,7 @@ def build_clean_room_context(repo_root, ticket, comments, transition_comment, ci
             if rel_p.endswith((".md", ".txt", ".json", ".xml")):
                 try:
                     with open(full_p, "r", encoding="utf-8", errors="ignore") as af:
-                        snippet = af.read()[:5000]
+                        snippet = af.read()[:15000]
                     artifacts_text += f"\nFile `{rel_p}`:\n```\n{snippet}\n```\n"
                 except Exception:
                     artifacts_text += f"- `{rel_p}`\n"
@@ -474,8 +474,8 @@ def build_clean_room_context(repo_root, ticket, comments, transition_comment, ci
         artifacts_text += f"\n### docs/qa/ File Index ({len(qa_index)} total files):\n"
         artifacts_text += ", ".join(qa_index[-30:]) + "\n"
 
-    if len(artifacts_text) > 15000:
-        artifacts_text = artifacts_text[:15000] + "\n... [ARTIFACTS TRUNCATED] ..."
+    if len(artifacts_text) > 25000:
+        artifacts_text = artifacts_text[:25000] + "\n... [ARTIFACTS TRUNCATED] ..."
 
     # 3. Dash CI Build Log Tail (last 100 lines, bounded to 8KB)
     dash_log_view = "No logs returned from Dash."
