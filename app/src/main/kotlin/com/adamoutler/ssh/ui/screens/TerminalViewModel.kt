@@ -135,20 +135,31 @@ class TerminalViewModel(application: Application) :
 
     override fun onPasteTextFromClipboard(session: TerminalSession) {
         val context = getContext?.invoke() ?: return
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        val clipData = clipboard.primaryClip
-        if (clipData != null && clipData.itemCount > 0) {
-            val text = clipData.getItemAt(0).text?.toString() ?: return
-            val sanitizedText = text.replace("\n", "\r")
-            val sessionId = sessions.entries.firstOrNull { it.value == session }?.key
-            if (sessionId != null) {
-                val ptyOutputStream = com.adamoutler.ssh.network.ConnectionStateRepository.sessions[sessionId]?.ptyOutputStream
-                try {
-                    ptyOutputStream?.write(sanitizedText.toByteArray(Charsets.UTF_8))
-                    ptyOutputStream?.flush()
-                } catch (e: Exception) {
-                    println("TerminalViewModel: Failed to paste text: $e")
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager ?: return
+        val clipData = clipboard.primaryClip ?: return
+        if (clipData.itemCount <= 0) return
+
+        val item = clipData.getItemAt(0) ?: return
+        val rawText = try {
+            item.coerceToText(context)?.toString()
+        } catch (e: Exception) {
+            null
+        }
+        if (rawText.isNullOrEmpty()) return
+
+        val sanitizedText = rawText.replace("\r\n", "\r").replace("\n", "\r")
+        val sessionId = sessions.entries.firstOrNull { it.value == session }?.key ?: return
+
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            val activeSession = com.adamoutler.ssh.network.ConnectionStateRepository.sessions[sessionId] ?: return@launch
+            val ptyOutputStream = activeSession.ptyOutputStream ?: return@launch
+            try {
+                synchronized(ptyOutputStream) {
+                    ptyOutputStream.write(sanitizedText.toByteArray(Charsets.UTF_8))
+                    ptyOutputStream.flush()
                 }
+            } catch (e: Exception) {
+                println("TerminalViewModel: Failed to paste text: $e")
             }
         }
     }
