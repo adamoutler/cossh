@@ -792,11 +792,19 @@ CRITICAL DIRECTIVES:
     if len(result_text) < 200:
         deny_transition(f"Stage 5 Failed: Reality Checker response too short ({len(result_text)} chars). Expected verbose report (>200 chars).")
 
-    has_ready = bool(re.search(r'\bREADY\b', result_text, re.IGNORECASE))
-    has_needs_work = bool(re.search(r'\bNEEDS[\s_]+WORK\b', result_text, re.IGNORECASE))
-    has_fail = bool(re.search(r'\b(FAIL|FAILED|FAILURE)\b', result_text, re.IGNORECASE))
+    # Evaluate verdict from explicit status fields or fallback
+    status_matches = re.findall(r'\*\*(?:Production Readiness|Status)\*\*:\s*([A-Za-z\s_-]+)', result_text, re.IGNORECASE)
+    if status_matches:
+        has_explicit_needs_work = any('needs' in s.lower() and 'work' in s.lower() for s in status_matches)
+        has_explicit_fail = any('fail' in s.lower() for s in status_matches)
+        has_explicit_ready = any('ready' in s.lower() for s in status_matches)
+        is_ready = has_explicit_ready and not has_explicit_needs_work and not has_explicit_fail
+    else:
+        has_ready = bool(re.search(r'\bREADY\b', result_text, re.IGNORECASE))
+        has_needs_work = bool(re.search(r'\bNEEDS[\s_]+WORK\b', result_text, re.IGNORECASE))
+        has_fail = bool(re.search(r'\b(FAIL|FAILED|FAILURE)\b', result_text, re.IGNORECASE))
+        is_ready = has_ready and not has_needs_work and not has_fail
 
-    is_ready = has_ready and not has_needs_work and not has_fail
     return is_ready, result_text
 
 # =============================================================================

@@ -286,6 +286,44 @@ class TestCleanRoomRealityCheckerParsing(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 qa_gate.stage_5_clean_room_audit(".", "SSH-179", "payload")
 
+    def test_clean_room_ready_with_historical_needs_work_mention(self):
+        report = (
+            "Reality Certification Report for SSH-175:\n"
+            "Previous NEEDS WORK finding was triggered by an empty changeset in origin/main...HEAD. "
+            "However, the historical commit cf2fc66 contains the full implementation and verified diff. "
+            "All unit tests pass and verified screenshot artifacts are present in docs/qa/. "
+            "**Production Readiness**: READY\n"
+            "**Status**: READY\n"
+        )
+        self.assertGreaterEqual(len(report), 200)
+
+        mock_proc = MagicMock()
+        mock_proc.communicate.return_value = (json.dumps({"response": report}), "")
+        mock_proc.returncode = 0
+
+        with patch("subprocess.Popen", return_value=mock_proc):
+            is_ready, text = qa_gate.stage_5_clean_room_audit(".", "SSH-175", "payload")
+            self.assertTrue(is_ready)
+
+    def test_clean_room_structured_needs_work_rejected(self):
+        report = (
+            "Reality Certification Report for SSH-175:\n"
+            "While unit tests pass, biometric authentication prompt is missing from the dialog implementation. "
+            "Evidence in docs/qa/ is incomplete. "
+            "**Production Readiness**: NEEDS WORK\n"
+            "**Status**: NEEDS WORK\n"
+        )
+        self.assertGreaterEqual(len(report), 200)
+
+        mock_proc = MagicMock()
+        mock_proc.communicate.return_value = (json.dumps({"response": report}), "")
+        mock_proc.returncode = 0
+
+        with patch("subprocess.Popen", return_value=mock_proc):
+            is_ready, text = qa_gate.stage_5_clean_room_audit(".", "SSH-175", "payload")
+            self.assertFalse(is_ready)
+
+
 
 if __name__ == "__main__":
     unittest.main()
