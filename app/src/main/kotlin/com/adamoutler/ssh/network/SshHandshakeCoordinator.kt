@@ -18,7 +18,7 @@ import java.security.PublicKey
  * Isolates the SSH handshake and connection logic from the main SshConnectionManager.
  * Handles Host Key Verification (TOFU), Identity resolution, and specific Authentication strategies.
  */
-class SshHandshakeCoordinator(
+open class SshHandshakeCoordinator(
     private val hostKeyVerifier: HostKeyVerifier? = null,
     private val identityStorageManager: IdentityStorageManager? = null,
     private val context: Context? = null,
@@ -142,6 +142,38 @@ class SshHandshakeCoordinator(
         return identityStorageManager?.getIdentity(id)
     }
 
+    @PublishedApi
+    internal open fun getActiveNetwork(): android.net.Network? {
+        val cm = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
+        return cm?.activeNetwork
+    }
+
+    @PublishedApi
+    internal open fun resolveHostViaNetwork(network: android.net.Network, host: String): Array<java.net.InetAddress> {
+        return network.getAllByName(host)
+    }
+
+    @PublishedApi
+    internal open fun connectClient(client: SSHClient, inetAddress: java.net.InetAddress, port: Int) {
+        client.connect(inetAddress, port)
+    }
+
+    @PublishedApi
+    internal open fun connectClient(client: SSHClient, host: String, port: Int) {
+        client.connect(host, port)
+    }
+
+    @PublishedApi
+    internal open fun authenticateClient(
+        client: SSHClient,
+        profile: ConnectionProfile,
+        keyPair: KeyPair?,
+        identity: IdentityProfile?,
+        effectiveProfile: ConnectionProfile,
+    ) {
+        getAuthenticator(profile, keyPair, identity).authenticate(client, effectiveProfile)
+    }
+
     /**
      * Orchestrates the connection and authentication phase of an SSHClient.
      * It handles timeouts, Host Key Verification (TOFU), Identity resolution, and authentication.
@@ -162,21 +194,26 @@ class SshHandshakeCoordinator(
             configureHostKeyVerifier(client)
 
             if (profile.useLocalDns && context != null) {
-                val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
-                val network = cm.activeNetwork
+                val network = getActiveNetwork()
                 if (network != null) {
-                    val inetAddresses = network.getAllByName(profile.host)
+                    val inetAddresses = try {
+                        resolveHostViaNetwork(network, profile.host)
+                    } catch (e: Exception) {
+                        emptyArray()
+                    }
                     if (inetAddresses.isNotEmpty()) {
                         val inetAddress = java.net.InetAddress.getByAddress(profile.host, inetAddresses[0].address)
-                        client.connect(inetAddress, profile.port)
+                        println("SshHandshakeCoordinator: Resolved ${profile.host} via local network DNS: ${inetAddress.hostAddress}")
+                        connectClient(client, inetAddress, profile.port)
                     } else {
-                        client.connect(profile.host, profile.port)
+                        println("SshHandshakeCoordinator: Local DNS resolution returned empty for ${profile.host}, using system fallback")
+                        connectClient(client, profile.host, profile.port)
                     }
                 } else {
-                    client.connect(profile.host, profile.port)
+                    connectClient(client, profile.host, profile.port)
                 }
             } else {
-                client.connect(profile.host, profile.port)
+                connectClient(client, profile.host, profile.port)
             }
 
             val effectiveProfile = if (identity != null) {
@@ -185,7 +222,7 @@ class SshHandshakeCoordinator(
                 profile
             }
 
-            getAuthenticator(profile, keyPair, identity).authenticate(client, effectiveProfile)
+            authenticateClient(client, profile, keyPair, identity, effectiveProfile)
 
             return block(effectiveProfile)
         } finally {

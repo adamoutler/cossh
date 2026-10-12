@@ -142,33 +142,107 @@ class SshHandshakeCoordinatorCoverageTest {
     }
 
     @Test
-    fun testExecuteWithConnection_useLocalDns() = runBlocking {
+    fun testExecuteWithConnection_useLocalDns_resolvesAndPreservesHostname() = runBlocking {
         val app = ApplicationProvider.getApplicationContext<android.app.Application>()
-        val coordinator = SshHandshakeCoordinator(context = app)
+        var capturedInetAddress: java.net.InetAddress? = null
+        var capturedPort: Int? = null
+        var authenticated = false
+
+        val testNetwork = android.net.Network.fromNetworkHandle(101L)
+        val coordinator = object : SshHandshakeCoordinator(context = app) {
+            override fun getActiveNetwork(): android.net.Network? = testNetwork
+
+            override fun resolveHostViaNetwork(network: android.net.Network, host: String): Array<java.net.InetAddress> {
+                assertEquals(testNetwork, network)
+                assertEquals("mock.hackedyour.info", host)
+                // Simulate local DHCP DNS returning 192.168.1.50 for LAN host
+                return arrayOf(java.net.InetAddress.getByAddress(byteArrayOf(192.toByte(), 168.toByte(), 1.toByte(), 50.toByte())))
+            }
+
+            override fun connectClient(client: SSHClient, inetAddress: java.net.InetAddress, port: Int) {
+                capturedInetAddress = inetAddress
+                capturedPort = port
+            }
+
+            override fun authenticateClient(
+                client: SSHClient,
+                profile: ConnectionProfile,
+                keyPair: KeyPair?,
+                identity: IdentityProfile?,
+                effectiveProfile: ConnectionProfile,
+            ) {
+                authenticated = true
+            }
+        }
+
         val profile = ConnectionProfile(
-            id = "1",
-            nickname = "test",
-            host = "localhost",
-            port = 12345,
+            id = "test-local-dns",
+            nickname = "Local Mock Server",
+            host = "mock.hackedyour.info",
+            port = 2222,
             authType = AuthType.PASSWORD,
             useLocalDns = true,
         )
 
-        var connectExceptionThrown = false
-        try {
-            coordinator.executeWithConnection(SSHClient(), profile, null) {
-                // Do nothing
-            }
-        } catch (e: java.net.ConnectException) {
-            connectExceptionThrown = true
-        } catch (e: java.lang.NoSuchMethodError) {
-            // Robolectric lacks getAllByNameOnNet implementation, proving the path was taken
-            connectExceptionThrown = true
-        } catch (e: Exception) {
-            // Other exceptions might be thrown depending on Robolectric's activeNetwork implementation
-            connectExceptionThrown = true
+        val result = coordinator.executeWithConnection(SSHClient(), profile, null) { effective ->
+            assertEquals("mock.hackedyour.info", effective.host)
+            "CONNECTED"
         }
-        // If it reaches here without crashing from NullPointer or ClassCast, the local DNS logic is safe
-        assertTrue(connectExceptionThrown)
+
+        assertEquals("CONNECTED", result)
+        assertTrue(authenticated)
+        assertEquals(2222, capturedPort)
+        assertNotNull(capturedInetAddress)
+        // Verify hostname is strictly preserved for Host Key Verification / TOFU
+        assertEquals("mock.hackedyour.info", capturedInetAddress?.hostName)
+        // Verify IP bytes correspond to the local network DHCP DNS answer
+        assertArrayEquals(
+            byteArrayOf(192.toByte(), 168.toByte(), 1.toByte(), 50.toByte()),
+            capturedInetAddress?.address,
+        )
+    }
+
+    @Test
+    fun testExecuteWithConnection_useLocalDns_emptyResolutionFallsBackToSystem() = runBlocking {
+        val app = ApplicationProvider.getApplicationContext<android.app.Application>()
+        var capturedHost: String? = null
+        var capturedPort: Int? = null
+
+        val testNetwork = android.net.Network.fromNetworkHandle(102L)
+        val coordinator = object : SshHandshakeCoordinator(context = app) {
+            override fun getActiveNetwork(): android.net.Network? = testNetwork
+
+            override fun resolveHostViaNetwork(network: android.net.Network, host: String): Array<java.net.InetAddress> {
+                return emptyArray()
+            }
+
+            override fun connectClient(client: SSHClient, host: String, port: Int) {
+                capturedHost = host
+                capturedPort = port
+            }
+
+            override fun authenticateClient(
+                client: SSHClient,
+                profile: ConnectionProfile,
+                keyPair: KeyPair?,
+                identity: IdentityProfile?,
+                effectiveProfile: ConnectionProfile,
+            ) {}
+        }
+
+        val profile = ConnectionProfile(
+            id = "test-fallback",
+            nickname = "Fallback Server",
+            host = "mock.hackedyour.info",
+            port = 22,
+            authType = AuthType.PASSWORD,
+            useLocalDns = true,
+        )
+
+        val result = coordinator.executeWithConnection(SSHClient(), profile, null) { "FALLBACK_SUCCESS" }
+
+        assertEquals("FALLBACK_SUCCESS", result)
+        assertEquals("mock.hackedyour.info", capturedHost)
+        assertEquals(22, capturedPort)
     }
 }
