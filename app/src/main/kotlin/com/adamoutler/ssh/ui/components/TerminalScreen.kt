@@ -376,8 +376,13 @@ fun TerminalScreenContent(
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
             for (bytes in writeChannel) {
                 try {
-                    activeSession.ptyOutputStream?.write(bytes)
-                    activeSession.ptyOutputStream?.flush()
+                    val pty = activeSession.ptyOutputStream
+                    if (pty != null) {
+                        synchronized(pty) {
+                            pty.write(bytes)
+                            pty.flush()
+                        }
+                    }
                 } catch (ex: Exception) {
                     println(("TerminalScreen").toString() + ": " + ("Failed to write to SSH PTY").toString() + " " + (ex).toString())
                 }
@@ -658,6 +663,15 @@ fun TerminalScreenContent(
                         terminalView.onScreenUpdated()
                         terminalView.requestFocus()
 
+                        terminalView.setOnCreateContextMenuListener { menu, _, _ ->
+                            val pasteItem = menu.add(android.view.Menu.NONE, android.R.id.paste, android.view.Menu.NONE, android.R.string.paste)
+                            pasteItem.setOnMenuItemClickListener {
+                                onPaste()
+                                terminalView.requestFocus()
+                                true
+                            }
+                        }
+
                         val wrapper = object : android.widget.FrameLayout(ctx) {
                             override fun startActionModeForChild(originalView: android.view.View, callback: android.view.ActionMode.Callback, type: Int): android.view.ActionMode? {
                                 val wrapped = object : android.view.ActionMode.Callback2() {
@@ -673,10 +687,24 @@ fun TerminalScreenContent(
                                             mode.finish()
                                             return true
                                         }
+                                        val isStandardPaste = item.itemId == android.R.id.paste ||
+                                            item.itemId == android.R.id.pasteAsPlainText
+                                        if (isStandardPaste) {
+                                            onPaste()
+                                            mode.finish()
+                                            terminalView.requestFocus()
+                                            return true
+                                        }
+                                        if (item.itemId == 2) {
+                                            val res = callback.onActionItemClicked(mode, item)
+                                            terminalView.requestFocus()
+                                            return res
+                                        }
                                         return callback.onActionItemClicked(mode, item)
                                     }
                                     override fun onDestroyActionMode(mode: android.view.ActionMode) {
                                         callback.onDestroyActionMode(mode)
+                                        terminalView.requestFocus()
                                     }
                                     override fun onGetContentRect(mode: android.view.ActionMode, view: android.view.View, outRect: android.graphics.Rect) {
                                         if (callback is android.view.ActionMode.Callback2) {
@@ -701,10 +729,24 @@ fun TerminalScreenContent(
                                             mode.finish()
                                             return true
                                         }
+                                        val isStandardPaste = item.itemId == android.R.id.paste ||
+                                            item.itemId == android.R.id.pasteAsPlainText
+                                        if (isStandardPaste) {
+                                            onPaste()
+                                            mode.finish()
+                                            terminalView.requestFocus()
+                                            return true
+                                        }
+                                        if (item.itemId == 2) {
+                                            val res = callback.onActionItemClicked(mode, item)
+                                            terminalView.requestFocus()
+                                            return res
+                                        }
                                         return callback.onActionItemClicked(mode, item)
                                     }
                                     override fun onDestroyActionMode(mode: android.view.ActionMode) {
                                         callback.onDestroyActionMode(mode)
+                                        terminalView.requestFocus()
                                     }
                                     override fun onGetContentRect(mode: android.view.ActionMode, view: android.view.View, outRect: android.graphics.Rect) {
                                         if (callback is android.view.ActionMode.Callback2) {
