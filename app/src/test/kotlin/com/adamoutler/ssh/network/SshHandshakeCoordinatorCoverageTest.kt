@@ -8,13 +8,16 @@ import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
 import kotlinx.coroutines.runBlocking
 import net.schmizz.sshj.SSHClient
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
+import java.security.KeyPair
 import java.security.KeyPairGenerator
 
 @RunWith(RobolectricTestRunner::class)
