@@ -103,4 +103,20 @@ class DataSerializersTest {
         assertEquals(original.remoteHost, deserialized.remoteHost)
         assertEquals(original.remotePort, deserialized.remotePort)
     }
+
+    @Test
+    fun `test PortForwardConfig DYNAMIC serialization and deserialization`() {
+        val original = PortForwardConfig(
+            type = PortForwardType.DYNAMIC,
+            localPort = 1080,
+            remoteHost = "",
+            remotePort = 0,
+        )
+        val jsonString = Json.encodeToString(original)
+        val deserialized = Json.decodeFromString<PortForwardConfig>(jsonString)
+        assertEquals(PortForwardType.DYNAMIC, deserialized.type)
+        assertEquals(1080, deserialized.localPort)
+        assertEquals("", deserialized.remoteHost)
+        assertEquals(0, deserialized.remotePort)
+    }
 }

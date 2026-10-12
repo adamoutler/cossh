@@ -424,15 +424,121 @@ def stage_4_dash_ci_status(head_sha, repo_root="."):
 
     return matching_job
 
+def resolve_ticket_commits(repo_root, ticket_id, head_sha, max_depth=50):
+    """
+    Finds commits on HEAD history belonging to ticket_id within max_depth.
+    Enforces regex word boundaries, bounds depth to 50 commits, verifies ancestry,
+    checks range contiguity, and identifies touched files.
+    """
+    if not ticket_id:
+        return [], False, None, []
+    pattern = f"\\b{re.escape(ticket_id)}\\b"
+    cmd = ["git", "log", "HEAD", f"-n{max_depth}", "-E", f"--grep={pattern}", "--format=%H"]
+    code, out, _ = run_cmd(cmd, cwd=repo_root)
+    if code != 0 or not out.strip():
+        return [], False, None, []
+
+    commits = [line.strip() for line in out.splitlines() if line.strip()]
+    if not commits:
+        return [], False, None, []
+
+    # Verify each commit is an ancestor of HEAD
+    valid_commits = []
+    for c in commits:
+        a_code, _, _ = run_cmd(["git", "merge-base", "--is-ancestor", c, head_sha], cwd=repo_root)
+        if a_code == 0:
+            valid_commits.append(c)
+
+    if not valid_commits:
+        return [], False, None, []
+
+    newest = valid_commits[0]
+    oldest = valid_commits[-1]
+
+    # Verify contiguity of commits in history
+    code, count_str, _ = run_cmd(["git", "rev-list", "--count", f"{oldest}..{newest}"], cwd=repo_root)
+    is_contiguous = False
+    if code == 0 and count_str.strip().isdigit():
+        is_contiguous = (int(count_str.strip()) + 1 == len(valid_commits))
+
+    # Resolve parent of oldest commit (handling initial root commit)
+    code, parent_out, _ = run_cmd(["git", "rev-parse", "--verify", "--quiet", f"{oldest}~1"], cwd=repo_root)
+    if code == 0 and parent_out.strip():
+        oldest_parent = parent_out.split()[0]
+    else:
+        # Standard Git empty tree hash fallback
+        oldest_parent = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+
+    # Determine files touched by the ticket's commits
+    code, files_out, _ = run_cmd(["git", "show", "--name-only", "--pretty=format:"] + valid_commits, cwd=repo_root)
+    files_touched = sorted(list(set(f.strip() for f in files_out.splitlines() if f.strip()))) if code == 0 else []
+
+    return valid_commits, is_contiguous, oldest_parent, files_touched
+
+def verify_binary_artifact(repo_root, rel_p):
+    """Validates binary artifacts/snapshots for non-zero size, valid magic header, and git tracking."""
+    full_p = os.path.join(repo_root, rel_p)
+    if not os.path.exists(full_p):
+        return f"- Visual/Binary Artifact Missing: `{rel_p}`\n"
+
+    size = os.path.getsize(full_p)
+    if size < 1024:
+        return f"- Visual Artifact Warning: `{rel_p}` too small ({size} bytes, expected >1KB valid image)\n"
+
+    try:
+        with open(full_p, "rb") as f:
+            header = f.read(16)
+        is_png = header.startswith(b"\x89PNG\r\n\x1a\n")
+        is_jpeg = header.startswith(b"\xff\xd8\xff")
+        is_webp = header[:4] == b"RIFF" and header[8:12] == b"WEBP"
+        is_svg = rel_p.lower().endswith(".svg")
+
+        if not (is_png or is_jpeg or is_webp or is_svg):
+            return f"- Visual Artifact Warning: `{rel_p}` has invalid image header/magic bytes\n"
+
+        img_type = "PNG" if is_png else "JPEG" if is_jpeg else "WebP" if is_webp else "SVG"
+        code, _, _ = run_cmd(["git", "ls-files", "--error-unmatch", rel_p], cwd=repo_root)
+        tracked_status = "tracked in git" if code == 0 else "untracked"
+        return f"- Visual Artifact: `{rel_p}` ({img_type} image, {size} bytes, {tracked_status})\n"
+    except Exception as e:
+        return f"- Visual Artifact Error: `{rel_p}` ({e})\n"
+
 def build_clean_room_context(repo_root, ticket, comments, transition_comment, ci_job, head_sha, ticket_id=""):
     """Assembles ground-truth context for Pattern B out-of-band reality-checker evaluation."""
     ticket_name = ticket.get("name", "Unknown Ticket")
     ticket_desc = ticket.get("description", "No description provided.")
 
-    # 1. Git diff (origin/main...HEAD or git show HEAD) bounded to 15KB
+    # 1. Git diff resolution (origin/main...HEAD or historical ticket diff on main or git show HEAD fallback)
     code, diff, _ = run_cmd(["git", "diff", "origin/main...HEAD"], cwd=repo_root)
-    if not diff:
-        code, diff, _ = run_cmd(["git", "show", "HEAD"], cwd=repo_root)
+    diff_source = f"origin/main...HEAD (Commit {head_sha[:7]})"
+
+    if not diff or not diff.strip():
+        # Branch is synced with main. Search HEAD history for commits belonging to ticket_id.
+        commits, is_contiguous, oldest_parent, files_touched = resolve_ticket_commits(repo_root, ticket_id, head_sha)
+
+        if commits:
+            newest = commits[0]
+            oldest = commits[-1]
+            diff_source = f"ticket commits ({oldest[:7]}..{newest[:7]})"
+
+            if is_contiguous:
+                code, diff, _ = run_cmd(["git", "diff", f"{oldest_parent}..{newest}"], cwd=repo_root)
+            else:
+                # Interleaved commits detected: restrict diff to files touched by ticket commits
+                code, diff, _ = run_cmd(["git", "diff", f"{oldest_parent}..{newest}", "--"] + files_touched, cwd=repo_root)
+                diff = f"# NOTE: Non-contiguous ticket commits detected. Diff restricted to ticket files:\n" + diff
+
+            # Anti-Ghost-Code Check: Verify whether ticket files were modified between newest and HEAD
+            if newest != head_sha and files_touched:
+                code, drift_diff, _ = run_cmd(["git", "diff", f"{newest}..{head_sha}", "--"] + files_touched, cwd=repo_root)
+                if drift_diff.strip():
+                    diff += f"\n\n# SUBSEQUENT DRIFT DETECTED: Files modified between ticket commit {newest[:7]} and HEAD {head_sha[:7]}:\n"
+                    diff += drift_diff
+        else:
+            code, diff, _ = run_cmd(["git", "show", "HEAD"], cwd=repo_root)
+            diff_source = f"fallback git show HEAD ({head_sha[:7]})"
+            diff = f"# WARNING: No commits found matching ticket {ticket_id} on main history. Showing HEAD:\n" + diff
+
     if len(diff) > 15000:
         diff = diff[:15000] + "\n... [DIFF TRUNCATED TO 15KB] ..."
 
@@ -452,6 +558,8 @@ def build_clean_room_context(repo_root, ticket, comments, transition_comment, ci
             if ticket_id.lower() in f.lower():
                 specific_files.append(os.path.join("user_stories", f))
 
+    referenced_candidates = []
+
     if specific_files:
         artifacts_text += f"### Ticket Specific Artifacts for {ticket_id}:\n"
         for rel_p in specific_files:
@@ -459,14 +567,67 @@ def build_clean_room_context(repo_root, ticket, comments, transition_comment, ci
             if rel_p.endswith((".md", ".txt", ".json", ".xml")):
                 try:
                     with open(full_p, "r", encoding="utf-8", errors="ignore") as af:
-                        snippet = af.read()[:15000]
+                        content = af.read()
+                        snippet = content[:15000]
                     artifacts_text += f"\nFile `{rel_p}`:\n```\n{snippet}\n```\n"
+
+                    # Parse referenced links and image markdown
+                    matches = re.findall(r'!?\[.*?\]\(([^)#\s]+)\)', content)
+                    for m in matches:
+                        referenced_candidates.append((rel_p, m.strip()))
                 except Exception:
                     artifacts_text += f"- `{rel_p}`\n"
             else:
-                artifacts_text += f"- Visual/Binary Artifact: `{rel_p}` (verified on disk)\n"
+                artifacts_text += verify_binary_artifact(repo_root, rel_p)
     else:
         artifacts_text += f"### Ticket Specific Artifacts: NONE found matching `{ticket_id}` in docs/qa/ or user_stories/\n"
+
+    # Ingest verified referenced files and snapshot assets (strictly jailed, max 5 items)
+    if referenced_candidates:
+        artifacts_text += "\n### Verified Referenced Files & Snapshot Assets:\n"
+        seen_refs = set()
+        count = 0
+        real_repo = os.path.realpath(repo_root)
+
+        for parent_doc, ref in referenced_candidates:
+            if count >= 5:
+                artifacts_text += "- ... [REFERENCED FILES CAPPED AT 5] ...\n"
+                break
+
+            parent_dir = os.path.dirname(os.path.join(repo_root, parent_doc))
+            cand_path = os.path.normpath(os.path.join(parent_dir, ref))
+            if not os.path.exists(cand_path):
+                cand_path = os.path.normpath(os.path.join(repo_root, ref))
+
+            # Jail verification: path cannot escape repo root
+            real_cand = os.path.realpath(cand_path)
+            if not (real_cand.startswith(real_repo + os.sep) or real_cand == real_repo):
+                artifacts_text += f"- Security Alert: Blocked traversal reference `{ref}` in `{parent_doc}`\n"
+                continue
+
+            # Sensitive directory and secret file blacklist
+            rel_cand = os.path.relpath(real_cand, real_repo)
+            if any(part.startswith(".") for part in rel_cand.split(os.sep)) or \
+               any(k in rel_cand.lower() for k in ["mcp_config", "token", "secret", "id_rsa", "keystore", ".env"]):
+                artifacts_text += f"- Security Alert: Blocked sensitive reference `{ref}` in `{parent_doc}`\n"
+                continue
+
+            if rel_cand in seen_refs:
+                continue
+            seen_refs.add(rel_cand)
+            count += 1
+
+            if rel_cand.lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".svg")):
+                artifacts_text += verify_binary_artifact(repo_root, rel_cand)
+            elif rel_cand.lower().endswith((".md", ".txt", ".json", ".xml", ".log", ".kt", ".java", ".py")):
+                try:
+                    with open(real_cand, "r", encoding="utf-8", errors="ignore") as rf:
+                        text_snip = rf.read()[:4000]
+                    artifacts_text += f"\nReferenced File `{rel_cand}`:\n```\n{text_snip}\n```\n"
+                except Exception as e:
+                    artifacts_text += f"- Referenced File `{rel_cand}`: (Read error: {e})\n"
+            else:
+                artifacts_text += f"- Referenced Untrusted File Type `{rel_cand}` (Skipped content ingestion)\n"
 
     # Add general QA index listing
     if os.path.exists(qa_dir):
@@ -522,7 +683,7 @@ description: Explanation of changes provided with this closing transition.
 """
 
     payload += f"""---
-name: Git Diff (origin/main...HEAD for Commit {head_sha[:7]})
+name: Git Diff ({diff_source})
 ---
 ```diff
 {diff}
