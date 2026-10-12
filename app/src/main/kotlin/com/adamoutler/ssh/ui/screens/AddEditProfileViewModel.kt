@@ -36,7 +36,42 @@ data class ProfileFormState(
     val keepScreenOnMode: KeepScreenOnMode = KeepScreenOnMode.SYSTEM_DEFAULT,
     val useLocalDns: Boolean = false,
     val isLoaded: Boolean = false,
+    val hostError: String? = null,
+    val portError: String? = null,
 )
+
+data class ResolvedCredentials(
+    val username: String,
+    val authType: AuthType,
+    val password: ByteArray?,
+    val keyReference: String?,
+    val identityId: String?,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ResolvedCredentials) return false
+        if (username != other.username) return false
+        if (authType != other.authType) return false
+        if (password != null) {
+            if (other.password == null) return false
+            if (!password.contentEquals(other.password)) return false
+        } else if (other.password != null) {
+            return false
+        }
+        if (keyReference != other.keyReference) return false
+        if (identityId != other.identityId) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = username.hashCode()
+        result = 31 * result + authType.hashCode()
+        result = 31 * result + (password?.contentHashCode() ?: 0)
+        result = 31 * result + (keyReference?.hashCode() ?: 0)
+        result = 31 * result + (identityId?.hashCode() ?: 0)
+        return result
+    }
+}
 
 class AddEditProfileViewModel(
     application: Application,
@@ -55,6 +90,136 @@ class AddEditProfileViewModel(
 
     fun updateState(updater: (ProfileFormState) -> ProfileFormState) {
         _uiState.update(updater)
+    }
+
+    fun setProtocol(newProto: Protocol) {
+        _uiState.update {
+            val newPort = if (newProto == Protocol.TELNET && it.port == "22") {
+                "23"
+            } else if (newProto == Protocol.SSH && it.port == "23") {
+                "22"
+            } else {
+                it.port
+            }
+            it.copy(
+                protocol = newProto,
+                port = newPort,
+                authType = if (newProto == Protocol.TELNET) AuthType.PASSWORD else it.authType,
+            )
+        }
+    }
+
+    fun validateHost(host: String): Boolean = host.trim().isNotEmpty()
+
+    fun validatePort(port: String): Boolean {
+        val portInt = port.toIntOrNull()
+        return portInt != null && portInt in 1..65535
+    }
+
+    fun parseEnvVars(envVarsText: String): Map<String, String> {
+        if (envVarsText.isBlank()) return emptyMap()
+        return envVarsText.split(",")
+            .map { it.trim() }
+            .filter { it.contains("=") }
+            .associate {
+                val parts = it.split("=", limit = 2)
+                parts[0].trim() to parts[1].trim()
+            }
+    }
+
+    fun resolveCredentials(state: ProfileFormState = _uiState.value): ResolvedCredentials {
+        val selectedIdent = state.identityId?.let { identityStorageManager.getIdentity(it) }
+        val finalUsername = if (selectedIdent != null && state.protocol == Protocol.SSH) {
+            selectedIdent.username
+        } else {
+            state.username
+        }
+        val finalAuthType = if (state.protocol == Protocol.TELNET) {
+            AuthType.PASSWORD
+        } else if (selectedIdent != null && state.protocol == Protocol.SSH) {
+            selectedIdent.authType
+        } else {
+            state.authType
+        }
+
+        val passBytes = if ((state.identityId == null || state.protocol == Protocol.TELNET) && finalAuthType == AuthType.PASSWORD) {
+            if (state.isPasswordLocked) {
+                state.originalPassword
+            } else if (state.password.isNotEmpty()) {
+                state.password.toByteArray(Charsets.UTF_8)
+            } else {
+                null
+            }
+        } else {
+            null
+        }
+
+        val keyRef = if ((state.identityId == null || state.protocol == Protocol.TELNET) && finalAuthType == AuthType.KEY) {
+            state.keyReference.ifEmpty { null }
+        } else {
+            null
+        }
+
+        val finalIdentityId = if (state.protocol == Protocol.SSH) state.identityId else null
+
+        return ResolvedCredentials(
+            username = finalUsername,
+            authType = finalAuthType,
+            password = passBytes,
+            keyReference = keyRef,
+            identityId = finalIdentityId,
+        )
+    }
+
+    fun validateForm(state: ProfileFormState = _uiState.value): Boolean {
+        val hostErr = if (!validateHost(state.host)) "Host cannot be empty" else null
+        val portErr = if (!validatePort(state.port)) "Port must be between 1 and 65535" else null
+
+        _uiState.update {
+            it.copy(
+                hostError = hostErr,
+                portError = portErr,
+            )
+        }
+
+        return hostErr == null && portErr == null
+    }
+
+    fun saveProfile(profileId: String? = null): Boolean = saveProfileFromState(profileId)
+
+    fun saveProfileFromState(id: String? = null): Boolean {
+        val currentState = _uiState.value
+        if (!validateForm(currentState)) {
+            return false
+        }
+
+        val creds = resolveCredentials(currentState)
+        val parsedEnvVars = parseEnvVars(currentState.envVarsText)
+        val portInt = currentState.port.toIntOrNull() ?: if (currentState.protocol == Protocol.TELNET) 23 else 22
+
+        val profileId = id ?: UUID.randomUUID().toString()
+        val profile = ConnectionProfile(
+            id = profileId,
+            nickname = currentState.nickname,
+            host = currentState.host.trim(),
+            port = portInt,
+            protocol = currentState.protocol,
+            username = creds.username,
+            authType = creds.authType,
+            password = creds.password,
+            sshKeyPasswordReferenceId = creds.keyReference,
+            identityId = creds.identityId,
+            envVars = parsedEnvVars,
+            portForwards = currentState.portForwards,
+            commandSnippets = currentState.commandSnippets,
+            initialDirectory = currentState.initialDirectory.takeIf { it.isNotBlank() },
+            terminalInputState = currentState.terminalInputState,
+            keepScreenOnMode = currentState.keepScreenOnMode,
+            useLocalDns = currentState.useLocalDns,
+        )
+        storageManager.saveProfile(profile)
+        resetState()
+        return true
     }
 
     fun loadProfileIfNeeded(profileId: String?) {
@@ -82,6 +247,8 @@ class AddEditProfileViewModel(
                         keepScreenOnMode = profile.keepScreenOnMode,
                         useLocalDns = profile.useLocalDns,
                         isLoaded = true,
+                        hostError = null,
+                        portError = null,
                     )
                 }
             }
@@ -113,12 +280,17 @@ class AddEditProfileViewModel(
         keepScreenOnMode: KeepScreenOnMode = KeepScreenOnMode.SYSTEM_DEFAULT,
         useLocalDns: Boolean = false,
     ) {
+        val portInt = if (validatePort(port)) {
+            port.toInt()
+        } else {
+            if (protocol == Protocol.TELNET) 23 else 22
+        }
         val profileId = id ?: UUID.randomUUID().toString()
         val profile = ConnectionProfile(
             id = profileId,
             nickname = nickname,
-            host = host,
-            port = port.toIntOrNull() ?: if (protocol == Protocol.TELNET) 23 else 22,
+            host = host.trim(),
+            port = portInt,
             protocol = protocol,
             username = username,
             authType = authType,

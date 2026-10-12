@@ -74,22 +74,25 @@ fun AddEditProfileScreen(
         nickname = uiState.nickname,
         onNicknameChange = { newName -> viewModel.updateState { it.copy(nickname = newName) } },
         host = uiState.host,
-        onHostChange = { newHost -> viewModel.updateState { it.copy(host = newHost) } },
-        port = uiState.port,
-        onPortChange = { newPort -> viewModel.updateState { it.copy(port = newPort) } },
-        protocol = uiState.protocol,
-        onProtocolChange = { newProto ->
+        onHostChange = { newHost ->
             viewModel.updateState {
-                val newPort = if (newProto == Protocol.TELNET && it.port == "22") {
-                    "23"
-                } else if (newProto == Protocol.SSH && it.port == "23") {
-                    "22"
-                } else {
-                    it.port
-                }
-                it.copy(protocol = newProto, port = newPort, authType = if (newProto == Protocol.TELNET) AuthType.PASSWORD else it.authType)
+                it.copy(
+                    host = newHost,
+                    hostError = if (it.hostError != null && viewModel.validateHost(newHost)) null else it.hostError,
+                )
             }
         },
+        port = uiState.port,
+        onPortChange = { newPort ->
+            viewModel.updateState {
+                it.copy(
+                    port = newPort,
+                    portError = if (it.portError != null && viewModel.validatePort(newPort)) null else it.portError,
+                )
+            }
+        },
+        protocol = uiState.protocol,
+        onProtocolChange = { newProto -> viewModel.setProtocol(newProto) },
         username = uiState.username,
         onUsernameChange = { newUsername -> viewModel.updateState { it.copy(username = newUsername) } },
         password = uiState.password,
@@ -119,52 +122,12 @@ fun AddEditProfileScreen(
         onKeepScreenOnModeChange = { newMode -> viewModel.updateState { it.copy(keepScreenOnMode = newMode) } },
         useLocalDns = uiState.useLocalDns,
         onUseLocalDnsChange = { newValue -> viewModel.updateState { it.copy(useLocalDns = newValue) } },
+        hostError = uiState.hostError,
+        portError = uiState.portError,
         onSave = {
-            val selectedIdent = identities.find { it.id == uiState.identityId }
-            val finalUsername = if (selectedIdent != null && uiState.protocol == Protocol.SSH) selectedIdent.username else uiState.username
-            val finalAuthType = if (selectedIdent != null && uiState.protocol == Protocol.SSH) selectedIdent.authType else uiState.authType
-
-            val passBytes = if ((uiState.identityId == null || uiState.protocol == Protocol.TELNET) && finalAuthType == AuthType.PASSWORD) {
-                if (uiState.isPasswordLocked) {
-                    uiState.originalPassword
-                } else if (uiState.password.isNotEmpty()) {
-                    uiState.password.toByteArray(Charsets.UTF_8)
-                } else {
-                    null
-                }
-            } else {
-                null
+            if (viewModel.saveProfile(profileId)) {
+                onNavigateBack()
             }
-            val keyRef = if ((uiState.identityId == null || uiState.protocol == Protocol.TELNET) && finalAuthType == AuthType.KEY) uiState.keyReference else null
-
-            val parsedEnvVars = uiState.envVarsText.split(",")
-                .map { it.trim() }
-                .filter { it.contains("=") }
-                .associate {
-                    val parts = it.split("=", limit = 2)
-                    parts[0] to parts[1]
-                }
-
-            viewModel.saveProfile(
-                id = profileId,
-                nickname = uiState.nickname,
-                host = uiState.host,
-                port = uiState.port,
-                protocol = uiState.protocol,
-                username = finalUsername,
-                authType = finalAuthType,
-                password = passBytes,
-                keyReference = keyRef,
-                identityId = if (uiState.protocol == Protocol.SSH) uiState.identityId else null,
-                envVars = parsedEnvVars,
-                portForwards = uiState.portForwards,
-                commandSnippets = uiState.commandSnippets,
-                initialDirectory = uiState.initialDirectory,
-                terminalInputState = uiState.terminalInputState,
-                keepScreenOnMode = uiState.keepScreenOnMode,
-                useLocalDns = uiState.useLocalDns,
-            )
-            onNavigateBack()
         },
         onNavigateBack = {
             viewModel.resetState()
@@ -219,6 +182,8 @@ fun AddEditProfileScreenContent(
     defaultPasswordVisible: Boolean = false,
     defaultShowAddDialog: Boolean = false,
     defaultPortForwardType: PortForwardType = PortForwardType.LOCAL,
+    hostError: String? = null,
+    portError: String? = null,
 ) {
     var isKeyDropdownExpanded by remember { mutableStateOf(false) }
     var isIdentityDropdownExpanded by remember { mutableStateOf(false) }
@@ -299,6 +264,12 @@ fun AddEditProfileScreenContent(
                 value = host,
                 onValueChange = onHostChange,
                 label = { Text("Host (IP or Domain)") },
+                isError = hostError != null,
+                supportingText = if (hostError != null) {
+                    { Text(hostError) }
+                } else {
+                    null
+                },
                 modifier = Modifier.fillMaxWidth().testTag("HostInput"),
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -307,6 +278,12 @@ fun AddEditProfileScreenContent(
                 onValueChange = onPortChange,
                 label = { Text("Port") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                isError = portError != null,
+                supportingText = if (portError != null) {
+                    { Text(portError) }
+                } else {
+                    null
+                },
                 modifier = Modifier.fillMaxWidth().testTag("PortInput"),
             )
 
