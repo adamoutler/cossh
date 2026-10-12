@@ -151,12 +151,8 @@ class SshHandshakeCoordinatorCoverageTest {
         var capturedPort: Int? = null
         var authenticated = false
 
-        val testNetwork = android.net.Network.fromNetworkHandle(101L)
         val coordinator = object : SshHandshakeCoordinator(context = app) {
-            override fun getActiveNetwork(): android.net.Network? = testNetwork
-
-            override fun resolveHostViaNetwork(network: android.net.Network, host: String): Array<java.net.InetAddress> {
-                assertEquals(testNetwork, network)
+            override fun resolveHostLocally(host: String): Array<java.net.InetAddress>? {
                 assertEquals("mock.hackedyour.info", host)
                 // Simulate local DHCP DNS returning 192.168.1.50 for LAN host
                 return arrayOf(java.net.InetAddress.getByAddress(byteArrayOf(192.toByte(), 168.toByte(), 1.toByte(), 50.toByte())))
@@ -211,12 +207,9 @@ class SshHandshakeCoordinatorCoverageTest {
         var capturedHost: String? = null
         var capturedPort: Int? = null
 
-        val testNetwork = android.net.Network.fromNetworkHandle(102L)
         val coordinator = object : SshHandshakeCoordinator(context = app) {
-            override fun getActiveNetwork(): android.net.Network? = testNetwork
-
-            override fun resolveHostViaNetwork(network: android.net.Network, host: String): Array<java.net.InetAddress> {
-                return emptyArray()
+            override fun resolveHostLocally(host: String): Array<java.net.InetAddress>? {
+                return null
             }
 
             override fun connectClient(client: SSHClient, host: String, port: Int) {

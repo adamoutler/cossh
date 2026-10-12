@@ -143,14 +143,15 @@ open class SshHandshakeCoordinator(
     }
 
     @PublishedApi
-    internal open fun getActiveNetwork(): android.net.Network? {
-        val cm = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
-        return cm?.activeNetwork
-    }
-
-    @PublishedApi
-    internal open fun resolveHostViaNetwork(network: android.net.Network, host: String): Array<java.net.InetAddress> {
-        return network.getAllByName(host)
+    internal open fun resolveHostLocally(host: String): Array<java.net.InetAddress>? {
+        if (context == null) return null
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager ?: return null
+        val network = cm.activeNetwork ?: return null
+        return try {
+            network.getAllByName(host)
+        } catch (e: Exception) {
+            null
+        }
     }
 
     @PublishedApi
@@ -193,23 +194,14 @@ open class SshHandshakeCoordinator(
         try {
             configureHostKeyVerifier(client)
 
-            if (profile.useLocalDns && context != null) {
-                val network = getActiveNetwork()
-                if (network != null) {
-                    val inetAddresses = try {
-                        resolveHostViaNetwork(network, profile.host)
-                    } catch (e: Exception) {
-                        emptyArray()
-                    }
-                    if (inetAddresses.isNotEmpty()) {
-                        val inetAddress = java.net.InetAddress.getByAddress(profile.host, inetAddresses[0].address)
-                        println("SshHandshakeCoordinator: Resolved ${profile.host} via local network DNS: ${inetAddress.hostAddress}")
-                        connectClient(client, inetAddress, profile.port)
-                    } else {
-                        println("SshHandshakeCoordinator: Local DNS resolution returned empty for ${profile.host}, using system fallback")
-                        connectClient(client, profile.host, profile.port)
-                    }
+            if (profile.useLocalDns) {
+                val inetAddresses = resolveHostLocally(profile.host)
+                if (!inetAddresses.isNullOrEmpty()) {
+                    val inetAddress = java.net.InetAddress.getByAddress(profile.host, inetAddresses[0].address)
+                    println("SshHandshakeCoordinator: Resolved ${profile.host} via local network DNS: ${inetAddress.hostAddress}")
+                    connectClient(client, inetAddress, profile.port)
                 } else {
+                    println("SshHandshakeCoordinator: Local DNS resolution returned empty for ${profile.host}, using system fallback")
                     connectClient(client, profile.host, profile.port)
                 }
             } else {
