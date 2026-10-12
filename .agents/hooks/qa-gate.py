@@ -6,6 +6,7 @@ and 5-Stage Cryptographic & CI Invariants for CoSSH.
 """
 
 import fcntl
+import html
 import json
 import os
 import re
@@ -322,6 +323,35 @@ def post_kanban_comment(workspace, project_id, work_item_id, html_content, api_k
         data={"comment_html": html_content},
         api_key=api_key
     )
+
+def format_qa_comment(ticket_id, head_sha, tree_hash, transition_comment, result_text):
+    """Formats a unified QA Certification comment logging reality checker report alongside agent comment."""
+    agent_section = ""
+    if transition_comment and str(transition_comment).strip():
+        safe_agent_comment = html.escape(str(transition_comment).strip())
+        agent_section = f"""<div class="agent-submission-block">
+<h4>🤖 Agent Submission Comment</h4>
+<blockquote>{safe_agent_comment}</blockquote>
+</div>
+<hr/>"""
+    else:
+        agent_section = """<div class="agent-submission-block">
+<h4>🤖 Agent Submission Comment</h4>
+<p><em>(No transition comment provided by agent)</em></p>
+</div>
+<hr/>"""
+
+    safe_report = html.escape(str(result_text).strip())
+    formatted_html = f"""<div class="qa-certification-report">
+<h3>🛡️ QA Gate Evaluation & Reality Certification</h3>
+<p><strong>Ticket:</strong> <code>{ticket_id}</code> | <strong>Commit:</strong> <code>{head_sha[:7]}</code> | <strong>Tree:</strong> <code>{tree_hash[:8]}</code></p>
+{agent_section}
+<div class="reality-checker-block">
+<h4>🛡️ Reality Checker Report (Pattern B Clean-Room)</h4>
+<pre><code>{safe_report}</code></pre>
+</div>
+</div>"""
+    return formatted_html
 
 # =============================================================================
 # Five Verification Stages
@@ -686,13 +716,27 @@ def main():
     # 10. Execute Stage 5 Clean-Room Audit
     is_ready, result_text = stage_5_clean_room_audit(repo_root, ticket_id, clean_room_context)
 
-    # Post Reality-Checker report as HTML comment on Kanban
-    formatted_html = f"""<div class="qa-certification-report">
-<h3>🛡️ Reality Checker Certification Report (Pattern B Clean-Room)</h3>
-<p><strong>Commit:</strong> <code>{head_sha[:7]}</code> | <strong>Tree:</strong> <code>{tree_hash[:8]}</code></p>
-<pre><code>{result_text}</code></pre>
-</div>"""
+    # Post unified QA Certification report logging reality-checker report alongside agent comment
+    formatted_html = format_qa_comment(ticket_id, head_sha, tree_hash, transition_comment, result_text)
     post_kanban_comment(WORKSPACE, project_id, work_item_id, formatted_html, api_key)
+
+    # Persist evaluation record in local audit log
+    try:
+        os.makedirs(STATE_DIR, mode=0o700, exist_ok=True)
+        audit_log_path = os.path.join(STATE_DIR, "qa_audit_log.jsonl")
+        log_entry = {
+            "timestamp": time.time(),
+            "ticket_id": ticket_id,
+            "commit_sha": head_sha,
+            "tree_hash": tree_hash,
+            "is_ready": is_ready,
+            "agent_comment": transition_comment,
+            "reality_checker_report": result_text
+        }
+        with open(audit_log_path, "a", encoding="utf-8") as alf:
+            alf.write(json.dumps(log_entry) + "\n")
+    except Exception as e:
+        log_diagnostic(f"Failed to record in local audit log: {e}")
 
     if is_ready:
         clear_failure_strikes(ticket_id, tree_hash)
