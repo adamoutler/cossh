@@ -81,12 +81,12 @@ def setup_signal_handlers():
     signal.signal(signal.SIGALRM, handle_signal)
     signal.alarm(600)  # 10 minute ceiling
 
-def allow_transition(message=""):
+def allow_transition(reason=""):
     """Outputs an allow decision to Antigravity and terminates."""
     GLOBAL_LOCK.release()
     resp = {"decision": "allow"}
-    if message:
-        resp["message"] = message
+    if reason:
+        resp["reason"] = reason
     print(json.dumps(resp))
     sys.exit(0)
 
