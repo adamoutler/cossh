@@ -41,15 +41,31 @@ When you are instructed to "begin work", "start", or "launch", you must follow t
 - **Test:** Verify the work rigorously with local testing (`./gradlew test lint`) and CI validation.
 - **QA:** After coding, consult Testing and QA agents to verify the implementation.
 
-## 4. Proof Gathering & Artifacts
-The QA Gate on this project is strictly guarded by the `reality-checker` agent. It performs a rigorous audit before allowing any ticket to transition to "Done".
-- **Communication:** All communication, discussion, and status updates to the `reality-checker` MUST be recorded as comments on the Kanban ticket itself using the `update_ticket` tool. Do not use the `docs/qa/` directory for conversation or notes to the QA gate.
-- **Artifacts:** You MUST gather irrefutable proof of completion. Leverage agents like `evidence-collector` to assemble logs, test outputs, screenshots, or receipts.
-- Record all hard proof artifacts in the `docs/qa/` folder (e.g., `docs/qa/SSH-1.md`) or in screenshot directories (`app/src/test/snapshots/images/`).
-- Ensure all code and proof files are committed and pushed to trigger the CI pipeline.
+## 4. The QA Gate & Anti-Hallucination Protocol
 
-## 5. Closure
-- Use the `complete_work` or `transition_ticket` tool to finalize the ticket.
-- Your comment on the ticket MUST explicitly explain the work done and reference the proof artifacts gathered in the `docs/qa/` directory.
-   - Example: `complete_work(ticket_id="SSH-1", comment="Feature is completed. Added strict bounds checking to the network parser. See proof artifacts in docs/qa/SSH-1.md.")`
-- If the `reality-checker` rejects the completion, read the feedback, address the deficiencies, and repeat the QA loop. Never leave a broken or rejected ticket hanging.
+The QA Gate exists specifically to **prevent hallucinations** and counter the **"agent frustration metric"** (the tendency of LLMs to make a partial tweak after receiving feedback and prematurely mark a ticket `Done` without completing the full verification loop).
+
+The QA Gate enforces six non-negotiable minimum requirements before any ticket can reach `Done`:
+
+1. **All Files Committed:** Zero remnants, zero uncommitted modifications, and a completely clean working tree (`git status --porcelain` is empty).
+2. **All Commits Pushed:** All local commits must be pushed upstream to the remote tracking repository. No unpushed local tweaks.
+3. **All Tests Complete & Passing:** Automated quality control and test pipelines must execute cleanly (zero failures, zero unhandled errors).
+4. **`reality-checker` Evaluation:** The `reality-checker` agent personality (see `~/.gemini/agents/reality-checker.md`) runs as an independent, clean-room auditor. It is supplied with:
+   - Automated test results and execution logs
+   - Direct access to the code and git diff
+   - The ticket description and its full comment thread
+   - Hard proof artifacts (screenshots, traces, metrics)
+   The `reality-checker` produces an evidence-based report that is posted directly as a comment on the Kanban ticket.
+5. **Enforced Feedback Loop:** If the `reality-checker` returns `NEEDS WORK` (or worse), the agent MUST inspect the feedback, address every specific defect identified, and repeat the full validation loop. Premature closure is strictly blocked.
+6. **Restricted Communication Channel:** The agent can communicate with `reality-checker` **ONLY** via comments on the Kanban ticket or through committed proof artifacts.
+   - Kanban comments should be used sparingly for direct clarifications: e.g., *"See artifact in docs/qa/SSH-X.md"*, *"This case cannot occur because..."*, or *"Addressed feedback by adding bounds checking in commit Y"*.
+   - Never attempt to self-declare `READY` in comments. Only the independent `reality-checker` report certifies production readiness.
+
+---
+
+## 5. Closure & Proof Citations
+
+- **Trigger Closure:** Use the `complete_work` or `transition_ticket` tool to finalize the ticket.
+- **Closure Comment:** Your comment on the ticket MUST explicitly summarize the work completed and cite the exact committed proof artifacts:
+  - Example: `complete_work(ticket_id="SSH-1", comment="Feature is completed. Added strict bounds checking to the network parser. See proof artifacts in docs/qa/SSH-1.md.")`
+- **Rejection Handling:** If rejected by `reality-checker`, treat the feedback as a continuing conversation. Fix the underlying issue, re-run tests, commit, push, update the ticket with new proof, and repeat the gate. Never abandon a rejected ticket.
