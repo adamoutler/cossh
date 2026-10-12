@@ -32,7 +32,7 @@ credentialManager = "1.2.1"
 googleApiServicesDrive = "v3-rev20230822-2.0.0"
 googleApiClientAndroid = "2.0.0"
 googleAuthLibraryOauth2Http = "1.46.0"
-workManager = "2.9.0"
+workManager = "2.11.2"
 googleid = "1.1.1"
 playServicesAuth = "21.5.1"
 
