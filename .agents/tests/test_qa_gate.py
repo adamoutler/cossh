@@ -182,11 +182,12 @@ class TestVerificationStages(unittest.TestCase):
 
     # Stage 4: Dash CI Status & Commit SHA Cryptographic Binding
     def test_stage_4_dash_ci_success_and_sha_match(self):
+        parts = qa_gate.DASH.split('/')
         mock_job = {
-            "provider": "github",
-            "owner": "adamoutler",
-            "repo": "cossh",
-            "workflow_name": "CI",
+            "provider": parts[0],
+            "owner": parts[1],
+            "repo": parts[2],
+            "workflow_name": parts[3] if len(parts) > 3 else "CI",
             "status": "success",
             "commit": "91fd0f0abc123"
         }
@@ -195,11 +196,12 @@ class TestVerificationStages(unittest.TestCase):
             self.assertEqual(result["status"], "success")
 
     def test_stage_4_dash_ci_sha_mismatch(self):
+        parts = qa_gate.DASH.split('/')
         mock_job = {
-            "provider": "github",
-            "owner": "adamoutler",
-            "repo": "cossh",
-            "workflow_name": "CI",
+            "provider": parts[0],
+            "owner": parts[1],
+            "repo": parts[2],
+            "workflow_name": parts[3] if len(parts) > 3 else "CI",
             "status": "success",
             "commit": "old_sha_123"
         }
@@ -208,11 +210,12 @@ class TestVerificationStages(unittest.TestCase):
                 qa_gate.stage_4_dash_ci_status("new_head_sha_456")
 
     def test_stage_4_dash_ci_failed(self):
+        parts = qa_gate.DASH.split('/')
         mock_job = {
-            "provider": "github",
-            "owner": "adamoutler",
-            "repo": "cossh",
-            "workflow_name": "CI",
+            "provider": parts[0],
+            "owner": parts[1],
+            "repo": parts[2],
+            "workflow_name": parts[3] if len(parts) > 3 else "CI",
             "status": "failed",
             "commit": "91fd0f0abc123"
         }

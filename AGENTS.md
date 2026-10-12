@@ -2,6 +2,12 @@
 
 ## Project Context
 - **Application:** CoSSH is a native, highly secure Android SSH terminal client designed to replace legacy applications. It features a cobalt-blue aesthetic, one-touch connectivity, local Keystore encryption, and Google Drive cloud sync (gated by Play Billing/Promo codes).
+- **Git Remotes & Source Control:**
+  - **Primary Upstream (`origin`):** `ssh://git@192.168.1.100:2223/aoutler/CoSSH.git` (Forgejo). All active development, branches, and CI executions occur here.
+  - **Source Code Mirror (`github`):** `git@github.com:adamoutler/cossh.git`. GitHub is strictly relegated to a secondary source code sync/mirror.
+  - **GitHub Actions Runners:** Permanently DISABLED on GitHub due to pricing/per-minute billing restrictions.
+  - **Local CI/CD Execution:** Handled locally via Forgejo `act_runner` at `https://git.adamoutler.com`.
+  - **Dash Monitoring:** Tracked on Dash as `🍵 aoutler/CoSSH` (Forgejo provider).
 - **Workspace Constraints:** Tickets follow the standard Kanban format defined by the project slug.
 - **Initialization Mandate:** At the start of every new session or before interacting with any Kanban tasks, you MUST query Kanban (`call_mcp_tool(ServerName="kanban", ToolName="search_tickets", Arguments={"project_slug": "help"})`) to refresh your context on the available projects and slugs.
 

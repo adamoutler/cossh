@@ -24,7 +24,7 @@ import urllib.request
 SERVER = "https://kanban.hackedyour.info"
 WORKSPACE = "ssh"
 PROJECT_IDENTIFIER = "SSH"
-DASH = "github/adamoutler/cossh/CI"
+DASH = "forgejo/aoutler/CoSSH/CI"
 
 RATE_LIMIT_SECONDS = 30
 MAX_STRIKES = 3
@@ -398,7 +398,7 @@ def stage_4_dash_ci_status(head_sha, repo_root="."):
         if (job.get("provider") == provider and
             job.get("owner") == owner and
             job.get("repo") == repo and
-            job.get("workflow_name") == workflow_name):
+            (job.get("workflow_name") == workflow_name or not job.get("workflow_name"))):
             matching_job = job
             break
 

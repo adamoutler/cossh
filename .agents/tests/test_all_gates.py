@@ -111,11 +111,12 @@ class TestAllGates(unittest.TestCase):
 
     def test_gate_3_test_ci_success_passes(self):
         """Test Gate must pass when Dash CI is success and SHA matches HEAD."""
+        parts = qa_gate.DASH.split('/')
         mock_job = {
-            "provider": "github",
-            "owner": "adamoutler",
-            "repo": "cossh",
-            "workflow_name": "CI",
+            "provider": parts[0],
+            "owner": parts[1],
+            "repo": parts[2],
+            "workflow_name": parts[3] if len(parts) > 3 else "CI",
             "status": "success",
             "commit": "feedc0de123"
         }
