@@ -25,7 +25,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v4.4.4
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         
@@ -40,6 +40,7 @@ jobs:
         with:
           args: '. --sarif --output results.sarif'
       - name: Upload SARIF file
+        if: github.server_url == 'https://github.com'
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif
@@ -55,7 +56,9 @@ jobs:
           ./gradlew assembleRelease
           
       - name: Run Tests and Coverage
-        run: ./gradlew testDebugUnitTest jacocoTestReport --console=plain
+        run: |
+          set -o pipefail
+          ./gradlew testDebugUnitTest jacocoTestReport --console=plain 2>&1 | tee /tmp/build-test.log
 
       - name: Upload Test Reports
         if: always()
@@ -109,3 +112,12 @@ jobs:
           echo "=========================================="
           echo "🎉 ALL GRADLE TESTS AND VERIFICATIONS PASSED"
           echo "=========================================="
+
+      - name: Upload Logs to Dash
+        if: always()
+        run: |
+          if [ -f /tmp/build-test.log ]; then
+            curl -s -X POST "https://dash.hackedyour.info/api/logs?provider=forgejo&owner=aoutler&repo=CoSSH" \
+                 -H "Content-Type: text/plain" \
+                 --data-binary @/tmp/build-test.log || true
+          fi

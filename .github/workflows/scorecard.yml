@@ -11,6 +11,7 @@ permissions: read-all
 jobs:
   analysis:
     name: Scorecard analysis
+    if: github.server_url == 'https://github.com'
     runs-on: ubuntu-latest
     permissions:
       security-events: write
