@@ -382,8 +382,8 @@ def stage_3_integrity_check(repo_root):
     if code == 0 and out:
         deny_transition(f"Stage 3 Failed: Unauthorized modifications to CI workflows or QA hooks detected:\n{out}")
 
-def stage_4_dash_ci_status(head_sha):
-    """Stage 4: Verify CI pipeline succeeded on Dash and cryptographically matches HEAD commit SHA."""
+def stage_4_dash_ci_status(head_sha, repo_root="."):
+    """Stage 4: Verify CI pipeline succeeded on Dash and cryptographically matches HEAD commit SHA or message."""
     parts = DASH.split('/', 3)
     if len(parts) < 4:
         deny_transition(f"Invalid DASH specification: {DASH}")
@@ -405,9 +405,19 @@ def stage_4_dash_ci_status(head_sha):
     if not matching_job:
         deny_transition(f"Stage 4 Failed: No CI job found matching '{DASH}' in Dash.")
 
-    ci_commit = str(matching_job.get("commit") or matching_job.get("sha") or "")
-    if not ci_commit.startswith(head_sha[:7]):
-        deny_transition(f"Stage 4 Failed: Dash CI build is for commit {ci_commit[:7]}, but current HEAD is {head_sha[:7]}. Wait for CI to run.")
+    ci_commit = str(matching_job.get("commit") or matching_job.get("sha") or "").strip()
+    ci_commit_msg = str(matching_job.get("commit_message") or "").strip()
+
+    if ci_commit:
+        if not ci_commit.startswith(head_sha[:7]):
+            deny_transition(f"Stage 4 Failed: Dash CI build is for commit {ci_commit[:7]}, but current HEAD is {head_sha[:7]}. Wait for CI to run.")
+    elif ci_commit_msg:
+        code, head_msg, _ = run_cmd(["git", "log", "-1", "--pretty=%s", head_sha], cwd=repo_root)
+        if code == 0 and head_msg.strip():
+            if head_msg.strip() != ci_commit_msg:
+                deny_transition(f"Stage 4 Failed: Dash CI build message ('{ci_commit_msg[:50]}') does not match HEAD commit message ('{head_msg.strip()[:50]}'). Wait for CI to run.")
+    else:
+        deny_transition("Stage 4 Failed: Dash CI job contains neither commit SHA nor commit message.")
 
     if matching_job.get("status") != "success":
         deny_transition(f"Stage 4 Failed: Dash CI status is '{matching_job.get('status')}'. Build must succeed before closing ticket.")
@@ -705,7 +715,7 @@ def main():
     stage_1_clean_working_tree(repo_root)
     stage_2_branch_pushed(repo_root)
     stage_3_integrity_check(repo_root)
-    ci_job = stage_4_dash_ci_status(head_sha)
+    ci_job = stage_4_dash_ci_status(head_sha, repo_root)
 
     # 9. Fetch Ticket Metadata & Comments for Stage 5 Clean-Room Evaluation
     ticket = api_request(f"/api/v1/workspaces/{WORKSPACE}/projects/{project_id}/issues/{work_item_id}/", api_key=api_key)
