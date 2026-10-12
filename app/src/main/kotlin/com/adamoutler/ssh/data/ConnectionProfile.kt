@@ -48,6 +48,18 @@ enum class KeepScreenOnMode {
     @SerialName("ALWAYS_ON") ALWAYS_ON,
 }
 
+fun shouldKeepScreenOn(
+    mode: KeepScreenOnMode,
+    isProximityNear: Boolean,
+    isDataFlowing: Boolean,
+): Boolean {
+    return when (mode) {
+        KeepScreenOnMode.SYSTEM_DEFAULT -> false
+        KeepScreenOnMode.ALWAYS_ON -> !isProximityNear
+        KeepScreenOnMode.SMART_AWAKE -> !isProximityNear && isDataFlowing
+    }
+}
+
 @Serializable
 data class ConnectionProfile(
     val id: String,

@@ -110,27 +110,19 @@ class TerminalSettingsIntegrationTest {
 
     @Test
     fun testKeepScreenOnModeResolution() {
-        fun shouldKeepScreenOn(mode: KeepScreenOnMode, isProximityNear: Boolean, isDataFlowing: Boolean): Boolean {
-            return when (mode) {
-                KeepScreenOnMode.SYSTEM_DEFAULT -> false
-                KeepScreenOnMode.ALWAYS_ON -> !isProximityNear
-                KeepScreenOnMode.SMART_AWAKE -> !isProximityNear && isDataFlowing
-            }
-        }
-
         // SYSTEM_DEFAULT is always false (relies on Android OS timeout)
-        org.junit.Assert.assertFalse(shouldKeepScreenOn(KeepScreenOnMode.SYSTEM_DEFAULT, isProximityNear = false, isDataFlowing = false))
-        org.junit.Assert.assertFalse(shouldKeepScreenOn(KeepScreenOnMode.SYSTEM_DEFAULT, isProximityNear = false, isDataFlowing = true))
-        org.junit.Assert.assertFalse(shouldKeepScreenOn(KeepScreenOnMode.SYSTEM_DEFAULT, isProximityNear = true, isDataFlowing = true))
+        org.junit.Assert.assertFalse(com.adamoutler.ssh.data.shouldKeepScreenOn(KeepScreenOnMode.SYSTEM_DEFAULT, isProximityNear = false, isDataFlowing = false))
+        org.junit.Assert.assertFalse(com.adamoutler.ssh.data.shouldKeepScreenOn(KeepScreenOnMode.SYSTEM_DEFAULT, isProximityNear = false, isDataFlowing = true))
+        org.junit.Assert.assertFalse(com.adamoutler.ssh.data.shouldKeepScreenOn(KeepScreenOnMode.SYSTEM_DEFAULT, isProximityNear = true, isDataFlowing = true))
 
         // ALWAYS_ON keeps screen awake unless pocket/proximity is covered
-        org.junit.Assert.assertTrue(shouldKeepScreenOn(KeepScreenOnMode.ALWAYS_ON, isProximityNear = false, isDataFlowing = false))
-        org.junit.Assert.assertFalse(shouldKeepScreenOn(KeepScreenOnMode.ALWAYS_ON, isProximityNear = true, isDataFlowing = false))
-        org.junit.Assert.assertFalse(shouldKeepScreenOn(KeepScreenOnMode.ALWAYS_ON, isProximityNear = true, isDataFlowing = true))
+        org.junit.Assert.assertTrue(com.adamoutler.ssh.data.shouldKeepScreenOn(KeepScreenOnMode.ALWAYS_ON, isProximityNear = false, isDataFlowing = false))
+        org.junit.Assert.assertFalse(com.adamoutler.ssh.data.shouldKeepScreenOn(KeepScreenOnMode.ALWAYS_ON, isProximityNear = true, isDataFlowing = false))
+        org.junit.Assert.assertFalse(com.adamoutler.ssh.data.shouldKeepScreenOn(KeepScreenOnMode.ALWAYS_ON, isProximityNear = true, isDataFlowing = true))
 
         // SMART_AWAKE only stays awake when data is actively flowing AND phone is not in pocket
-        org.junit.Assert.assertFalse(shouldKeepScreenOn(KeepScreenOnMode.SMART_AWAKE, isProximityNear = false, isDataFlowing = false))
-        org.junit.Assert.assertTrue(shouldKeepScreenOn(KeepScreenOnMode.SMART_AWAKE, isProximityNear = false, isDataFlowing = true))
-        org.junit.Assert.assertFalse(shouldKeepScreenOn(KeepScreenOnMode.SMART_AWAKE, isProximityNear = true, isDataFlowing = true))
+        org.junit.Assert.assertFalse(com.adamoutler.ssh.data.shouldKeepScreenOn(KeepScreenOnMode.SMART_AWAKE, isProximityNear = false, isDataFlowing = false))
+        org.junit.Assert.assertTrue(com.adamoutler.ssh.data.shouldKeepScreenOn(KeepScreenOnMode.SMART_AWAKE, isProximityNear = false, isDataFlowing = true))
+        org.junit.Assert.assertFalse(com.adamoutler.ssh.data.shouldKeepScreenOn(KeepScreenOnMode.SMART_AWAKE, isProximityNear = true, isDataFlowing = true))
     }
 }

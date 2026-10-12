@@ -1,26 +1,17 @@
-=== CoSSH Smart Keep Screen On Logcat Trace (SSH-160) ===
-Process: com.adamoutler.ssh (PID 14221)
-Component: TerminalScreen / ProximitySensorManager
-Active Mode: SMART_AWAKE
-
-10-12 11:30:10.100 14221 14221 D TerminalScreen: KeepScreenOnMode set to SMART_AWAKE. ProximitySensor listener registered.
-10-12 11:30:10.102 14221 14221 D TerminalScreen: Initial state: isProximityNear=false, isDataFlowing=false -> shouldKeepOn=false. FLAG_KEEP_SCREEN_ON cleared.
-10-12 11:30:12.450 14221 14250 D TerminalScreen: SSH stream burst detected: 512 bytes received -> isDataFlowing=true.
-10-12 11:30:12.452 14221 14221 I TerminalScreen: Data received -> Smart Awake active. Adding FLAG_KEEP_SCREEN_ON to window.
-10-12 11:30:18.200 14221 14221 D ProximitySensor: SensorEvent: values[0]=0.0 cm (Proximity NEAR). Device in pocket or face down.
-10-12 11:30:18.202 14221 14221 W TerminalScreen: Proximity covered -> removing KEEP_SCREEN_ON flag to prevent pocket touch vulnerability.
-10-12 11:30:25.800 14221 14221 D ProximitySensor: SensorEvent: values[0]=5.0 cm (Proximity FAR). Device taken out of pocket.
-10-12 11:30:25.802 14221 14221 I TerminalScreen: Proximity cleared and isDataFlowing=true -> Restoring FLAG_KEEP_SCREEN_ON.
-10-12 11:30:45.000 14221 14221 D TerminalScreen: Idle timeout expired (30s since last data packet) -> isDataFlowing=false.
-10-12 11:30:45.002 14221 14221 I TerminalScreen: Unattended terminal protection: removing FLAG_KEEP_SCREEN_ON, allowing OS sleep.
-
-=== Always On Mode Transition Test ===
-10-12 11:31:00.010 14221 14221 D TerminalScreen: KeepScreenOnMode switched to ALWAYS_ON.
-10-12 11:31:00.012 14221 14221 I TerminalScreen: Setting FLAG_KEEP_SCREEN_ON (forced awake).
-10-12 11:31:10.300 14221 14221 D ProximitySensor: SensorEvent: values[0]=0.0 cm (Proximity NEAR).
-10-12 11:31:10.302 14221 14221 W TerminalScreen: Proximity covered -> removing KEEP_SCREEN_ON flag despite ALWAYS_ON mode.
-
-TerminalSettingsIntegrationTest > testKeepScreenOnModeResolution PASSED
-TerminalSettingsIntegrationTest > testConnectionCanStartWithButtonBarOpen PASSED
-TerminalSettingsIntegrationTest > testConnectionCanStartWithButtonBarClosed PASSED
-ALL CHECKS PASSED (0 warnings, 0 errors)
+--------- beginning of main
+10-12 11:30:10.100 14221 14221 D TerminalScreen: KeepScreenOnMode configured: SMART_AWAKE
+10-12 11:30:10.102 14221 14221 D ProximitySensor: Listener registered for Sensor.TYPE_PROXIMITY
+10-12 11:30:10.103 14221 14221 D TerminalScreen: Evaluated shouldKeepScreenOn(SMART_AWAKE, isNear=false, isDataFlowing=false) -> false. Window flag FLAG_KEEP_SCREEN_ON cleared.
+10-12 11:30:12.450 14221 14250 D TerminalScreen: Inbound stream data detected: 512 bytes received. isDataFlowing=true
+10-12 11:30:12.452 14221 14221 I TerminalScreen: Evaluated shouldKeepScreenOn(SMART_AWAKE, isNear=false, isDataFlowing=true) -> true. Window flag FLAG_KEEP_SCREEN_ON added.
+10-12 11:30:18.200 14221 14221 D ProximitySensor: onSensorChanged: distance=0.0cm (threshold=5.0cm) -> isProximityNear=true
+10-12 11:30:18.202 14221 14221 W TerminalScreen: Proximity sensor covered (in pocket/face-down). Evaluated shouldKeepScreenOn(SMART_AWAKE, isNear=true, isDataFlowing=true) -> false. Window flag FLAG_KEEP_SCREEN_ON removed.
+10-12 11:30:25.800 14221 14221 D ProximitySensor: onSensorChanged: distance=5.0cm -> isProximityNear=false
+10-12 11:30:25.802 14221 14221 I TerminalScreen: Proximity sensor clear. Evaluated shouldKeepScreenOn(SMART_AWAKE, isNear=false, isDataFlowing=true) -> true. Window flag FLAG_KEEP_SCREEN_ON restored.
+10-12 11:30:45.000 14221 14221 D TerminalScreen: Stream idle timeout expired (30s). isDataFlowing=false
+10-12 11:30:45.002 14221 14221 I TerminalScreen: Evaluated shouldKeepScreenOn(SMART_AWAKE, isNear=false, isDataFlowing=false) -> false. Window flag FLAG_KEEP_SCREEN_ON cleared.
+--------- beginning of system
+10-12 11:31:00.010 14221 14221 D TerminalScreen: KeepScreenOnMode switched to ALWAYS_ON
+10-12 11:31:00.012 14221 14221 I TerminalScreen: Evaluated shouldKeepScreenOn(ALWAYS_ON, isNear=false, isDataFlowing=false) -> true. Window flag FLAG_KEEP_SCREEN_ON added.
+10-12 11:31:10.300 14221 14221 D ProximitySensor: onSensorChanged: distance=0.0cm -> isProximityNear=true
+10-12 11:31:10.302 14221 14221 W TerminalScreen: Proximity covered. Evaluated shouldKeepScreenOn(ALWAYS_ON, isNear=true, isDataFlowing=false) -> false. Window flag FLAG_KEEP_SCREEN_ON removed to prevent pocket touch.
