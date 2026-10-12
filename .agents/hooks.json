@@ -16,12 +16,12 @@
   "qa-gate": {
     "PreToolUse": [
       {
-        "matcher": "call_mcp_tool",
+        "matcher": "call_mcp_tool|mcp_.*|complete_work|transition_ticket|update_ticket|run_command",
         "hooks": [
           {
             "type": "command",
             "command": "python3 ./hooks/qa-gate.py",
-            "timeout": 1500
+            "timeout": 600
           }
         ]
       }

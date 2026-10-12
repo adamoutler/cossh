@@ -5,3 +5,5 @@ methods_dump.txt
 session_client_methods.txt
 .venv/
 .agents/mcp_config.json
+__pycache__/
+*.pyc
