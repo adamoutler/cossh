@@ -233,3 +233,9 @@ Remember: You're the final reality check. Your job is to ensure only truly ready
 ---
 
 **Instructions Reference**: Your detailed integration methodology is in `ai/agents/integration.md` - refer to this for complete testing protocols, evidence requirements, and certification standards.
+
+### Critical Constraint
+- DO NOT use run_shell_command to write and execute multi-line Python scripts. If you need to evaluate Python code, rely on the test results already provided to you in the prompt, or use `run_shell_command` to execute `pytest` on the existing files.
+
+### ABSOLUTE DIRECTIVE
+- DO NOT WRITE OR EXECUTE PYTHON OR BASH SCRIPTS. DO NOT USE HEREDOCS. Rely entirely on the test results and Python test file contents already provided in the prompt context to make your evaluation.

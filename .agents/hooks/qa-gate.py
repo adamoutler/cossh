@@ -384,40 +384,60 @@ def stage_4_dash_ci_status(head_sha):
 
     return matching_job
 
-def build_clean_room_context(repo_root, ticket, comments, transition_comment, ci_job, head_sha):
+def build_clean_room_context(repo_root, ticket, comments, transition_comment, ci_job, head_sha, ticket_id=""):
     """Assembles ground-truth context for Pattern B out-of-band reality-checker evaluation."""
     ticket_name = ticket.get("name", "Unknown Ticket")
     ticket_desc = ticket.get("description", "No description provided.")
 
-    # 1. Git diff (origin/main...HEAD or git show HEAD)
+    # 1. Git diff (origin/main...HEAD or git show HEAD) bounded to 15KB
     code, diff, _ = run_cmd(["git", "diff", "origin/main...HEAD"], cwd=repo_root)
     if not diff:
         code, diff, _ = run_cmd(["git", "show", "HEAD"], cwd=repo_root)
-    if len(diff) > 30000:
-        diff = diff[:30000] + "\n... [DIFF TRUNCATED TO 30KB] ..."
+    if len(diff) > 15000:
+        diff = diff[:15000] + "\n... [DIFF TRUNCATED TO 15KB] ..."
 
-    # 2. Test & Verification Artifacts from docs/qa/ and user_stories/
+    # 2. Test & Verification Artifacts: Target this specific ticket plus summary index
     artifacts_text = ""
-    for folder in ["docs/qa", "user_stories"]:
-        dir_path = os.path.join(repo_root, folder)
-        if os.path.exists(dir_path):
-            artifacts_text += f"\n### Directory: {folder}\n"
-            for root, _, files in os.walk(dir_path):
-                for f in sorted(files):
-                    if f.endswith((".md", ".txt", ".json", ".xml", ".png")):
-                        rel_path = os.path.relpath(os.path.join(root, f), repo_root)
-                        full_p = os.path.join(root, f)
-                        if f.endswith((".md", ".txt", ".json", ".xml")):
-                            try:
-                                with open(full_p, "r", encoding="utf-8", errors="ignore") as content_file:
-                                    snippet = content_file.read()[:5000]
-                                artifacts_text += f"\nFile: `{rel_path}`:\n```\n{snippet}\n```\n"
-                            except Exception:
-                                artifacts_text += f"- `{rel_path}`\n"
-                        else:
-                            artifacts_text += f"- Visual Artifact: `{rel_path}` (exists on disk)\n"
+    qa_dir = os.path.join(repo_root, "docs/qa")
+    stories_dir = os.path.join(repo_root, "user_stories")
 
-    # 3. Dash CI Build Log Tail (last 200 lines)
+    # Ingest artifacts specifically matching this ticket
+    specific_files = []
+    if os.path.exists(qa_dir):
+        for f in sorted(os.listdir(qa_dir)):
+            if ticket_id.lower() in f.lower():
+                specific_files.append(os.path.join("docs/qa", f))
+    if os.path.exists(stories_dir):
+        for f in sorted(os.listdir(stories_dir)):
+            if ticket_id.lower() in f.lower():
+                specific_files.append(os.path.join("user_stories", f))
+
+    if specific_files:
+        artifacts_text += f"### Ticket Specific Artifacts for {ticket_id}:\n"
+        for rel_p in specific_files:
+            full_p = os.path.join(repo_root, rel_p)
+            if rel_p.endswith((".md", ".txt", ".json", ".xml")):
+                try:
+                    with open(full_p, "r", encoding="utf-8", errors="ignore") as af:
+                        snippet = af.read()[:5000]
+                    artifacts_text += f"\nFile `{rel_p}`:\n```\n{snippet}\n```\n"
+                except Exception:
+                    artifacts_text += f"- `{rel_p}`\n"
+            else:
+                artifacts_text += f"- Visual/Binary Artifact: `{rel_p}` (verified on disk)\n"
+    else:
+        artifacts_text += f"### Ticket Specific Artifacts: NONE found matching `{ticket_id}` in docs/qa/ or user_stories/\n"
+
+    # Add general QA index listing
+    if os.path.exists(qa_dir):
+        qa_index = sorted(os.listdir(qa_dir))
+        artifacts_text += f"\n### docs/qa/ File Index ({len(qa_index)} total files):\n"
+        artifacts_text += ", ".join(qa_index[-30:]) + "\n"
+
+    if len(artifacts_text) > 15000:
+        artifacts_text = artifacts_text[:15000] + "\n... [ARTIFACTS TRUNCATED] ..."
+
+    # 3. Dash CI Build Log Tail (last 100 lines, bounded to 8KB)
     dash_log_view = "No logs returned from Dash."
     if ci_job and ci_job.get("workflow_id"):
         query = urllib.parse.urlencode({
@@ -429,13 +449,18 @@ def build_clean_room_context(repo_root, ticket, comments, transition_comment, ci
         log_data = dash_api_request(f"https://dash.hackedyour.info/api/logs?{query}")
         if log_data and "log" in log_data:
             lines = log_data["log"].splitlines()
-            dash_log_view = "\n".join(lines[-200:])
+            dash_log_view = "\n".join(lines[-100:])
+            if len(dash_log_view) > 8000:
+                dash_log_view = dash_log_view[-8000:]
 
-    # 4. Comments History
+    # 4. Comments History (bounded to last 5 comments, max 4KB)
     comments_history = ""
-    if comments:
-        for c in comments.get("results", []):
-            comments_history += f"Author: {c.get('created_by')}\nDate: {c.get('updated_at') or c.get('created_at')}\nContent: {c.get('comment_html')}\nAttachments: {json.dumps(c.get('attachments'))}\n---\n"
+    if comments and "results" in comments:
+        recent_comments = comments.get("results", [])[-5:]
+        for c in recent_comments:
+            comments_history += f"Author: {c.get('created_by')}\nDate: {c.get('updated_at') or c.get('created_at')}\nContent: {c.get('comment_html')}\n---\n"
+        if len(comments_history) > 4000:
+            comments_history = comments_history[-4000:]
 
     payload = f"""---
 name: {ticket_name}
@@ -656,7 +681,7 @@ def main():
     ticket = api_request(f"/api/v1/workspaces/{WORKSPACE}/projects/{project_id}/issues/{work_item_id}/", api_key=api_key)
     comments = api_request(f"/api/v1/workspaces/{WORKSPACE}/projects/{project_id}/issues/{work_item_id}/comments/", api_key=api_key)
 
-    clean_room_context = build_clean_room_context(repo_root, ticket, comments, transition_comment, ci_job, head_sha)
+    clean_room_context = build_clean_room_context(repo_root, ticket, comments, transition_comment, ci_job, head_sha, ticket_id)
 
     # 10. Execute Stage 5 Clean-Room Audit
     is_ready, result_text = stage_5_clean_room_audit(repo_root, ticket_id, clean_room_context)
