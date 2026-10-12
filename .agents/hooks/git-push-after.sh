@@ -18,12 +18,15 @@ if [[ "$command" =~ (^|[[:space:]\;\&\|])git[[:space:]]+push([[:space:]]|$) ]]; 
     if [ "$CI_STATUS" = "failed" ]; then
         CI_LOGS=$(curl -s "https://dash.hackedyour.info/api/logs?provider=github&owner=${OWNER}&repo=${REPO}" 2>/dev/null)
         LAST_LINES=$(echo "$CI_LOGS" | jq -r '.log // empty' | tail -n 30)
-        jq -n -c --arg status "$CI_STATUS" --arg logs "$LAST_LINES" \
-          '{"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": "❌ CI/CD FAILURE: GitHub Actions workflow failed!\nLast 30 lines of log:\n\($logs)\n❌ CI results: \($status)\nYou must not leave the build broken."}}'
+        echo "❌ CI/CD FAILURE: GitHub Actions workflow failed!" >&2
+        echo "Last 30 lines of log:" >&2
+        echo "$LAST_LINES" >&2
+        echo "❌ CI results: $CI_STATUS" >&2
+        echo "You must not leave the build broken." >&2
     else
-        jq -n -c --arg status "$CI_STATUS" \
-          '{"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": "CI results: \($status)"}}'
+        echo "CI results: $CI_STATUS" >&2
     fi
+    echo '{}'
     exit 0
 fi
 
