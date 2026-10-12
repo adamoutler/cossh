@@ -54,9 +54,8 @@ class TestHistoryAndArtifacts(unittest.TestCase):
         with patch.object(qa_gate, "run_cmd") as mock_cmd:
             # git log returns commits
             mock_cmd.side_effect = [
-                (0, "hash1\nhash2\n", ""), # git log
-                (0, "", ""), # merge-base ancestor hash1
-                (0, "", ""), # merge-base ancestor hash2
+                (0, "hash1\nhash2\n", ""), # git log --grep
+                (0, "hash1\nhash2\nhash3\n", ""), # git log HEAD -n50
                 (0, "1\n", ""), # rev-list count
                 (0, "parent_hash\n", ""), # rev-parse parent
                 (0, "file1.kt\nfile2.kt\n", ""), # git show --name-only

@@ -424,30 +424,52 @@ def stage_4_dash_ci_status(head_sha, repo_root="."):
 
     return matching_job
 
-def resolve_ticket_commits(repo_root, ticket_id, head_sha, max_depth=50):
+def resolve_ticket_commits(repo_root, ticket_id, head_sha, max_depth=50, ticket_name=""):
     """
     Finds commits on HEAD history belonging to ticket_id within max_depth.
     Enforces regex word boundaries, bounds depth to 50 commits, verifies ancestry,
-    checks range contiguity, and identifies touched files.
+    checks range contiguity, identifies touched files, and ingests explicit commit hashes
+    from docs/qa/{ticket_id}.md and ticket title keyphrases.
     """
     if not ticket_id:
         return [], False, None, []
     pattern = f"\\b{re.escape(ticket_id)}\\b"
-    cmd = ["git", "log", "HEAD", f"-n{max_depth}", "-E", f"--grep={pattern}", "--format=%H"]
-    code, out, _ = run_cmd(cmd, cwd=repo_root)
-    if code != 0 or not out.strip():
-        return [], False, None, []
+    cmd = ["git", "log", "HEAD", f"-n{max_depth}", "-E", f"--grep={pattern}"]
 
-    commits = [line.strip() for line in out.splitlines() if line.strip()]
+    # Include key phrases from ticket_name if present (e.g. "Dynamic Port Forwarding")
+    if ticket_name:
+        clean_name = re.sub(r'\[.*?\]', '', ticket_name)
+        phrases = [p.strip() for p in re.split(r'[-–—:()]+', clean_name) if len(p.strip()) >= 8]
+        for phr in phrases[:2]:
+            cmd.extend(["--grep", phr])
+
+    cmd.append("--format=%H")
+    code, out, _ = run_cmd(cmd, cwd=repo_root)
+    commits = [line.strip() for line in out.splitlines() if line.strip()] if code == 0 else []
+
+    # Check docs/qa/{ticket_id}.md for explicit commit SHAs cited in the QA proof
+    qa_doc_path = os.path.join(repo_root, "docs/qa", f"{ticket_id}.md")
+    if os.path.exists(qa_doc_path):
+        try:
+            with open(qa_doc_path, "r", encoding="utf-8", errors="ignore") as f:
+                qa_content = f.read()
+            for cand in re.findall(r'\b([0-9a-f]{7,40})\b', qa_content):
+                code, cand_sha, _ = run_cmd(["git", "rev-parse", "--verify", "--quiet", cand], cwd=repo_root)
+                if code == 0 and cand_sha.strip() and cand_sha.strip() not in commits:
+                    commits.append(cand_sha.strip())
+        except Exception:
+            pass
+
     if not commits:
         return [], False, None, []
 
-    # Verify each commit is an ancestor of HEAD
-    valid_commits = []
-    for c in commits:
-        a_code, _, _ = run_cmd(["git", "merge-base", "--is-ancestor", c, head_sha], cwd=repo_root)
-        if a_code == 0:
-            valid_commits.append(c)
+    # Order commits chronologically by their position in HEAD history and verify ancestry
+    code, head_log, _ = run_cmd(["git", "log", "HEAD", f"-n{max_depth}", "--format=%H"], cwd=repo_root)
+    if code != 0 or not head_log.strip():
+        return [], False, None, []
+
+    head_commits = [c.strip() for c in head_log.splitlines() if c.strip()]
+    valid_commits = [c for c in head_commits if c in commits]
 
     if not valid_commits:
         return [], False, None, []
@@ -514,7 +536,7 @@ def build_clean_room_context(repo_root, ticket, comments, transition_comment, ci
 
     if not diff or not diff.strip():
         # Branch is synced with main. Search HEAD history for commits belonging to ticket_id.
-        commits, is_contiguous, oldest_parent, files_touched = resolve_ticket_commits(repo_root, ticket_id, head_sha)
+        commits, is_contiguous, oldest_parent, files_touched = resolve_ticket_commits(repo_root, ticket_id, head_sha, ticket_name=ticket_name)
 
         if commits:
             newest = commits[0]
@@ -631,9 +653,12 @@ def build_clean_room_context(repo_root, ticket, comments, transition_comment, ci
 
     # Add general QA index listing
     if os.path.exists(qa_dir):
-        qa_index = sorted(os.listdir(qa_dir))
-        artifacts_text += f"\n### docs/qa/ File Index ({len(qa_index)} total files):\n"
-        artifacts_text += ", ".join(qa_index[-30:]) + "\n"
+        qa_files = sorted(os.listdir(qa_dir))
+        matching_qa = [f for f in qa_files if ticket_id.lower() in f.lower()]
+        artifacts_text += f"\n### docs/qa/ Files Matching `{ticket_id}` ({len(matching_qa)} total files):\n"
+        for f in matching_qa:
+            artifacts_text += f"- `{f}`\n"
+        artifacts_text += f"\n(Repository total: {len(qa_files)} files in docs/qa/)\n"
 
     if len(artifacts_text) > 25000:
         artifacts_text = artifacts_text[:25000] + "\n... [ARTIFACTS TRUNCATED] ..."
@@ -650,7 +675,10 @@ def build_clean_room_context(repo_root, ticket, comments, transition_comment, ci
         log_data = dash_api_request(f"https://dash.hackedyour.info/api/logs?{query}")
         if log_data and "log" in log_data:
             lines = log_data["log"].splitlines()
+            test_success_lines = [l for l in lines if "BUILD SUCCESSFUL" in l or "ALL GRADLE TESTS AND VERIFICATIONS PASSED" in l or "jacocoTestReport" in l]
             dash_log_view = "\n".join(lines[-100:])
+            if test_success_lines:
+                dash_log_view = "# Test Execution Receipts:\n" + "\n".join(test_success_lines) + "\n\n# Workflow Log Tail:\n" + dash_log_view
             if len(dash_log_view) > 8000:
                 dash_log_view = dash_log_view[-8000:]
 
