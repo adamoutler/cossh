@@ -125,4 +125,46 @@ class TerminalSettingsIntegrationTest {
         org.junit.Assert.assertTrue(com.adamoutler.ssh.data.shouldKeepScreenOn(KeepScreenOnMode.SMART_AWAKE, isProximityNear = false, isDataFlowing = true))
         org.junit.Assert.assertFalse(com.adamoutler.ssh.data.shouldKeepScreenOn(KeepScreenOnMode.SMART_AWAKE, isProximityNear = true, isDataFlowing = true))
     }
+
+    @Test
+    fun testWindowFlagKeepScreenOnTransitions() {
+        val activityController = org.robolectric.Robolectric.buildActivity(android.app.Activity::class.java).setup()
+        val window = activityController.get().window
+
+        fun applyKeepScreenOn(mode: KeepScreenOnMode, isProximityNear: Boolean, isDataFlowing: Boolean) {
+            val shouldKeepOn = com.adamoutler.ssh.data.shouldKeepScreenOn(mode, isProximityNear, isDataFlowing)
+            if (shouldKeepOn) {
+                window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            } else {
+                window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
+        }
+
+        // Test SYSTEM_DEFAULT: flag never set
+        applyKeepScreenOn(KeepScreenOnMode.SYSTEM_DEFAULT, isProximityNear = false, isDataFlowing = true)
+        assertEquals(0, window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        // Test ALWAYS_ON: flag set when far, cleared when near (pocket)
+        applyKeepScreenOn(KeepScreenOnMode.ALWAYS_ON, isProximityNear = false, isDataFlowing = false)
+        assertEquals(
+            android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+            window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+        )
+
+        applyKeepScreenOn(KeepScreenOnMode.ALWAYS_ON, isProximityNear = true, isDataFlowing = false)
+        assertEquals(0, window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        // Test SMART_AWAKE: flag set only when data flowing and far, cleared when idle or pocket
+        applyKeepScreenOn(KeepScreenOnMode.SMART_AWAKE, isProximityNear = false, isDataFlowing = false)
+        assertEquals(0, window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        applyKeepScreenOn(KeepScreenOnMode.SMART_AWAKE, isProximityNear = false, isDataFlowing = true)
+        assertEquals(
+            android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+            window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+        )
+
+        applyKeepScreenOn(KeepScreenOnMode.SMART_AWAKE, isProximityNear = true, isDataFlowing = true)
+        assertEquals(0, window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
 }
