@@ -407,6 +407,63 @@ class AddEditProfileScreenScreenshotTest {
                         onSave = {},
                         onNavigateBack = {},
                         defaultPortForwardType = com.adamoutler.ssh.data.PortForwardType.LOCAL,
+                        scrollState = androidx.compose.foundation.ScrollState(initial = Int.MAX_VALUE),
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun addCommandSnippetDialogScreen() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    AddEditProfileScreenContent(
+                        profileId = null,
+                        nickname = "Snippet Server",
+                        onNicknameChange = {},
+                        host = "server.local",
+                        onHostChange = {},
+                        port = "22",
+                        onPortChange = {},
+                        protocol = com.adamoutler.ssh.data.Protocol.SSH,
+                        onProtocolChange = {},
+                        username = "admin",
+                        onUsernameChange = {},
+                        password = "",
+                        onPasswordChange = {},
+                        isPasswordLocked = false,
+                        onPasswordLockedChange = {},
+                        authType = AuthType.PASSWORD,
+                        onAuthTypeChange = {},
+                        availableKeys = emptyList(),
+                        keyReference = "",
+                        onKeyReferenceChange = {},
+                        identities = emptyList(),
+                        identityId = null,
+                        onIdentityChange = {},
+                        onManageIdentities = {},
+                        envVarsText = "",
+                        onEnvVarsTextChange = {},
+                        portForwards = emptyList(),
+                        onPortForwardsChange = {},
+                        commandSnippets = emptyList(),
+                        onCommandSnippetsChange = {},
+                        initialDirectory = "",
+                        onInitialDirectoryChange = {},
+                        terminalInputState = 0,
+                        onTerminalInputStateChange = {},
+                        keepScreenOnMode = com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT,
+                        onKeepScreenOnModeChange = {},
+                        useLocalDns = false,
+                        onUseLocalDnsChange = {},
+                        onSave = {},
+                        onNavigateBack = {},
+                        defaultShowAddSnippetDialog = true,
                     )
                 }
             }

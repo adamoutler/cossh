@@ -179,8 +179,10 @@ fun AddEditProfileScreenContent(
     onUseLocalDnsChange: (Boolean) -> Unit,
     onSave: () -> Unit,
     onNavigateBack: () -> Unit,
+    scrollState: androidx.compose.foundation.ScrollState = androidx.compose.foundation.rememberScrollState(),
     defaultPasswordVisible: Boolean = false,
     defaultShowAddDialog: Boolean = false,
+    defaultShowAddSnippetDialog: Boolean = false,
     defaultPortForwardType: PortForwardType = PortForwardType.LOCAL,
     hostError: String? = null,
     portError: String? = null,
@@ -217,7 +219,7 @@ fun AddEditProfileScreenContent(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
         ) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(
@@ -809,7 +811,7 @@ fun AddEditProfileScreenContent(
                                 }
                                 if (snippet.requireAuth) {
                                     Badge(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer) {
-                                        Text("Auth Required", modifier = Modifier.padding(horizontal = 4.dp))
+                                        Text("Confirmation Required", modifier = Modifier.padding(horizontal = 4.dp))
                                     }
                                 }
                             }
@@ -825,7 +827,7 @@ fun AddEditProfileScreenContent(
                 }
             }
 
-            var showAddSnippetDialog by remember { mutableStateOf(false) }
+            var showAddSnippetDialog by remember { mutableStateOf(defaultShowAddSnippetDialog) }
 
             if (showAddSnippetDialog) {
                 var snippetName by remember { mutableStateOf("") }
@@ -871,8 +873,8 @@ fun AddEditProfileScreenContent(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("Require Authentication", style = MaterialTheme.typography.bodyMedium)
-                                    Text("Requires device unlock to inject", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("Require Confirmation", style = MaterialTheme.typography.bodyMedium)
+                                    Text("Requires confirmation dialog before injecting", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 androidx.compose.material3.Switch(checked = requireAuth, onCheckedChange = { requireAuth = it })
                             }

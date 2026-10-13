@@ -46,7 +46,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.Exception
 
-
 @Composable
 fun TerminalScreen(
     profileId: String,
@@ -384,7 +383,6 @@ fun TerminalScreenContent(
         modifier = modifier
             .fillMaxSize(),
     ) {
-
         if (profile?.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
             TelnetInsecureWarning(nickname = profile.nickname)
         }
@@ -476,19 +474,13 @@ fun TerminalScreenContent(
                             override fun isTerminalViewSelected(): Boolean = true
                             override fun copyModeChanged(b: Boolean) {}
 
-                            override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, s: TerminalSession?): Boolean {
-                                return terminalKeyMapper.onKeyDown(keyCode, e)
-                            }
-                            override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean {
-                                return terminalKeyMapper.onKeyUp(keyCode)
-                            }
+                            override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, s: TerminalSession?): Boolean = terminalKeyMapper.onKeyDown(keyCode, e)
+                            override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean = terminalKeyMapper.onKeyUp(keyCode)
                             override fun readControlKey(): Boolean = terminalKeyMapper.readControlKey()
                             override fun readAltKey(): Boolean = terminalKeyMapper.readAltKey()
                             override fun readShiftKey(): Boolean = false
                             override fun readFnKey(): Boolean = false
-                            override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, s: TerminalSession?): Boolean {
-                                return terminalKeyMapper.onCodePoint(codePoint, ctrlDown)
-                            }
+                            override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, s: TerminalSession?): Boolean = terminalKeyMapper.onCodePoint(codePoint, ctrlDown)
                             override fun onLongPress(e: android.view.MotionEvent?): Boolean = false
                             override fun onEmulatorSet() { /* No-op */ }
                             override fun logError(tag: String?, msg: String?) { /* No-op */ }
@@ -657,6 +649,12 @@ fun TerminalScreenContent(
         }
 
         var snippetToConfirm by remember { mutableStateOf<com.adamoutler.ssh.data.CommandSnippet?>(null) }
+        val snippetHandler = remember(sendToTerminal) {
+            TerminalSnippetHandler(
+                sendToTerminal = sendToTerminal,
+                requestConfirmation = { snippetToConfirm = it },
+            )
+        }
 
         snippetToConfirm?.let { snippet ->
             AlertDialog(
@@ -665,8 +663,7 @@ fun TerminalScreenContent(
                 text = { Text("Are you sure you want to execute '${snippet.name}'?\n\nCommand: ${snippet.command}") },
                 confirmButton = {
                     TextButton(onClick = {
-                        val bytes = if (snippet.autoSend) "${snippet.command}\r".toByteArray() else snippet.command.toByteArray()
-                        sendToTerminal(bytes)
+                        snippetHandler.onSnippetConfirmed(snippet)
                         snippetToConfirm = null
                     }) {
                         Text("Execute")
@@ -688,12 +685,7 @@ fun TerminalScreenContent(
                 items(profile!!.commandSnippets) { snippet ->
                     AssistChip(
                         onClick = {
-                            if (snippet.requireAuth) {
-                                snippetToConfirm = snippet
-                            } else {
-                                val bytes = if (snippet.autoSend) "${snippet.command}\r".toByteArray() else snippet.command.toByteArray()
-                                sendToTerminal(bytes)
-                            }
+                            snippetHandler.onSnippetClicked(snippet)
                         },
                         label = { Text(snippet.name) },
                         colors = AssistChipDefaults.assistChipColors(
