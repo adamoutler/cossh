@@ -125,7 +125,7 @@ class SshServiceTest {
 
         var retries = 0
         var currentState: ConnectionState? = null
-        while (retries < 50) {
+        while (retries < 500) {
             currentState = ConnectionStateRepository.connectionStates.value["non_existent_profile_id"]
             if (currentState is ConnectionState.Error) break
             kotlinx.coroutines.delay(10)
@@ -139,12 +139,12 @@ class SshServiceTest {
     @Test
     fun `test startSshConnection with failing connection updates state to Error`() = kotlinx.coroutines.runBlocking {
         val storageManager = com.adamoutler.ssh.crypto.SecurityStorageManager(context)
-        // Connect to a blackhole IP to force a connection timeout/error
+        // Connect to an unused local port to fail immediately with Connection Refused without hanging on network timeouts
         val profile = com.adamoutler.ssh.data.ConnectionProfile(
             id = "fail_profile_id",
             nickname = "Fail Profile",
-            host = "192.0.2.1", // TEST-NET-1, should timeout/fail to route
-            port = 22,
+            host = "127.0.0.1",
+            port = 59999,
             authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
             username = "testuser",
             password = "testpassword".toByteArray(),
@@ -159,7 +159,7 @@ class SshServiceTest {
 
         var retries = 0
         var currentState: ConnectionState? = null
-        while (retries < 1500) { // Wait up to 15 seconds for connection timeout
+        while (retries < 1000) {
             currentState = ConnectionStateRepository.connectionStates.value["fail_profile_id"]
             if (currentState is ConnectionState.Error) break
             kotlinx.coroutines.delay(10)

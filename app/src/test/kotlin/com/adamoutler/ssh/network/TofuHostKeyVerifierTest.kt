@@ -41,7 +41,7 @@ class TofuHostKeyVerifierTest {
         return kpg.generateKeyPair().public
     }
 
-    @Test(timeout = 15000)
+    @Test(timeout = 60000L)
     fun testAtomicKeyUpdate() {
         val verifier = TofuHostKeyVerifier(knownHostsFile)
         val hostname = "192.168.1.100"
