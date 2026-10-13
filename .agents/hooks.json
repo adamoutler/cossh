@@ -35,7 +35,7 @@
           {
             "type": "command",
             "command": "./hooks/git-push-after.sh",
-            "timeout": 1500
+            "timeout": 3600
           }
         ]
       }
