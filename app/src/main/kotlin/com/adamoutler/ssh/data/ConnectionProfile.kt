@@ -22,9 +22,14 @@ object ByteArrayAsBase64Serializer : KSerializer<ByteArray> {
 
 @Serializable
 enum class PortForwardType {
-    @SerialName("LOCAL") LOCAL,
-    @SerialName("REMOTE") REMOTE,
-    @SerialName("DYNAMIC") DYNAMIC,
+    @SerialName("LOCAL")
+    LOCAL,
+
+    @SerialName("REMOTE")
+    REMOTE,
+
+    @SerialName("DYNAMIC")
+    DYNAMIC,
 }
 
 @Serializable
@@ -37,27 +42,33 @@ data class PortForwardConfig(
 
 @Serializable
 enum class Protocol {
-    @SerialName("SSH") SSH,
-    @SerialName("TELNET") TELNET,
+    @SerialName("SSH")
+    SSH,
+
+    @SerialName("TELNET")
+    TELNET,
 }
 
 @Serializable
 enum class KeepScreenOnMode {
-    @SerialName("SYSTEM_DEFAULT") SYSTEM_DEFAULT,
-    @SerialName("SMART_AWAKE") SMART_AWAKE,
-    @SerialName("ALWAYS_ON") ALWAYS_ON,
+    @SerialName("SYSTEM_DEFAULT")
+    SYSTEM_DEFAULT,
+
+    @SerialName("SMART_AWAKE")
+    SMART_AWAKE,
+
+    @SerialName("ALWAYS_ON")
+    ALWAYS_ON,
 }
 
 fun shouldKeepScreenOn(
     mode: KeepScreenOnMode,
     isProximityNear: Boolean,
     isDataFlowing: Boolean,
-): Boolean {
-    return when (mode) {
-        KeepScreenOnMode.SYSTEM_DEFAULT -> false
-        KeepScreenOnMode.ALWAYS_ON -> !isProximityNear
-        KeepScreenOnMode.SMART_AWAKE -> !isProximityNear && isDataFlowing
-    }
+): Boolean = when (mode) {
+    KeepScreenOnMode.SYSTEM_DEFAULT -> false
+    KeepScreenOnMode.ALWAYS_ON -> !isProximityNear
+    KeepScreenOnMode.SMART_AWAKE -> !isProximityNear && isDataFlowing
 }
 
 @Serializable
@@ -150,6 +161,9 @@ data class ConnectionProfile(
 
 @Serializable
 enum class AuthType {
-    @SerialName("PASSWORD") PASSWORD,
-    @SerialName("KEY") KEY,
+    @SerialName("PASSWORD")
+    PASSWORD,
+
+    @SerialName("KEY")
+    KEY,
 }

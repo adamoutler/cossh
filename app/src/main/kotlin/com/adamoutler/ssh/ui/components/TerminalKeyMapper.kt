@@ -2,8 +2,7 @@ package com.adamoutler.ssh.ui.components
 
 import android.view.KeyEvent
 
-fun isBleedThroughEvent(e: KeyEvent?, connectionStartTime: Long): Boolean =
-    TerminalKeyMapper.isBleedThroughEvent(e, connectionStartTime)
+fun isBleedThroughEvent(e: KeyEvent?, connectionStartTime: Long): Boolean = TerminalKeyMapper.isBleedThroughEvent(e, connectionStartTime)
 
 class TerminalKeyMapper(
     private val getCtrlState: () -> ModifierState = { ModifierState.INACTIVE },
@@ -153,17 +152,13 @@ class TerminalKeyMapper(
             return cp
         }
 
-        fun applyAltModifier(bytes: ByteArray, altActive: Boolean): ByteArray {
-            return if (altActive && bytes.size == 1) {
-                byteArrayOf(0x1B) + bytes
-            } else {
-                bytes
-            }
+        fun applyAltModifier(bytes: ByteArray, altActive: Boolean): ByteArray = if (altActive && bytes.size == 1) {
+            byteArrayOf(0x1B) + bytes
+        } else {
+            bytes
         }
 
-        fun consumeSticky(state: ModifierState): ModifierState {
-            return if (state == ModifierState.STICKY) ModifierState.INACTIVE else state
-        }
+        fun consumeSticky(state: ModifierState): ModifierState = if (state == ModifierState.STICKY) ModifierState.INACTIVE else state
 
         fun mapExtraKey(key: String): ByteArray? = when (key) {
             "Esc" -> byteArrayOf(0x1B)
@@ -196,23 +191,28 @@ class TerminalKeyMapper(
             else -> null
         }
 
-        fun mapKeyCode(keyCode: Int, e: KeyEvent?, ctrlActive: Boolean): ByteArray? {
-            return when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> "\r".toByteArray()
-                KeyEvent.KEYCODE_DEL -> byteArrayOf(0x7F)
-                KeyEvent.KEYCODE_TAB -> "\t".toByteArray()
-                KeyEvent.KEYCODE_DPAD_UP -> byteArrayOf(0x1B, '['.code.toByte(), 'A'.code.toByte())
-                KeyEvent.KEYCODE_DPAD_DOWN -> byteArrayOf(0x1B, '['.code.toByte(), 'B'.code.toByte())
-                KeyEvent.KEYCODE_DPAD_RIGHT -> byteArrayOf(0x1B, '['.code.toByte(), 'C'.code.toByte())
-                KeyEvent.KEYCODE_DPAD_LEFT -> byteArrayOf(0x1B, '['.code.toByte(), 'D'.code.toByte())
-                else -> {
-                    val unicodeChar = e?.unicodeChar ?: 0
-                    if (unicodeChar != 0) {
-                        val cp = if (ctrlActive) applyCtrlModifier(unicodeChar) else unicodeChar
-                        String(Character.toChars(cp)).toByteArray(Charsets.UTF_8)
-                    } else {
-                        null
-                    }
+        fun mapKeyCode(keyCode: Int, e: KeyEvent?, ctrlActive: Boolean): ByteArray? = when (keyCode) {
+            KeyEvent.KEYCODE_ENTER -> "\r".toByteArray()
+
+            KeyEvent.KEYCODE_DEL -> byteArrayOf(0x7F)
+
+            KeyEvent.KEYCODE_TAB -> "\t".toByteArray()
+
+            KeyEvent.KEYCODE_DPAD_UP -> byteArrayOf(0x1B, '['.code.toByte(), 'A'.code.toByte())
+
+            KeyEvent.KEYCODE_DPAD_DOWN -> byteArrayOf(0x1B, '['.code.toByte(), 'B'.code.toByte())
+
+            KeyEvent.KEYCODE_DPAD_RIGHT -> byteArrayOf(0x1B, '['.code.toByte(), 'C'.code.toByte())
+
+            KeyEvent.KEYCODE_DPAD_LEFT -> byteArrayOf(0x1B, '['.code.toByte(), 'D'.code.toByte())
+
+            else -> {
+                val unicodeChar = e?.unicodeChar ?: 0
+                if (unicodeChar != 0) {
+                    val cp = if (ctrlActive) applyCtrlModifier(unicodeChar) else unicodeChar
+                    String(Character.toChars(cp)).toByteArray(Charsets.UTF_8)
+                } else {
+                    null
                 }
             }
         }

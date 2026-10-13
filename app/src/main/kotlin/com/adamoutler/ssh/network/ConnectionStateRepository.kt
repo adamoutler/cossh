@@ -72,26 +72,24 @@ object ConnectionStateRepository {
     val authPromptRequest: StateFlow<AuthPromptRequest?>
         get() = UserPromptRegistry.authPromptRequest
 
-    suspend fun requestAuthPrompt(profileId: String, requireUsername: Boolean, isRetry: Boolean): AuthCredentials? =
-        UserPromptRegistry.requestAuthPrompt(profileId, requireUsername, isRetry)
+    suspend fun requestAuthPrompt(profileId: String, requireUsername: Boolean, isRetry: Boolean): AuthCredentials? = UserPromptRegistry.requestAuthPrompt(profileId, requireUsername, isRetry)
 
-    fun resolveAuthPrompt(credentials: AuthCredentials?) =
-        UserPromptRegistry.resolveAuthPrompt(credentials)
+    fun resolveAuthPrompt(credentials: AuthCredentials?) = UserPromptRegistry.resolveAuthPrompt(credentials)
 
     suspend fun requestPrompt(
         hostname: String,
         expectedFingerprint: String?,
         receivedFingerprint: String,
         isKeyChanged: Boolean,
-    ): Boolean =
-        UserPromptRegistry.requestPrompt(hostname, expectedFingerprint, receivedFingerprint, isKeyChanged)
+    ): Boolean = UserPromptRegistry.requestPrompt(hostname, expectedFingerprint, receivedFingerprint, isKeyChanged)
 
-    fun resolvePrompt(accept: Boolean) =
-        UserPromptRegistry.resolvePrompt(accept)
+    fun resolvePrompt(accept: Boolean) = UserPromptRegistry.resolvePrompt(accept)
 
     @VisibleForTesting
-    fun setPromptRequestForTest(request: HostKeyPromptRequest?) =
-        UserPromptRegistry.setPromptRequestForTest(request)
+    fun setPromptRequestForTest(request: HostKeyPromptRequest?) = UserPromptRegistry.setPromptRequestForTest(request)
+
+    @VisibleForTesting
+    fun setAuthPromptRequestForTest(request: AuthPromptRequest?) = UserPromptRegistry.setAuthPromptRequestForTest(request)
 
     // --- Delegations to SessionStreamRegistry (Backwards Compatibility) ---
     val sessions: ConcurrentHashMap<String, ActiveSessionState>
@@ -109,18 +107,13 @@ object ConnectionStateRepository {
     val sessionOutput: SharedFlow<Pair<String, ByteArray>>
         get() = SessionStreamRegistry.sessionOutput
 
-    fun getOrCreateSession(profileId: String, sessionId: String? = null): ActiveSessionState =
-        SessionStreamRegistry.getOrCreateSession(profileId, sessionId)
+    fun getOrCreateSession(profileId: String, sessionId: String? = null): ActiveSessionState = SessionStreamRegistry.getOrCreateSession(profileId, sessionId)
 
-    fun clearSession(sessionId: String) =
-        SessionStreamRegistry.clearSession(sessionId)
+    fun clearSession(sessionId: String) = SessionStreamRegistry.clearSession(sessionId)
 
-    suspend fun emitOutput(sessionId: String, data: ByteArray) =
-        SessionStreamRegistry.emitOutput(sessionId, data)
+    suspend fun emitOutput(sessionId: String, data: ByteArray) = SessionStreamRegistry.emitOutput(sessionId, data)
 
-    fun attachUiAndGetBuffer(sessionId: String): List<ByteArray> =
-        SessionStreamRegistry.attachUiAndGetBuffer(sessionId)
+    fun attachUiAndGetBuffer(sessionId: String): List<ByteArray> = SessionStreamRegistry.attachUiAndGetBuffer(sessionId)
 
-    fun detachUi(sessionId: String) =
-        SessionStreamRegistry.detachUi(sessionId)
+    fun detachUi(sessionId: String) = SessionStreamRegistry.detachUi(sessionId)
 }

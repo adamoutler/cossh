@@ -181,10 +181,7 @@ class AppNavigationCoverageTest {
         val deferred = kotlinx.coroutines.CompletableDeferred<com.adamoutler.ssh.network.AuthCredentials?>()
         val request = com.adamoutler.ssh.network.AuthPromptRequest("testProfile", requireUsername = false, isRetry = false, deferred = deferred)
 
-        val field = ConnectionStateRepository::class.java.getDeclaredField("_authPromptRequest")
-        field.isAccessible = true
-        val stateFlow = field.get(ConnectionStateRepository) as MutableStateFlow<com.adamoutler.ssh.network.AuthPromptRequest?>
-        stateFlow.value = request
+        ConnectionStateRepository.setAuthPromptRequestForTest(request)
 
         composeTestRule.setContent {
             com.adamoutler.ssh.ui.components.AuthPromptDialog(

@@ -190,7 +190,9 @@ class PortForwardingOrchestrator {
     fun stopAll() {
         try {
             localServerSockets.forEach {
-                try { it.close() } catch (ignored: Exception) {}
+                try {
+                    it.close()
+                } catch (ignored: Exception) {}
             }
             localServerSockets.clear()
             socksExecutor.shutdownNow()

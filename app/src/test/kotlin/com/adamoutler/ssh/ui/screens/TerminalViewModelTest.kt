@@ -173,7 +173,7 @@ class TerminalViewModelTest {
                 StrictMode.ThreadPolicy.Builder()
                     .detectNetwork()
                     .penaltyDeath()
-                    .build()
+                    .build(),
             )
 
             viewModel.getContext = { application }

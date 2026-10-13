@@ -2,11 +2,10 @@ package com.adamoutler.ssh.backup
 
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
+import com.adamoutler.ssh.util.AppLog
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import com.adamoutler.ssh.util.AppLog
-import javax.crypto.AEADBadTagException
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
@@ -15,6 +14,7 @@ import java.util.Base64
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+import javax.crypto.AEADBadTagException
 import javax.crypto.Cipher
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.GCMParameterSpec

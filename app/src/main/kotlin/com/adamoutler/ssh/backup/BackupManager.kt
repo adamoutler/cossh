@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.crypto.SecurityStorageManager
-
 import com.adamoutler.ssh.util.AppLog
 
 class BackupManager(

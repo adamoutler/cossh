@@ -90,7 +90,9 @@ object BackupSanitizer {
                     AppLog.w(TAG, "Profile '$cleanNickname' references identityId '$targetId' which was not found in the backup.")
                 }
                 targetId
-            } else null
+            } else {
+                null
+            }
 
             val cleanProfile = profile.copy(
                 id = cleanId,

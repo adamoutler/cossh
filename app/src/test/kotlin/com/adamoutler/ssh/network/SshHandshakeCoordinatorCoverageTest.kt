@@ -208,9 +208,7 @@ class SshHandshakeCoordinatorCoverageTest {
         var capturedPort: Int? = null
 
         val coordinator = object : SshHandshakeCoordinator(context = app) {
-            override fun resolveHostLocally(host: String): Array<java.net.InetAddress>? {
-                return null
-            }
+            override fun resolveHostLocally(host: String): Array<java.net.InetAddress>? = null
 
             override fun connectClient(client: SSHClient, host: String, port: Int) {
                 capturedHost = host
