@@ -8,6 +8,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 
@@ -20,11 +21,13 @@ class ConnectionStateRepositoryTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         ConnectionStateRepository.sessions.clear()
+        ConnectionStateRepository.clearConnections()
         ConnectionStateRepository.isHeadlessTest = true
     }
 
     @After
     fun tearDown() {
+        ConnectionStateRepository.clearConnections()
         Dispatchers.resetMain()
     }
 
@@ -56,5 +59,61 @@ class ConnectionStateRepositoryTest {
         // Now emit a 4th chunk and verify it does NOT go to buffer
         ConnectionStateRepository.emitOutput(profileId, "Chunk4".toByteArray())
         assertEquals(0, session.outputBuffer.size)
+    }
+
+    @Test
+    fun `test connection lifecycle states and transitions`() {
+        val profileId = "profile-lifecycle-test"
+
+        assertEquals(emptyMap<String, ConnectionState>(), ConnectionStateRepository.connectionStates.value)
+
+        ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Connecting)
+        assertEquals(ConnectionState.Connecting, ConnectionStateRepository.connectionStates.value[profileId])
+
+        ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Connected)
+        assertEquals(ConnectionState.Connected, ConnectionStateRepository.connectionStates.value[profileId])
+
+        ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnecting)
+        assertEquals(ConnectionState.Disconnecting, ConnectionStateRepository.connectionStates.value[profileId])
+
+        ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnected)
+        assertEquals(ConnectionState.Disconnected, ConnectionStateRepository.connectionStates.value[profileId])
+
+        ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error("Auth failed"))
+        val errorState = ConnectionStateRepository.connectionStates.value[profileId] as ConnectionState.Error
+        assertEquals("Auth failed", errorState.message)
+
+        ConnectionStateRepository.clearConnectionState(profileId)
+        assertNull(ConnectionStateRepository.connectionStates.value[profileId])
+    }
+
+    @Test
+    fun `test active connection counts management`() {
+        val profileId = "profile-counts-test"
+
+        assertEquals(0, ConnectionStateRepository.activeConnectionCounts.value[profileId] ?: 0)
+
+        ConnectionStateRepository.addConnection(profileId)
+        assertEquals(1, ConnectionStateRepository.activeConnectionCounts.value[profileId])
+
+        ConnectionStateRepository.addConnection(profileId)
+        assertEquals(2, ConnectionStateRepository.activeConnectionCounts.value[profileId])
+
+        ConnectionStateRepository.removeConnection(profileId)
+        assertEquals(1, ConnectionStateRepository.activeConnectionCounts.value[profileId])
+
+        ConnectionStateRepository.removeConnection(profileId)
+        assertNull(ConnectionStateRepository.activeConnectionCounts.value[profileId])
+
+        // Calling removeConnection when 0 should be a no-op
+        ConnectionStateRepository.removeConnection(profileId)
+        assertNull(ConnectionStateRepository.activeConnectionCounts.value[profileId])
+
+        // clearConnections
+        ConnectionStateRepository.addConnection("p1")
+        ConnectionStateRepository.addConnection("p2")
+        assertEquals(2, ConnectionStateRepository.activeConnectionCounts.value.size)
+        ConnectionStateRepository.clearConnections()
+        assertEquals(0, ConnectionStateRepository.activeConnectionCounts.value.size)
     }
 }
