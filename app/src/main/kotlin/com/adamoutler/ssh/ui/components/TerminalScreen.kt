@@ -46,41 +46,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.Exception
 
-fun isBleedThroughEvent(e: android.view.KeyEvent?, connectionStartTime: Long): Boolean {
-    if (e == null) return false
-    return e.downTime < connectionStartTime + 500
-}
-
-enum class TerminalInputState {
-    NONE,
-    KEYBOARD,
-    KEYBOARD_AND_BUTTONS,
-}
-
-/**
- * Tri-state logic for terminal modifiers (Ctrl, Alt, etc.)
- * - INACTIVE: Normal behavior.
- * - STICKY: Modified next keypress, then automatically returns to INACTIVE.
- * - LOCKED: Persists across multiple keypresses until manually toggled back to INACTIVE.
- *
- * NOTE TO FUTURE AGENTS: Do NOT remove the STICKY -> INACTIVE transition in key handlers.
- * This latching behavior is intentional to support both one-shot modifiers (mobile standard)
- * and persistent modifiers (power-user workflows).
- */
-enum class ModifierState {
-    INACTIVE,
-    STICKY,
-    LOCKED,
-    ;
-
-    fun next(): ModifierState = when (this) {
-        INACTIVE -> STICKY
-        STICKY -> LOCKED
-        LOCKED -> INACTIVE
-    }
-
-    val isActive: Boolean get() = this != INACTIVE
-}
 
 @Composable
 fun TerminalScreen(
@@ -390,28 +355,35 @@ fun TerminalScreenContent(
         }
     }
 
+    val currentFontSizeState = androidx.compose.runtime.rememberUpdatedState(currentFontSize)
+    val onUpdateFontSizeState = androidx.compose.runtime.rememberUpdatedState(onUpdateFontSize)
+
+    val terminalKeyMapper = remember(sessionId) {
+        TerminalKeyMapper(
+            getCtrlState = { ctrlState.value },
+            setCtrlState = { ctrlState.value = it },
+            getAltState = { altState.value },
+            setAltState = { altState.value = it },
+            getSuperState = { superState.value },
+            setSuperState = { superState.value = it },
+            getMenuState = { menuState.value },
+            setMenuState = { menuState.value = it },
+            sendRawBytes = { bytes -> writeChannel.trySend(bytes) },
+            isInputLocked = { showDisconnectedOverlay },
+            getConnectionStartTime = { connectionStartTime },
+            onVolumeUp = { onUpdateFontSizeState.value(currentFontSizeState.value + 1) },
+            onVolumeDown = { onUpdateFontSizeState.value(currentFontSizeState.value - 1) },
+        )
+    }
+
     val sendToTerminal: (ByteArray) -> Unit = { bytes ->
-        if (showDisconnectedOverlay) {
-            println(("TerminalScreen").toString() + ": " + ("Input locked: session disconnected.").toString())
-        } else {
-            var finalBytes = bytes
-            // Apply Alt modifier by prepending ESC (0x1B)
-            if (altState.value.isActive && bytes.size == 1) {
-                finalBytes = byteArrayOf(0x1B) + finalBytes
-                if (altState.value == ModifierState.STICKY) {
-                    altState.value = ModifierState.INACTIVE
-                }
-            }
-            writeChannel.trySend(finalBytes)
-        }
+        terminalKeyMapper.sendToTerminal(bytes)
     }
 
     androidx.compose.foundation.layout.Column(
         modifier = modifier
             .fillMaxSize(),
     ) {
-        val currentFontSizeState = androidx.compose.runtime.rememberUpdatedState(currentFontSize)
-        val onUpdateFontSizeState = androidx.compose.runtime.rememberUpdatedState(onUpdateFontSize)
 
         if (profile?.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
             TelnetInsecureWarning(nickname = profile.nickname)
@@ -505,124 +477,17 @@ fun TerminalScreenContent(
                             override fun copyModeChanged(b: Boolean) {}
 
                             override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, s: TerminalSession?): Boolean {
-                                if (e?.action != android.view.KeyEvent.ACTION_DOWN) return false
-                                if (keyCode == android.view.KeyEvent.KEYCODE_BACK) return false
-
-                                // Prevent bleed-through key events from previous screens (like hitting Enter to connect)
-                                if (isBleedThroughEvent(e, connectionStartTime)) {
-                                    println(("TerminalScreen").toString() + ": " + ("Ignoring bleed-through key event: keyCode=$keyCode").toString())
-                                    return true // Consume it so it doesn't propagate
-                                }
-
-                                if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP) {
-                                    onUpdateFontSizeState.value(currentFontSizeState.value + 1)
-                                    return true
-                                }
-                                if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_DOWN) {
-                                    onUpdateFontSizeState.value(currentFontSizeState.value - 1)
-                                    return true
-                                }
-
-                                val bytesToSend = when (keyCode) {
-                                    android.view.KeyEvent.KEYCODE_ENTER -> "\r".toByteArray()
-
-                                    android.view.KeyEvent.KEYCODE_DEL -> byteArrayOf(0x7F)
-
-                                    android.view.KeyEvent.KEYCODE_TAB -> "\t".toByteArray()
-
-                                    android.view.KeyEvent.KEYCODE_DPAD_UP -> byteArrayOf(0x1B, '['.code.toByte(), 'A'.code.toByte())
-
-                                    android.view.KeyEvent.KEYCODE_DPAD_DOWN -> byteArrayOf(0x1B, '['.code.toByte(), 'B'.code.toByte())
-
-                                    android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> byteArrayOf(0x1B, '['.code.toByte(), 'C'.code.toByte())
-
-                                    android.view.KeyEvent.KEYCODE_DPAD_LEFT -> byteArrayOf(0x1B, '['.code.toByte(), 'D'.code.toByte())
-
-                                    else -> {
-                                        val unicodeChar = e.unicodeChar
-                                        if (unicodeChar != 0) {
-                                            var cp = unicodeChar
-                                            val ctrlActive = ctrlState.value.isActive || e.isCtrlPressed
-                                            if (ctrlActive) {
-                                                if (cp in 'a'.code..'z'.code) {
-                                                    cp = cp - 'a'.code + 1
-                                                } else if (cp in 'A'.code..'Z'.code) {
-                                                    cp = cp - 'A'.code + 1
-                                                } else if (cp == '['.code) {
-                                                    cp = 27 // ESC
-                                                } else if (cp == ']'.code) {
-                                                    cp = 29
-                                                } else if (cp == '\\'.code) {
-                                                    cp = 28
-                                                } else if (cp == '^'.code) {
-                                                    cp = 30
-                                                } else if (cp == '_'.code) {
-                                                    cp = 31
-                                                }
-                                            }
-                                            String(Character.toChars(cp)).toByteArray(Charsets.UTF_8)
-                                        } else {
-                                            null
-                                        }
-                                    }
-                                }
-
-                                if (bytesToSend != null) {
-                                    if (ctrlState.value == ModifierState.STICKY) ctrlState.value = ModifierState.INACTIVE
-                                    if (superState.value == ModifierState.STICKY) superState.value = ModifierState.INACTIVE
-                                    if (menuState.value == ModifierState.STICKY) menuState.value = ModifierState.INACTIVE
-                                    sendToTerminal(bytesToSend)
-                                    println(("TerminalScreen").toString() + ": " + ("Wrote ${bytesToSend.size} bytes (key: $keyCode) to SSH PTY stdin").toString())
-                                }
-                                return true
+                                return terminalKeyMapper.onKeyDown(keyCode, e)
                             }
                             override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean {
-                                if (keyCode == android.view.KeyEvent.KEYCODE_BACK) return false
-                                return true
+                                return terminalKeyMapper.onKeyUp(keyCode)
                             }
-                            override fun readControlKey(): Boolean = ctrlState.value.isActive
-                            override fun readAltKey(): Boolean = altState.value.isActive
+                            override fun readControlKey(): Boolean = terminalKeyMapper.readControlKey()
+                            override fun readAltKey(): Boolean = terminalKeyMapper.readAltKey()
                             override fun readShiftKey(): Boolean = false
                             override fun readFnKey(): Boolean = false
                             override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, s: TerminalSession?): Boolean {
-                                if (android.os.SystemClock.uptimeMillis() < connectionStartTime + 500) {
-                                    println(("TerminalScreen").toString() + ": " + ("Ignoring bleed-through codePoint: $codePoint").toString())
-                                    return true // Consume it so it doesn't propagate
-                                }
-                                try {
-                                    var cp = codePoint
-                                    if (cp == 10) cp = 13 // Replace \n with \r
-                                    if (ctrlState.value.isActive) {
-                                        if (cp in 'a'.code..'z'.code) {
-                                            cp = cp - 'a'.code + 1
-                                        } else if (cp in 'A'.code..'Z'.code) {
-                                            cp = cp - 'A'.code + 1
-                                        } else if (cp == '['.code) {
-                                            cp = 27 // ESC
-                                        } else if (cp == ']'.code) {
-                                            cp = 29
-                                        } else if (cp == '\\'.code) {
-                                            cp = 28
-                                        } else if (cp == '^'.code) {
-                                            cp = 30
-                                        } else if (cp == '_'.code) {
-                                            cp = 31
-                                        }
-                                        if (ctrlState.value == ModifierState.STICKY) {
-                                            ctrlState.value = ModifierState.INACTIVE
-                                        }
-                                    }
-
-                                    val chars = Character.toChars(cp)
-                                    val bytes = String(chars).toByteArray(Charsets.UTF_8)
-                                    if (superState.value == ModifierState.STICKY) superState.value = ModifierState.INACTIVE
-                                    if (menuState.value == ModifierState.STICKY) menuState.value = ModifierState.INACTIVE
-                                    sendToTerminal(bytes)
-                                    println(("TerminalScreen").toString() + ": " + ("Wrote ${bytes.size} bytes (codePoint) to SSH PTY stdin").toString())
-                                } catch (ex: Exception) {
-                                    println(("TerminalScreen").toString() + ": " + ("Failed to write codePoint to SSH PTY").toString() + " " + (ex).toString())
-                                }
-                                return true
+                                return terminalKeyMapper.onCodePoint(codePoint, ctrlDown)
                             }
                             override fun onLongPress(e: android.view.MotionEvent?): Boolean = false
                             override fun onEmulatorSet() { /* No-op */ }
@@ -849,53 +714,8 @@ fun TerminalScreenContent(
                 altState = altState.value,
                 superState = superState.value,
                 menuState = menuState.value,
-                onKeyToggle = { key ->
-                    when (key) {
-                        "Ctrl" -> ctrlState.value = ctrlState.value.next()
-                        "Alt" -> altState.value = altState.value.next()
-                        "Super" -> superState.value = superState.value.next()
-                        "Menu" -> menuState.value = menuState.value.next()
-                    }
-                },
-                onKeyPress = { key ->
-                    val bytes = when (key) {
-                        "Esc" -> byteArrayOf(0x1B)
-                        "Ctrl-C" -> byteArrayOf(0x03)
-                        "↑" -> byteArrayOf(0x1B, '['.code.toByte(), 'A'.code.toByte())
-                        "↓" -> byteArrayOf(0x1B, '['.code.toByte(), 'B'.code.toByte())
-                        "→" -> byteArrayOf(0x1B, '['.code.toByte(), 'C'.code.toByte())
-                        "←" -> byteArrayOf(0x1B, '['.code.toByte(), 'D'.code.toByte())
-                        "Tab" -> byteArrayOf(0x09)
-                        "F1" -> byteArrayOf(0x1B, 'O'.code.toByte(), 'P'.code.toByte())
-                        "F2" -> byteArrayOf(0x1B, 'O'.code.toByte(), 'Q'.code.toByte())
-                        "F3" -> byteArrayOf(0x1B, 'O'.code.toByte(), 'R'.code.toByte())
-                        "F4" -> byteArrayOf(0x1B, 'O'.code.toByte(), 'S'.code.toByte())
-                        "F5" -> byteArrayOf(0x1B, '['.code.toByte(), '1'.code.toByte(), '5'.code.toByte(), '~'.code.toByte())
-                        "F6" -> byteArrayOf(0x1B, '['.code.toByte(), '1'.code.toByte(), '7'.code.toByte(), '~'.code.toByte())
-                        "F7" -> byteArrayOf(0x1B, '['.code.toByte(), '1'.code.toByte(), '8'.code.toByte(), '~'.code.toByte())
-                        "F8" -> byteArrayOf(0x1B, '['.code.toByte(), '1'.code.toByte(), '9'.code.toByte(), '~'.code.toByte())
-                        "F9" -> byteArrayOf(0x1B, '['.code.toByte(), '2'.code.toByte(), '0'.code.toByte(), '~'.code.toByte())
-                        "F10" -> byteArrayOf(0x1B, '['.code.toByte(), '2'.code.toByte(), '1'.code.toByte(), '~'.code.toByte())
-                        "F11" -> byteArrayOf(0x1B, '['.code.toByte(), '2'.code.toByte(), '3'.code.toByte(), '~'.code.toByte())
-                        "F12" -> byteArrayOf(0x1B, '['.code.toByte(), '2'.code.toByte(), '4'.code.toByte(), '~'.code.toByte())
-                        "Home" -> byteArrayOf(0x1B, '['.code.toByte(), 'H'.code.toByte())
-                        "End" -> byteArrayOf(0x1B, '['.code.toByte(), 'F'.code.toByte())
-                        "PgUp" -> byteArrayOf(0x1B, '['.code.toByte(), '5'.code.toByte(), '~'.code.toByte())
-                        "PgDn" -> byteArrayOf(0x1B, '['.code.toByte(), '6'.code.toByte(), '~'.code.toByte())
-                        "Ins" -> byteArrayOf(0x1B, '['.code.toByte(), '2'.code.toByte(), '~'.code.toByte())
-                        "Del" -> byteArrayOf(0x1B, '['.code.toByte(), '3'.code.toByte(), '~'.code.toByte())
-                        "PrtSc" -> byteArrayOf(0x1B, '['.code.toByte(), '3'.code.toByte(), '2'.code.toByte(), '~'.code.toByte())
-                        "Pause" -> byteArrayOf(0x1A)
-                        else -> null
-                    }
-                    if (bytes != null) {
-                        if (ctrlState.value == ModifierState.STICKY) ctrlState.value = ModifierState.INACTIVE
-                        if (superState.value == ModifierState.STICKY) superState.value = ModifierState.INACTIVE
-                        if (menuState.value == ModifierState.STICKY) menuState.value = ModifierState.INACTIVE
-                        println("TerminalScreen: Sending extra key bytes: ${bytes.joinToString(",") { String.format("0x%02X", it) }}")
-                        sendToTerminal(bytes)
-                    }
-                },
+                onKeyToggle = { key -> terminalKeyMapper.onExtraKeyToggle(key) },
+                onKeyPress = { key -> terminalKeyMapper.onExtraKeyPress(key) },
             )
         }
     }
