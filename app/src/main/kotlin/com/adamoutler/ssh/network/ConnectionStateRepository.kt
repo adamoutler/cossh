@@ -1,14 +1,11 @@
 package com.adamoutler.ssh.network
 
-import kotlinx.coroutines.flow.MutableSharedFlow
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import net.schmizz.sshj.connection.channel.direct.Session.Shell
-import java.io.OutputStream
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedQueue
 
 sealed interface ConnectionState {
     object Connecting : ConnectionState
@@ -19,79 +16,18 @@ sealed interface ConnectionState {
     data class Error(val message: String) : ConnectionState
 }
 
-data class HostKeyPromptRequest(
-    val hostname: String,
-    // Null if completely new host
-    val expectedFingerprint: String?,
-    val receivedFingerprint: String,
-    // True if MITM warning
-    val isKeyChanged: Boolean,
-    val deferred: kotlinx.coroutines.CompletableDeferred<Boolean>,
-)
-
-data class AuthCredentials(val username: String, val password: CharArray?)
-
-data class AuthPromptRequest(
-    val profileId: String,
-    val requireUsername: Boolean,
-    val isRetry: Boolean, // True if prompt is due to UserAuthException
-    val deferred: kotlinx.coroutines.CompletableDeferred<AuthCredentials?>,
-)
-
-data class ActiveSessionState(
-    val sessionId: String = java.util.UUID.randomUUID().toString(),
-    val profileId: String,
-    var ptyOutputStream: OutputStream? = null,
-    var sshShell: Shell? = null,
-    var firstSshOutputReceived: Boolean = false,
-    val connectedAt: Long = System.currentTimeMillis(),
-    var isUiAttached: Boolean = false,
-    val outputBuffer: ConcurrentLinkedQueue<ByteArray> = ConcurrentLinkedQueue(),
-    val bufferLock: Any = Any(),
-)
-
+/**
+ * Manages high-level connection lifecycle states and active connection counts.
+ * Delegates session byte streams and user interactive prompts to dedicated domain registries
+ * [SessionStreamRegistry] and [UserPromptRegistry] for backwards compatibility.
+ */
 object ConnectionStateRepository {
-    val sessions = ConcurrentHashMap<String, ActiveSessionState>()
-
-    var isHeadlessTest: Boolean = false
-    val mockTestTranscripts = ConcurrentHashMap<String, String>()
-
+    // --- Connection Lifecycle State Management ---
     private val _connectionStates = MutableStateFlow<Map<String, ConnectionState>>(emptyMap())
     val connectionStates: StateFlow<Map<String, ConnectionState>> = _connectionStates.asStateFlow()
 
     private val _activeConnectionCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
     val activeConnectionCounts: StateFlow<Map<String, Int>> = _activeConnectionCounts.asStateFlow()
-
-    private val _sessionOutput = MutableSharedFlow<Pair<String, ByteArray>>(extraBufferCapacity = 1000)
-    val sessionOutput = _sessionOutput.asSharedFlow()
-
-    private val _promptRequest = MutableStateFlow<HostKeyPromptRequest?>(null)
-    val promptRequest = _promptRequest.asStateFlow()
-
-    private val _authPromptRequest = MutableStateFlow<AuthPromptRequest?>(null)
-    val authPromptRequest = _authPromptRequest.asStateFlow()
-
-    suspend fun requestAuthPrompt(profileId: String, requireUsername: Boolean, isRetry: Boolean): AuthCredentials? {
-        val deferred = kotlinx.coroutines.CompletableDeferred<AuthCredentials?>()
-        _authPromptRequest.value = AuthPromptRequest(profileId, requireUsername, isRetry, deferred)
-        return deferred.await()
-    }
-
-    fun resolveAuthPrompt(credentials: AuthCredentials?) {
-        _authPromptRequest.value?.deferred?.complete(credentials)
-        _authPromptRequest.value = null
-    }
-
-    suspend fun requestPrompt(hostname: String, expectedFingerprint: String?, receivedFingerprint: String, isKeyChanged: Boolean): Boolean {
-        val deferred = kotlinx.coroutines.CompletableDeferred<Boolean>()
-        _promptRequest.value = HostKeyPromptRequest(hostname, expectedFingerprint, receivedFingerprint, isKeyChanged, deferred)
-        return deferred.await()
-    }
-
-    fun resolvePrompt(accept: Boolean) {
-        _promptRequest.value?.deferred?.complete(accept)
-        _promptRequest.value = null
-    }
 
     fun updateConnectionState(profileId: String, state: ConnectionState) {
         val newMap = _connectionStates.value.toMutableMap()
@@ -103,11 +39,6 @@ object ConnectionStateRepository {
         val newMap = _connectionStates.value.toMutableMap()
         newMap.remove(profileId)
         _connectionStates.value = newMap
-    }
-
-    @androidx.annotation.VisibleForTesting
-    fun setPromptRequestForTest(request: HostKeyPromptRequest?) {
-        _promptRequest.value = request
     }
 
     fun addConnection(profileId: String) {
@@ -134,69 +65,62 @@ object ConnectionStateRepository {
         _activeConnectionCounts.value = emptyMap()
     }
 
-    fun getOrCreateSession(profileId: String, sessionId: String? = null): ActiveSessionState {
-        if (sessionId != null) {
-            sessions[sessionId]?.let { return it }
-        }
-        val newSessionId = sessionId ?: java.util.UUID.randomUUID().toString()
-        val session = ActiveSessionState(sessionId = newSessionId, profileId = profileId)
-        sessions[newSessionId] = session
-        return session
-    }
+    // --- Delegations to UserPromptRegistry (Backwards Compatibility) ---
+    val promptRequest: StateFlow<HostKeyPromptRequest?>
+        get() = UserPromptRegistry.promptRequest
 
-    fun clearSession(sessionId: String) {
-        val session = sessions.remove(sessionId)
-        session?.let { s ->
-            synchronized(s.bufferLock) {
-                while (true) {
-                    val bytes = s.outputBuffer.poll() ?: break
-                    bytes.fill(0)
-                }
-            }
-        }
-        if (!isHeadlessTest) {
-            mockTestTranscripts.remove(sessionId)
-        }
-    }
+    val authPromptRequest: StateFlow<AuthPromptRequest?>
+        get() = UserPromptRegistry.authPromptRequest
 
-    suspend fun emitOutput(sessionId: String, data: ByteArray) {
-        val session = sessions[sessionId]
-        if (session != null) {
-            var emitToFlow = false
-            synchronized(session.bufferLock) {
-                if (!session.isUiAttached) {
-                    session.outputBuffer.add(data)
-                } else {
-                    emitToFlow = true
-                }
-            }
-            if (emitToFlow) {
-                _sessionOutput.emit(Pair(sessionId, data))
-            }
-        } else {
-            _sessionOutput.emit(Pair(sessionId, data))
-        }
-    }
+    suspend fun requestAuthPrompt(profileId: String, requireUsername: Boolean, isRetry: Boolean): AuthCredentials? =
+        UserPromptRegistry.requestAuthPrompt(profileId, requireUsername, isRetry)
 
-    fun attachUiAndGetBuffer(sessionId: String): List<ByteArray> {
-        val session = sessions[sessionId] ?: return emptyList()
-        val buffer = mutableListOf<ByteArray>()
-        synchronized(session.bufferLock) {
-            session.isUiAttached = true
-            while (true) {
-                val bytes = session.outputBuffer.poll() ?: break
-                buffer.add(bytes)
-            }
-        }
-        return buffer
-    }
+    fun resolveAuthPrompt(credentials: AuthCredentials?) =
+        UserPromptRegistry.resolveAuthPrompt(credentials)
 
-    fun detachUi(sessionId: String) {
-        val session = sessions[sessionId]
-        if (session != null) {
-            synchronized(session.bufferLock) {
-                session.isUiAttached = false
-            }
+    suspend fun requestPrompt(
+        hostname: String,
+        expectedFingerprint: String?,
+        receivedFingerprint: String,
+        isKeyChanged: Boolean,
+    ): Boolean =
+        UserPromptRegistry.requestPrompt(hostname, expectedFingerprint, receivedFingerprint, isKeyChanged)
+
+    fun resolvePrompt(accept: Boolean) =
+        UserPromptRegistry.resolvePrompt(accept)
+
+    @VisibleForTesting
+    fun setPromptRequestForTest(request: HostKeyPromptRequest?) =
+        UserPromptRegistry.setPromptRequestForTest(request)
+
+    // --- Delegations to SessionStreamRegistry (Backwards Compatibility) ---
+    val sessions: ConcurrentHashMap<String, ActiveSessionState>
+        get() = SessionStreamRegistry.sessions
+
+    var isHeadlessTest: Boolean
+        get() = SessionStreamRegistry.isHeadlessTest
+        set(value) {
+            SessionStreamRegistry.isHeadlessTest = value
         }
-    }
+
+    val mockTestTranscripts: ConcurrentHashMap<String, String>
+        get() = SessionStreamRegistry.mockTestTranscripts
+
+    val sessionOutput: SharedFlow<Pair<String, ByteArray>>
+        get() = SessionStreamRegistry.sessionOutput
+
+    fun getOrCreateSession(profileId: String, sessionId: String? = null): ActiveSessionState =
+        SessionStreamRegistry.getOrCreateSession(profileId, sessionId)
+
+    fun clearSession(sessionId: String) =
+        SessionStreamRegistry.clearSession(sessionId)
+
+    suspend fun emitOutput(sessionId: String, data: ByteArray) =
+        SessionStreamRegistry.emitOutput(sessionId, data)
+
+    fun attachUiAndGetBuffer(sessionId: String): List<ByteArray> =
+        SessionStreamRegistry.attachUiAndGetBuffer(sessionId)
+
+    fun detachUi(sessionId: String) =
+        SessionStreamRegistry.detachUi(sessionId)
 }
