@@ -113,7 +113,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            buildConfigField("boolean", "ENABLE_CLOUD_SYNC", "true")
+            buildConfigField("boolean", "ENABLE_CLOUD_SYNC", "false")
             ndk {
                 debugSymbolLevel = "FULL"
             }
