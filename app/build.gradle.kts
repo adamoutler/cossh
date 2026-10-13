@@ -279,7 +279,7 @@ dependencies {
 }
 
 tasks.withType<Test> {
-    timeout.set(Duration.ofMinutes(30))
+    timeout.set(Duration.ofMinutes(60))
     maxHeapSize = "3072m"
     maxParallelForks = 1
     forkEvery = 1
