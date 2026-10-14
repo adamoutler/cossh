@@ -30,10 +30,14 @@ jobs:
         run: chmod +x gradlew
         
       - name: Build Debug
-        run: ./gradlew assembleDebug
+        run: |
+          set -o pipefail
+          ./gradlew assembleDebug --console=plain 2>&1 | tee -a /tmp/build-test.log
         
       - name: Run Lint
-        run: ./gradlew lint
+        run: |
+          set -o pipefail
+          ./gradlew lint --console=plain 2>&1 | tee -a /tmp/build-test.log
         
       - name: Run MobSF Static Analysis
         continue-on-error: true
@@ -42,18 +46,19 @@ jobs:
           
       - name: Build Release (ProGuard Check)
         run: |
+          set -o pipefail
           mkdir -p ~/.android
           keytool -genkey -v -keystore ~/.android/release.keystore -alias cossh_release -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=test"
           export KEYSTORE_FILE=~/.android/release.keystore
           export KEYSTORE_PASSWORD=android
           export KEY_ALIAS=cossh_release
           export KEY_PASSWORD=android
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease --console=plain 2>&1 | tee -a /tmp/build-test.log
           
       - name: Run Tests and Coverage
         run: |
           set -o pipefail
-          ./gradlew testDebugUnitTest jacocoTestReport --console=plain 2>&1 | tee /tmp/build-test.log
+          ./gradlew testDebugUnitTest jacocoTestReport --console=plain 2>&1 | tee -a /tmp/build-test.log
 
       - name: Upload Test Reports
         if: always()
@@ -64,6 +69,7 @@ jobs:
           path: |
             app/build/reports/tests/testDebugUnitTest/
             app/build/test-results/testDebugUnitTest/
+            app/build/reports/lint-results-debug.xml
         
       - name: Upload Jacoco Report
         if: always()

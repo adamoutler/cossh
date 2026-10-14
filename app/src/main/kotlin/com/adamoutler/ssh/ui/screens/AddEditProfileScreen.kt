@@ -791,8 +791,8 @@ fun AddEditProfileScreenContent(
 fun CommandSnippetsSection(
     commandSnippets: List<com.adamoutler.ssh.data.CommandSnippet>,
     onCommandSnippetsChange: (List<com.adamoutler.ssh.data.CommandSnippet>) -> Unit,
-    defaultShowAddSnippetDialog: Boolean = false,
     modifier: Modifier = Modifier,
+    defaultShowAddSnippetDialog: Boolean = false,
 ) {
     Column(modifier = modifier) {
         SectionHeaderWithInfo(title = "Command Snippets", topic = "Command Snippets")
