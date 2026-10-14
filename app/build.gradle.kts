@@ -150,7 +150,7 @@ android {
                 if (name.contains("Release")) {
                     it.exclude("**/TerminalExtraKeysUITest.class")
                 }
-                it.maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+                it.maxParallelForks = 1
                 if (!project.hasProperty("fullTestRun")) {
                     it.useJUnit {
                         excludeCategories("com.adamoutler.ssh.annotations.FullTest")
@@ -282,7 +282,7 @@ tasks.withType<Test> {
     timeout.set(Duration.ofMinutes(60))
     maxHeapSize = "3072m"
     maxParallelForks = 1
-    forkEvery = 1
+    forkEvery = 25
     systemProperty("java.security.egd", "file:/dev/./urandom")
     testLogging {
         events("passed", "skipped", "failed")

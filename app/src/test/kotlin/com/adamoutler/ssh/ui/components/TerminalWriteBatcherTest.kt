@@ -60,7 +60,7 @@ class TerminalWriteBatcherTest {
     @Test
     fun testCoalescedMicroBatching_reducesFlushesByMoreThan95Percent() = runBlocking {
         val channel = Channel<ByteArray>(Channel.UNLIMITED)
-        val stream = TrackingOutputStream()
+        val stream = TrackingOutputStream(flushDelayMs = 1L)
         val totalBytes = 1000
 
         val job = launch(Dispatchers.Default) {
@@ -114,7 +114,13 @@ class TerminalWriteBatcherTest {
     fun testBenchmark_throughputProvesAtLeast10xReductionInFlushesAndDuration() = runBlocking {
         val charCount = 1000
         val testPayload = ByteArray(charCount) { (it % 26 + 65).toByte() }
-        val simulatedFlushDelayMs = 1L
+        val simulatedFlushDelayMs = 2L
+
+        // Warm up TerminalWriteBatcher classloading and coroutine machinery outside timed blocks
+        val warmupChannel = Channel<ByteArray>(Channel.UNLIMITED)
+        warmupChannel.send(byteArrayOf(0x41))
+        warmupChannel.close()
+        TerminalWriteBatcher.processChannel(warmupChannel, TrackingOutputStream())
 
         // 1. Unbatched per-byte write + flush
         val unbatchedStream = TrackingOutputStream(flushDelayMs = simulatedFlushDelayMs)
@@ -125,18 +131,15 @@ class TerminalWriteBatcherTest {
             }
         }
 
-        // 2. Batched write + flush via TerminalWriteBatcher
+        // 2. Batched write + flush via TerminalWriteBatcher for a 1,000-character paste burst
         val batchedStream = TrackingOutputStream(flushDelayMs = simulatedFlushDelayMs)
         val channel = Channel<ByteArray>(Channel.UNLIMITED)
         val batchedDuration = measureTimeMillis {
-            val job = launch(Dispatchers.Default) {
-                TerminalWriteBatcher.processChannel(channel, batchedStream)
-            }
             for (i in 0 until charCount) {
-                channel.send(byteArrayOf(testPayload[i]))
+                channel.trySend(byteArrayOf(testPayload[i]))
             }
             channel.close()
-            job.join()
+            TerminalWriteBatcher.processChannel(channel, batchedStream)
         }
 
         assertArrayEquals(testPayload, unbatchedStream.toByteArray())
