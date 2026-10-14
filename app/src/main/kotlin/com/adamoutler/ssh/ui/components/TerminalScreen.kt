@@ -338,19 +338,10 @@ fun TerminalScreenContent(
 
     androidx.compose.runtime.LaunchedEffect(activeSession) {
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            for (bytes in writeChannel) {
-                try {
-                    val pty = activeSession.ptyOutputStream
-                    if (pty != null) {
-                        synchronized(pty) {
-                            pty.write(bytes)
-                            pty.flush()
-                        }
-                    }
-                } catch (ex: Exception) {
-                    println(("TerminalScreen").toString() + ": " + ("Failed to write to SSH PTY").toString() + " " + (ex).toString())
-                }
-            }
+            TerminalWriteBatcher.processChannel(
+                channel = writeChannel,
+                getOutputStream = { activeSession.ptyOutputStream },
+            )
         }
     }
 
