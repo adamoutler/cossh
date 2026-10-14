@@ -25,7 +25,6 @@ class TerminalKeyMapper(
 
         // Prevent bleed-through key events from previous screens (like hitting Enter to connect)
         if (isBleedThroughEvent(e, getConnectionStartTime())) {
-            println("TerminalScreen: Ignoring bleed-through key event: keyCode=$keyCode")
             return true // Consume it so it doesn't propagate
         }
 
@@ -44,7 +43,6 @@ class TerminalKeyMapper(
         if (bytesToSend != null) {
             consumeStickyModifiers()
             sendToTerminal(bytesToSend)
-            println("TerminalScreen: Wrote ${bytesToSend.size} bytes (key: $keyCode) to SSH PTY stdin")
         }
         return true
     }
@@ -62,7 +60,6 @@ class TerminalKeyMapper(
     fun onCodePoint(codePoint: Int, ctrlDown: Boolean = false): Boolean {
         val connStart = getConnectionStartTime()
         if (connStart > 0L && android.os.SystemClock.uptimeMillis() < connStart + 500) {
-            println("TerminalScreen: Ignoring bleed-through codePoint: $codePoint")
             return true // Consume it so it doesn't propagate
         }
         try {
@@ -73,9 +70,8 @@ class TerminalKeyMapper(
             if (getSuperState() == ModifierState.STICKY) setSuperState(ModifierState.INACTIVE)
             if (getMenuState() == ModifierState.STICKY) setMenuState(ModifierState.INACTIVE)
             sendToTerminal(bytes)
-            println("TerminalScreen: Wrote ${bytes.size} bytes (codePoint) to SSH PTY stdin")
-        } catch (ex: Exception) {
-            println("TerminalScreen: Failed to write codePoint to SSH PTY $ex")
+        } catch (_: Exception) {
+            // Ignored on hot path
         }
         return true
     }
@@ -93,7 +89,6 @@ class TerminalKeyMapper(
         val bytes = mapExtraKey(key)
         if (bytes != null) {
             consumeStickyModifiers()
-            println("TerminalScreen: Sending extra key bytes: ${bytes.joinToString(",") { String.format("0x%02X", it) }}")
             sendToTerminal(bytes)
         }
     }
@@ -112,7 +107,6 @@ class TerminalKeyMapper(
 
     fun sendToTerminal(bytes: ByteArray) {
         if (isInputLocked()) {
-            println("TerminalScreen: Input locked: session disconnected.")
             return
         }
         val finalBytes = processBytesWithAlt(bytes)
