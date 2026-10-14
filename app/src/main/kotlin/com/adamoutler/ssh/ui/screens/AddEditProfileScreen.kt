@@ -778,136 +778,152 @@ fun AddEditProfileScreenContent(
             HorizontalDivider()
             Spacer(modifier = Modifier.height(16.dp))
 
-            SectionHeaderWithInfo(title = "Command Snippets", topic = "Command Snippets")
-            Spacer(modifier = Modifier.height(8.dp))
+            CommandSnippetsSection(
+                commandSnippets = commandSnippets,
+                onCommandSnippetsChange = onCommandSnippetsChange,
+                defaultShowAddSnippetDialog = defaultShowAddSnippetDialog,
+            )
+        }
+    }
+}
 
-            commandSnippets.forEach { snippet ->
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+@Composable
+fun CommandSnippetsSection(
+    commandSnippets: List<com.adamoutler.ssh.data.CommandSnippet>,
+    onCommandSnippetsChange: (List<com.adamoutler.ssh.data.CommandSnippet>) -> Unit,
+    defaultShowAddSnippetDialog: Boolean = false,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        SectionHeaderWithInfo(title = "Command Snippets", topic = "Command Snippets")
+        Spacer(modifier = Modifier.height(8.dp))
+
+        commandSnippets.forEach { snippet ->
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            ) {
+                Row(
+                    modifier = Modifier.padding(8.dp).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(
-                        modifier = Modifier.padding(8.dp).fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = snippet.name,
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                            Text(
-                                text = snippet.command,
-                                style = MaterialTheme.typography.bodySmall,
-                                maxLines = 2,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                            )
-                            Row(modifier = Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                if (snippet.autoSend) {
-                                    Badge(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer) {
-                                        Text("Auto-Send", modifier = Modifier.padding(horizontal = 4.dp))
-                                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = snippet.name,
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Text(
+                            text = snippet.command,
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 2,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                        )
+                        Row(modifier = Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            if (snippet.autoSend) {
+                                Badge(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer) {
+                                    Text("Auto-Send", modifier = Modifier.padding(horizontal = 4.dp))
                                 }
-                                if (snippet.requireAuth) {
-                                    Badge(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer) {
-                                        Text("Confirmation Required", modifier = Modifier.padding(horizontal = 4.dp))
-                                    }
+                            }
+                            if (snippet.requireAuth) {
+                                Badge(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer) {
+                                    Text("Confirmation Required", modifier = Modifier.padding(horizontal = 4.dp))
                                 }
                             }
                         }
-                        IconButton(onClick = {
-                            val newList = commandSnippets.toMutableList()
-                            newList.remove(snippet)
-                            onCommandSnippetsChange(newList)
-                        }) {
-                            Icon(Icons.Filled.Delete, contentDescription = "Delete Snippet")
-                        }
+                    }
+                    IconButton(onClick = {
+                        val newList = commandSnippets.toMutableList()
+                        newList.remove(snippet)
+                        onCommandSnippetsChange(newList)
+                    }) {
+                        Icon(Icons.Filled.Delete, contentDescription = "Delete Snippet")
                     }
                 }
             }
+        }
 
-            var showAddSnippetDialog by remember { mutableStateOf(defaultShowAddSnippetDialog) }
+        var showAddSnippetDialog by remember { mutableStateOf(defaultShowAddSnippetDialog) }
 
-            if (showAddSnippetDialog) {
-                var snippetName by remember { mutableStateOf("") }
-                var snippetCommand by remember { mutableStateOf("") }
-                var autoSend by remember { mutableStateOf(false) }
-                var requireAuth by remember { mutableStateOf(false) }
+        if (showAddSnippetDialog) {
+            var snippetName by remember { mutableStateOf("") }
+            var snippetCommand by remember { mutableStateOf("") }
+            var autoSend by remember { mutableStateOf(false) }
+            var requireAuth by remember { mutableStateOf(false) }
 
-                AlertDialog(
-                    onDismissRequest = { showAddSnippetDialog = false },
-                    title = { Text("Add Command Snippet") },
-                    text = {
-                        Column {
-                            OutlinedTextField(
-                                value = snippetName,
-                                onValueChange = { snippetName = it },
-                                label = { Text("Name") },
-                                placeholder = { Text("e.g., Restart Nginx") },
-                                singleLine = true,
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            OutlinedTextField(
-                                value = snippetCommand,
-                                onValueChange = { snippetCommand = it },
-                                label = { Text("Command") },
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp, max = 200.dp),
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text("Execute Immediately", style = MaterialTheme.typography.bodyMedium)
-                                    Text("Appends Enter key automatically", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                                androidx.compose.material3.Switch(checked = autoSend, onCheckedChange = { autoSend = it })
+            AlertDialog(
+                onDismissRequest = { showAddSnippetDialog = false },
+                title = { Text("Add Command Snippet") },
+                text = {
+                    Column {
+                        OutlinedTextField(
+                            value = snippetName,
+                            onValueChange = { snippetName = it },
+                            label = { Text("Name") },
+                            placeholder = { Text("e.g., Restart Nginx") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = snippetCommand,
+                            onValueChange = { snippetCommand = it },
+                            label = { Text("Command") },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp, max = 200.dp),
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Execute Immediately", style = MaterialTheme.typography.bodyMedium)
+                                Text("Appends Enter key automatically", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text("Require Confirmation", style = MaterialTheme.typography.bodyMedium)
-                                    Text("Requires confirmation dialog before injecting", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                                androidx.compose.material3.Switch(checked = requireAuth, onCheckedChange = { requireAuth = it })
+                            androidx.compose.material3.Switch(checked = autoSend, onCheckedChange = { autoSend = it })
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Require Confirmation", style = MaterialTheme.typography.bodyMedium)
+                                Text("Requires confirmation dialog before injecting", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
+                            androidx.compose.material3.Switch(checked = requireAuth, onCheckedChange = { requireAuth = it })
                         }
-                    },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            if (snippetName.isNotBlank() && snippetCommand.isNotBlank()) {
-                                val newList = commandSnippets.toMutableList()
-                                newList.add(com.adamoutler.ssh.data.CommandSnippet(java.util.UUID.randomUUID().toString(), snippetName, snippetCommand, autoSend, requireAuth))
-                                onCommandSnippetsChange(newList)
-                                showAddSnippetDialog = false
-                            }
-                        }) {
-                            Text("Add")
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        if (snippetName.isNotBlank() && snippetCommand.isNotBlank()) {
+                            val newList = commandSnippets.toMutableList()
+                            newList.add(com.adamoutler.ssh.data.CommandSnippet(java.util.UUID.randomUUID().toString(), snippetName, snippetCommand, autoSend, requireAuth))
+                            onCommandSnippetsChange(newList)
+                            showAddSnippetDialog = false
                         }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showAddSnippetDialog = false }) {
-                            Text("Cancel")
-                        }
-                    },
-                )
-            }
+                    }) {
+                        Text("Add")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showAddSnippetDialog = false }) {
+                        Text("Cancel")
+                    }
+                },
+            )
+        }
 
-            Button(
-                onClick = { showAddSnippetDialog = true },
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add Snippet")
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Add Snippet")
-            }
+        Button(
+            onClick = { showAddSnippetDialog = true },
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        ) {
+            Icon(Icons.Filled.Add, contentDescription = "Add Snippet")
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Add Snippet")
         }
     }
 }

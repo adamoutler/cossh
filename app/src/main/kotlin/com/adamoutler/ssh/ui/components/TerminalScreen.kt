@@ -693,7 +693,17 @@ fun TerminalScreenContent(
                             labelColor = MaterialTheme.colorScheme.primary,
                         ),
                         modifier = Modifier.semantics {
-                            contentDescription = "Inject snippet: ${snippet.name}. ${if (snippet.autoSend) "Executes immediately." else "Requires confirmation."}"
+                            val executionInfo = buildString {
+                                if (snippet.requireAuth) {
+                                    append("Requires confirmation. ")
+                                }
+                                if (snippet.autoSend) {
+                                    append("Executes immediately.")
+                                } else {
+                                    append("Inserts into buffer without executing.")
+                                }
+                            }
+                            contentDescription = "Inject snippet: ${snippet.name}. $executionInfo"
                         },
                     )
                 }

@@ -1,9 +1,12 @@
 package com.adamoutler.ssh.ui.screens
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.adamoutler.ssh.data.AuthType
@@ -359,55 +362,16 @@ class AddEditProfileScreenScreenshotTest {
         paparazzi.snapshot {
             CoSSHTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    AddEditProfileScreenContent(
-                        profileId = null,
-                        nickname = "Snippet Server",
-                        onNicknameChange = {},
-                        host = "server.local",
-                        onHostChange = {},
-                        port = "22",
-                        onPortChange = {},
-                        protocol = com.adamoutler.ssh.data.Protocol.SSH,
-                        onProtocolChange = {},
-                        username = "admin",
-                        onUsernameChange = {},
-                        password = "",
-                        onPasswordChange = {},
-                        isPasswordLocked = false,
-                        onPasswordLockedChange = {},
-                        authType = AuthType.PASSWORD,
-                        onAuthTypeChange = {},
-                        availableKeys = emptyList(),
-                        keyReference = "",
-                        onKeyReferenceChange = {},
-                        identities = emptyList(),
-                        identityId = null,
-                        onIdentityChange = {},
-                        onManageIdentities = {},
-                        envVarsText = "",
-                        onEnvVarsTextChange = {},
-                        portForwards = emptyList(),
-                        onPortForwardsChange = {},
+                    CommandSnippetsSection(
                         commandSnippets = listOf(
                             com.adamoutler.ssh.data.CommandSnippet("1", "Restart Nginx", "systemctl restart nginx", true, true),
                             com.adamoutler.ssh.data.CommandSnippet("2", "Tail Logs", "tail -f /var/log/syslog", false, false),
                         ),
                         onCommandSnippetsChange = {},
-                        initialDirectory = "",
-                        onInitialDirectoryChange = {},
-                        terminalInputState = 0,
-                        onTerminalInputStateChange = {},
-                        keepScreenOnMode = com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT,
-                        onKeepScreenOnModeChange = {},
-                        useLocalDns = false,
-                        onUseLocalDnsChange = {},
-                        onSave = {},
-                        onNavigateBack = {},
-                        defaultPortForwardType = com.adamoutler.ssh.data.PortForwardType.LOCAL,
-                        scrollState = androidx.compose.foundation.ScrollState(initial = Int.MAX_VALUE),
+                        defaultShowAddSnippetDialog = false,
                     )
                 }
             }
@@ -422,47 +386,9 @@ class AddEditProfileScreenScreenshotTest {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    AddEditProfileScreenContent(
-                        profileId = null,
-                        nickname = "Snippet Server",
-                        onNicknameChange = {},
-                        host = "server.local",
-                        onHostChange = {},
-                        port = "22",
-                        onPortChange = {},
-                        protocol = com.adamoutler.ssh.data.Protocol.SSH,
-                        onProtocolChange = {},
-                        username = "admin",
-                        onUsernameChange = {},
-                        password = "",
-                        onPasswordChange = {},
-                        isPasswordLocked = false,
-                        onPasswordLockedChange = {},
-                        authType = AuthType.PASSWORD,
-                        onAuthTypeChange = {},
-                        availableKeys = emptyList(),
-                        keyReference = "",
-                        onKeyReferenceChange = {},
-                        identities = emptyList(),
-                        identityId = null,
-                        onIdentityChange = {},
-                        onManageIdentities = {},
-                        envVarsText = "",
-                        onEnvVarsTextChange = {},
-                        portForwards = emptyList(),
-                        onPortForwardsChange = {},
+                    CommandSnippetsSection(
                         commandSnippets = emptyList(),
                         onCommandSnippetsChange = {},
-                        initialDirectory = "",
-                        onInitialDirectoryChange = {},
-                        terminalInputState = 0,
-                        onTerminalInputStateChange = {},
-                        keepScreenOnMode = com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT,
-                        onKeepScreenOnModeChange = {},
-                        useLocalDns = false,
-                        onUseLocalDnsChange = {},
-                        onSave = {},
-                        onNavigateBack = {},
                         defaultShowAddSnippetDialog = true,
                     )
                 }
