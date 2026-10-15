@@ -2,6 +2,7 @@ package com.adamoutler.ssh.ui.screens.identity
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -185,7 +187,7 @@ fun AddEditIdentityScreenContent(
                     onValueChange = onPasswordChange,
                     label = { Text("Password (optional)") },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(autoCorrect = false, keyboardType = androidx.compose.ui.text.input.KeyboardType.Password),
+                    keyboardOptions = KeyboardOptions(autoCorrect = false, keyboardType = KeyboardType.Password),
                     trailingIcon = {
                         IconButton(onClick = { onPasswordVisibleChange(!passwordVisible) }) {
                             Icon(
@@ -242,6 +244,7 @@ fun AddEditIdentityScreenContent(
                     label = { Text("Paste Private Key (PEM format)") },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 5,
+                    keyboardOptions = KeyboardOptions(autoCorrect = false, keyboardType = KeyboardType.Password),
                 )
             }
 
