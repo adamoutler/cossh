@@ -17,8 +17,20 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.OutputStream
+import java.lang.reflect.Proxy
+import net.schmizz.sshj.connection.channel.direct.Session.Shell
 
 class SessionStreamRegistryTest {
+
+    private class CloseTrackingOutputStream : ByteArrayOutputStream() {
+        var isClosed = false
+        override fun close() {
+            super.close()
+            isClosed = true
+        }
+    }
 
     @Before
     fun setUp() {
@@ -141,17 +153,48 @@ class SessionStreamRegistryTest {
     fun testClearSession_sanitizesBufferAndRemovesSession() {
         val sessionId = "session-clear-test"
         val session = SessionStreamRegistry.getOrCreateSession(profileId = "profile-1", sessionId = sessionId)
-        val sensitiveData = byteArrayOf(1, 2, 3, 4, 5)
-        session.outputBuffer.add(sensitiveData)
+        val sensitiveData1 = byteArrayOf(1, 2, 3, 4, 5)
+        val sensitiveData2 = byteArrayOf(6, 7, 8, 9, 10)
+        session.outputBuffer.add(sensitiveData1)
+        session.outputBuffer.add(sensitiveData2)
+        val trackingOutputStream = CloseTrackingOutputStream()
+        session.ptyOutputStream = trackingOutputStream
+        val mockShell = Proxy.newProxyInstance(
+            Shell::class.java.classLoader,
+            arrayOf(Shell::class.java),
+        ) { _, _, _ -> null } as Shell
+        session.sshShell = mockShell
         SessionStreamRegistry.mockTestTranscripts[sessionId] = "mock transcript"
 
         SessionStreamRegistry.clearSession(sessionId)
 
         assertNull(SessionStreamRegistry.sessions[sessionId])
         // Sensitive bytes in memory must be wiped with zeros
-        assertArrayEquals(byteArrayOf(0, 0, 0, 0, 0), sensitiveData)
+        assertArrayEquals(byteArrayOf(0, 0, 0, 0, 0), sensitiveData1)
+        assertArrayEquals(byteArrayOf(0, 0, 0, 0, 0), sensitiveData2)
+        // Stream must be closed and references nulled out
+        assertTrue(trackingOutputStream.isClosed)
+        assertNull(session.ptyOutputStream)
+        assertNull(session.sshShell)
+        // Queue must be empty
+        assertTrue(session.outputBuffer.isEmpty())
         // Transcripts removed in non-headless test mode
         assertNull(SessionStreamRegistry.mockTestTranscripts[sessionId])
+    }
+
+    @Test
+    fun testActiveSessionState_sanitize_handlesStreamCloseException() {
+        val session = ActiveSessionState(profileId = "profile-err")
+        val throwingStream = object : OutputStream() {
+            override fun write(b: Int) {}
+            override fun close() {
+                throw IOException("Stream close error")
+            }
+        }
+        session.ptyOutputStream = throwingStream
+        session.sanitize()
+        assertNull(session.ptyOutputStream)
+        assertNull(session.sshShell)
     }
 
     @Test

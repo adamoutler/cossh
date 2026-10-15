@@ -22,7 +22,22 @@ data class ActiveSessionState(
     var isUiAttached: Boolean = false,
     val outputBuffer: ConcurrentLinkedQueue<ByteArray> = ConcurrentLinkedQueue(),
     val bufferLock: Any = Any(),
-)
+) {
+    fun sanitize() {
+        synchronized(bufferLock) {
+            while (true) {
+                val bytes = outputBuffer.poll() ?: break
+                bytes.fill(0)
+            }
+        }
+        try {
+            ptyOutputStream?.close()
+        } catch (_: Exception) {
+        }
+        ptyOutputStream = null
+        sshShell = null
+    }
+}
 
 /**
  * Manages active SSH session streams, PTY output streams, shell channels,
@@ -49,14 +64,7 @@ object SessionStreamRegistry {
 
     fun clearSession(sessionId: String) {
         val session = sessions.remove(sessionId)
-        session?.let { s ->
-            synchronized(s.bufferLock) {
-                while (true) {
-                    val bytes = s.outputBuffer.poll() ?: break
-                    bytes.fill(0)
-                }
-            }
-        }
+        session?.sanitize()
         if (!isHeadlessTest) {
             mockTestTranscripts.remove(sessionId)
         }
