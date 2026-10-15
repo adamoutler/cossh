@@ -3,6 +3,7 @@ package com.adamoutler.ssh.ui.components
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,6 +38,8 @@ fun SecurePasswordEditText(
                 EditText(ctx).apply {
                     this.hint = hint
                     inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                    imeOptions = imeOptions or EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING
+                    privateImeOptions = "incognito"
                     addTextChangedListener(object : TextWatcher {
                         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                             // No-op: Only reacting to afterTextChanged
@@ -64,6 +67,8 @@ fun SecurePasswordEditText(
                 } else {
                     InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                 }
+                editText.imeOptions = editText.imeOptions or EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING
+                editText.privateImeOptions = "incognito"
                 editText.setSelection(if (selectionStart >= 0) selectionStart else 0, if (selectionEnd >= 0) selectionEnd else 0)
             },
             modifier = Modifier.weight(1f),
