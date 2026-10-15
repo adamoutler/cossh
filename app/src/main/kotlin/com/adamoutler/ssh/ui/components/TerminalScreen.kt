@@ -37,6 +37,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.adamoutler.ssh.ui.screens.TerminalViewModel
@@ -121,6 +122,7 @@ fun TerminalScreen(
             com.adamoutler.ssh.crypto.SecurityStorageManager(context).getProfile(profileId)
         },
         modifier = modifier,
+        terminalViewModel = terminalViewModel,
     )
 }
 
@@ -142,10 +144,17 @@ fun TerminalScreenContent(
     isTerminated: Boolean = false,
     profile: com.adamoutler.ssh.data.ConnectionProfile? = null,
     initialTerminalInputState: Int = 0,
+    terminalViewModel: TerminalViewModel? = null,
 ) {
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
     val density = androidx.compose.ui.platform.LocalDensity.current
     var lastDataTime by remember { androidx.compose.runtime.mutableLongStateOf(System.currentTimeMillis()) }
+
+    androidx.compose.runtime.LaunchedEffect(terminalViewModel, terminalViewRef) {
+        terminalViewModel?.bellEvents?.collect {
+            terminalViewRef?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+    }
 
     androidx.compose.runtime.LaunchedEffect(sessionId) {
         val processBytes = { bytes: ByteArray ->
@@ -386,6 +395,7 @@ fun TerminalScreenContent(
                         text = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: "Welcome to CoSSH Terminal",
                         color = Color.Green,
                         fontFamily = FontFamily.Monospace,
+                        fontSize = currentFontSize.sp,
                     )
                 }
             } else {
@@ -412,7 +422,7 @@ fun TerminalScreenContent(
                     factory = { ctx ->
                         val terminalView = TerminalView(ctx, null)
                         terminalView.setBackgroundColor(android.graphics.Color.BLACK)
-                        terminalView.setTextSize(currentFontSize)
+                        terminalView.setTextSize((currentFontSize * density.density * density.fontScale).toInt())
                         terminalView.layoutParams = FrameLayout.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -421,7 +431,11 @@ fun TerminalScreenContent(
                         terminalView.isFocusableInTouchMode = true
 
                         terminalView.setTerminalViewClient(object : com.termux.view.TerminalViewClient {
-                            override fun onScale(scale: Float): Float = scale
+                            override fun onScale(scale: Float): Float = TerminalScaleHandler.onScale(
+                                scale = scale,
+                                currentFontSize = currentFontSizeState.value,
+                                onUpdateFontSize = onUpdateFontSizeState.value,
+                            )
 
                             override fun onSingleTapUp(e: android.view.MotionEvent?) {
                                 showOverlayButtons = true
@@ -466,10 +480,10 @@ fun TerminalScreenContent(
                             override fun copyModeChanged(b: Boolean) {}
 
                             override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, s: TerminalSession?): Boolean = terminalKeyMapper.onKeyDown(keyCode, e)
-                            override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean = terminalKeyMapper.onKeyUp(keyCode)
+                            override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean = terminalKeyMapper.onKeyUp(keyCode, e)
                             override fun readControlKey(): Boolean = terminalKeyMapper.readControlKey()
                             override fun readAltKey(): Boolean = terminalKeyMapper.readAltKey()
-                            override fun readShiftKey(): Boolean = false
+                            override fun readShiftKey(): Boolean = terminalKeyMapper.readShiftKey()
                             override fun readFnKey(): Boolean = false
                             override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, s: TerminalSession?): Boolean = terminalKeyMapper.onCodePoint(codePoint, ctrlDown)
                             override fun onLongPress(e: android.view.MotionEvent?): Boolean = false
