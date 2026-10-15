@@ -133,7 +133,7 @@ class SshConnectionManager(
     }
 
     suspend fun connectAndExecute(profile: ConnectionProfile, command: String, keyPair: KeyPair? = null): String = withContext(Dispatchers.IO) {
-        val sshClient = SSHClient(net.schmizz.sshj.AndroidConfig())
+        val sshClient = SSHClient(SecureSshConfig())
         val handshakeCoordinator = SshHandshakeCoordinator(hostKeyVerifier, identityStorageManager, context)
 
         try {

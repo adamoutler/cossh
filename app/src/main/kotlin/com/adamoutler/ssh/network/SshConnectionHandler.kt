@@ -26,7 +26,7 @@ class SshConnectionHandler(
         onOutput: suspend (ByteArray, Int) -> Unit,
         onConnect: (OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit,
     ) = withContext(Dispatchers.IO) {
-        val sshClient = SSHClient(net.schmizz.sshj.AndroidConfig())
+        val sshClient = SSHClient(SecureSshConfig())
         client = sshClient
         val handshakeCoordinator = SshHandshakeCoordinator(hostKeyVerifier, identityStorageManager, context)
 
