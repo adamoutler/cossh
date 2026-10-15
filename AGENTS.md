@@ -47,6 +47,7 @@
 ### 6. Professionalism & QA Interactions
 - **Maintain Composure:** Keep all ticket comments strictly professional.
 - **No Impersonation:** Do not attempt to declare `READY` yourself. The QA gate evaluates factual evidence.
+- **Pure Inference Boundary for `reality-checker`:** `reality-checker` runs NO commands and generates NO screenshots. All test executions, command outputs, and screenshot artifacts (`docs/qa/*.png`) must be produced by engineering or `evidence-collector` agents and committed to the repo beforehand. `reality-checker` is strictly inference and file/image reading (`view_file`) to verify whether the repository state matches the ticket.
 - **Facilitate Verification:** Explicitly cite the exact locations of proof in your ticket comments (e.g., `docs/qa/my-file.png` or `docs/qa/SSH-22.md`).
 - **Syntax Rule:** The subagent `reality-checker` SHALL NOT be prefixed by an `@` symbol. Always refer to it simply as `reality-checker`.
 - **Verdict Formatting Rule:** In `reality-checker` reports, the status token after `**Production Readiness**:` and `**Status**:` must be plain unbolded text (`**Production Readiness**: READY` and `**Status**: READY`), never wrapped in `**` asterisks, so `qa-gate.py`'s regex parser evaluates the verdict accurately.

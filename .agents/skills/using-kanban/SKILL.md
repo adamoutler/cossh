@@ -50,11 +50,11 @@ The QA Gate enforces six non-negotiable minimum requirements before any ticket c
 1. **All Files Committed:** Zero remnants, zero uncommitted modifications, and a completely clean working tree (`git status --porcelain` is empty).
 2. **All Commits Pushed:** All local commits must be pushed upstream to the remote tracking repository. No unpushed local tweaks.
 3. **All Tests Complete & Passing:** Automated quality control and test pipelines must execute cleanly (zero failures, zero unhandled errors).
-4. **`reality-checker` Evaluation:** The `reality-checker` agent personality (see `.agents/agents/reality-checker.md` and `~/.gemini/agents/reality-checker.md`) runs as an independent, clean-room auditor. It is supplied with:
+4. **`reality-checker` Evaluation (Pure Inference & Repo Read):** The `reality-checker` agent (`.agents/agents/reality-checker.md`) runs NO commands and generates NO screenshots. It operates strictly via inference and file reading (`view_file`) to verify whether the repository state matches the ticket ("reality vs. fantasy"). It evaluates:
    - Automated test results and execution logs
    - Direct access to the code and git diff
    - The ticket description and its full comment thread
-   - Hard proof artifacts (screenshots, traces, metrics)
+   - Committed proof artifacts and screenshots in `docs/qa/` (generated beforehand by engineering or `evidence-collector` agents)
    The `reality-checker` produces an evidence-based report that is posted directly as a comment on the Kanban ticket.
 5. **Enforced Feedback Loop:** If the `reality-checker` returns `NEEDS WORK` (or worse), the agent MUST inspect the feedback, address every specific defect identified, and repeat the full validation loop. Premature closure is strictly blocked.
 6. **Restricted Communication Channel:** The agent can communicate with `reality-checker` **ONLY** via comments on the Kanban ticket or through committed proof artifacts.
@@ -69,6 +69,7 @@ The QA Gate enforces six non-negotiable minimum requirements before any ticket c
   - `transition_ticket` requires `{"ticket_id": "SSH-XXX", "state_name": "Done"}` (or `"In Progress"`). Note that the parameter is `state_name`, **not** `state`.
   - `search_tickets` accepts `{"project_slug": "SSH"}` and optional `cursor` for pagination (`"50:1:0"`). It does **not** accept `state_name`.
 - **Sequential Closure (POSIX `GateLock`):** Never invoke `transition_ticket` for multiple tickets in parallel within the same tool turn. `.agents/hooks/qa-gate.py` acquires a non-blocking POSIX lock (`/tmp/qa-gate.lock`) and will immediately deny concurrent calls. Rate limiting (`30s`) is tracked per-ticket (`/tmp/antigravity_qa_gate/rate_SSH-XXX.txt`), so different tickets can be transitioned sequentially one after another without a 30s wait between different ticket IDs.
+- **Waiting for Long CI Runs on Dash:** Because the full unit test suite runs under QEMU on Forgejo (~30–50 minutes), a single `dash` `wait(repo="aoutler/CoSSH")` call (3m MCP timeout) or `git-push-after.sh` hook may time out while the build is still `🏃 Running`. Check `get_status(repo="aoutler/CoSSH")` and repeat `wait(repo="aoutler/CoSSH")` until Dash reports `✅ Pass` before calling `transition_ticket`.
 - **Unbolded Verdict Status Formatting:** When invoking `reality-checker` subagents, instruct them to format the status lines in their report with plain unbolded text after the colon:
   - `**Production Readiness**: READY` (NOT `**Production Readiness**: **READY**`)
   - `**Status**: READY` (NOT `**Status**: **READY**`)
