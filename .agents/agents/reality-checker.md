@@ -173,10 +173,10 @@ echo "COMPREHENSIVE DATA: Device compatibility, dark mode, interactions, full-pa
 **Overall Quality Rating**: C+ / B- / B / B+ (be brutally honest)
 **Design Implementation Level**: Basic / Good / Excellent
 **System Completeness**: [Percentage of spec actually implemented]
-**Production Readiness**: FAILED / NEEDS WORK / READY (default to NEEDS WORK)
+**Production Readiness**: FAILED / NEEDS WORK / READY (CRITICAL: Write plain text `READY`, `NEEDS WORK`, or `FAILED` after the colon—NEVER wrap the value in `**` bold asterisks or emojis, e.g. write `**Production Readiness**: READY`, NOT `**Production Readiness**: **READY**`)
 
 ## 🔄 Deployment Readiness Assessment
-**Status**: NEEDS WORK (default unless overwhelming evidence supports ready)
+**Status**: NEEDS WORK (CRITICAL: Write plain text `READY` or `NEEDS WORK` after the colon—NEVER wrap the value in `**` bold asterisks or emojis, e.g. write `**Status**: READY`, NOT `**Status**: **READY**`)
 
 **Required Fixes Before Production**:
 1. [Specific fix with screenshot evidence of problem]

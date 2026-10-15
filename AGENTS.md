@@ -28,17 +28,18 @@
 - **DO NOT** blindly use `grep`, `cat`, or mass `read_file` loops to understand the codebase.
 - **ALWAYS** default to the `codebase_investigator` agent for exploration as your primary reconnaissance tool.
 
-### 3. Agentic Delegation
-- You have over 60 specialized subagents at your disposal via `invoke_subagent`.
+### 3. Agentic Delegation & Multi-Agent Branch Orchestration
+- You have specialized subagents at your disposal via `invoke_subagent`.
 - Use `security-auditor` or `security-engineer` for threat modeling and crypto reviews.
 - Use `generalist` for batch refactoring or high-volume tasks.
 - Use `evidence-collector` to gather proof for QA certification.
+- **Isolated Branch Execution:** Spawn worker subagents with `Workspace: "share"` on dedicated branches (`feat/SSH-XXX-...`). Worker subagents MUST NOT execute `git push`, `complete_work`, or `transition_ticket`. Only the Lead Orchestrator merges verified worker branches into `main`, executes a single consolidated `git push`, waits for Dash `PASS ✅`, and transitions tickets sequentially to `Done`.
 
 ### 4. The CI/CD & Kanban Pipeline
-- **Pre-commit:** Run local validations (`./gradlew test lint`).
+- **Pre-commit (ARM64 Host):** Run local validations (`JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64 QEMU_LD_PREFIX=/home/adamoutler/Android/x86_64-rootfs ./gradlew testDebugUnitTest lintDebug`). Record Paparazzi snapshots via the `amd64` runner Docker container (`docker.gitea.com/runner-images:ubuntu-latest`; see `cossh-secure-architecture` skill).
 - **Push:** Execute `git push`. The `.agents/hooks/git-push-after.sh` hook will monitor the Dash API.
-- **Monitor:** Ensure CI receives a `PASS ✅` status.
-- **Completion:** Attempt to transition the ticket to `Done` using Kanban (`complete_work` or `transition_ticket`). The `reality-checker` QA Gate will audit the ticket comments and proof artifacts. If rejected, address deficiencies and re-verify.
+- **Monitor:** Ensure CI receives a `PASS ✅` status on Dash (`aoutler/CoSSH`).
+- **Completion:** Transition tickets to `Done` **sequentially** (never in parallel, due to `qa-gate.py`'s POSIX lock) using `transition_ticket(ticket_id="SSH-XXX", state_name="Done")`.
 
 ### 5. Automated User Story QA
 - User stories exist in the `user_stories/` directory. Proactively create or update user stories as new features are developed or bugs resolved.
@@ -48,7 +49,10 @@
 - **No Impersonation:** Do not attempt to declare `READY` yourself. The QA gate evaluates factual evidence.
 - **Facilitate Verification:** Explicitly cite the exact locations of proof in your ticket comments (e.g., `docs/qa/my-file.png` or `docs/qa/SSH-22.md`).
 - **Syntax Rule:** The subagent `reality-checker` SHALL NOT be prefixed by an `@` symbol. Always refer to it simply as `reality-checker`.
+- **Verdict Formatting Rule:** In `reality-checker` reports, the status token after `**Production Readiness**:` and `**Status**:` must be plain unbolded text (`**Production Readiness**: READY` and `**Status**: READY`), never wrapped in `**` asterisks, so `qa-gate.py`'s regex parser evaluates the verdict accurately.
 
-### 7. SonarCloud Analysis
+### 7. SonarCloud & Test Runner Configuration
 - **Project Key:** `adamoutler_cossh` | **Organization Key:** `adamoutler`
-- Ensure `./gradlew testDebugUnitTest jacocoTestReport` completes cleanly with XML test reports generated and uploaded.
+- Ensure `./gradlew testDebugUnitTest jacocoTestReport` completes cleanly with XML test reports generated and uploaded via `actions/upload-artifact@v3` on Forgejo.
+- Maintain `maxParallelForks = 1` and `forkEvery = 25` (with `maxHeapSize = "3072m"`) in `app/build.gradle.kts` to prevent Robolectric `MavenArtifactFetcher` concurrent download collisions and avoid per-class JVM cold-boot thrashing under QEMU emulation.
+

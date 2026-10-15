@@ -35,11 +35,11 @@ When you are instructed to "begin work", "start", or "launch", you must follow t
 3. Use the `begin_work` tool to assign the tickets, place them in a cycle, and transition them to `In Progress`.
    - Example: `begin_work(ticket_ids=["SSH-1", "SSH-2", "SSH-3"], cycle_name="Initial Sprint")`
 
-## 3. Execution and Agent Collaboration
-- **Design:** Before coding, use specialist agents (`codebase_investigator`, `security-auditor`) to architect the solution securely.
-- **Implement:** Execute the required work with absolute adherence to the project's security invariants.
-- **Test:** Verify the work rigorously with local testing (`./gradlew test lint`) and CI validation.
-- **QA:** After coding, consult Testing and QA agents to verify the implementation.
+## 3. Multi-Agent Branch Orchestration (The Merge-Train Pattern)
+- **Design:** Before coding, consult specialist subagents (`research`, `security-auditor`, `ux-architect`, `mobile-app-builder`) in parallel and record preflight recommendations on the ticket.
+- **Isolated Worker Subagents (`Workspace: "share"`):** Spawn implementation subagents on isolated feature branches (`feat/SSH-XXX-...`) using `Workspace: "share"` (and `Model: "flash"` when requested for high-velocity execution).
+- **Worker Invariants (NO PUSH / NO CLOSURE):** Worker subagents must implement code, unit/UI tests, `docs/qa/SSH-XXX.md`, and `user_stories/SSH-XXX.md`, run targeted local tests, and commit to their feature branch. **Worker subagents MUST NEVER run `git push`, `complete_work`, or `transition_ticket`**—pushing from multiple subagents causes $N \times \text{CI}$ queue delays and conflicts with the `git-push-after.sh` hook.
+- **Lead Orchestrator Batch Merge & Single Push:** The Lead Orchestrator merges completed worker branches into `main`, runs consolidated local verification (`./gradlew test lint`), pushes once to `origin/main`, and waits for a single green CI run (`✅ Pass` on Dash) before closing the batch of tickets.
 
 ## 4. The QA Gate & Anti-Hallucination Protocol
 
@@ -50,7 +50,7 @@ The QA Gate enforces six non-negotiable minimum requirements before any ticket c
 1. **All Files Committed:** Zero remnants, zero uncommitted modifications, and a completely clean working tree (`git status --porcelain` is empty).
 2. **All Commits Pushed:** All local commits must be pushed upstream to the remote tracking repository. No unpushed local tweaks.
 3. **All Tests Complete & Passing:** Automated quality control and test pipelines must execute cleanly (zero failures, zero unhandled errors).
-4. **`reality-checker` Evaluation:** The `reality-checker` agent personality (see `~/.gemini/agents/reality-checker.md`) runs as an independent, clean-room auditor. It is supplied with:
+4. **`reality-checker` Evaluation:** The `reality-checker` agent personality (see `.agents/agents/reality-checker.md` and `~/.gemini/agents/reality-checker.md`) runs as an independent, clean-room auditor. It is supplied with:
    - Automated test results and execution logs
    - Direct access to the code and git diff
    - The ticket description and its full comment thread
@@ -63,9 +63,14 @@ The QA Gate enforces six non-negotiable minimum requirements before any ticket c
 
 ---
 
-## 5. Closure & Proof Citations
+## 5. Closure, MCP Schema & QA Gate Parsing Rules
 
-- **Trigger Closure:** Use the `complete_work` or `transition_ticket` tool to finalize the ticket.
-- **Closure Comment:** Your comment on the ticket MUST explicitly summarize the work completed and cite the exact committed proof artifacts:
-  - Example: `complete_work(ticket_id="SSH-1", comment="Feature is completed. Added strict bounds checking to the network parser. See proof artifacts in docs/qa/SSH-1.md.")`
-- **Rejection Handling:** If rejected by `reality-checker`, treat the feedback as a continuing conversation. Fix the underlying issue, re-run tests, commit, push, update the ticket with new proof, and repeat the gate. Never abandon a rejected ticket.
+- **Kanban MCP Parameter Names:**
+  - `transition_ticket` requires `{"ticket_id": "SSH-XXX", "state_name": "Done"}` (or `"In Progress"`). Note that the parameter is `state_name`, **not** `state`.
+  - `search_tickets` accepts `{"project_slug": "SSH"}` and optional `cursor` for pagination (`"50:1:0"`). It does **not** accept `state_name`.
+- **Sequential Closure (POSIX `GateLock`):** Never invoke `transition_ticket` for multiple tickets in parallel within the same tool turn. `.agents/hooks/qa-gate.py` acquires a non-blocking POSIX lock (`/tmp/qa-gate.lock`) and will immediately deny concurrent calls. Rate limiting (`30s`) is tracked per-ticket (`/tmp/antigravity_qa_gate/rate_SSH-XXX.txt`), so different tickets can be transitioned sequentially one after another without a 30s wait between different ticket IDs.
+- **Unbolded Verdict Status Formatting:** When invoking `reality-checker` subagents, instruct them to format the status lines in their report with plain unbolded text after the colon:
+  - `**Production Readiness**: READY` (NOT `**Production Readiness**: **READY**`)
+  - `**Status**: READY` (NOT `**Status**: **READY**`)
+  Wrapping `READY` in `**` asterisks causes `qa-gate.py`'s regex `r'\*\*(?:Production Readiness|Status)\*\*:\s*([A-Za-z\s_-]+)'` to match only the leading space before `**READY**` and falsely reject the transition.
+- **Rejection Handling & 3-Strike Circuit Breaker:** `qa-gate.py` enforces a 3-strike circuit breaker per ticket and git tree hash (`strikes_<TICKET>_<TREE_HASH>.json`). If a ticket fails QA twice on the same git tree, halt and fix the underlying code/artifacts (or report any gate parsing issue to the user) before attempting a 3rd transition.
