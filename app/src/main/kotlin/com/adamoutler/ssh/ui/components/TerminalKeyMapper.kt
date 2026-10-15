@@ -19,13 +19,30 @@ class TerminalKeyMapper(
     private val onVolumeUp: () -> Unit = {},
     private val onVolumeDown: () -> Unit = {},
 ) {
-    fun onKeyDown(keyCode: Int, e: KeyEvent?): Boolean {
-        if (e?.action != KeyEvent.ACTION_DOWN) return false
+    private var shiftState = ModifierState.INACTIVE
+    private var hardwareShiftPressed = false
+
+    fun getShiftState(): ModifierState = shiftState
+
+    fun onShiftButtonClick() {
+        shiftState = shiftState.next()
+    }
+
+    fun setHardwareShiftPressed(pressed: Boolean) {
+        hardwareShiftPressed = pressed
+    }
+
+    fun onKeyDown(keyCode: Int, e: KeyEvent? = null): Boolean {
+        if (e != null && e.action != KeyEvent.ACTION_DOWN) return false
         if (keyCode == KeyEvent.KEYCODE_BACK) return false
 
         // Prevent bleed-through key events from previous screens (like hitting Enter to connect)
         if (isBleedThroughEvent(e, getConnectionStartTime())) {
             return true // Consume it so it doesn't propagate
+        }
+
+        if (e?.isShiftPressed == true || keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT) {
+            hardwareShiftPressed = true
         }
 
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
@@ -37,7 +54,7 @@ class TerminalKeyMapper(
             return true
         }
 
-        val ctrlActive = getCtrlState().isActive || (e.isCtrlPressed)
+        val ctrlActive = getCtrlState().isActive || (e?.isCtrlPressed == true)
         val bytesToSend = mapKeyCode(keyCode, e, ctrlActive)
 
         if (bytesToSend != null) {
@@ -47,14 +64,17 @@ class TerminalKeyMapper(
         return true
     }
 
-    fun onKeyUp(keyCode: Int): Boolean {
+    fun onKeyUp(keyCode: Int, e: KeyEvent? = null): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) return false
+        if (keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT || e?.isShiftPressed == false) {
+            hardwareShiftPressed = false
+        }
         return true
     }
 
     fun readControlKey(): Boolean = getCtrlState().isActive
     fun readAltKey(): Boolean = getAltState().isActive
-    fun readShiftKey(): Boolean = false
+    fun readShiftKey(): Boolean = shiftState.isActive || hardwareShiftPressed
     fun readFnKey(): Boolean = false
 
     fun onCodePoint(codePoint: Int, ctrlDown: Boolean = false): Boolean {
@@ -69,6 +89,7 @@ class TerminalKeyMapper(
             }
             if (getSuperState() == ModifierState.STICKY) setSuperState(ModifierState.INACTIVE)
             if (getMenuState() == ModifierState.STICKY) setMenuState(ModifierState.INACTIVE)
+            if (shiftState == ModifierState.STICKY) shiftState = ModifierState.INACTIVE
             sendToTerminal(bytes)
         } catch (_: Exception) {
             // Ignored on hot path
@@ -82,6 +103,7 @@ class TerminalKeyMapper(
             "Alt" -> setAltState(getAltState().next())
             "Super" -> setSuperState(getSuperState().next())
             "Menu" -> setMenuState(getMenuState().next())
+            "Shift" -> onShiftButtonClick()
         }
     }
 
@@ -117,6 +139,7 @@ class TerminalKeyMapper(
         if (getCtrlState() == ModifierState.STICKY) setCtrlState(ModifierState.INACTIVE)
         if (getSuperState() == ModifierState.STICKY) setSuperState(ModifierState.INACTIVE)
         if (getMenuState() == ModifierState.STICKY) setMenuState(ModifierState.INACTIVE)
+        if (shiftState == ModifierState.STICKY) shiftState = ModifierState.INACTIVE
     }
 
     companion object {

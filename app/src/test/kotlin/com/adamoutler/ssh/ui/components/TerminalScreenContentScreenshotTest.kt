@@ -198,4 +198,50 @@ class TerminalScreenContentScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun terminalScreen_FontSize8sp() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    TerminalScreenContent(
+                        profileId = mockProfileId,
+                        sessionId = mockSessionId,
+                        session = mockSession,
+                        activeSession = mockActiveSession,
+                        currentFontSize = 8,
+                        isConnectionActive = true,
+                        errorMessage = null,
+                        onUpdateFontSize = {},
+                        onNavigateBack = {},
+                        onClearError = {},
+                        profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH),
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun terminalScreen_FontSize24sp() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    TerminalScreenContent(
+                        profileId = mockProfileId,
+                        sessionId = mockSessionId,
+                        session = mockSession,
+                        activeSession = mockActiveSession,
+                        currentFontSize = 24,
+                        isConnectionActive = true,
+                        errorMessage = null,
+                        onUpdateFontSize = {},
+                        onNavigateBack = {},
+                        onClearError = {},
+                        profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH),
+                    )
+                }
+            }
+        }
+    }
 }

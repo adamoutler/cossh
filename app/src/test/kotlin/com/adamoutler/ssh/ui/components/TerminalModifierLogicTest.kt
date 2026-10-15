@@ -2,9 +2,16 @@ package com.adamoutler.ssh.ui.components
 
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34], manifest = Config.NONE)
 class TerminalModifierLogicTest {
 
     @Test
@@ -141,5 +148,114 @@ class TerminalModifierLogicTest {
 
         mapper.sendToTerminal(byteArrayOf(0x03))
         assertArrayEquals(byteArrayOf(0x03), bytesSent)
+    }
+
+    @Test
+    fun testReadShiftKey_InitiallyFalse() {
+        val mapper = TerminalKeyMapper()
+        assertFalse(mapper.readShiftKey())
+        assertEquals(ModifierState.INACTIVE, mapper.getShiftState())
+    }
+
+    @Test
+    fun testReadShiftKey_HardwareShiftTracking() {
+        val mapper = TerminalKeyMapper()
+        mapper.setHardwareShiftPressed(true)
+        assertTrue(mapper.readShiftKey())
+
+        mapper.setHardwareShiftPressed(false)
+        assertFalse(mapper.readShiftKey())
+
+        // Key code shift left
+        val shiftDownEvent = android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_SHIFT_LEFT)
+        mapper.onKeyDown(android.view.KeyEvent.KEYCODE_SHIFT_LEFT, shiftDownEvent)
+        assertTrue(mapper.readShiftKey())
+
+        val shiftUpEvent = android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_SHIFT_LEFT)
+        mapper.onKeyUp(android.view.KeyEvent.KEYCODE_SHIFT_LEFT, shiftUpEvent)
+        assertFalse(mapper.readShiftKey())
+
+        // Key code shift right
+        val shiftRightDownEvent = android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_SHIFT_RIGHT)
+        mapper.onKeyDown(android.view.KeyEvent.KEYCODE_SHIFT_RIGHT, shiftRightDownEvent)
+        assertTrue(mapper.readShiftKey())
+
+        mapper.onKeyUp(android.view.KeyEvent.KEYCODE_SHIFT_RIGHT)
+        assertFalse(mapper.readShiftKey())
+    }
+
+    @Test
+    fun testReadShiftKey_VirtualShiftStickyConsumesOnKeyPress() {
+        var sentBytes: ByteArray? = null
+        val mapper = TerminalKeyMapper(
+            sendRawBytes = { sentBytes = it },
+        )
+
+        // Toggle to STICKY
+        mapper.onShiftButtonClick()
+        assertEquals(ModifierState.STICKY, mapper.getShiftState())
+        assertTrue(mapper.readShiftKey())
+
+        // Sending a regular character via onCodePoint consumes sticky modifier
+        mapper.onCodePoint('a'.code)
+        assertFalse(mapper.readShiftKey())
+        assertEquals(ModifierState.INACTIVE, mapper.getShiftState())
+
+        // Toggle to STICKY again
+        mapper.onShiftButtonClick()
+        assertTrue(mapper.readShiftKey())
+
+        // Sending a key like Enter via onKeyDown consumes sticky modifier
+        val enterEvent = android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_ENTER)
+        mapper.onKeyDown(android.view.KeyEvent.KEYCODE_ENTER, enterEvent)
+        assertFalse(mapper.readShiftKey())
+        assertEquals(ModifierState.INACTIVE, mapper.getShiftState())
+    }
+
+    @Test
+    fun testReadShiftKey_VirtualShiftLockedPersistsAcrossKeyPresses() {
+        var sentBytes: ByteArray? = null
+        val mapper = TerminalKeyMapper(
+            sendRawBytes = { sentBytes = it },
+        )
+
+        // Cycle INACTIVE -> STICKY -> LOCKED
+        mapper.onShiftButtonClick() // STICKY
+        mapper.onShiftButtonClick() // LOCKED
+        assertEquals(ModifierState.LOCKED, mapper.getShiftState())
+        assertTrue(mapper.readShiftKey())
+
+        // Sending character does NOT consume LOCKED state
+        mapper.onCodePoint('x'.code)
+        assertTrue(mapper.readShiftKey())
+        assertEquals(ModifierState.LOCKED, mapper.getShiftState())
+
+        val enterEvent = android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_ENTER)
+        mapper.onKeyDown(android.view.KeyEvent.KEYCODE_ENTER, enterEvent)
+        assertTrue(mapper.readShiftKey())
+        assertEquals(ModifierState.LOCKED, mapper.getShiftState())
+
+        // Cycle LOCKED -> INACTIVE
+        mapper.onShiftButtonClick()
+        assertFalse(mapper.readShiftKey())
+        assertEquals(ModifierState.INACTIVE, mapper.getShiftState())
+    }
+
+    @Test
+    fun testReadShiftKey_OnExtraKeyToggleShift() {
+        val mapper = TerminalKeyMapper()
+        assertEquals(ModifierState.INACTIVE, mapper.getShiftState())
+
+        mapper.onExtraKeyToggle("Shift")
+        assertEquals(ModifierState.STICKY, mapper.getShiftState())
+        assertTrue(mapper.readShiftKey())
+
+        mapper.onExtraKeyToggle("Shift")
+        assertEquals(ModifierState.LOCKED, mapper.getShiftState())
+        assertTrue(mapper.readShiftKey())
+
+        mapper.onExtraKeyToggle("Shift")
+        assertEquals(ModifierState.INACTIVE, mapper.getShiftState())
+        assertFalse(mapper.readShiftKey())
     }
 }

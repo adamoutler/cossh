@@ -6,10 +6,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.crypto.SettingsManager
+import com.adamoutler.ssh.ui.components.TerminalScaleHandler
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -33,6 +36,9 @@ class TerminalViewModel(application: Application) :
 
     private val _fontSizeFlow = MutableStateFlow(14)
     val fontSizeFlow = _fontSizeFlow.asStateFlow()
+
+    private val _bellEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val bellEvents = _bellEvents.asSharedFlow()
 
     private var activeProfileId: String? = null
 
@@ -65,8 +71,7 @@ class TerminalViewModel(application: Application) :
     }
 
     fun updateFontSize(newSize: Int) {
-        // Removed upper limit per user request. No regulation on max font size.
-        _fontSizeFlow.value = newSize.coerceAtLeast(4)
+        _fontSizeFlow.value = TerminalScaleHandler.clampFontSize(newSize)
     }
 
     fun getOrCreateSession(sessionId: String, context: Context): TerminalSession {
@@ -163,7 +168,9 @@ class TerminalViewModel(application: Application) :
             }
         }
     }
-    override fun onBell(session: TerminalSession) { /* No-op */ }
+    override fun onBell(session: TerminalSession) {
+        _bellEvents.tryEmit(Unit)
+    }
     override fun onColorsChanged(session: TerminalSession) { /* No-op */ }
     override fun onTerminalCursorStateChange(state: Boolean) { /* No-op */ }
     override fun getTerminalCursorStyle(): Int = 0

@@ -16,6 +16,7 @@ import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.termux.terminal.TerminalSession
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -77,12 +78,31 @@ class TerminalViewModelTest {
     }
 
     @Test
-    fun `test updateFontSize coerces minimum and updates flow`() = runTest {
-        viewModel.updateFontSize(30)
-        assertEquals(30, viewModel.fontSizeFlow.value)
+    fun `test updateFontSize coerces within bounds and updates flow`() = runTest {
+        viewModel.updateFontSize(20)
+        assertEquals(20, viewModel.fontSizeFlow.value)
 
-        viewModel.updateFontSize(2) // Should coerce to 4
-        assertEquals(4, viewModel.fontSizeFlow.value)
+        viewModel.updateFontSize(2) // Below 8, should coerce to 8
+        assertEquals(8, viewModel.fontSizeFlow.value)
+
+        viewModel.updateFontSize(40) // Above 32, should coerce to 32
+        assertEquals(32, viewModel.fontSizeFlow.value)
+    }
+
+    @Test
+    fun `test onBell emits event to bellEvents`() = runTest {
+        var bellReceived = false
+        val job = launch(kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.bellEvents.collect {
+                bellReceived = true
+            }
+        }
+
+        val session = viewModel.getOrCreateSession("session-bell", application)
+        viewModel.onBell(session)
+
+        assertTrue(bellReceived)
+        job.cancel()
     }
 
     @Test
