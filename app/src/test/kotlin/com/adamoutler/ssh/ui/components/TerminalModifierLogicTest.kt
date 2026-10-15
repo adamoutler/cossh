@@ -198,6 +198,7 @@ class TerminalModifierLogicTest {
 
         // Sending a regular character via onCodePoint consumes sticky modifier
         mapper.onCodePoint('a'.code)
+        assertArrayEquals("a".toByteArray(), sentBytes)
         assertFalse(mapper.readShiftKey())
         assertEquals(ModifierState.INACTIVE, mapper.getShiftState())
 
@@ -208,6 +209,7 @@ class TerminalModifierLogicTest {
         // Sending a key like Enter via onKeyDown consumes sticky modifier
         val enterEvent = android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_ENTER)
         mapper.onKeyDown(android.view.KeyEvent.KEYCODE_ENTER, enterEvent)
+        assertArrayEquals("\r".toByteArray(), sentBytes)
         assertFalse(mapper.readShiftKey())
         assertEquals(ModifierState.INACTIVE, mapper.getShiftState())
     }
@@ -227,11 +229,13 @@ class TerminalModifierLogicTest {
 
         // Sending character does NOT consume LOCKED state
         mapper.onCodePoint('x'.code)
+        assertArrayEquals("x".toByteArray(), sentBytes)
         assertTrue(mapper.readShiftKey())
         assertEquals(ModifierState.LOCKED, mapper.getShiftState())
 
         val enterEvent = android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_ENTER)
         mapper.onKeyDown(android.view.KeyEvent.KEYCODE_ENTER, enterEvent)
+        assertArrayEquals("\r".toByteArray(), sentBytes)
         assertTrue(mapper.readShiftKey())
         assertEquals(ModifierState.LOCKED, mapper.getShiftState())
 
