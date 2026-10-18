@@ -33,12 +33,14 @@
 - Use `security-auditor` or `security-engineer` for threat modeling and crypto reviews.
 - Use `generalist` for batch refactoring or high-volume tasks.
 - Use `evidence-collector` to gather proof for QA certification.
-- **Isolated Branch Execution:** Spawn worker subagents with `Workspace: "share"` on dedicated branches (`feat/SSH-XXX-...`). Worker subagents MUST NOT execute `git push`, `complete_work`, or `transition_ticket`. Only the Lead Orchestrator merges verified worker branches into `main`, executes a single consolidated `git push`, waits for Dash `PASS ✅`, and transitions tickets sequentially to `Done`.
+- **Sprint Batching & Isolated Branch Execution:** Group related tickets into a named sprint cycle via `begin_work`. Spawn worker subagents with `Workspace: "share"` on dedicated branches (`feat/SSH-XXX-...`). If tickets intersect the exact same files/domain logic (e.g. `SSH-193` & `SSH-194`), co-locate them on a single shared branch (`feat/SSH-193-194-...`) to eliminate merge conflicts.
+- **Worker Invariants:** Worker subagents MUST NOT execute `git push`, `complete_work`, or `transition_ticket`. Only the Lead Orchestrator merges verified worker branches into `main` (via octopus merge), records Paparazzi UI snapshots, executes a single consolidated `git push`, spawns parallel clean-room `reality-checker` subagents while CI runs, and transitions tickets sequentially to `Done` once Dash CI passes.
 
 ### 4. The CI/CD & Kanban Pipeline
 - **Pre-commit (ARM64 Host):** Run local validations (`JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64 QEMU_LD_PREFIX=/home/adamoutler/Android/x86_64-rootfs ./gradlew testDebugUnitTest lintDebug`). Record Paparazzi snapshots via the `amd64` runner Docker container (`docker.gitea.com/runner-images:ubuntu-latest`; see `cossh-secure-architecture` skill).
-- **Push:** Execute `git push`. The `.agents/hooks/git-push-after.sh` hook will monitor the Dash API.
-- **Monitor:** Ensure CI receives a `PASS ✅` status on Dash (`aoutler/CoSSH`).
+- **Push:** Execute a single consolidated `git push origin main`. The `.agents/hooks/git-push-after.sh` hook will monitor the Dash API.
+- **Monitor:** Ensure CI receives a `PASS ✅` status on Dash (`aoutler/CoSSH`). If a single `wait` call times out, poll `get_status` and repeat `wait` until `✅ Pass`.
+- **Parallel Reality-Checker Audits:** Run independent clean-room `reality-checker` subagents in parallel to verify tickets and post reports to Kanban while CI runs.
 - **Completion:** Transition tickets to `Done` **sequentially** (never in parallel, due to `qa-gate.py`'s POSIX lock) using `transition_ticket(ticket_id="SSH-XXX", state_name="Done")`.
 
 ### 5. Automated User Story QA

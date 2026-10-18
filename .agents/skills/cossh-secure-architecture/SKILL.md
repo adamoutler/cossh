@@ -31,20 +31,29 @@ For UI screenshot requirements in headless CI environments, you **MUST** use the
     bash -c 'export PATH="$JAVA_HOME/bin:$PATH" && ./gradlew :app:recordPaparazziDebug --tests "*YourScreenshotTest*" && chown -R 1000:1000 /workspace/app /workspace/.gradle'
   ```
 
-## 2. The Volatile State Serialization Trap
-When serializing data models containing secrets (e.g., passwords, keys) to JSON:
-- The secret MUST be stored in memory as a `ByteArray` or `CharArray` to allow active wiping.
-- You MUST symmetrically encrypt the array via the Android Keystore BEFORE it touches the JSON serializer.
-- Standard JSON serialization natively converts data into immutable JVM Strings, causing plaintext secrets to linger in the JVM string pool. You must use a standalone `PasswordCipher` or similar mechanism to prevent this memory leak.
+## 2. The Volatile State Serialization & Memory Sanitization Trap
+- **JSON Serialization of Secrets:** When serializing data models containing secrets (e.g., passwords, keys) to JSON:
+  - The secret MUST be stored in memory as a `ByteArray` or `CharArray` to allow active wiping.
+  - You MUST symmetrically encrypt the array via the Android Keystore BEFORE it touches the JSON serializer.
+  - Standard JSON serialization natively converts data into immutable JVM Strings, causing plaintext secrets to linger in the JVM string pool. You must use a standalone `PasswordCipher` or similar mechanism to prevent this memory leak.
+- **Volatile Stream Buffer Zero-Wiping:**
+  - Socket and PTY read loops (such as `PtyStreamBridge.startBridge()`) MUST wrap buffer consumption in a `try ... finally { buffer.fill(0) }` block so raw terminal output and credential streams are actively wiped upon socket closure, stream EOF, or coroutine cancellation.
+  - `ActiveSessionState.sanitize()` in `SessionStreamRegistry` MUST drain and zero-fill all queued byte buffers in `outputBuffer`, close `ptyOutputStream`, and null out all socket/channel references immediately when a session disconnects.
 
-## 3. Robolectric vs. Hardware Keystore (StrongBox)
-The CoSSH security invariant mandates `MasterKey.Builder` with hardware backing (`setRequestStrongBoxBacked(true)`). 
-- **Robolectric** (the local Android JVM test framework) **does not support StrongBox**. 
-- You must implement a software Keystore fallback for JVM tests within a `try/catch` block. 
-- During unit testing, ensure this fallback operates symmetrically (cache the fallback AES key in memory during tests so decryption doesn't fail).
-- True Keystore hardware validation should be reserved for `androidTest` instrumented tests.
+## 3. Cryptographic Invariants & The Hostile Wire
+- **Hardware Keystore vs. Robolectric (StrongBox):**
+  - The CoSSH security invariant mandates `MasterKey.Builder` with hardware backing (`setRequestStrongBoxBacked(true)`). 
+  - Robolectric (the local Android JVM test framework) **does not support StrongBox**. You must implement a software Keystore fallback for JVM tests within a `try/catch` block. 
+  - During unit testing, ensure this fallback operates symmetrically (cache the fallback AES key in memory during tests so decryption doesn't fail).
+- **SSHJ Cryptographic Suite Hardening (`SecureSshConfig`):**
+  - Default `AndroidConfig` in SSHJ registers legacy, broken algorithms: SHA-1 KEX (`diffie-hellman-group1-sha1`, etc.), 64-bit block ciphers (`3des-cbc`, `blowfish-cbc`), and weak MACs (`hmac-sha1`, `hmac-md5`).
+  - Always instantiate `SSHClient(SecureSshConfig())`. `SecureSshConfig` filters out any factory containing `sha1`, `group1-`, `3des`, `blowfish`, or `md5`, eliminating Sweet32, Logjam, and hash collision downgrade attacks on hostile networks.
 
-## 4. Gradle Test Runner & Forgejo CI Stability Invariants
+## 4. Status Bar Notification Silhouette Standard
+- Active background foreground service notifications (`SshService.kt`) must NEVER use generic Android system placeholders like `android.R.drawable.ic_dialog_info`.
+- Android 12+ requires notification small icons to be a single-color (monochrome white `#FFFFFF`) silhouette on a transparent background (e.g., `app/src/main/res/drawable/ic_stat_ssh.xml`). Multi-color launcher icons will render as solid unreadable white blocks.
+
+## 5. Gradle Test Runner & Forgejo CI Stability Invariants
 - **Single-Fork Serialization (`maxParallelForks = 1`):** In `app/build.gradle.kts`, `maxParallelForks` MUST be `1` in both `testOptions.unitTests.all` and `tasks.withType<Test>`. Running multiple parallel test JVMs causes a fatal race condition in Robolectric's `MavenArtifactFetcher.java` when two forks simultaneously download and move `android-all-instrumented` jars into `/root/.m2/repository`.
 - **JVM Reuse (`forkEvery = 25`):** Keep `forkEvery = 25` (with `maxHeapSize = "3072m"`), NEVER `forkEvery = 1`. Setting `forkEvery = 1` forces 75+ cold JVM + Robolectric + LayoutLib startups under QEMU emulation, inflating `testDebugUnitTest` duration beyond 35 minutes.
 - **QEMU Timing Tolerance:** Heavy cryptographic operations (such as 4096-bit RSA keypair generation in `IdentityViewModelTest`) and coroutine throughput benchmarks (`TerminalWriteBatcherTest`) run significantly slower under QEMU x86_64 emulation. Always warm up coroutine dispatchers outside `measureTimeMillis` blocks and provide generous polling timeouts for asymmetric key generation.

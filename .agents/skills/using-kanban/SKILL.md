@@ -36,10 +36,18 @@ When you are instructed to "begin work", "start", or "launch", you must follow t
    - Example: `begin_work(ticket_ids=["SSH-1", "SSH-2", "SSH-3"], cycle_name="Initial Sprint")`
 
 ## 3. Multi-Agent Branch Orchestration (The Merge-Train Pattern)
-- **Design:** Before coding, consult specialist subagents (`research`, `security-auditor`, `ux-architect`, `mobile-app-builder`) in parallel and record preflight recommendations on the ticket.
-- **Isolated Worker Subagents (`Workspace: "share"`):** Spawn implementation subagents on isolated feature branches (`feat/SSH-XXX-...`) using `Workspace: "share"` (and `Model: "flash"` when requested for high-velocity execution).
+- **Design & Preflight:** Before coding, consult specialist subagents (`research`, `security-auditor`, `ux-architect`, `mobile-app-builder`) in parallel and record preflight recommendations on the ticket.
+- **Sprint Batching & Isolated Worker Subagents (`Workspace: "share"`):** Group 3–8 related tickets into a named sprint cycle via `begin_work(ticket_ids=[...], cycle_name="Sprint Name")`. Spawn implementation subagents on isolated feature branches (`feat/SSH-XXX-...`) using `Workspace: "share"` and `Model: "flash"`.
+- **Co-Locating Tightly Coupled Tickets:** When multiple tickets touch the exact same files or domain logic (e.g. `SSH-193` pinch-to-zoom and `SSH-194` bell/shift in `TerminalScreen.kt` and `TerminalViewModel.kt`), assign them to a single shared branch (e.g. `feat/SSH-193-194-...`) to eliminate downstream merge conflicts.
 - **Worker Invariants (NO PUSH / NO CLOSURE):** Worker subagents must implement code, unit/UI tests, `docs/qa/SSH-XXX.md`, and `user_stories/SSH-XXX.md`, run targeted local tests, and commit to their feature branch. **Worker subagents MUST NEVER run `git push`, `complete_work`, or `transition_ticket`**—pushing from multiple subagents causes $N \times \text{CI}$ queue delays and conflicts with the `git-push-after.sh` hook.
-- **Lead Orchestrator Batch Merge & Single Push:** The Lead Orchestrator merges completed worker branches into `main`, runs consolidated local verification (`./gradlew test lint`), pushes once to `origin/main`, and waits for a single green CI run (`✅ Pass` on Dash) before closing the batch of tickets.
+- **Lead Orchestrator Batch Merge & Paparazzi Recording:**
+  1. Merge all verified worker branches into `main` using an octopus merge:
+     `git merge --no-edit feat/branch1 feat/branch2 ...`
+  2. If visual UI changes occurred, record Paparazzi snapshots in the `amd64` Docker container (see `cossh-secure-architecture` skill), copy the resulting PNG artifacts to `docs/qa/SSH-XXX*.png`, and commit them.
+  3. Run consolidated local validation (`JAVA_HOME=... QEMU_LD_PREFIX=... ./gradlew testDebugUnitTest lintDebug`).
+- **Single Consolidated CI Push:** Execute a single `git push origin main`. A single 471+ test CI run executes on Forgejo for the entire sprint batch rather than $N$ separate 50-minute runs.
+- **Parallel Clean-Room `reality-checker` Audits:** While CI executes, spawn parallel `reality-checker` subagents (pure inference & `view_file` reading) to audit each ticket against its requirements and post evidence reports to Kanban.
+- **Sequential Ticket Transition to `Done`:** Once Dash CI status is `✅ Pass`, transition each ticket sequentially to `Done` (respecting `/tmp/qa-gate.lock`).
 
 ## 4. The QA Gate & Anti-Hallucination Protocol
 
