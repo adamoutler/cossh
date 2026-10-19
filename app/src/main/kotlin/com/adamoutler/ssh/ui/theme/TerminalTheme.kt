@@ -115,7 +115,8 @@ enum class TerminalTheme(
             0xFFA4FFFF.toInt(), // 14: Bright Cyan
             0xFFFFFFFF.toInt(), // 15: Bright White
         ),
-    );
+    ),
+    ;
 
     /**
      * Applies this theme to the provided [TerminalView] and its [TerminalSession] emulator.
@@ -144,8 +145,7 @@ enum class TerminalTheme(
     }
 
     companion object {
-        fun fromId(id: String?): TerminalTheme =
-            entries.firstOrNull { it.name.equals(id, ignoreCase = true) || it.id.equals(id, ignoreCase = true) }
-                ?: COBALT_BLUE
+        fun fromId(id: String?): TerminalTheme = entries.firstOrNull { it.name.equals(id, ignoreCase = true) || it.id.equals(id, ignoreCase = true) }
+            ?: COBALT_BLUE
     }
 }

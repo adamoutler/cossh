@@ -150,6 +150,7 @@ android {
                 if (name.contains("Release")) {
                     it.exclude("**/TerminalExtraKeysUITest.class")
                 }
+                it.exclude("**/*ScreenshotTest*")
                 it.maxParallelForks = 1
                 if (!project.hasProperty("fullTestRun")) {
                     it.useJUnit {

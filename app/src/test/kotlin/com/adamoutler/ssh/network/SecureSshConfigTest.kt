@@ -22,7 +22,7 @@ class SecureSshConfigTest {
         // Verify that default config had weak algorithms that needed stripping
         assertTrue(
             "Default config should contain sha1 or group1- algorithms before hardening",
-            defaultKexNames.any { it.contains("sha1") || it.contains("group1-") }
+            defaultKexNames.any { it.contains("sha1") || it.contains("group1-") },
         )
 
         // Verify hardened config strips all sha1 and group1- algorithms
@@ -30,11 +30,11 @@ class SecureSshConfigTest {
         for (kexName in secureKexNames) {
             assertFalse(
                 "Hardened key exchange should not contain sha1: $kexName",
-                kexName.contains("sha1")
+                kexName.contains("sha1"),
             )
             assertFalse(
                 "Hardened key exchange should not contain group1-: $kexName",
-                kexName.contains("group1-")
+                kexName.contains("group1-"),
             )
         }
     }
@@ -50,7 +50,7 @@ class SecureSshConfigTest {
         // Verify that default config had weak 64-bit ciphers before hardening
         assertTrue(
             "Default config should contain 3des or blowfish ciphers before hardening",
-            defaultCipherNames.any { it.contains("3des") || it.contains("blowfish") }
+            defaultCipherNames.any { it.contains("3des") || it.contains("blowfish") },
         )
 
         // Verify hardened config strips all 3des and blowfish ciphers
@@ -58,11 +58,11 @@ class SecureSshConfigTest {
         for (cipherName in secureCipherNames) {
             assertFalse(
                 "Hardened cipher should not contain 3des: $cipherName",
-                cipherName.contains("3des")
+                cipherName.contains("3des"),
             )
             assertFalse(
                 "Hardened cipher should not contain blowfish: $cipherName",
-                cipherName.contains("blowfish")
+                cipherName.contains("blowfish"),
             )
         }
     }
@@ -78,7 +78,7 @@ class SecureSshConfigTest {
         // Verify that default config had weak hash MACs before hardening
         assertTrue(
             "Default config should contain sha1 or md5 MACs before hardening",
-            defaultMacNames.any { it.contains("sha1") || it.contains("md5") }
+            defaultMacNames.any { it.contains("sha1") || it.contains("md5") },
         )
 
         // Verify hardened config strips all sha1 and md5 MACs
@@ -86,11 +86,11 @@ class SecureSshConfigTest {
         for (macName in secureMacNames) {
             assertFalse(
                 "Hardened MAC should not contain sha1: $macName",
-                macName.contains("sha1")
+                macName.contains("sha1"),
             )
             assertFalse(
                 "Hardened MAC should not contain md5: $macName",
-                macName.contains("md5")
+                macName.contains("md5"),
             )
         }
     }
@@ -106,19 +106,19 @@ class SecureSshConfigTest {
         // Modern KEX: curve25519-sha256 or ECDH NIST curves
         assertTrue(
             "Hardened config must retain modern KEX (e.g., curve25519 or ecdh): $kexNames",
-            kexNames.any { it.contains("curve25519") || it.contains("ecdh") || it.contains("sha256") }
+            kexNames.any { it.contains("curve25519") || it.contains("ecdh") || it.contains("sha256") },
         )
 
         // Modern Ciphers: AES-CTR or AES-GCM
         assertTrue(
             "Hardened config must retain AES ciphers: $cipherNames",
-            cipherNames.any { it.contains("aes") }
+            cipherNames.any { it.contains("aes") },
         )
 
         // Modern MACs: HMAC-SHA2 (256 or 512)
         assertTrue(
             "Hardened config must retain HMAC-SHA2 algorithms: $macNames",
-            macNames.any { it.contains("hmac-sha2-256") || it.contains("hmac-sha2-512") }
+            macNames.any { it.contains("hmac-sha2-256") || it.contains("hmac-sha2-512") },
         )
     }
 

@@ -11,14 +11,13 @@ import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.crypto.SettingsManager
 import com.adamoutler.ssh.sync.DriveSyncManager
 import com.adamoutler.ssh.sync.SyncWorker
+import com.adamoutler.ssh.ui.theme.TerminalFontChoice
+import com.adamoutler.ssh.ui.theme.TerminalTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-import com.adamoutler.ssh.ui.theme.TerminalFontChoice
-import com.adamoutler.ssh.ui.theme.TerminalTheme
 
 data class SettingsUiState(
     val isCloudSyncEnabled: Boolean = false,

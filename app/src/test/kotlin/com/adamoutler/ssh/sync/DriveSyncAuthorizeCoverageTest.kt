@@ -47,15 +47,11 @@ class DriveSyncAuthorizeCoverageTest {
 
             @Implementation
             @JvmStatic
-            fun getAuthorizationClient(@Suppress("UNUSED_PARAMETER") activity: Activity): AuthorizationClient {
-                return mockAuthorizationClient ?: throw IllegalStateException("mockAuthorizationClient not configured")
-            }
+            fun getAuthorizationClient(@Suppress("UNUSED_PARAMETER") activity: Activity): AuthorizationClient = mockAuthorizationClient ?: throw IllegalStateException("mockAuthorizationClient not configured")
 
             @Implementation
             @JvmStatic
-            fun getAuthorizationClient(@Suppress("UNUSED_PARAMETER") context: Context): AuthorizationClient {
-                return mockAuthorizationClient ?: throw IllegalStateException("mockAuthorizationClient not configured")
-            }
+            fun getAuthorizationClient(@Suppress("UNUSED_PARAMETER") context: Context): AuthorizationClient = mockAuthorizationClient ?: throw IllegalStateException("mockAuthorizationClient not configured")
         }
     }
 
@@ -95,7 +91,7 @@ class DriveSyncAuthorizeCoverageTest {
 
     open class ImmediateTask<T>(
         private val result: T?,
-        private val exception: Exception?
+        private val exception: Exception?,
     ) : Task<T>() {
         override fun isComplete(): Boolean = true
         override fun isSuccessful(): Boolean = exception == null
@@ -112,11 +108,9 @@ class DriveSyncAuthorizeCoverageTest {
             return this
         }
 
-        override fun addOnSuccessListener(executor: Executor, listener: OnSuccessListener<in T>): Task<T> =
-            addOnSuccessListener(listener)
+        override fun addOnSuccessListener(executor: Executor, listener: OnSuccessListener<in T>): Task<T> = addOnSuccessListener(listener)
 
-        override fun addOnSuccessListener(activity: Activity, listener: OnSuccessListener<in T>): Task<T> =
-            addOnSuccessListener(listener)
+        override fun addOnSuccessListener(activity: Activity, listener: OnSuccessListener<in T>): Task<T> = addOnSuccessListener(listener)
 
         override fun addOnFailureListener(listener: OnFailureListener): Task<T> {
             if (exception != null) {
@@ -125,28 +119,26 @@ class DriveSyncAuthorizeCoverageTest {
             return this
         }
 
-        override fun addOnFailureListener(executor: Executor, listener: OnFailureListener): Task<T> =
-            addOnFailureListener(listener)
+        override fun addOnFailureListener(executor: Executor, listener: OnFailureListener): Task<T> = addOnFailureListener(listener)
 
-        override fun addOnFailureListener(activity: Activity, listener: OnFailureListener): Task<T> =
-            addOnFailureListener(listener)
+        override fun addOnFailureListener(activity: Activity, listener: OnFailureListener): Task<T> = addOnFailureListener(listener)
     }
 
     @Suppress("DEPRECATION")
-    private fun createMockClient(taskProvider: (AuthorizationRequest) -> Task<AuthorizationResult>): AuthorizationClient {
-        return Proxy.newProxyInstance(
-            AuthorizationClient::class.java.classLoader,
-            arrayOf(AuthorizationClient::class.java)
-        ) { _, method, args ->
-            when (method.name) {
-                "authorize" -> taskProvider(args[0] as AuthorizationRequest)
-                "getAuthorizationResultFromIntent" -> {
-                    AuthorizationResult(null, "token_from_intent", null, emptyList(), null, null)
-                }
-                else -> null
+    private fun createMockClient(taskProvider: (AuthorizationRequest) -> Task<AuthorizationResult>): AuthorizationClient = Proxy.newProxyInstance(
+        AuthorizationClient::class.java.classLoader,
+        arrayOf(AuthorizationClient::class.java),
+    ) { _, method, args ->
+        when (method.name) {
+            "authorize" -> taskProvider(args[0] as AuthorizationRequest)
+
+            "getAuthorizationResultFromIntent" -> {
+                AuthorizationResult(null, "token_from_intent", null, emptyList(), null, null)
             }
-        } as AuthorizationClient
-    }
+
+            else -> null
+        }
+    } as AuthorizationClient
 
     @Test
     @Suppress("DEPRECATION")
@@ -166,7 +158,10 @@ class DriveSyncAuthorizeCoverageTest {
     @Suppress("DEPRECATION")
     fun testAuthorizeScope_SuccessWithResolution_StandardActivity() = runBlocking {
         val pendingIntent = PendingIntent.getActivity(
-            context, 1, Intent(), PendingIntent.FLAG_IMMUTABLE
+            context,
+            1,
+            Intent(),
+            PendingIntent.FLAG_IMMUTABLE,
         )
         val result = AuthorizationResult(null, null, null, emptyList(), null, pendingIntent)
         val mockClient = createMockClient { ImmediateTask(result, null) }
@@ -193,7 +188,10 @@ class DriveSyncAuthorizeCoverageTest {
     @Suppress("DEPRECATION")
     fun testAuthorizeScope_SuccessWithResolution_MainActivity() = runBlocking {
         val pendingIntent = PendingIntent.getActivity(
-            context, 1, Intent(), PendingIntent.FLAG_IMMUTABLE
+            context,
+            1,
+            Intent(),
+            PendingIntent.FLAG_IMMUTABLE,
         )
         val result = AuthorizationResult(null, null, null, emptyList(), null, pendingIntent)
         val mockClient = createMockClient { ImmediateTask(result, null) }

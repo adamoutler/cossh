@@ -36,22 +36,21 @@ enum class TerminalFontChoice(
         id = "SOURCE_CODE_PRO",
         displayName = "Source Code Pro",
         systemFontName = "source-code-pro",
-    );
+    ),
+    ;
 
     /**
      * Resolves the Android [Typeface] for the Termux TerminalView.
      * Guaranteed to fall back to [Typeface.MONOSPACE].
      */
-    fun getTypeface(): Typeface {
-        return try {
-            if (this == DEFAULT_MONOSPACE) {
-                Typeface.MONOSPACE
-            } else {
-                Typeface.create(systemFontName, Typeface.NORMAL) ?: Typeface.MONOSPACE
-            }
-        } catch (_: Throwable) {
+    fun getTypeface(): Typeface = try {
+        if (this == DEFAULT_MONOSPACE) {
             Typeface.MONOSPACE
+        } else {
+            Typeface.create(systemFontName, Typeface.NORMAL) ?: Typeface.MONOSPACE
         }
+    } catch (_: Throwable) {
+        Typeface.MONOSPACE
     }
 
     /**
@@ -65,8 +64,7 @@ enum class TerminalFontChoice(
         }
 
     companion object {
-        fun fromId(id: String?): TerminalFontChoice =
-            entries.firstOrNull { it.name.equals(id, ignoreCase = true) || it.id.equals(id, ignoreCase = true) }
-                ?: DEFAULT_MONOSPACE
+        fun fromId(id: String?): TerminalFontChoice = entries.firstOrNull { it.name.equals(id, ignoreCase = true) || it.id.equals(id, ignoreCase = true) }
+            ?: DEFAULT_MONOSPACE
     }
 }

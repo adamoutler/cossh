@@ -18,13 +18,13 @@ import com.adamoutler.ssh.ui.events.UiEvent
 import com.adamoutler.ssh.ui.events.UiEventBus
 import com.adamoutler.ssh.ui.navigation.AppNavigation
 import com.adamoutler.ssh.ui.navigation.HostKeyPromptDialog
-import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import java.io.ByteArrayOutputStream
 
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [34])

@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import net.schmizz.sshj.connection.channel.direct.Session.Shell
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
@@ -20,7 +21,6 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.lang.reflect.Proxy
-import net.schmizz.sshj.connection.channel.direct.Session.Shell
 
 class SessionStreamRegistryTest {
 
@@ -187,9 +187,7 @@ class SessionStreamRegistryTest {
         val session = ActiveSessionState(profileId = "profile-err")
         val throwingStream = object : OutputStream() {
             override fun write(b: Int) {}
-            override fun close() {
-                throw IOException("Stream close error")
-            }
+            override fun close(): Unit = throw IOException("Stream close error")
         }
         session.ptyOutputStream = throwingStream
         session.sanitize()

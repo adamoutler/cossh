@@ -83,7 +83,7 @@ class TelnetConnectionHandlerCoverageTest {
             host = "127.0.0.1",
             port = port,
             protocol = Protocol.TELNET,
-            initialDirectory = "my/custom'dir"
+            initialDirectory = "my/custom'dir",
         )
 
         val testScope = CoroutineScope(Dispatchers.IO)
@@ -102,7 +102,7 @@ class TelnetConnectionHandlerCoverageTest {
                     onConnect = { stream, _ ->
                         capturedOutputStream = stream
                         connectedLatch.countDown()
-                    }
+                    },
                 )
             } catch (e: Exception) {
                 // Normal on cancellation
@@ -166,7 +166,7 @@ class TelnetConnectionHandlerCoverageTest {
             nickname = "FailingTelnet",
             host = "127.0.0.1",
             port = 65534,
-            protocol = Protocol.TELNET
+            protocol = Protocol.TELNET,
         )
 
         var connectCalled = false
@@ -176,7 +176,7 @@ class TelnetConnectionHandlerCoverageTest {
                     profile = profile,
                     keyPair = null,
                     onOutput = { _, _ -> },
-                    onConnect = { _, _ -> connectCalled = true }
+                    onConnect = { _, _ -> connectCalled = true },
                 )
             } catch (e: Exception) {
                 // Expected connection failure

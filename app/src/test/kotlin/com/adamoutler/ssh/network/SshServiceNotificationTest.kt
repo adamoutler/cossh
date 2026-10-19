@@ -60,11 +60,13 @@ class SshServiceNotificationTest {
                     currentSubpath.add(Vec2(x, y))
                     currentCmd = 'L'
                 }
+
                 'L' -> {
                     val x = tokens[i++].toDouble()
                     val y = tokens[i++].toDouble()
                     currentSubpath.add(Vec2(x, y))
                 }
+
                 'C' -> {
                     val p0 = currentSubpath.last()
                     val p1 = Vec2(tokens[i++].toDouble(), tokens[i++].toDouble())
@@ -79,12 +81,14 @@ class SshServiceNotificationTest {
                         currentSubpath.add(Vec2(bx, by))
                     }
                 }
+
                 'Z', 'z' -> {
                     if (currentSubpath.isNotEmpty()) {
                         subpaths.add(currentSubpath)
                         currentSubpath = mutableListOf()
                     }
                 }
+
                 else -> i++
             }
         }
@@ -121,8 +125,8 @@ class SshServiceNotificationTest {
             for (x in 0 until width) {
                 val color = getPixel(x, y)
                 rawScanlines.write((color shr 16) and 0xFF) // R
-                rawScanlines.write((color shr 8) and 0xFF)  // G
-                rawScanlines.write(color and 0xFF)         // B
+                rawScanlines.write((color shr 8) and 0xFF) // G
+                rawScanlines.write(color and 0xFF) // B
                 rawScanlines.write((color ushr 24) and 0xFF) // A
             }
         }

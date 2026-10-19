@@ -48,9 +48,7 @@ class EphemeralSecretSanitizationTest {
     @Test
     fun executeWithConnection_whenHandshakeFails_zeroWipesProfilePassword() = runBlocking {
         val failingCoordinator = object : SshHandshakeCoordinator(context = application) {
-            override fun connectClient(client: SSHClient, host: String, port: Int) {
-                throw TransportException(DisconnectReason.HOST_KEY_NOT_VERIFIABLE, "Host key rejected")
-            }
+            override fun connectClient(client: SSHClient, host: String, port: Int): Unit = throw TransportException(DisconnectReason.HOST_KEY_NOT_VERIFIABLE, "Host key rejected")
         }
 
         val rawPasswordBytes = byteArrayOf(0x41, 0x42, 0x43, 0x44, 0x45)
