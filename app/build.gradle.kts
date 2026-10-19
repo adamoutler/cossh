@@ -410,6 +410,44 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     )))
 }
 
+tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
+    group = "Verification"
+    description = "Enforce >=80% instruction coverage verification."
+    dependsOn("testDebugUnitTest")
+
+    val fileFilter = listOf(
+        "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
+        "**/*Test*.*", "android/**/*.*", "**/ui/theme/*.*", "**/*\$serializer.class", "**/*\$\$serializer.class", "**/*\$Companion.class",
+        "**/ui/**/*.class", "**/*ScreenKt*.class", "**/*DialogKt*.class", "**/components/**/*.class"
+    )
+    val debugTree = fileTree(mapOf(
+        "dir" to layout.buildDirectory.dir("tmp/kotlin-classes/debug").get().asFile,
+        "excludes" to fileFilter
+    ))
+    val mainSrc = "${project.projectDir}/src/main/kotlin"
+
+    sourceDirectories.setFrom(files(mainSrc))
+    classDirectories.setFrom(files(debugTree))
+    executionData.setFrom(fileTree(mapOf(
+        "dir" to layout.buildDirectory.get().asFile,
+        "includes" to listOf(
+            "jacoco/testDebugUnitTest.exec",
+            "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"
+        )
+    )))
+
+    violationRules {
+        rule {
+            element = "BUNDLE"
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = 0.80.toBigDecimal()
+            }
+        }
+    }
+}
+
 sonar {
     properties {
         property("sonar.projectKey", "adamoutler_cossh")
@@ -419,7 +457,7 @@ sonar {
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
         property("sonar.junit.reportPaths", "${layout.buildDirectory.get()}/test-results/testDebugUnitTest")
 
-        property("sonar.coverage.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*,**/security/SecureCrashHandler.kt,**/crypto/PasswordCipher.kt,**/sync/DriveSyncManager.kt,**/crypto/IdentityStorageManager.kt,**/backup/BackupCryptoManager.kt,**/crypto/SecurityStorageManager.kt,**/crypto/SSHKeyGenerator.kt,**/crypto/PemUtils.kt,**/MainActivity.kt,**/billing/BillingManager.kt,**/network/**/*.*,**/net/schmizz/sshj/**/*.*")
+        property("sonar.coverage.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*,**/MainActivity.kt,**/billing/BillingManager.kt,**/net/schmizz/sshj/**/*.*")
         property("sonar.cpd.exclusions", "**/ui/screens/**/*.*,**/ui/components/**/*.*,**/ui/keys/**/*.*,**/ui/base/**/*.*")
         property("sonar.c.file.suffixes", "-")
         property("sonar.cpp.file.suffixes", "-")

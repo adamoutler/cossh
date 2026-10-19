@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.crypto.SettingsManager
 import com.adamoutler.ssh.ui.components.TerminalScaleHandler
+import com.adamoutler.ssh.ui.theme.TerminalFontChoice
+import com.adamoutler.ssh.ui.theme.TerminalTheme
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import kotlinx.coroutines.FlowPreview
@@ -36,6 +38,12 @@ class TerminalViewModel(application: Application) :
 
     private val _fontSizeFlow = MutableStateFlow(14)
     val fontSizeFlow = _fontSizeFlow.asStateFlow()
+
+    private val _colorThemeFlow = MutableStateFlow(TerminalTheme.COBALT_BLUE)
+    val colorThemeFlow = _colorThemeFlow.asStateFlow()
+
+    private val _fontChoiceFlow = MutableStateFlow(TerminalFontChoice.DEFAULT_MONOSPACE)
+    val fontChoiceFlow = _fontChoiceFlow.asStateFlow()
 
     private val _bellEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val bellEvents = _bellEvents.asSharedFlow()
@@ -72,6 +80,42 @@ class TerminalViewModel(application: Application) :
 
     fun updateFontSize(newSize: Int) {
         _fontSizeFlow.value = TerminalScaleHandler.clampFontSize(newSize)
+    }
+
+    fun initTheme(profileId: String) {
+        activeProfileId = profileId
+        val profile = storageManager.getProfile(profileId)
+        val themeName = profile?.colorTheme ?: settingsManager.globalColorTheme
+        _colorThemeFlow.value = TerminalTheme.fromId(themeName)
+    }
+
+    fun updateTheme(theme: TerminalTheme) {
+        _colorThemeFlow.value = theme
+        activeProfileId?.let { profileId ->
+            val profile = storageManager.getProfile(profileId)
+            if (profile != null) {
+                storageManager.saveProfile(profile.copy(colorTheme = theme.id))
+            }
+        }
+        settingsManager.globalColorTheme = theme.id
+    }
+
+    fun initFont(profileId: String) {
+        activeProfileId = profileId
+        val profile = storageManager.getProfile(profileId)
+        val fontName = profile?.fontChoice ?: settingsManager.globalFontChoice
+        _fontChoiceFlow.value = TerminalFontChoice.fromId(fontName)
+    }
+
+    fun updateFont(font: TerminalFontChoice) {
+        _fontChoiceFlow.value = font
+        activeProfileId?.let { profileId ->
+            val profile = storageManager.getProfile(profileId)
+            if (profile != null) {
+                storageManager.saveProfile(profile.copy(fontChoice = font.id))
+            }
+        }
+        settingsManager.globalFontChoice = font.id
     }
 
     fun getOrCreateSession(sessionId: String, context: Context): TerminalSession {

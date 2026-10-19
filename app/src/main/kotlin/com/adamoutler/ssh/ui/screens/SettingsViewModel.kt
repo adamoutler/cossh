@@ -17,12 +17,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+import com.adamoutler.ssh.ui.theme.TerminalFontChoice
+import com.adamoutler.ssh.ui.theme.TerminalTheme
+
 data class SettingsUiState(
     val isCloudSyncEnabled: Boolean = false,
     val isSyncing: Boolean = false,
     val defaultGroupName: String = "Uncategorized",
     val isPassphraseSet: Boolean = false,
     val showPassphraseDialog: Boolean = false,
+    val globalColorTheme: String = "COBALT_BLUE",
+    val globalFontChoice: String = "DEFAULT_MONOSPACE",
 )
 
 class SettingsViewModel(
@@ -37,6 +42,8 @@ class SettingsViewModel(
         SettingsUiState(
             defaultGroupName = settingsManager.defaultGroupName,
             isPassphraseSet = securityStorageManager.getSyncPassphrase() != null,
+            globalColorTheme = settingsManager.globalColorTheme,
+            globalFontChoice = settingsManager.globalFontChoice,
         ),
     )
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
@@ -47,6 +54,16 @@ class SettingsViewModel(
                 _uiState.update { it.copy(isCloudSyncEnabled = isEnabled) }
             }
         }
+    }
+
+    fun updateColorTheme(theme: TerminalTheme) {
+        settingsManager.globalColorTheme = theme.id
+        _uiState.update { it.copy(globalColorTheme = theme.id) }
+    }
+
+    fun updateFontChoice(font: TerminalFontChoice) {
+        settingsManager.globalFontChoice = font.id
+        _uiState.update { it.copy(globalFontChoice = font.id) }
     }
 
     fun updateDefaultGroupName(name: String) {

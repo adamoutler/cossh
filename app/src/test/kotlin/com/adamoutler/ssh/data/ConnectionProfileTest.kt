@@ -90,6 +90,21 @@ class ConnectionProfileTest {
         assertEquals(null, deserialized.sshKeyPasswordReferenceId)
         assertEquals(null, deserialized.fontSize)
         assertEquals(null, deserialized.initialDirectory)
+        assertEquals(null, deserialized.colorTheme)
+        assertEquals(null, deserialized.fontChoice)
+    }
+
+    @Test
+    fun testColorThemeAndFontChoiceEquality() {
+        val p1 = ConnectionProfile("1", "test", "host", colorTheme = "COBALT_BLUE", fontChoice = "JETBRAINS_MONO")
+        val p2 = ConnectionProfile("1", "test", "host", colorTheme = "COBALT_BLUE", fontChoice = "JETBRAINS_MONO")
+        val p3 = ConnectionProfile("1", "test", "host", colorTheme = "DRACULA", fontChoice = "JETBRAINS_MONO")
+        val p4 = ConnectionProfile("1", "test", "host", colorTheme = "COBALT_BLUE", fontChoice = "FIRA_CODE")
+
+        assertEquals(p1, p2)
+        assertEquals(p1.hashCode(), p2.hashCode())
+        assertNotEquals(p1, p3)
+        assertNotEquals(p1, p4)
     }
 }
 

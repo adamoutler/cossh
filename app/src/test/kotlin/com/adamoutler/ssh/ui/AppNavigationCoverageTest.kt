@@ -8,6 +8,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.adamoutler.ssh.crypto.SecurityStorageManager
+import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.network.ActiveSessionState
 import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.adamoutler.ssh.network.HostKeyPromptRequest
 import com.adamoutler.ssh.network.SshService
@@ -15,6 +18,7 @@ import com.adamoutler.ssh.ui.events.UiEvent
 import com.adamoutler.ssh.ui.events.UiEventBus
 import com.adamoutler.ssh.ui.navigation.AppNavigation
 import com.adamoutler.ssh.ui.navigation.HostKeyPromptDialog
+import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -145,26 +149,51 @@ class AppNavigationCoverageTest {
     }
 
     @Test
-    fun testAppNavigation_HandlesIntent() {
+    fun testAppNavigation_HandlesIntent_SanitizedSuccess() {
         val scenario = ActivityScenario.launch(androidx.activity.ComponentActivity::class.java)
         scenario.onActivity { activity ->
-            val intent = Intent().apply {
-                putExtra(SshService.EXTRA_PROFILE_ID, "test_profile")
-                putExtra(SshService.EXTRA_SESSION_ID, "test_session")
+            val storageManager = SecurityStorageManager(activity)
+            val profileId = "test_profile_1"
+            val sessionId = "test_session_1"
+            storageManager.saveProfile(ConnectionProfile(id = profileId, nickname = "Test 1", host = "localhost"))
+            ConnectionStateRepository.sessions[sessionId] = ActiveSessionState(
+                profileId = profileId,
+                sessionId = sessionId,
+                ptyOutputStream = ByteArrayOutputStream(),
+            )
+
+            val intent = Intent("com.adamoutler.ssh.RESUME_$sessionId").apply {
+                putExtra(SshService.EXTRA_PROFILE_ID, profileId)
+                putExtra(SshService.EXTRA_SESSION_ID, sessionId)
             }
             activity.intent = intent
 
             composeTestRule.setContent {
-                AppNavigation()
+                androidx.compose.runtime.CompositionLocalProvider(
+                    androidx.compose.ui.platform.LocalContext provides activity,
+                ) {
+                    AppNavigation()
+                }
             }
             composeTestRule.waitForIdle()
 
-            // Also test the onNewIntent listener by dispatching a new intent
-            val newIntent = Intent().apply {
-                putExtra(SshService.EXTRA_PROFILE_ID, "test_profile_2")
-                putExtra(SshService.EXTRA_SESSION_ID, "test_session_2")
+            // Verify activity intent was cleared to prevent replay on recreation
+            org.junit.Assert.assertFalse(activity.intent.hasExtra(SshService.EXTRA_PROFILE_ID))
+
+            // Also test onNewIntent listener by dispatching a new valid intent
+            val profileId2 = "test_profile_2"
+            val sessionId2 = "test_session_2"
+            storageManager.saveProfile(ConnectionProfile(id = profileId2, nickname = "Test 2", host = "localhost"))
+            ConnectionStateRepository.sessions[sessionId2] = ActiveSessionState(
+                profileId = profileId2,
+                sessionId = sessionId2,
+                ptyOutputStream = ByteArrayOutputStream(),
+            )
+
+            val newIntent = Intent("com.adamoutler.ssh.RESUME_$sessionId2").apply {
+                putExtra(SshService.EXTRA_PROFILE_ID, profileId2)
+                putExtra(SshService.EXTRA_SESSION_ID, sessionId2)
             }
-            // Trigger new intent by reflecting on ComponentActivity's dispatch function
             try {
                 val method = androidx.activity.ComponentActivity::class.java.getDeclaredMethod("onNewIntent", Intent::class.java)
                 method.isAccessible = true
@@ -173,6 +202,30 @@ class AppNavigationCoverageTest {
             } catch (e: Exception) {
                 // Ignore if method not found
             }
+        }
+    }
+
+    @Test
+    fun testAppNavigation_HandlesIntent_UntrustedRejected() {
+        val scenario = ActivityScenario.launch(androidx.activity.ComponentActivity::class.java)
+        scenario.onActivity { activity ->
+            val unauthenticatedIntent = Intent("android.intent.action.VIEW").apply {
+                putExtra(SshService.EXTRA_PROFILE_ID, "forged_profile")
+                putExtra(SshService.EXTRA_SESSION_ID, "forged_session")
+            }
+            activity.intent = unauthenticatedIntent
+
+            composeTestRule.setContent {
+                androidx.compose.runtime.CompositionLocalProvider(
+                    androidx.compose.ui.platform.LocalContext provides activity,
+                ) {
+                    AppNavigation()
+                }
+            }
+            composeTestRule.waitForIdle()
+
+            // Intent must be cleared to prevent replay, without navigating to terminal
+            org.junit.Assert.assertFalse(activity.intent.hasExtra(SshService.EXTRA_PROFILE_ID))
         }
     }
 

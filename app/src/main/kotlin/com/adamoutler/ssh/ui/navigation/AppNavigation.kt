@@ -48,16 +48,12 @@ fun AppNavigation() {
 
     androidx.compose.runtime.DisposableEffect(activity) {
         val listener = androidx.core.util.Consumer<android.content.Intent> { intent ->
-            if (intent.hasExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID)) {
-                val profileId = intent.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID)
-                val sessionId = intent.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID)
-                if (profileId != null && sessionId != null) {
-                    navController.navigate("terminal?profileId=$profileId&sessionId=$sessionId") {
-                        popUpTo("connectionList") { inclusive = false }
-                        launchSingleTop = true
-                    }
-                }
-            }
+            IntentSanitizer.sanitizeAndNavigate(
+                intent = intent,
+                navController = navController,
+                activity = activity,
+                securityStorageManager = securityStorageManager,
+            )
         }
         activity?.addOnNewIntentListener(listener)
         onDispose {
@@ -66,18 +62,12 @@ fun AppNavigation() {
     }
 
     androidx.compose.runtime.LaunchedEffect(Unit) {
-        val intent = activity?.intent
-        if (intent?.hasExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID) == true) {
-            val profileId = intent.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID)
-            val sessionId = intent.getStringExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID)
-            activity.intent = android.content.Intent() // Clear the intent so it isn't re-processed
-            if (profileId != null && sessionId != null) {
-                navController.navigate("terminal?profileId=$profileId&sessionId=$sessionId") {
-                    popUpTo("connectionList") { inclusive = false }
-                    launchSingleTop = true
-                }
-            }
-        }
+        IntentSanitizer.sanitizeAndNavigate(
+            intent = activity?.intent,
+            navController = navController,
+            activity = activity,
+            securityStorageManager = securityStorageManager,
+        )
 
         com.adamoutler.ssh.ui.events.UiEventBus.events.collect { event ->
             if (event is com.adamoutler.ssh.ui.events.UiEvent.Navigate) {

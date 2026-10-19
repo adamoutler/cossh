@@ -15,6 +15,10 @@ class SettingsManager(context: Context) {
         private const val DEFAULT_FONT_SIZE = 14
         private const val KEY_DEFAULT_GROUP_NAME = "default_group_name"
         private const val DEFAULT_GROUP_NAME = "Uncategorized"
+        private const val KEY_GLOBAL_COLOR_THEME = "global_color_theme"
+        private const val DEFAULT_COLOR_THEME = "COBALT_BLUE"
+        private const val KEY_GLOBAL_FONT_CHOICE = "global_font_choice"
+        private const val DEFAULT_FONT_CHOICE = "DEFAULT_MONOSPACE"
     }
 
     var globalFontSize: Int
@@ -24,4 +28,12 @@ class SettingsManager(context: Context) {
     var defaultGroupName: String
         get() = prefs.getString(KEY_DEFAULT_GROUP_NAME, DEFAULT_GROUP_NAME) ?: DEFAULT_GROUP_NAME
         set(value) = prefs.edit().putString(KEY_DEFAULT_GROUP_NAME, value).apply()
+
+    var globalColorTheme: String
+        get() = prefs.getString(KEY_GLOBAL_COLOR_THEME, DEFAULT_COLOR_THEME) ?: DEFAULT_COLOR_THEME
+        set(value) = prefs.edit().putString(KEY_GLOBAL_COLOR_THEME, value).apply()
+
+    var globalFontChoice: String
+        get() = prefs.getString(KEY_GLOBAL_FONT_CHOICE, DEFAULT_FONT_CHOICE) ?: DEFAULT_FONT_CHOICE
+        set(value) = prefs.edit().putString(KEY_GLOBAL_FONT_CHOICE, value).apply()
 }
