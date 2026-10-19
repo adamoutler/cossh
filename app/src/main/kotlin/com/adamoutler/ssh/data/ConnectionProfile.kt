@@ -94,6 +94,8 @@ data class ConnectionProfile(
     val terminalInputState: Int = 0,
     val keepScreenOnMode: KeepScreenOnMode = KeepScreenOnMode.SYSTEM_DEFAULT,
     val useLocalDns: Boolean = false,
+    val colorTheme: String? = null,
+    val fontChoice: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -126,6 +128,8 @@ data class ConnectionProfile(
         if (keepScreenOnMode != other.keepScreenOnMode) return false
         if (useLocalDns != other.useLocalDns) return false
         if (commandSnippets != other.commandSnippets) return false
+        if (colorTheme != other.colorTheme) return false
+        if (fontChoice != other.fontChoice) return false
 
         return true
     }
@@ -151,6 +155,8 @@ data class ConnectionProfile(
         result = 31 * result + keepScreenOnMode.hashCode()
         result = 31 * result + useLocalDns.hashCode()
         result = 31 * result + commandSnippets.hashCode()
+        result = 31 * result + (colorTheme?.hashCode() ?: 0)
+        result = 31 * result + (fontChoice?.hashCode() ?: 0)
         return result
     }
 

@@ -41,6 +41,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.adamoutler.ssh.ui.screens.TerminalViewModel
+import com.adamoutler.ssh.ui.theme.TerminalFontChoice
+import com.adamoutler.ssh.ui.theme.TerminalTheme
 import com.termux.terminal.TerminalSession
 import com.termux.view.TerminalView
 import kotlinx.coroutines.Dispatchers
@@ -65,9 +67,13 @@ fun TerminalScreen(
     val session = remember(actualSessionId) { terminalViewModel.getOrCreateSession(actualSessionId, context) }
     val activeSession = remember(actualSessionId) { ConnectionStateRepository.getOrCreateSession(profileId, actualSessionId) }
     val currentFontSize by terminalViewModel.fontSizeFlow.collectAsState()
+    val currentTheme by terminalViewModel.colorThemeFlow.collectAsState()
+    val currentFont by terminalViewModel.fontChoiceFlow.collectAsState()
 
     androidx.compose.runtime.LaunchedEffect(profileId) {
         terminalViewModel.initFontSize(profileId)
+        terminalViewModel.initTheme(profileId)
+        terminalViewModel.initFont(profileId)
     }
 
     val activeConnectionCounts by ConnectionStateRepository.activeConnectionCounts.collectAsState()
@@ -123,6 +129,8 @@ fun TerminalScreen(
         },
         modifier = modifier,
         terminalViewModel = terminalViewModel,
+        currentTheme = currentTheme,
+        currentFont = currentFont,
     )
 }
 
@@ -145,7 +153,23 @@ fun TerminalScreenContent(
     profile: com.adamoutler.ssh.data.ConnectionProfile? = null,
     initialTerminalInputState: Int = 0,
     terminalViewModel: TerminalViewModel? = null,
+    currentTheme: TerminalTheme = TerminalTheme.COBALT_BLUE,
+    currentFont: TerminalFontChoice = TerminalFontChoice.DEFAULT_MONOSPACE,
 ) {
+    val resolvedTheme = remember(currentTheme, profile?.colorTheme) {
+        if (profile?.colorTheme != null) {
+            TerminalTheme.fromId(profile.colorTheme)
+        } else {
+            currentTheme
+        }
+    }
+    val resolvedFont = remember(currentFont, profile?.fontChoice) {
+        if (profile?.fontChoice != null) {
+            TerminalFontChoice.fromId(profile.fontChoice)
+        } else {
+            currentFont
+        }
+    }
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
     val density = androidx.compose.ui.platform.LocalDensity.current
     var lastDataTime by remember { androidx.compose.runtime.mutableLongStateOf(System.currentTimeMillis()) }
@@ -390,11 +414,16 @@ fun TerminalScreenContent(
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             val isHeadlessTest = ConnectionStateRepository.isHeadlessTest
             if (isHeadlessTest) {
-                Box(modifier = Modifier.fillMaxSize().background(Color.Black).padding(4.dp)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(resolvedTheme.background))
+                        .padding(4.dp),
+                ) {
                     Text(
                         text = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: "Welcome to CoSSH Terminal",
-                        color = Color.Green,
-                        fontFamily = FontFamily.Monospace,
+                        color = Color(resolvedTheme.foreground),
+                        fontFamily = resolvedFont.composeFontFamily,
                         fontSize = currentFontSize.sp,
                     )
                 }
@@ -421,7 +450,8 @@ fun TerminalScreenContent(
                     },
                     factory = { ctx ->
                         val terminalView = TerminalView(ctx, null)
-                        terminalView.setBackgroundColor(android.graphics.Color.BLACK)
+                        resolvedTheme.applyTo(terminalView, session)
+                        terminalView.setTypeface(resolvedFont.getTypeface())
                         terminalView.setTextSize((currentFontSize * density.density * density.fontScale).toInt())
                         terminalView.layoutParams = FrameLayout.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -625,6 +655,8 @@ fun TerminalScreenContent(
                     update = { view ->
                         val tv = (view as android.widget.FrameLayout).getChildAt(0) as TerminalView
                         tv.setTextSize((currentFontSize * density.density * density.fontScale).toInt())
+                        tv.setTypeface(resolvedFont.getTypeface())
+                        resolvedTheme.applyTo(tv, session)
                     },
                 )
             }
