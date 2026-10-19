@@ -16,7 +16,13 @@ data class HostKeyPromptRequest(
     val deferred: CompletableDeferred<Boolean>,
 )
 
-data class AuthCredentials(val username: String, val password: CharArray?)
+data class AuthCredentials(val username: String, val password: CharArray?) : AutoCloseable {
+    fun clear() {
+        password?.fill('\u0000')
+    }
+
+    override fun close() = clear()
+}
 
 data class AuthPromptRequest(
     val profileId: String,

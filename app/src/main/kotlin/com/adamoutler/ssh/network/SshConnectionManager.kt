@@ -11,8 +11,13 @@ import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.HostKeyVerifier
 import net.schmizz.sshj.transport.verification.OpenSSHKnownHosts
 import java.io.File
+import java.nio.file.AtomicMoveNotSupportedException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.security.KeyPair
+import java.security.MessageDigest
 import java.security.PublicKey
+import java.util.Base64
 
 class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(knownHostsFile) {
     override fun verify(hostname: String, port: Int, key: PublicKey): Boolean {
@@ -23,36 +28,70 @@ class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(
         val formattedHost = if (port != 22) "[$hostname]:$port" else hostname
 
         var oldFingerprint: String? = null
-        val hostExists = knownHostsFile.exists() && knownHostsFile.useLines { lines ->
-            var found = false
-            for (line in lines) {
-                val tokens = line.split(" ")
-                val firstToken = tokens.firstOrNull()
-                if (firstToken != null && firstToken == formattedHost) {
-                    found = true
-                    if (tokens.size >= 3) {
-                        try {
-                            val decodedOld = java.util.Base64.getDecoder().decode(tokens[2])
-                            val md = java.security.MessageDigest.getInstance("SHA-256")
-                            oldFingerprint = "SHA256:" + java.util.Base64.getEncoder().encodeToString(md.digest(decodedOld))
-                        } catch (e: Exception) {
-                            oldFingerprint = "Unknown/Unparseable"
+        var hostExists = false
+
+        if (knownHostsFile.exists()) {
+            try {
+                val currentEntries = OpenSSHKnownHosts(knownHostsFile).entries()
+                for (entry in currentEntries) {
+                    val applies = try {
+                        entry.appliesTo(formattedHost) || (port == 22 && entry.appliesTo(hostname))
+                    } catch (e: Exception) {
+                        false
+                    }
+                    if (applies) {
+                        hostExists = true
+                        val tokens = entry.line.trim().split("\\s+".toRegex())
+                        if (tokens.size >= 3) {
+                            try {
+                                val decodedOld = Base64.getDecoder().decode(tokens[2])
+                                val md = MessageDigest.getInstance("SHA-256")
+                                oldFingerprint = "SHA256:" + Base64.getEncoder().encodeToString(md.digest(decodedOld))
+                            } catch (e: Exception) {
+                                oldFingerprint = "Unknown/Unparseable"
+                            }
+                        }
+                        break
+                    }
+                }
+            } catch (e: Exception) {
+                // Fall back to line parsing below if OpenSSHKnownHosts fails to parse
+            }
+
+            if (!hostExists) {
+                knownHostsFile.useLines { lines ->
+                    for (line in lines) {
+                        val trimmed = line.trim()
+                        if (trimmed.isEmpty() || trimmed.startsWith("#")) continue
+                        val tokens = trimmed.split("\\s+".toRegex())
+                        val hostsToken = tokens.firstOrNull() ?: continue
+                        val hostList = hostsToken.split(",")
+                        if (hostList.contains(formattedHost) || (port == 22 && hostList.contains(hostname))) {
+                            hostExists = true
+                            if (tokens.size >= 3) {
+                                try {
+                                    val decodedOld = Base64.getDecoder().decode(tokens[2])
+                                    val md = MessageDigest.getInstance("SHA-256")
+                                    oldFingerprint = "SHA256:" + Base64.getEncoder().encodeToString(md.digest(decodedOld))
+                                } catch (e: Exception) {
+                                    oldFingerprint = "Unknown/Unparseable"
+                                }
+                            }
+                            break
                         }
                     }
-                    break
                 }
             }
-            found
         }
 
         val keyType = net.schmizz.sshj.common.KeyType.fromKey(key).toString()
         val buffer = net.schmizz.sshj.common.Buffer.PlainBuffer().putPublicKey(key)
-        val keyBlobBase64 = java.util.Base64.getEncoder().encodeToString(buffer.compactData)
+        val keyBlobBase64 = Base64.getEncoder().encodeToString(buffer.compactData)
         val receivedFingerprint = try {
-            net.schmizz.sshj.common.SecurityUtils.getFingerprint(key)
+            val md = MessageDigest.getInstance("SHA-256")
+            "SHA256:" + Base64.getEncoder().encodeToString(md.digest(buffer.compactData))
         } catch (e: Exception) {
-            val md = java.security.MessageDigest.getInstance("SHA-256")
-            "SHA256:" + java.util.Base64.getEncoder().encodeToString(md.digest(buffer.compactData))
+            net.schmizz.sshj.common.SecurityUtils.getFingerprint(key)
         }
 
         // Prompt user (runBlocking because verify is synchronous but we need to await the user's UI action)
@@ -73,20 +112,49 @@ class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(
                 knownHostsFile.useLines { lines ->
                     tempFile.printWriter().use { out ->
                         lines.forEach { line ->
-                            val firstToken = line.split(" ").firstOrNull()
-                            if (firstToken != null && firstToken != formattedHost) {
+                            val trimmed = line.trim()
+                            if (trimmed.isNotEmpty() && !trimmed.startsWith("#")) {
+                                val tokens = trimmed.split("\\s+".toRegex())
+                                val hostsToken = tokens.firstOrNull()
+                                val isTargetHost = if (hostsToken != null) {
+                                    val hostList = hostsToken.split(",")
+                                    hostList.contains(formattedHost) || (port == 22 && hostList.contains(hostname))
+                                } else {
+                                    false
+                                }
+                                if (!isTargetHost) {
+                                    out.println(line)
+                                }
+                            } else if (trimmed.isNotEmpty()) {
                                 out.println(line)
                             }
                         }
                         out.print(newEntry)
                     }
                 }
-                val success = tempFile.renameTo(knownHostsFile)
-                if (!success) {
-                    println(("TofuHostKeyVerifier").toString() + ": " + ("Failed to rename temp known_hosts file").toString())
+                try {
+                    Files.move(
+                        tempFile.toPath(),
+                        knownHostsFile.toPath(),
+                        StandardCopyOption.ATOMIC_MOVE,
+                        StandardCopyOption.REPLACE_EXISTING,
+                    )
+                } catch (e: AtomicMoveNotSupportedException) {
+                    Files.move(
+                        tempFile.toPath(),
+                        knownHostsFile.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING,
+                    )
                 }
             } else {
+                knownHostsFile.parentFile?.mkdirs()
                 knownHostsFile.appendText(newEntry)
+            }
+            try {
+                entries.clear()
+                entries.addAll(OpenSSHKnownHosts(knownHostsFile).entries())
+            } catch (e: Exception) {
+                // In-memory sync fallback
             }
             try {
                 println(("TofuHostKeyVerifier").toString() + ": " + ("Host $hostname key accepted and saved.").toString())
@@ -146,6 +214,7 @@ class SshConnectionManager(
                 }
             }
         } finally {
+            profile.clearSensitiveData()
             try {
                 sshClient.disconnect()
             } catch (e: Exception) {

@@ -13,6 +13,7 @@ import com.adamoutler.ssh.MainActivity
 import com.adamoutler.ssh.R
 import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.crypto.SecurityStorageManager
+import com.adamoutler.ssh.data.ConnectionProfile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -103,10 +104,11 @@ class SshService : Service() {
         connectionJobs[sessionId] = job
 
         serviceScope.launch(job) {
+            var profile: ConnectionProfile? = null
             try {
                 val storageManager = SecurityStorageManager(applicationContext)
                 val identityStorageManager = IdentityStorageManager(applicationContext)
-                val profile = storageManager.getProfile(profileId)
+                profile = storageManager.getProfile(profileId)
                 if (profile != null) {
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Connecting)
                     updateSessionNotification(profileId, sessionId, profile.nickname, "Connecting...")
@@ -165,6 +167,7 @@ class SshService : Service() {
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnected)
                 }
             } finally {
+                profile?.clearSensitiveData()
                 ConnectionStateRepository.removeConnection(profileId)
                 val activeCount = ConnectionStateRepository.activeConnectionCounts.value[profileId] ?: 0
                 val currentState = ConnectionStateRepository.connectionStates.value[profileId]

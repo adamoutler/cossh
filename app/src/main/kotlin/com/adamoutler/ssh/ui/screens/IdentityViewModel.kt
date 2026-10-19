@@ -72,7 +72,15 @@ class IdentityViewModel(
     }
 
     fun resetState() {
+        val currentState = _uiState.value
+        currentState.originalPassword?.fill(0)
+        currentState.privateKey?.fill(0)
         _uiState.value = IdentityFormState()
+    }
+
+    override fun onCleared() {
+        resetState()
+        super.onCleared()
     }
 
     fun loadIdentities() {
@@ -136,11 +144,15 @@ class IdentityViewModel(
                 authType = AuthType.PASSWORD,
                 password = tempPassword.toByteArray(),
             )
-            val success = manager.injectPublicKey(tempProfile, _uiState.value.publicKey)
-            if (success) {
-                com.adamoutler.ssh.ui.events.UiEventBus.publish(com.adamoutler.ssh.ui.events.UiEvent.ShowSnackbar("Key injected successfully!"))
-            } else {
-                com.adamoutler.ssh.ui.events.UiEventBus.publish(com.adamoutler.ssh.ui.events.UiEvent.ShowSnackbar("Failed to inject key. Check logs."))
+            try {
+                val success = manager.injectPublicKey(tempProfile, _uiState.value.publicKey)
+                if (success) {
+                    com.adamoutler.ssh.ui.events.UiEventBus.publish(com.adamoutler.ssh.ui.events.UiEvent.ShowSnackbar("Key injected successfully!"))
+                } else {
+                    com.adamoutler.ssh.ui.events.UiEventBus.publish(com.adamoutler.ssh.ui.events.UiEvent.ShowSnackbar("Failed to inject key. Check logs."))
+                }
+            } finally {
+                tempProfile.clearSensitiveData()
             }
         }
     }

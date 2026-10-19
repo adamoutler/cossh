@@ -258,7 +258,13 @@ class AddEditProfileViewModel(
     }
 
     fun resetState() {
+        _uiState.value.originalPassword?.fill(0)
         _uiState.value = ProfileFormState()
+    }
+
+    override fun onCleared() {
+        resetState()
+        super.onCleared()
     }
 
     fun saveProfile(

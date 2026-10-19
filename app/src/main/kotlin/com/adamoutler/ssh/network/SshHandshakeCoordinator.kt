@@ -219,6 +219,7 @@ open class SshHandshakeCoordinator(
             return block(effectiveProfile)
         } finally {
             identity?.clearSensitiveData()
+            profile.clearSensitiveData()
         }
     }
 }
