@@ -51,8 +51,7 @@ object MockURLStreamHandlerFactory : URLStreamHandlerFactory {
     override fun createURLStreamHandler(protocol: String?): URLStreamHandler? {
         if (protocol == "https") {
             return object : URLStreamHandler() {
-                override fun openConnection(u: URL?): URLConnection =
-                    connectionProvider?.invoke(u!!) ?: mockConnection ?: MockHttpURLConnection(u!!)
+                override fun openConnection(u: URL?): URLConnection = connectionProvider?.invoke(u!!) ?: mockConnection ?: MockHttpURLConnection(u!!)
             }
         }
         return null

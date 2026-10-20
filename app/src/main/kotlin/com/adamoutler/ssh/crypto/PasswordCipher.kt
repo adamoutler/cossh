@@ -66,9 +66,7 @@ object PasswordCipher {
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
-    fun wrapCryptoObject(cipher: Cipher): BiometricPrompt.CryptoObject {
-        return BiometricPrompt.CryptoObject(cipher)
-    }
+    fun wrapCryptoObject(cipher: Cipher): BiometricPrompt.CryptoObject = BiometricPrompt.CryptoObject(cipher)
 
     internal fun resetFallbackKeyForTesting() {
         fallbackKey = null

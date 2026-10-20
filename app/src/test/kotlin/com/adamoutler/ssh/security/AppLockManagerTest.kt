@@ -39,13 +39,11 @@ class AppLockManagerTest {
         simulatedTimeMs = 100000L
     }
 
-    private fun createManager(): AppLockManager {
-        return AppLockManager(
-            settingsManager = settingsManager,
-            securityStorageManager = securityStorageManager,
-            clock = { simulatedTimeMs },
-        )
-    }
+    private fun createManager(): AppLockManager = AppLockManager(
+        settingsManager = settingsManager,
+        securityStorageManager = securityStorageManager,
+        clock = { simulatedTimeMs },
+    )
 
     @Test
     fun testInitialStateWhenDisabled() {

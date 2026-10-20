@@ -221,11 +221,11 @@ open class DriveSyncManager(context: Context) {
                     val twoHyphens = "--"
 
                     val part1Header = "$twoHyphens$boundary$lineEnd" +
-                            "Content-Type: application/json; charset=UTF-8$lineEnd$lineEnd" +
-                            metadataJson + lineEnd
+                        "Content-Type: application/json; charset=UTF-8$lineEnd$lineEnd" +
+                        metadataJson + lineEnd
 
                     val part2Header = "$twoHyphens$boundary$lineEnd" +
-                            "Content-Type: application/octet-stream$lineEnd$lineEnd"
+                        "Content-Type: application/octet-stream$lineEnd$lineEnd"
 
                     val closingBoundary = "$lineEnd$twoHyphens$boundary$twoHyphens$lineEnd"
 

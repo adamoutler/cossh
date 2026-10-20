@@ -84,17 +84,16 @@ class SettingsViewModelCloudSyncTest {
 
         private val dummyOperation = object : Operation {
             override fun getState(): LiveData<Operation.State> = MutableLiveData(Operation.SUCCESS)
-            override fun getResult(): ListenableFuture<Operation.State.SUCCESS> =
-                object : ListenableFuture<Operation.State.SUCCESS> {
-                    override fun addListener(listener: Runnable, executor: Executor) {
-                        executor.execute(listener)
-                    }
-                    override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
-                    override fun isCancelled(): Boolean = false
-                    override fun isDone(): Boolean = true
-                    override fun get(): Operation.State.SUCCESS = Operation.SUCCESS
-                    override fun get(timeout: Long, unit: TimeUnit): Operation.State.SUCCESS = Operation.SUCCESS
+            override fun getResult(): ListenableFuture<Operation.State.SUCCESS> = object : ListenableFuture<Operation.State.SUCCESS> {
+                override fun addListener(listener: Runnable, executor: Executor) {
+                    executor.execute(listener)
                 }
+                override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
+                override fun isCancelled(): Boolean = false
+                override fun isDone(): Boolean = true
+                override fun get(): Operation.State.SUCCESS = Operation.SUCCESS
+                override fun get(timeout: Long, unit: TimeUnit): Operation.State.SUCCESS = Operation.SUCCESS
+            }
         }
 
         override fun cancelUniqueWork(uniqueWorkName: String): Operation {

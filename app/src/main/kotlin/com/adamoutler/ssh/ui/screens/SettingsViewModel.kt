@@ -48,7 +48,11 @@ class SettingsViewModel(
     private val settingsManager: SettingsManager = SettingsManager(application),
     private val securityStorageManager: SecurityStorageManager = SecurityStorageManager(application),
     private val identityStorageManager: IdentityStorageManager = IdentityStorageManager(application),
-    private val workManager: WorkManager? = try { WorkManager.getInstance(application) } catch (_: Throwable) { null },
+    private val workManager: WorkManager? = try {
+        WorkManager.getInstance(application)
+    } catch (_: Throwable) {
+        null
+    },
 ) : AndroidViewModel(application) {
 
     companion object {

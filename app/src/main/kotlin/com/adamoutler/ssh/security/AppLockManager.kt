@@ -25,17 +25,11 @@ class AppLockManager(
 
     private var backgroundedTimestampMs: Long = 0L
 
-    private fun shouldBeLockedInitially(): Boolean {
-        return settingsManager.isAppLockEnabled && securityStorageManager.isAppLockConfigured()
-    }
+    private fun shouldBeLockedInitially(): Boolean = settingsManager.isAppLockEnabled && securityStorageManager.isAppLockConfigured()
 
-    fun isAppLockConfigured(): Boolean {
-        return securityStorageManager.isAppLockConfigured()
-    }
+    fun isAppLockConfigured(): Boolean = securityStorageManager.isAppLockConfigured()
 
-    fun isAppLockEnabled(): Boolean {
-        return settingsManager.isAppLockEnabled
-    }
+    fun isAppLockEnabled(): Boolean = settingsManager.isAppLockEnabled
 
     fun enableAppLock(cipher: Cipher) {
         securityStorageManager.setupAppLock(cipher)
@@ -95,13 +89,11 @@ class AppLockManager(
         @Volatile
         private var instance: AppLockManager? = null
 
-        fun getInstance(context: Context): AppLockManager {
-            return instance ?: synchronized(this) {
-                instance ?: AppLockManager(
-                    settingsManager = SettingsManager(context.applicationContext),
-                    securityStorageManager = SecurityStorageManager(context.applicationContext),
-                ).also { instance = it }
-            }
+        fun getInstance(context: Context): AppLockManager = instance ?: synchronized(this) {
+            instance ?: AppLockManager(
+                settingsManager = SettingsManager(context.applicationContext),
+                securityStorageManager = SecurityStorageManager(context.applicationContext),
+            ).also { instance = it }
         }
 
         fun resetInstanceForTesting(mockManager: AppLockManager? = null) {

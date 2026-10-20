@@ -267,11 +267,9 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
         return java.util.Base64.getDecoder().decode(ivB64)
     }
 
-    fun isAppLockConfigured(): Boolean {
-        return encryptedPrefs.contains("app_lock_ciphertext") &&
-            encryptedPrefs.contains("app_lock_iv") &&
-            encryptedPrefs.contains("app_lock_token_sha256")
-    }
+    fun isAppLockConfigured(): Boolean = encryptedPrefs.contains("app_lock_ciphertext") &&
+        encryptedPrefs.contains("app_lock_iv") &&
+        encryptedPrefs.contains("app_lock_token_sha256")
 
     fun clearAppLock() {
         encryptedPrefs.edit()
