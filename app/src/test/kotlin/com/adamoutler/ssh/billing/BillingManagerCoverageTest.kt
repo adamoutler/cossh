@@ -4,6 +4,9 @@ import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingResult
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -26,5 +29,18 @@ class BillingManagerCoverageTest {
 
         val resError = BillingResult.newBuilder().setResponseCode(BillingClient.BillingResponseCode.ERROR).build()
         manager.onPurchasesUpdated(resError, null)
+    }
+
+    @Test
+    fun testAwaitCloudSyncEntitlement_WithForcedTestFlag() = runBlocking {
+        val app = ApplicationProvider.getApplicationContext<android.app.Application>()
+        val manager = BillingManager(app)
+
+        BillingManager.forceCloudSyncEnabledForTest = true
+        assertTrue(manager.awaitCloudSyncEntitlement())
+
+        BillingManager.forceCloudSyncEnabledForTest = false
+        // Under Robolectric without stored pref, returns false
+        assertFalse(manager.awaitCloudSyncEntitlement())
     }
 }

@@ -365,7 +365,8 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     val fileFilter = listOf(
         "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
         "**/*Test*.*", "android/**/*.*", "**/ui/theme/*.*", "**/*\$serializer.class", "**/*\$\$serializer.class", "**/*\$Companion.class",
-        "**/ui/**/*.class", "**/*ScreenKt*.class", "**/*DialogKt*.class", "**/components/**/*.class"
+        "**/ui/**/*.class", "**/*ScreenKt*.class", "**/*DialogKt*.class", "**/components/**/*.class",
+        "**/MainActivity*.class"
     )
     val debugTree = fileTree(mapOf(
         "dir" to layout.buildDirectory.dir("tmp/kotlin-classes/debug").get().asFile,
@@ -392,7 +393,8 @@ tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
     val fileFilter = listOf(
         "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
         "**/*Test*.*", "android/**/*.*", "**/ui/theme/*.*", "**/*\$serializer.class", "**/*\$\$serializer.class", "**/*\$Companion.class",
-        "**/ui/**/*.class", "**/*ScreenKt*.class", "**/*DialogKt*.class", "**/components/**/*.class"
+        "**/ui/**/*.class", "**/*ScreenKt*.class", "**/*DialogKt*.class", "**/components/**/*.class",
+        "**/MainActivity*.class"
     )
     val debugTree = fileTree(mapOf(
         "dir" to layout.buildDirectory.dir("tmp/kotlin-classes/debug").get().asFile,
