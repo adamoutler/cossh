@@ -28,7 +28,11 @@ class SettingsViewModelTest {
 
     @After
     fun tearDown() {
-        androidx.work.testing.WorkManagerTestInitHelper.closeWorkDatabase()
+        try {
+            androidx.work.testing.WorkManagerTestInitHelper.closeWorkDatabase()
+        } catch (e: Throwable) {
+            // Ignored on platforms without native SQLite support (e.g. Linux aarch64)
+        }
     }
 
     @Before
@@ -36,11 +40,15 @@ class SettingsViewModelTest {
         application = ApplicationProvider.getApplicationContext()
 
         // Initialize WorkManager for testing
-        val config = Configuration.Builder()
-            .setMinimumLoggingLevel(android.util.Log.DEBUG)
-            .setExecutor(androidx.work.testing.SynchronousExecutor())
-            .build()
-        WorkManagerTestInitHelper.initializeTestWorkManager(application, config)
+        try {
+            val config = Configuration.Builder()
+                .setMinimumLoggingLevel(android.util.Log.DEBUG)
+                .setExecutor(androidx.work.testing.SynchronousExecutor())
+                .build()
+            WorkManagerTestInitHelper.initializeTestWorkManager(application, config)
+        } catch (e: Throwable) {
+            // Ignored on platforms without native SQLite support (e.g. Linux aarch64)
+        }
 
         billingManager = BillingManager(application)
         driveSyncManager = DriveSyncManager(application)

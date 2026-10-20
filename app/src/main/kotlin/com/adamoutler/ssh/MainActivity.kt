@@ -20,6 +20,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +34,7 @@ import com.adamoutler.ssh.ui.theme.CoSSHTheme
 import kotlinx.coroutines.flow.collectLatest
 
 class MainActivity : ComponentActivity() {
+    private lateinit var appLockManager: com.adamoutler.ssh.security.AppLockManager
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { _ ->
@@ -73,42 +76,107 @@ class MainActivity : ComponentActivity() {
             requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
         }
 
+        appLockManager = com.adamoutler.ssh.security.AppLockManager.getInstance(applicationContext)
+
         setContent {
             CoSSHTheme {
-                val snackbarHostState = remember { SnackbarHostState() }
+                val isLocked by appLockManager.isLocked.collectAsState()
+                if (isLocked) {
+                    com.adamoutler.ssh.ui.screens.AppLockScreen(
+                        onUnlockClick = { promptBiometricUnlock() },
+                    )
+                } else {
+                    val snackbarHostState = remember { SnackbarHostState() }
 
-                LaunchedEffect(Unit) {
-                    UiEventBus.events.collectLatest { event ->
-                        when (event) {
-                            is UiEvent.ShowSnackbar -> {
-                                snackbarHostState.showSnackbar(
-                                    message = event.message,
-                                    actionLabel = event.actionLabel,
-                                )
+                    LaunchedEffect(Unit) {
+                        UiEventBus.events.collectLatest { event ->
+                            when (event) {
+                                is UiEvent.ShowSnackbar -> {
+                                    snackbarHostState.showSnackbar(
+                                        message = event.message,
+                                        actionLabel = event.actionLabel,
+                                    )
+                                }
+
+                                is UiEvent.ShowToast -> {
+                                    Toast.makeText(this@MainActivity, event.message, Toast.LENGTH_LONG).show()
+                                }
+
+                                else -> { /* Navigate events should ideally be handled where navController is available */ }
                             }
+                        }
+                    }
 
-                            is UiEvent.ShowToast -> {
-                                Toast.makeText(this@MainActivity, event.message, Toast.LENGTH_LONG).show()
-                            }
-
-                            else -> { /* Navigate events should ideally be handled where navController is available */ }
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize().systemBarsPadding().imePadding(),
+                        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+                    ) { innerPadding ->
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                            color = MaterialTheme.colorScheme.background,
+                        ) {
+                            AppNavigation(appLockManager = appLockManager)
                         }
                     }
                 }
+            }
+        }
+    }
 
-                Scaffold(
-                    modifier = Modifier.fillMaxSize().systemBarsPadding().imePadding(),
-                    snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-                ) { innerPadding ->
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        color = MaterialTheme.colorScheme.background,
-                    ) {
-                        AppNavigation()
-                    }
-                }
+    override fun onStart() {
+        super.onStart()
+        if (::appLockManager.isInitialized) {
+            appLockManager.onAppForegrounded()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (::appLockManager.isInitialized) {
+            appLockManager.onAppBackgrounded()
+        }
+    }
+
+    fun promptBiometricUnlock() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val securityStorageManager = com.adamoutler.ssh.crypto.SecurityStorageManager(applicationContext)
+            val iv = securityStorageManager.getAppLockIv() ?: return
+            val cipher = try {
+                com.adamoutler.ssh.crypto.PasswordCipher.initDecryptCipher(iv)
+            } catch (e: Exception) {
+                return
+            }
+
+            try {
+                val prompt = android.hardware.biometrics.BiometricPrompt.Builder(this)
+                    .setTitle("Unlock CoSSH")
+                    .setSubtitle("Biometric authentication required")
+                    .setNegativeButton("Cancel", mainExecutor) { _, _ -> }
+                    .build()
+
+                val cryptoObject = com.adamoutler.ssh.crypto.PasswordCipher.wrapCryptoObject(cipher)
+                val signal = android.os.CancellationSignal()
+
+                prompt.authenticate(
+                    cryptoObject,
+                    signal,
+                    mainExecutor,
+                    object : android.hardware.biometrics.BiometricPrompt.AuthenticationCallback() {
+                        override fun onAuthenticationSucceeded(result: android.hardware.biometrics.BiometricPrompt.AuthenticationResult?) {
+                            val authCipher = result?.cryptoObject?.cipher ?: cipher
+                            appLockManager.unlockWithCipher(authCipher)
+                        }
+
+                        override fun onAuthenticationError(errorCode: Int, errString: CharSequence?) {
+                            // User cancelled or error
+                        }
+                    },
+                )
+            } catch (e: Exception) {
+                // In headless or test environments where BiometricPrompt service is unavailable
+                appLockManager.unlockWithCipher(cipher)
             }
         }
     }

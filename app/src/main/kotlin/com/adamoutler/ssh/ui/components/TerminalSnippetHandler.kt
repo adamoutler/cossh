@@ -8,15 +8,23 @@ import com.adamoutler.ssh.data.CommandSnippet
  */
 class TerminalSnippetHandler(
     private val sendToTerminal: (ByteArray) -> Unit,
-    private val requestConfirmation: (CommandSnippet) -> Unit,
+    private val requestConfirmation: (CommandSnippet) -> Unit = {},
+    private val requestAuthentication: ((CommandSnippet, onAuthenticated: () -> Unit) -> Unit)? = null,
 ) {
     /**
      * Called when a snippet chip is clicked. If requireAuth is enabled,
-     * routes to confirmation dialog before dispatching. Otherwise, dispatches immediately.
+     * routes to biometric authentication prompt (or confirmation if no auth handler)
+     * before dispatching. Otherwise, dispatches immediately.
      */
     fun onSnippetClicked(snippet: CommandSnippet) {
         if (snippet.requireAuth) {
-            requestConfirmation(snippet)
+            if (requestAuthentication != null) {
+                requestAuthentication.invoke(snippet) {
+                    dispatchSnippet(snippet)
+                }
+            } else {
+                requestConfirmation(snippet)
+            }
         } else {
             dispatchSnippet(snippet)
         }

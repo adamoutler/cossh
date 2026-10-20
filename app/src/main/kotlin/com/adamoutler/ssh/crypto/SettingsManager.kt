@@ -19,6 +19,10 @@ class SettingsManager(context: Context) {
         private const val DEFAULT_COLOR_THEME = "COBALT_BLUE"
         private const val KEY_GLOBAL_FONT_CHOICE = "global_font_choice"
         private const val DEFAULT_FONT_CHOICE = "DEFAULT_MONOSPACE"
+        private const val KEY_APP_LOCK_ENABLED = "app_lock_enabled"
+        private const val DEFAULT_APP_LOCK_ENABLED = false
+        private const val KEY_APP_LOCK_TIMEOUT_SECONDS = "app_lock_timeout_seconds"
+        private const val DEFAULT_APP_LOCK_TIMEOUT_SECONDS = 0
     }
 
     var globalFontSize: Int
@@ -36,4 +40,12 @@ class SettingsManager(context: Context) {
     var globalFontChoice: String
         get() = prefs.getString(KEY_GLOBAL_FONT_CHOICE, DEFAULT_FONT_CHOICE) ?: DEFAULT_FONT_CHOICE
         set(value) = prefs.edit().putString(KEY_GLOBAL_FONT_CHOICE, value).apply()
+
+    var isAppLockEnabled: Boolean
+        get() = prefs.getBoolean(KEY_APP_LOCK_ENABLED, DEFAULT_APP_LOCK_ENABLED)
+        set(value) = prefs.edit().putBoolean(KEY_APP_LOCK_ENABLED, value).apply()
+
+    var appLockTimeoutSeconds: Int
+        get() = prefs.getInt(KEY_APP_LOCK_TIMEOUT_SECONDS, DEFAULT_APP_LOCK_TIMEOUT_SECONDS)
+        set(value) = prefs.edit().putInt(KEY_APP_LOCK_TIMEOUT_SECONDS, value).apply()
 }

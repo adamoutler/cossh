@@ -119,8 +119,8 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
         val profiles = mutableListOf<ConnectionProfile>()
         try {
             for ((key, value) in encryptedPrefs.all) {
-                // Skip password entries and key entries
-                if (value is String && !key.endsWith("_pwd") && !key.startsWith("key_")) {
+                // Skip password entries, key entries, and security metadata
+                if (value is String && !key.endsWith("_pwd") && !key.startsWith("key_") && !key.startsWith("app_lock_") && key != "sync_passphrase") {
                     try {
                         val profile = Json.decodeFromString<ConnectionProfile>(value)
                         // Metadata-only loading: DO NOT hydrate the password here. (SSH-138)
@@ -178,5 +178,65 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
     fun getSyncPassphrase(): CharArray? {
         val base64Pass = encryptedPrefs.getString("sync_passphrase", null) ?: return null
         return String(java.util.Base64.getDecoder().decode(base64Pass), Charsets.UTF_8).toCharArray()
+    }
+
+    fun setupAppLock(cipher: javax.crypto.Cipher) {
+        val token = ByteArray(32)
+        java.security.SecureRandom().nextBytes(token)
+        try {
+            val md = java.security.MessageDigest.getInstance("SHA-256")
+            val tokenSha256 = md.digest(token)
+            val ciphertext = cipher.doFinal(token)
+            val iv = cipher.iv ?: throw IllegalStateException("Cipher IV must not be null")
+
+            val encoder = java.util.Base64.getEncoder()
+            encryptedPrefs.edit()
+                .putString("app_lock_iv", encoder.encodeToString(iv))
+                .putString("app_lock_ciphertext", encoder.encodeToString(ciphertext))
+                .putString("app_lock_token_sha256", encoder.encodeToString(tokenSha256))
+                .apply()
+        } finally {
+            token.fill(0)
+        }
+    }
+
+    fun verifyAppLockToken(cipher: javax.crypto.Cipher): Boolean {
+        var decryptedToken: ByteArray? = null
+        return try {
+            val ciphertextB64 = encryptedPrefs.getString("app_lock_ciphertext", null) ?: return false
+            val tokenShaB64 = encryptedPrefs.getString("app_lock_token_sha256", null) ?: return false
+            val decoder = java.util.Base64.getDecoder()
+            val ciphertext = decoder.decode(ciphertextB64)
+            val expectedHash = decoder.decode(tokenShaB64)
+
+            val token = cipher.doFinal(ciphertext) ?: return false
+            decryptedToken = token
+            val md = java.security.MessageDigest.getInstance("SHA-256")
+            val actualHash = md.digest(token)
+            java.security.MessageDigest.isEqual(actualHash, expectedHash)
+        } catch (e: Exception) {
+            false
+        } finally {
+            decryptedToken?.fill(0)
+        }
+    }
+
+    fun getAppLockIv(): ByteArray? {
+        val ivB64 = encryptedPrefs.getString("app_lock_iv", null) ?: return null
+        return java.util.Base64.getDecoder().decode(ivB64)
+    }
+
+    fun isAppLockConfigured(): Boolean {
+        return encryptedPrefs.contains("app_lock_ciphertext") &&
+            encryptedPrefs.contains("app_lock_iv") &&
+            encryptedPrefs.contains("app_lock_token_sha256")
+    }
+
+    fun clearAppLock() {
+        encryptedPrefs.edit()
+            .remove("app_lock_iv")
+            .remove("app_lock_ciphertext")
+            .remove("app_lock_token_sha256")
+            .apply()
     }
 }

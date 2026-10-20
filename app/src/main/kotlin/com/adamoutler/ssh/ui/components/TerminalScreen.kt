@@ -686,10 +686,44 @@ fun TerminalScreenContent(
         }
 
         var snippetToConfirm by remember { mutableStateOf<com.adamoutler.ssh.data.CommandSnippet?>(null) }
-        val snippetHandler = remember(sendToTerminal) {
+        val snippetHandler = remember(sendToTerminal, context) {
             TerminalSnippetHandler(
                 sendToTerminal = sendToTerminal,
                 requestConfirmation = { snippetToConfirm = it },
+                requestAuthentication = if (ConnectionStateRepository.isHeadlessTest) {
+                    null
+                } else {
+                    { snippet, onAuthenticated ->
+                        val activity = context as? android.app.Activity
+                        if (activity != null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                            try {
+                                val prompt = android.hardware.biometrics.BiometricPrompt.Builder(activity)
+                                    .setTitle("Authenticate Snippet")
+                                    .setSubtitle("Biometric authentication required to execute '${snippet.name}'")
+                                    .setNegativeButton("Cancel", activity.mainExecutor) { _, _ -> }
+                                    .build()
+                                val signal = android.os.CancellationSignal()
+                                prompt.authenticate(
+                                    signal,
+                                    activity.mainExecutor,
+                                    object : android.hardware.biometrics.BiometricPrompt.AuthenticationCallback() {
+                                        override fun onAuthenticationSucceeded(result: android.hardware.biometrics.BiometricPrompt.AuthenticationResult?) {
+                                            onAuthenticated()
+                                        }
+
+                                        override fun onAuthenticationError(errorCode: Int, errString: CharSequence?) {
+                                            // Authentication cancelled or failed
+                                        }
+                                    },
+                                )
+                            } catch (e: Exception) {
+                                snippetToConfirm = snippet
+                            }
+                        } else {
+                            snippetToConfirm = snippet
+                        }
+                    }
+                },
             )
         }
 
