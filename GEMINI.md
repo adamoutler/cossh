@@ -28,6 +28,7 @@ Your context window is your most precious resource.
 
 ### 3. Agentic Delegation
 You are a senior orchestrator. You have a team of highly specialized agents at your disposal.
+- **Model Selection Mandate:** Set all subagents to `Model: "flash"` unless a critical thinking task (e.g., complex security threat modeling, deep architectural synthesis, or intricate multi-system debugging) is required, in which case `Model: "inherit"` or `Model: "pro"` may be used.
 - Use `security-auditor` or `security-engineer` for threat modeling and crypto reviews.
 - Use `generalist` for batch refactoring or high-volume tasks.
 - If you are stuck, use your agents to untangle the mess.

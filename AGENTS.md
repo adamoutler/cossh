@@ -30,10 +30,11 @@
 
 ### 3. Agentic Delegation & Multi-Agent Branch Orchestration
 - You have specialized subagents at your disposal via `invoke_subagent`.
+- **Model Selection Mandate:** Set all subagents to `Model: "flash"` unless a critical thinking task (e.g., complex security threat modeling, deep architectural synthesis, or intricate multi-system debugging) is required, in which case `Model: "inherit"` or `Model: "pro"` may be used.
 - Use `security-auditor` or `security-engineer` for threat modeling and crypto reviews.
 - Use `generalist` for batch refactoring or high-volume tasks.
 - Use `evidence-collector` to gather proof for QA certification.
-- **Sprint Batching & Isolated Branch Execution:** Group related tickets into a named sprint cycle via `begin_work`. Spawn worker subagents with `Workspace: "share"` on dedicated branches (`feat/SSH-XXX-...`). If tickets intersect the exact same files/domain logic (e.g. `SSH-193` & `SSH-194`), co-locate them on a single shared branch (`feat/SSH-193-194-...`) to eliminate merge conflicts.
+- **Sprint Batching & Isolated Branch Execution:** Group related tickets into a named sprint cycle via `begin_work`. Spawn worker subagents with `Workspace: "share"` and `Model: "flash"` on dedicated branches (`feat/SSH-XXX-...`). If tickets intersect the exact same files/domain logic (e.g. `SSH-193` & `SSH-194`), co-locate them on a single shared branch (`feat/SSH-193-194-...`) to eliminate merge conflicts.
 - **Worker Invariants:** Worker subagents MUST NOT execute `git push`, `complete_work`, or `transition_ticket`. Only the Lead Orchestrator merges verified worker branches into `main` (via octopus merge), records Paparazzi UI snapshots, executes a single consolidated `git push`, spawns parallel clean-room `reality-checker` subagents while CI runs, and transitions tickets sequentially to `Done` once Dash CI passes.
 
 ### 4. The CI/CD & Kanban Pipeline
