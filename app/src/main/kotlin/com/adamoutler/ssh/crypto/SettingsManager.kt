@@ -19,7 +19,12 @@ class SettingsManager(context: Context) {
         private const val DEFAULT_COLOR_THEME = "COBALT_BLUE"
         private const val KEY_GLOBAL_FONT_CHOICE = "global_font_choice"
         private const val DEFAULT_FONT_CHOICE = "DEFAULT_MONOSPACE"
+        private const val KEY_IS_CLOUD_SYNC_ACTIVE = "is_cloud_sync_active"
     }
+
+    var isCloudSyncActive: Boolean
+        get() = prefs.getBoolean(KEY_IS_CLOUD_SYNC_ACTIVE, true)
+        set(value) = prefs.edit().putBoolean(KEY_IS_CLOUD_SYNC_ACTIVE, value).apply()
 
     var globalFontSize: Int
         get() = prefs.getInt(KEY_GLOBAL_FONT_SIZE, DEFAULT_FONT_SIZE)

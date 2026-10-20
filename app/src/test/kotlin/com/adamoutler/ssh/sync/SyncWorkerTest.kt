@@ -56,7 +56,7 @@ class SyncWorkerTest {
     }
 
     @Test
-    fun `test doWork with cloud sync enabled and password returns retry due to network error`() = runBlocking {
+    fun `test doWork with cloud sync enabled and unauthenticated returns failure without retry`() = runBlocking {
         // Enable cloud sync via test flag
         BillingManager.forceCloudSyncEnabledForTest = true
 
@@ -64,10 +64,10 @@ class SyncWorkerTest {
         securityManager.saveSyncPassphrase("testpass".toCharArray())
 
         val worker = TestListenableWorkerBuilder<SyncWorker>(context).build()
-        // It should try to sync but fail with retry due to lack of network/drive mock
+        // Unauthenticated or 401 returns failure immediately per SSH-205
         val result = worker.doWork()
 
-        assertEquals(Result.retry(), result)
+        assertEquals(Result.failure(), result)
         BillingManager.forceCloudSyncEnabledForTest = false
     }
 }

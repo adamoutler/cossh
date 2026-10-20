@@ -2,8 +2,6 @@ package com.adamoutler.ssh.ui.screens
 
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
-import androidx.work.Configuration
-import androidx.work.testing.WorkManagerTestInitHelper
 import com.adamoutler.ssh.billing.BillingManager
 import com.adamoutler.ssh.sync.DriveSyncManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,25 +24,12 @@ class SettingsViewModelTest {
     private lateinit var driveSyncManager: DriveSyncManager
     private lateinit var viewModel: SettingsViewModel
 
-    @After
-    fun tearDown() {
-        androidx.work.testing.WorkManagerTestInitHelper.closeWorkDatabase()
-    }
-
     @Before
     fun setup() {
         application = ApplicationProvider.getApplicationContext()
-
-        // Initialize WorkManager for testing
-        val config = Configuration.Builder()
-            .setMinimumLoggingLevel(android.util.Log.DEBUG)
-            .setExecutor(androidx.work.testing.SynchronousExecutor())
-            .build()
-        WorkManagerTestInitHelper.initializeTestWorkManager(application, config)
-
         billingManager = BillingManager(application)
         driveSyncManager = DriveSyncManager(application)
-        viewModel = SettingsViewModel(application, billingManager, driveSyncManager)
+        viewModel = SettingsViewModel(application, billingManager, driveSyncManager, workManager = null)
     }
 
     @Test

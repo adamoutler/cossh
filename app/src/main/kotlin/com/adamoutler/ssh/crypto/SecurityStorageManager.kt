@@ -7,6 +7,9 @@ import androidx.security.crypto.MasterKey
 import com.adamoutler.ssh.data.ConnectionProfile
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.nio.ByteBuffer
+import java.nio.CharBuffer
+import java.nio.charset.StandardCharsets
 
 class SecurityStorageManager(private val context: Context, injectedPrefs: SharedPreferences? = null) {
 
@@ -171,12 +174,50 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
     }
 
     fun saveSyncPassphrase(passphrase: CharArray) {
-        val base64Pass = java.util.Base64.getEncoder().encodeToString(String(passphrase).toByteArray(Charsets.UTF_8))
-        encryptedPrefs.edit().putString("sync_passphrase", base64Pass).apply()
+        val encoder = StandardCharsets.UTF_8.newEncoder()
+        val charBuffer = CharBuffer.wrap(passphrase)
+        val byteBuffer = ByteBuffer.allocate((passphrase.size * encoder.maxBytesPerChar()).toInt())
+        var rawBytes: ByteArray? = null
+        try {
+            encoder.encode(charBuffer, byteBuffer, true)
+            encoder.flush(byteBuffer)
+            byteBuffer.flip()
+            rawBytes = ByteArray(byteBuffer.remaining())
+            byteBuffer.get(rawBytes)
+            val base64Pass = java.util.Base64.getEncoder().encodeToString(rawBytes)
+            encryptedPrefs.edit().putString("sync_passphrase", base64Pass).apply()
+        } finally {
+            if (byteBuffer.hasArray()) byteBuffer.array().fill(0)
+            rawBytes?.fill(0)
+        }
     }
 
     fun getSyncPassphrase(): CharArray? {
         val base64Pass = encryptedPrefs.getString("sync_passphrase", null) ?: return null
-        return String(java.util.Base64.getDecoder().decode(base64Pass), Charsets.UTF_8).toCharArray()
+        val decodedBytes = try {
+            java.util.Base64.getDecoder().decode(base64Pass)
+        } catch (_: Exception) {
+            return null
+        }
+        val decoder = StandardCharsets.UTF_8.newDecoder()
+        val byteBuffer = ByteBuffer.wrap(decodedBytes)
+        val charBuffer = CharBuffer.allocate((decodedBytes.size * decoder.maxCharsPerByte()).toInt())
+        return try {
+            decoder.decode(byteBuffer, charBuffer, true)
+            decoder.flush(charBuffer)
+            charBuffer.flip()
+            val resultChars = CharArray(charBuffer.remaining())
+            charBuffer.get(resultChars)
+            resultChars
+        } catch (_: Exception) {
+            null
+        } finally {
+            decodedBytes.fill(0)
+            if (charBuffer.hasArray()) charBuffer.array().fill('\u0000')
+        }
+    }
+
+    fun clearSyncPassphrase() {
+        encryptedPrefs.edit().remove("sync_passphrase").apply()
     }
 }

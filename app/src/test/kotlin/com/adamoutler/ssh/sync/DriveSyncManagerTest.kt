@@ -46,11 +46,13 @@ open class MockHttpURLConnection(url: URL) : HttpURLConnection(url) {
 }
 
 object MockURLStreamHandlerFactory : URLStreamHandlerFactory {
+    var connectionProvider: ((URL) -> MockHttpURLConnection)? = null
     var mockConnection: MockHttpURLConnection? = null
     override fun createURLStreamHandler(protocol: String?): URLStreamHandler? {
         if (protocol == "https") {
             return object : URLStreamHandler() {
-                override fun openConnection(u: URL?): URLConnection = mockConnection ?: MockHttpURLConnection(u!!)
+                override fun openConnection(u: URL?): URLConnection =
+                    connectionProvider?.invoke(u!!) ?: mockConnection ?: MockHttpURLConnection(u!!)
             }
         }
         return null
@@ -157,10 +159,10 @@ class DriveSyncManagerTest {
         // Will create new file and then update metadata
         driveSyncManager.uploadBackup("testData".toByteArray(), "password".toCharArray())
 
-        // Ensure token was cleared
+        // Ensure token was retained across operations
         val oauthTokenField = DriveSyncManager::class.java.getDeclaredField("oauthToken")
         oauthTokenField.isAccessible = true
-        assertNull(oauthTokenField.get(driveSyncManager))
+        assertEquals("valid_token", oauthTokenField.get(driveSyncManager))
     }
 
     @Test
