@@ -21,8 +21,14 @@ buildscript {
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.jetbrains.kotlin.android) apply false
+    alias(libs.plugins.detekt)
     id("com.diffplug.spotless") version "8.4.0" apply false
     id("org.sonarqube") version "4.4.1.3373" apply false
+}
+
+detekt {
+    config.setFrom(files("config/detekt/detekt.yml"))
+    source.setFrom(files("app/src/main/kotlin", "app/src/main/java"))
 }
 
 allprojects {

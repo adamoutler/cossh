@@ -1,5 +1,4 @@
 -dontwarn reactor.blockhound.**
--dontwarn io.netty.**
 -keep class androidx.activity.ComponentActivity { *; }
 
 # Strip verbose and debug logs in release builds; preserve info, warning, and error logs
@@ -15,8 +14,6 @@
 }
 
 # Protect libraries that rely on reflection
--keep class io.netty.** { *; }
--keep class org.jose4j.** { *; }
 -keep class org.bouncycastle.** { *; }
 -dontwarn org.bouncycastle.**
 

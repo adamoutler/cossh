@@ -30,21 +30,25 @@ class SettingsViewModelTest {
     fun tearDown() {
         try {
             androidx.work.testing.WorkManagerTestInitHelper.closeWorkDatabase()
-        } catch (_: Throwable) {}
+        } catch (_: Throwable) {
+            // WorkManager test database may not be supported on all host architectures (e.g. Linux aarch64)
+        }
     }
 
     @Before
     fun setup() {
         application = ApplicationProvider.getApplicationContext()
 
-        // Initialize WorkManager for testing (safely ignore if SQLite native runtime unsupported on host architecture)
+        // Initialize WorkManager for testing if supported on the host platform
         try {
             val config = Configuration.Builder()
                 .setMinimumLoggingLevel(android.util.Log.DEBUG)
                 .setExecutor(androidx.work.testing.SynchronousExecutor())
                 .build()
             WorkManagerTestInitHelper.initializeTestWorkManager(application, config)
-        } catch (_: Throwable) {}
+        } catch (_: Throwable) {
+            // WorkManager test helper may throw AssertionError when native runtime is unavailable on Linux aarch64
+        }
 
         billingManager = BillingManager(application)
         driveSyncManager = DriveSyncManager(application)
