@@ -7,6 +7,7 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
+import com.adamoutler.ssh.util.AppLog
 import com.google.android.gms.auth.api.identity.AuthorizationRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
@@ -40,6 +41,7 @@ class DriveSyncManager(context: Context) {
     private val scopes = listOf("https://www.googleapis.com/auth/drive.appdata")
 
     companion object {
+        private const val TAG = "DriveSyncManager"
         var authorizationContinuation: kotlin.coroutines.Continuation<Unit>? = null
         var currentInstance: DriveSyncManager? = null
 
@@ -49,10 +51,10 @@ class DriveSyncManager(context: Context) {
                     try {
                         val authResult = Identity.getAuthorizationClient(currentInstance?.appContext!!).getAuthorizationResultFromIntent(data)
                         currentInstance?.oauthToken = authResult.accessToken
-                        println(("DriveSyncManager").toString() + ": " + ("OAuth Token received securely from intent").toString())
+                        AppLog.i(TAG, "OAuth Token received securely from intent")
                         authorizationContinuation?.resume(Unit)
                     } catch (e: Exception) {
-                        println(("DriveSyncManager").toString() + ": " + ("Failed to get auth result from intent").toString() + " " + (e).toString())
+                        AppLog.w(TAG, "Failed to get auth result from intent: ${e.message}", e)
                         authorizationContinuation?.resumeWithException(e)
                     }
                 } else {
@@ -87,20 +89,20 @@ class DriveSyncManager(context: Context) {
                 ) {
                     try {
                         GoogleIdTokenCredential.createFrom(credential.data)
-                        println("DriveSyncManager: Auth successful")
+                        AppLog.i(TAG, "DriveSyncManager: Auth successful")
                         authorizeScope(activity)
                     } catch (e: Exception) {
-                        println(("DriveSyncManager").toString() + ": " + ("Received an invalid google id token response").toString() + " " + (e).toString())
+                        AppLog.w(TAG, "Received an invalid google id token response: ${e.message}", e)
                     }
                 } else {
-                    println(("DriveSyncManager").toString() + ": " + ("Unexpected type of credential").toString())
+                    AppLog.w(TAG, "Unexpected type of credential")
                 }
             } else {
-                println(("DriveSyncManager").toString() + ": " + ("Unexpected type of credential").toString())
+                AppLog.w(TAG, "Unexpected type of credential")
             }
         } catch (e: GetCredentialException) {
             oauthToken = null
-            println(("DriveSyncManager").toString() + ": " + ("Auth failed").toString() + " " + (e).toString())
+            AppLog.e(TAG, "Auth failed: ${e.message}", e)
         }
     }
 
@@ -134,13 +136,13 @@ class DriveSyncManager(context: Context) {
                     }
                 } else {
                     oauthToken = authorizationResult.accessToken
-                    println(("DriveSyncManager").toString() + ": " + ("OAuth Token received securely").toString())
+                    AppLog.i(TAG, "OAuth Token received securely")
                     continuation.resume(Unit)
                 }
             }
             .addOnFailureListener { e ->
                 oauthToken = null
-                println(("DriveSyncManager").toString() + ": " + ("Scope authorization failed").toString() + " " + (e).toString())
+                AppLog.e(TAG, "Scope authorization failed: ${e.message}", e)
                 continuation.resumeWithException(e)
             }
     }
@@ -182,7 +184,7 @@ class DriveSyncManager(context: Context) {
                     val error = connection.errorStream?.bufferedReader()?.readText()
                     throw IOException("Failed to upload: $responseCode $error")
                 } else {
-                    println(("DriveSyncManager").toString() + ": " + ("Backup uploaded successfully: HTTP 200").toString())
+                    AppLog.i(TAG, "Backup uploaded successfully: HTTP 200")
                 }
 
                 if (fileId == null) {
@@ -253,13 +255,13 @@ class DriveSyncManager(context: Context) {
                 if (connection.responseCode in 200..299) {
                     val encryptedPayload = readFully(connection.inputStream)
                     val result = decrypt(encryptedPayload, pass)
-                    println(("DriveSyncManager").toString() + ": " + ("Backup downloaded successfully: HTTP 200").toString())
+                    AppLog.i(TAG, "Backup downloaded successfully: HTTP 200")
                     return@withContext result
                 } else {
                     throw IOException("Failed to download: ${connection.responseCode}")
                 }
             } catch (e: Exception) {
-                println(("DriveSyncManager").toString() + ": " + ("Download failed").toString() + " " + (e).toString())
+                AppLog.e(TAG, "Download failed: ${e.message}", e)
                 null
             } finally {
                 oauthToken = null

@@ -14,7 +14,11 @@ object SSHKeyGenerator {
      * Generates an ED25519 KeyPair using native Android crypto providers.
      */
     fun generateEd25519KeyPair(): KeyPair {
-        val keyPairGenerator = KeyPairGenerator.getInstance("Ed25519")
+        val keyPairGenerator = try {
+            KeyPairGenerator.getInstance("Ed25519", "BC")
+        } catch (_: Exception) {
+            KeyPairGenerator.getInstance("Ed25519")
+        }
         return keyPairGenerator.generateKeyPair()
     }
 
@@ -37,7 +41,7 @@ object SSHKeyGenerator {
     fun encodePublicKey(keyPair: KeyPair): String {
         val publicKey = keyPair.public
         return when (publicKey.algorithm) {
-            "Ed25519" -> {
+            "Ed25519", "EdDSA", "1.3.101.112" -> {
                 val keyBytes = publicKey.encoded
                 // Java Ed25519 encoded format is DER. We need the raw 32 bytes at the end.
                 // For simplicity in this implementation, we use a standard way to get the raw bytes

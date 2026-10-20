@@ -23,7 +23,7 @@ import javax.crypto.spec.SecretKeySpec
 
 @Serializable
 data class BackupPayload(
-    val version: Int = 2,
+    val version: Int = 3,
     val profiles: List<ConnectionProfile>,
     val profilePasswords: Map<String, String>,
     val identities: List<IdentityProfile> = emptyList(),
@@ -33,11 +33,37 @@ data class BackupPayload(
 
 object BackupCryptoManager {
     private const val TAG = "CoSSH:BackupCryptoManager"
-    private const val ITERATION_COUNT = 65536
+
+    // Format v3 Constants
+    const val MAGIC = "COSSH"
+    val MAGIC_BYTES = MAGIC.toByteArray(Charsets.US_ASCII)
+    const val VERSION_V3: Byte = 3
+    const val ITERATION_COUNT_V3 = 250_000
+    const val SALT_LENGTH_V3 = 32
+    const val IV_LENGTH_V3 = 12
+    const val FORMAT_V3_HEADER_LENGTH = 56
+    const val FORMAT_V3_HEADER_LENGTH_COMPACT = 54
+
+    // Format v2 Legacy Constants for Backward Compatibility
+    const val ITERATION_COUNT_V2 = 65536
+    const val SALT_LENGTH_V2 = 16
+    const val IV_LENGTH_V2 = 12
+
     private const val KEY_LENGTH = 256
-    private const val SALT_LENGTH = 16
-    private const val IV_LENGTH = 12
     private const val TAG_LENGTH_BIT = 128
+
+    fun buildFormatV3Header(salt: ByteArray, iv: ByteArray, iterations: Int = ITERATION_COUNT_V3): ByteArray {
+        val header = ByteArray(MAGIC_BYTES.size + 1 + 4 + 1 + salt.size + 1 + iv.size)
+        val buf = java.nio.ByteBuffer.wrap(header)
+        buf.put(MAGIC_BYTES)
+        buf.put(VERSION_V3)
+        buf.putInt(iterations)
+        buf.put(salt.size.toByte())
+        buf.put(salt)
+        buf.put(iv.size.toByte())
+        buf.put(iv)
+        return header
+    }
 
     fun exportProfilesToZip(
         profiles: List<ConnectionProfile>,
@@ -67,7 +93,7 @@ object BackupCryptoManager {
         }
 
         val payload = BackupPayload(
-            version = 2,
+            version = 3,
             profiles = cleanProfiles,
             profilePasswords = passwordsMap,
             identities = cleanIdentities,
@@ -75,38 +101,53 @@ object BackupCryptoManager {
             identityPrivateKeys = identityPrivateKeysMap,
         )
 
-        val jsonString = Json.encodeToString(payload)
-        val plainTextBytes = jsonString.toByteArray(Charsets.UTF_8)
+        var plainTextBytes: ByteArray? = null
+        var secretKeyBytes: ByteArray? = null
+        val salt = ByteArray(SALT_LENGTH_V3)
+        val iv = ByteArray(IV_LENGTH_V3)
 
-        val salt = ByteArray(SALT_LENGTH)
-        val iv = ByteArray(IV_LENGTH)
-        val secureRandom = SecureRandom()
-        secureRandom.nextBytes(salt)
-        secureRandom.nextBytes(iv)
+        try {
+            val jsonString = Json.encodeToString(payload)
+            plainTextBytes = jsonString.toByteArray(Charsets.UTF_8)
 
-        val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        val keySpec = PBEKeySpec(password, salt, ITERATION_COUNT, KEY_LENGTH)
-        val secretKeyBytes = secretKeyFactory.generateSecret(keySpec).encoded
-        val secretKey = SecretKeySpec(secretKeyBytes, "AES")
+            val secureRandom = SecureRandom()
+            secureRandom.nextBytes(salt)
+            secureRandom.nextBytes(iv)
 
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        val gcmSpec = GCMParameterSpec(TAG_LENGTH_BIT, iv)
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey, gcmSpec)
-        val cipherText = cipher.doFinal(plainTextBytes)
+            val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+            val keySpec = PBEKeySpec(password, salt, ITERATION_COUNT_V3, KEY_LENGTH)
+            val secretKey = try {
+                secretKeyBytes = secretKeyFactory.generateSecret(keySpec).encoded
+                SecretKeySpec(secretKeyBytes, "AES")
+            } finally {
+                keySpec.clearPassword()
+            }
 
-        val encryptedData = ByteArrayOutputStream().apply {
-            write(salt)
-            write(iv)
-            write(cipherText)
-        }.toByteArray()
+            val header = buildFormatV3Header(salt, iv, ITERATION_COUNT_V3)
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            val gcmSpec = GCMParameterSpec(TAG_LENGTH_BIT, iv)
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, gcmSpec)
+            cipher.updateAAD(header)
+            val cipherText = cipher.doFinal(plainTextBytes)
 
-        ZipOutputStream(outputStream).use { zipOut ->
-            val entry = ZipEntry("backup.enc")
-            zipOut.putNextEntry(entry)
-            zipOut.write(encryptedData)
-            zipOut.closeEntry()
+            val encryptedData = ByteArrayOutputStream().apply {
+                write(header)
+                write(cipherText)
+            }.toByteArray()
+
+            ZipOutputStream(outputStream).use { zipOut ->
+                val entry = ZipEntry("backup.enc")
+                zipOut.putNextEntry(entry)
+                zipOut.write(encryptedData)
+                zipOut.closeEntry()
+            }
+            AppLog.i(TAG, "Export completed successfully. Payload size: ${encryptedData.size} bytes.")
+        } finally {
+            plainTextBytes?.fill(0)
+            secretKeyBytes?.fill(0)
+            salt.fill(0)
+            iv.fill(0)
         }
-        AppLog.i(TAG, "Export completed successfully. Payload size: ${encryptedData.size} bytes.")
     }
 
     fun importProfilesFromZip(inputStream: InputStream, password: CharArray): Pair<List<ConnectionProfile>, List<IdentityProfile>> {
@@ -135,76 +176,154 @@ object BackupCryptoManager {
         }
 
         val data = encryptedData!!
-        if (data.size < SALT_LENGTH + IV_LENGTH) {
-            AppLog.e(TAG, "Payload too small: ${data.size} bytes (minimum expected: ${SALT_LENGTH + IV_LENGTH})")
-            throw IllegalArgumentException("Invalid backup file: Payload is too small (${data.size} bytes)")
-        }
+        var plainTextBytes: ByteArray? = null
+        var secretKeyBytes: ByteArray? = null
+        var salt: ByteArray? = null
+        var iv: ByteArray? = null
+        var keySpec: PBEKeySpec? = null
 
-        val salt = data.copyOfRange(0, SALT_LENGTH)
-        val iv = data.copyOfRange(SALT_LENGTH, SALT_LENGTH + IV_LENGTH)
-        val cipherText = data.copyOfRange(SALT_LENGTH + IV_LENGTH, data.size)
+        try {
+            val isFormatV3 = data.size >= MAGIC_BYTES.size &&
+                data.copyOfRange(0, MAGIC_BYTES.size).contentEquals(MAGIC_BYTES)
 
-        AppLog.d(TAG, "Deriving AES-256 key via PBKDF2WithHmacSHA256 (iterations=$ITERATION_COUNT)...")
-        val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        val keySpec = PBEKeySpec(password, salt, ITERATION_COUNT, KEY_LENGTH)
-        val secretKeyBytes = secretKeyFactory.generateSecret(keySpec).encoded
-        val secretKey = SecretKeySpec(secretKeyBytes, "AES")
+            if (isFormatV3) {
+                if (data.size < MAGIC_BYTES.size + 1 + 4) {
+                    throw IllegalArgumentException("Invalid Format v3 backup header: Truncated header")
+                }
+                val version = data[MAGIC_BYTES.size]
+                if (version != VERSION_V3) {
+                    throw IllegalArgumentException("Unsupported backup format version: $version")
+                }
+                val iterations = java.nio.ByteBuffer.wrap(data, MAGIC_BYTES.size + 1, 4).int
+                val offsetAfterIter = MAGIC_BYTES.size + 1 + 4 // 10
 
-        AppLog.d(TAG, "Decrypting payload with AES/GCM/NoPadding (${cipherText.size} bytes)...")
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        val gcmSpec = GCMParameterSpec(TAG_LENGTH_BIT, iv)
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmSpec)
+                val hasLengthBytes = data.size >= offsetAfterIter + 1 + SALT_LENGTH_V3 + 1 + IV_LENGTH_V3 &&
+                    data[offsetAfterIter] == SALT_LENGTH_V3.toByte() &&
+                    data[offsetAfterIter + 1 + SALT_LENGTH_V3] == IV_LENGTH_V3.toByte()
 
-        val plainTextBytes = try {
-            cipher.doFinal(cipherText)
-        } catch (e: AEADBadTagException) {
-            AppLog.e(TAG, "Decryption authentication failed: Incorrect password or corrupted payload.", e)
-            throw IllegalArgumentException("Incorrect password or corrupted backup file", e)
-        } catch (e: Exception) {
-            AppLog.e(TAG, "Decryption cipher error: ${e.message}", e)
-            throw IllegalArgumentException("Decryption error: ${e.message}", e)
-        }
+                val (s, i, header) = if (hasLengthBytes) {
+                    val saltLen = data[offsetAfterIter].toInt() and 0xFF
+                    val sBytes = data.copyOfRange(offsetAfterIter + 1, offsetAfterIter + 1 + saltLen)
+                    val ivLen = data[offsetAfterIter + 1 + saltLen].toInt() and 0xFF
+                    val iBytes = data.copyOfRange(offsetAfterIter + 2 + saltLen, offsetAfterIter + 2 + saltLen + ivLen)
+                    val h = data.copyOfRange(0, offsetAfterIter + 2 + saltLen + ivLen)
+                    Triple(sBytes, iBytes, h)
+                } else {
+                    // 54-byte compact header without length prefixes
+                    val sBytes = data.copyOfRange(offsetAfterIter, offsetAfterIter + SALT_LENGTH_V3)
+                    val iBytes = data.copyOfRange(offsetAfterIter + SALT_LENGTH_V3, offsetAfterIter + SALT_LENGTH_V3 + IV_LENGTH_V3)
+                    val h = data.copyOfRange(0, offsetAfterIter + SALT_LENGTH_V3 + IV_LENGTH_V3)
+                    Triple(sBytes, iBytes, h)
+                }
+                salt = s
+                iv = i
+                val cipherText = data.copyOfRange(header.size, data.size)
 
-        AppLog.d(TAG, "Decrypted ${plainTextBytes.size} bytes. Parsing JSON payload...")
-        val jsonString = String(plainTextBytes, Charsets.UTF_8)
+                AppLog.d(TAG, "Deriving AES-256 key via PBKDF2WithHmacSHA256 (iterations=$iterations, Format v3)...")
+                val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+                val spec = PBEKeySpec(password, salt, iterations, KEY_LENGTH)
+                keySpec = spec
+                secretKeyBytes = secretKeyFactory.generateSecret(spec).encoded
+                val secretKey = SecretKeySpec(secretKeyBytes, "AES")
 
-        val payload = try {
-            Json { ignoreUnknownKeys = true }.decodeFromString<BackupPayload>(jsonString)
-        } catch (e: Exception) {
-            AppLog.e(TAG, "JSON deserialization failed: ${e.message}", e)
-            throw IllegalArgumentException("Incompatible backup format: ${e.message}", e)
-        }
+                AppLog.d(TAG, "Decrypting Format v3 payload with AES/GCM/NoPadding (${cipherText.size} bytes)...")
+                val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+                val gcmSpec = GCMParameterSpec(TAG_LENGTH_BIT, iv)
+                cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmSpec)
+                cipher.updateAAD(header)
 
-        AppLog.i(TAG, "Decoded payload: ${payload.profiles.size} profiles, ${payload.identities.size} identities.")
-
-        for (profile in payload.profiles) {
-            payload.profilePasswords[profile.id]?.let { pwdStr ->
-                try {
-                    profile.password = Base64.getDecoder().decode(pwdStr)
+                plainTextBytes = try {
+                    cipher.doFinal(cipherText)
+                } catch (e: AEADBadTagException) {
+                    AppLog.e(TAG, "Decryption authentication failed: Incorrect password or corrupted payload.", e)
+                    throw IllegalArgumentException("Incorrect password or corrupted backup file", e)
                 } catch (e: Exception) {
-                    AppLog.w(TAG, "Failed to decode password for profile ${profile.id}: ${e.message}")
+                    AppLog.e(TAG, "Decryption cipher error: ${e.message}", e)
+                    throw IllegalArgumentException("Decryption error: ${e.message}", e)
+                }
+            } else {
+                // Format v2 backward compatibility fallback
+                AppLog.i(TAG, "Format v3 magic absent; falling back to Format v2 backward compatibility mode.")
+                if (data.size < SALT_LENGTH_V2 + IV_LENGTH_V2) {
+                    AppLog.e(TAG, "Payload too small: ${data.size} bytes (minimum expected: ${SALT_LENGTH_V2 + IV_LENGTH_V2})")
+                    throw IllegalArgumentException("Invalid backup file: Payload is too small (${data.size} bytes)")
+                }
+
+                salt = data.copyOfRange(0, SALT_LENGTH_V2)
+                iv = data.copyOfRange(SALT_LENGTH_V2, SALT_LENGTH_V2 + IV_LENGTH_V2)
+                val cipherText = data.copyOfRange(SALT_LENGTH_V2 + IV_LENGTH_V2, data.size)
+
+                AppLog.d(TAG, "Deriving AES-256 key via PBKDF2WithHmacSHA256 (iterations=$ITERATION_COUNT_V2, Format v2)...")
+                val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+                val spec = PBEKeySpec(password, salt, ITERATION_COUNT_V2, KEY_LENGTH)
+                keySpec = spec
+                secretKeyBytes = secretKeyFactory.generateSecret(spec).encoded
+                val secretKey = SecretKeySpec(secretKeyBytes, "AES")
+
+                AppLog.d(TAG, "Decrypting Format v2 payload with AES/GCM/NoPadding (${cipherText.size} bytes)...")
+                val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+                val gcmSpec = GCMParameterSpec(TAG_LENGTH_BIT, iv)
+                cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmSpec)
+
+                plainTextBytes = try {
+                    cipher.doFinal(cipherText)
+                } catch (e: AEADBadTagException) {
+                    AppLog.e(TAG, "Decryption authentication failed: Incorrect password or corrupted payload.", e)
+                    throw IllegalArgumentException("Incorrect password or corrupted backup file", e)
+                } catch (e: Exception) {
+                    AppLog.e(TAG, "Decryption cipher error: ${e.message}", e)
+                    throw IllegalArgumentException("Decryption error: ${e.message}", e)
                 }
             }
-        }
-        for (identity in payload.identities) {
-            payload.identityPasswords[identity.id]?.let { pwdStr ->
-                try {
-                    identity.password = Base64.getDecoder().decode(pwdStr)
-                } catch (e: Exception) {
-                    AppLog.w(TAG, "Failed to decode password for identity ${identity.id}: ${e.message}")
-                }
-            }
-            payload.identityPrivateKeys[identity.id]?.let { pkStr ->
-                try {
-                    identity.privateKey = Base64.getDecoder().decode(pkStr)
-                } catch (e: Exception) {
-                    AppLog.w(TAG, "Failed to decode private key for identity ${identity.id}: ${e.message}")
-                }
-            }
-        }
 
-        AppLog.d(TAG, "Sanitizing unpacked profiles and identities...")
-        val (sanitizedProfiles, sanitizedIdentities) = BackupSanitizer.sanitize(payload.profiles, payload.identities)
-        return Pair(sanitizedProfiles, sanitizedIdentities)
+            val decryptedBytes = plainTextBytes ?: throw IllegalArgumentException("Decryption produced empty payload")
+            AppLog.d(TAG, "Decrypted ${decryptedBytes.size} bytes. Parsing JSON payload...")
+            val jsonString = String(decryptedBytes, Charsets.UTF_8)
+
+            val payload = try {
+                Json { ignoreUnknownKeys = true }.decodeFromString<BackupPayload>(jsonString)
+            } catch (e: Exception) {
+                AppLog.e(TAG, "JSON deserialization failed: ${e.message}", e)
+                throw IllegalArgumentException("Incompatible backup format: ${e.message}", e)
+            }
+
+            AppLog.i(TAG, "Decoded payload: ${payload.profiles.size} profiles, ${payload.identities.size} identities.")
+
+            for (profile in payload.profiles) {
+                payload.profilePasswords[profile.id]?.let { pwdStr ->
+                    try {
+                        profile.password = Base64.getDecoder().decode(pwdStr)
+                    } catch (e: Exception) {
+                        AppLog.w(TAG, "Failed to decode password for profile ${profile.id}: ${e.message}")
+                    }
+                }
+            }
+            for (identity in payload.identities) {
+                payload.identityPasswords[identity.id]?.let { pwdStr ->
+                    try {
+                        identity.password = Base64.getDecoder().decode(pwdStr)
+                    } catch (e: Exception) {
+                        AppLog.w(TAG, "Failed to decode password for identity ${identity.id}: ${e.message}")
+                    }
+                }
+                payload.identityPrivateKeys[identity.id]?.let { pkStr ->
+                    try {
+                        identity.privateKey = Base64.getDecoder().decode(pkStr)
+                    } catch (e: Exception) {
+                        AppLog.w(TAG, "Failed to decode private key for identity ${identity.id}: ${e.message}")
+                    }
+                }
+            }
+
+            AppLog.d(TAG, "Sanitizing unpacked profiles and identities...")
+            val (sanitizedProfiles, sanitizedIdentities) = BackupSanitizer.sanitize(payload.profiles, payload.identities)
+            return Pair(sanitizedProfiles, sanitizedIdentities)
+        } finally {
+            keySpec?.clearPassword()
+            plainTextBytes?.fill(0)
+            secretKeyBytes?.fill(0)
+            salt?.fill(0)
+            iv?.fill(0)
+        }
     }
 }

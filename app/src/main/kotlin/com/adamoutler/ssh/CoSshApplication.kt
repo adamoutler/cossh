@@ -9,11 +9,11 @@ class CoSshApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // Fix for SSHJ "no such algorithm: X25519 for provider BC"
+        // Ensure BouncyCastle is registered without usurping the primary TLS provider at position 1
         if (Security.getProvider("BC") != null) {
             Security.removeProvider("BC")
         }
-        Security.insertProviderAt(BouncyCastleProvider(), 1)
+        Security.insertProviderAt(BouncyCastleProvider(), 2)
 
         // Enforce secure crash logging
         val currentHandler = Thread.getDefaultUncaughtExceptionHandler()
