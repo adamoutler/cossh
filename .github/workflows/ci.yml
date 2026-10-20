@@ -70,17 +70,16 @@ jobs:
           path: app/build/reports/jacoco/jacocoTestReport/
 
       - name: SonarCloud Scan & Quality Gate
-        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
+          set -o pipefail
           if [ -z "${SONAR_TOKEN}" ]; then
             echo "::warning ::SONAR_TOKEN secret is not set!"
             exit 0
           fi
           echo "SONAR_TOKEN is set (length: ${#SONAR_TOKEN})"
-          set +e
           ./gradlew sonar --no-daemon \
             -Dsonar.token="${SONAR_TOKEN}" \
             -Dsonar.login="${SONAR_TOKEN}" \
@@ -90,15 +89,7 @@ jobs:
             -Dsonar.qualitygate.wait=true \
             -Dsonar.c.file.suffixes=- \
             -Dsonar.cpp.file.suffixes=- \
-            -Dsonar.objc.file.suffixes=- > /tmp/sonar.log 2>&1
-          SONAR_EXIT=$?
-          set -e
-          if [ $SONAR_EXIT -ne 0 ]; then
-            cat /tmp/sonar.log | grep -E "Not authorized|Task :app:sonar" || true
-            echo "::warning ::SonarCloud scan failed (expired or invalid token). Continuing as permitted by policy."
-          else
-            cat /tmp/sonar.log
-          fi
+            -Dsonar.objc.file.suffixes=- 2>&1 | tee /tmp/sonar.log
 
       - name: Verify Build Completion
         if: always()

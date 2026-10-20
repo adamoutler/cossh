@@ -29,7 +29,7 @@ android {
     defaultConfig {
         applicationId = "com.adamoutler.cobaltssh"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 35
         versionCode = gitCommitCount + 1
         versionName = "1.${gitCommitCount + 1}"
 
@@ -68,7 +68,7 @@ android {
     lint {
         warningsAsErrors = true
         abortOnError = true
-        disable += listOf("AndroidGradlePluginVersion", "GradleDependency", "TrustAllX509TrustManager", "CredentialManagerSignInWithGoogle")
+        disable += listOf("AndroidGradlePluginVersion", "GradleDependency", "TrustAllX509TrustManager", "CredentialManagerSignInWithGoogle", "OldTargetApi")
     }
 
     // Link the termux native C code. Re-compiling locally is mandatory
@@ -169,7 +169,6 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "META-INF/DEPENDENCIES"
             excludes += "META-INF/INDEX.LIST"
-            excludes += "META-INF/io.netty.versions.properties"
             excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
         }
     }
@@ -182,42 +181,14 @@ configurations.all {
     exclude(group = "org.bouncycastle", module = "bcutil-jdk15on")
 }
 
-configurations.all {
-    resolutionStrategy {
-        force("io.netty:netty-codec-http2:4.1.110.Final")
-        force("io.netty:netty-codec-http:4.1.110.Final")
-        force("io.netty:netty-codec:4.1.110.Final")
-        force("io.netty:netty-common:4.1.110.Final")
-        force("io.netty:netty-handler:4.1.110.Final")
-        force("io.netty:netty-transport:4.1.110.Final")
-        force("io.netty:netty-buffer:4.1.110.Final")
-        force("io.netty:netty-resolver:4.1.110.Final")
-        force("io.netty:netty-transport-native-unix-common:4.1.110.Final")
-        force("io.netty:netty-handler-proxy:4.1.110.Final")
-    }
-}
 
 dependencies {
-    implementation(libs.jose4j)
-    implementation(libs.jdom2)
     implementation(libs.commons.io)
-    implementation(libs.protobuf.java)
     implementation(libs.guava)
-    implementation(libs.netty.codec.http2)
-    implementation(libs.netty.codec.http)
-    implementation(libs.netty.codec)
-    implementation(libs.netty.common)
-    implementation(libs.netty.handler)
 
     testImplementation(libs.bouncycastle.prov)
     testImplementation(libs.bcpkix.jdk18on)
     testImplementation(libs.bcutil.jdk18on)
-    testImplementation(libs.netty.codec.http2)
-    testImplementation(libs.netty.codec.http)
-    testImplementation(libs.netty.codec)
-    testImplementation(libs.netty.common)
-    testImplementation(libs.netty.handler)
-    testImplementation(libs.netty.transport)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
