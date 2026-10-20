@@ -2,13 +2,10 @@ package com.adamoutler.ssh.ui.screens
 
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
-import androidx.work.Configuration
-import androidx.work.testing.WorkManagerTestInitHelper
 import com.adamoutler.ssh.billing.BillingManager
 import com.adamoutler.ssh.sync.DriveSyncManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -26,33 +23,12 @@ class SettingsViewModelTest {
     private lateinit var driveSyncManager: DriveSyncManager
     private lateinit var viewModel: SettingsViewModel
 
-    @After
-    fun tearDown() {
-        try {
-            androidx.work.testing.WorkManagerTestInitHelper.closeWorkDatabase()
-        } catch (_: Throwable) {
-            // WorkManager test database may not be supported on all host architectures (e.g. Linux aarch64)
-        }
-    }
-
     @Before
     fun setup() {
         application = ApplicationProvider.getApplicationContext()
-
-        // Initialize WorkManager for testing if supported on the host platform
-        try {
-            val config = Configuration.Builder()
-                .setMinimumLoggingLevel(android.util.Log.DEBUG)
-                .setExecutor(androidx.work.testing.SynchronousExecutor())
-                .build()
-            WorkManagerTestInitHelper.initializeTestWorkManager(application, config)
-        } catch (_: Throwable) {
-            // WorkManager test helper may throw AssertionError when native runtime is unavailable on Linux aarch64
-        }
-
         billingManager = BillingManager(application)
         driveSyncManager = DriveSyncManager(application)
-        viewModel = SettingsViewModel(application, billingManager, driveSyncManager)
+        viewModel = SettingsViewModel(application, billingManager, driveSyncManager, workManager = null)
     }
 
     @Test
@@ -115,11 +91,15 @@ class SettingsViewModelTest {
         val activity = org.robolectric.Robolectric.buildActivity(android.app.Activity::class.java).setup().get()
         try {
             viewModel.savePassphraseAndSync("test_passphrase", activity)
-        } catch (e: Exception) {}
+        } catch (_: Exception) {
+            // Expected in test environment without Google Play Services
+        }
 
         try {
             viewModel.authenticateGoogle(activity)
-        } catch (e: Exception) {}
+        } catch (_: Exception) {
+            // Expected in test environment without Google Play Services
+        }
 
         val state = viewModel.uiState.value
         assertFalse("Passphrase dialog should not show if passphrase is set", state.showPassphraseDialog)

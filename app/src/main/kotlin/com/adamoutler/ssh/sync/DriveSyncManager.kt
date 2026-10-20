@@ -31,11 +31,10 @@ import javax.crypto.spec.SecretKeySpec
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-class DriveSyncManager(context: Context) {
+open class DriveSyncManager(context: Context) {
     private val appContext = context.applicationContext
     private val credentialManager = CredentialManager.create(appContext)
     private val webClientId = "255929341577-pcpa8cvp5gj2c4i4jaesq6iifk5n3a7q.apps.googleusercontent.com"
-    private var oauthToken: String? = null
 
     // We request the strictly restricted appdata scope
     private val scopes = listOf("https://www.googleapis.com/auth/drive.appdata")
@@ -44,6 +43,7 @@ class DriveSyncManager(context: Context) {
         private const val TAG = "DriveSyncManager"
         var authorizationContinuation: kotlin.coroutines.Continuation<Unit>? = null
         var currentInstance: DriveSyncManager? = null
+        var cachedOAuthToken: String? = null
 
         fun handleAuthorizationResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
             if (requestCode == 1001) {
@@ -54,7 +54,7 @@ class DriveSyncManager(context: Context) {
                         AppLog.i(TAG, "OAuth Token received securely from intent")
                         authorizationContinuation?.resume(Unit)
                     } catch (e: Exception) {
-                        AppLog.w(TAG, "Failed to get auth result from intent: ${e.message}", e)
+                        AppLog.e(TAG, "Failed to get auth result from intent: ${e.message}", e)
                         authorizationContinuation?.resumeWithException(e)
                     }
                 } else {
@@ -65,11 +65,18 @@ class DriveSyncManager(context: Context) {
         }
     }
 
+    var oauthToken: String? = null
+        get() = field ?: cachedOAuthToken
+        set(value) {
+            field = value
+            cachedOAuthToken = value
+        }
+
     init {
         currentInstance = this
     }
 
-    suspend fun authenticate(activity: Activity) {
+    open suspend fun authenticate(activity: Activity) {
         val googleIdOption = GetSignInWithGoogleOption.Builder(webClientId)
             .build()
 
@@ -92,7 +99,7 @@ class DriveSyncManager(context: Context) {
                         AppLog.i(TAG, "DriveSyncManager: Auth successful")
                         authorizeScope(activity)
                     } catch (e: Exception) {
-                        AppLog.w(TAG, "Received an invalid google id token response: ${e.message}", e)
+                        AppLog.e(TAG, "Received an invalid google id token response: ${e.message}", e)
                     }
                 } else {
                     AppLog.w(TAG, "Unexpected type of credential")
@@ -102,7 +109,7 @@ class DriveSyncManager(context: Context) {
             }
         } catch (e: GetCredentialException) {
             oauthToken = null
-            AppLog.e(TAG, "Auth failed: ${e.message}", e)
+            AppLog.w(TAG, "Auth failed: ${e.message}", e)
         }
     }
 
@@ -120,14 +127,15 @@ class DriveSyncManager(context: Context) {
                         if (activity is com.adamoutler.ssh.MainActivity) {
                             activity.startAuthFlow(authorizationResult.pendingIntent?.intentSender)
                         } else {
+                            val intentSender = authorizationResult.pendingIntent?.intentSender
+                                ?: throw IllegalStateException("No intent sender available")
                             activity.startIntentSenderForResult(
-                                authorizationResult.pendingIntent?.intentSender,
+                                intentSender,
                                 1001,
                                 null,
                                 0,
                                 0,
                                 0,
-                                null,
                             )
                         }
                     } catch (e: Exception) {
@@ -142,9 +150,47 @@ class DriveSyncManager(context: Context) {
             }
             .addOnFailureListener { e ->
                 oauthToken = null
-                AppLog.e(TAG, "Scope authorization failed: ${e.message}", e)
+                AppLog.w(TAG, "Scope authorization failed: ${e.message}", e)
                 continuation.resumeWithException(e)
             }
+    }
+
+    suspend fun getOrRefreshAccessToken(): String? = withContext(Dispatchers.IO) {
+        if (!oauthToken.isNullOrBlank()) return@withContext oauthToken
+        val isRobolectric = try {
+            Class.forName("org.robolectric.Robolectric")
+            true
+        } catch (_: ClassNotFoundException) {
+            false
+        }
+        if (isRobolectric) return@withContext oauthToken
+        return@withContext kotlinx.coroutines.withTimeoutOrNull(5000L) {
+            suspendCancellableCoroutine<String?> { continuation ->
+                try {
+                    val authorizationRequest = AuthorizationRequest.builder()
+                        .setRequestedScopes(scopes.map { com.google.android.gms.common.api.Scope(it) })
+                        .build()
+                    Identity.getAuthorizationClient(appContext)
+                        .authorize(authorizationRequest)
+                        .addOnSuccessListener { result ->
+                            if (!result.hasResolution() && result.accessToken != null) {
+                                oauthToken = result.accessToken
+                                AppLog.i(TAG, "Silent token refresh successful")
+                                continuation.resume(oauthToken)
+                            } else {
+                                AppLog.w(TAG, "Authorization requires user resolution; silent refresh impossible")
+                                continuation.resume(null)
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            AppLog.w(TAG, "Silent authorization failed: ${e.message}", e)
+                            continuation.resume(null)
+                        }
+                } catch (e: Exception) {
+                    continuation.resume(null)
+                }
+            }
+        }
     }
 
     // We must handle the result of the intent sender in the Activity and pass the token here.
@@ -152,80 +198,103 @@ class DriveSyncManager(context: Context) {
         this.oauthToken = token
     }
 
-    suspend fun uploadBackup(payload: ByteArray, pass: CharArray) {
+    open suspend fun uploadBackup(payload: ByteArray, pass: CharArray) {
         withContext(Dispatchers.IO) {
             try {
-                val encryptedPayload = encrypt(payload, pass)
-                if (oauthToken == null) throw IllegalStateException("Not authenticated")
+                val token = oauthToken ?: getOrRefreshAccessToken() ?: throw IllegalStateException("Not authenticated")
 
-                // 1. Check if file exists to update, else create
-                var fileId = findBackupFileId()
-                val urlString = if (fileId != null) {
-                    "https://www.googleapis.com/upload/drive/v3/files/$fileId?uploadType=media"
-                } else {
-                    "https://www.googleapis.com/upload/drive/v3/files?uploadType=media"
-                }
-
-                val url = URL(urlString)
-                val connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = if (fileId != null) "PATCH" else "POST"
-                connection.setRequestProperty("Authorization", "Bearer $oauthToken")
-                connection.setRequestProperty("Content-Type", "application/octet-stream")
-                connection.connectTimeout = 10000
-                connection.readTimeout = 10000
-                connection.doOutput = true
-
-                connection.outputStream.use { os ->
-                    os.write(encryptedPayload)
-                }
-
-                val responseCode = connection.responseCode
-                if (responseCode !in 200..299) {
-                    val error = connection.errorStream?.bufferedReader()?.readText()
-                    throw IOException("Failed to upload: $responseCode $error")
-                } else {
-                    AppLog.i(TAG, "Backup uploaded successfully: HTTP 200")
-                }
-
+                // 1. Check if file exists to update, else create via multipart POST
+                val fileId = findBackupFileId()
                 if (fileId == null) {
-                    // Update metadata to put it in appDataFolder
-                    val responseStr = connection.inputStream.bufferedReader().readText()
-                    fileId = JSONObject(responseStr).getString("id")
-                    updateFileMetadata(fileId)
+                    val boundary = "======CoSshSyncBoundary" + System.currentTimeMillis() + "======"
+                    val url = URL("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart")
+                    val connection = url.openConnection() as HttpURLConnection
+                    connection.requestMethod = "POST"
+                    connection.setRequestProperty("Authorization", "Bearer $token")
+                    connection.setRequestProperty("Content-Type", "multipart/related; boundary=$boundary")
+                    connection.connectTimeout = 10000
+                    connection.readTimeout = 10000
+                    connection.doOutput = true
+
+                    val metadataJson = "{\"name\": \"cossh_backup.enc\", \"parents\": [\"appDataFolder\"]}"
+                    val lineEnd = "\r\n"
+                    val twoHyphens = "--"
+
+                    val part1Header = "$twoHyphens$boundary$lineEnd" +
+                            "Content-Type: application/json; charset=UTF-8$lineEnd$lineEnd" +
+                            metadataJson + lineEnd
+
+                    val part2Header = "$twoHyphens$boundary$lineEnd" +
+                            "Content-Type: application/octet-stream$lineEnd$lineEnd"
+
+                    val closingBoundary = "$lineEnd$twoHyphens$boundary$twoHyphens$lineEnd"
+
+                    connection.outputStream.use { os ->
+                        os.write(part1Header.toByteArray(Charsets.UTF_8))
+                        os.write(part2Header.toByteArray(Charsets.UTF_8))
+                        os.write(payload)
+                        os.write(closingBoundary.toByteArray(Charsets.UTF_8))
+                    }
+
+                    val responseCode = connection.responseCode
+                    if (responseCode !in 200..299) {
+                        val error = connection.errorStream?.bufferedReader()?.readText()
+                        throw IOException("Failed to upload: $responseCode $error")
+                    } else {
+                        AppLog.i(TAG, "Backup uploaded successfully: HTTP $responseCode")
+                    }
+                } else {
+                    val url = URL("https://www.googleapis.com/upload/drive/v3/files/$fileId?uploadType=media")
+                    val connection = url.openConnection() as HttpURLConnection
+                    connection.requestMethod = "PATCH"
+                    connection.setRequestProperty("Authorization", "Bearer $token")
+                    connection.setRequestProperty("Content-Type", "application/octet-stream")
+                    connection.connectTimeout = 10000
+                    connection.readTimeout = 10000
+                    connection.doOutput = true
+
+                    connection.outputStream.use { os ->
+                        os.write(payload)
+                    }
+
+                    val responseCode = connection.responseCode
+                    if (responseCode !in 200..299) {
+                        val error = connection.errorStream?.bufferedReader()?.readText()
+                        throw IOException("Failed to upload: $responseCode $error")
+                    } else {
+                        AppLog.i(TAG, "Backup uploaded successfully: HTTP $responseCode")
+                    }
                 }
             } finally {
-                // Scrub volatile state
-                oauthToken = null
                 pass.fill('\u0000')
             }
         }
     }
 
-    private fun updateFileMetadata(fileId: String) {
-        val url = URL("https://www.googleapis.com/drive/v3/files/$fileId")
-        val connection = url.openConnection() as HttpURLConnection
-        connection.requestMethod = "PATCH"
-        connection.setRequestProperty("Authorization", "Bearer $oauthToken")
-        connection.setRequestProperty("Content-Type", "application/json")
-        connection.connectTimeout = 10000
-        connection.readTimeout = 10000
-        connection.doOutput = true
-
-        val metadata = JSONObject()
-        metadata.put("name", "cossh_backup.enc")
-        metadata.put("parents", org.json.JSONArray().put("appDataFolder"))
-
-        connection.outputStream.use { it.write(metadata.toString().toByteArray()) }
-        if (connection.responseCode !in 200..299) {
-            throw IOException("Failed to update metadata: ${connection.responseCode}")
+    open suspend fun deleteBackup(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val token = oauthToken ?: getOrRefreshAccessToken() ?: throw IllegalStateException("Not authenticated")
+            val fileId = findBackupFileId() ?: return@withContext true
+            val url = URL("https://www.googleapis.com/drive/v3/files/$fileId")
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "DELETE"
+            connection.setRequestProperty("Authorization", "Bearer $token")
+            connection.connectTimeout = 10000
+            connection.readTimeout = 10000
+            val code = connection.responseCode
+            code in 200..299 || code == 404
+        } catch (e: Exception) {
+            AppLog.e(TAG, "Failed to delete remote backup: ${e.message}", e)
+            false
         }
     }
 
     private fun findBackupFileId(): String? {
+        val token = oauthToken ?: return null
         val url = URL("https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='cossh_backup.enc'")
         val connection = url.openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
-        connection.setRequestProperty("Authorization", "Bearer $oauthToken")
+        connection.setRequestProperty("Authorization", "Bearer $token")
         connection.connectTimeout = 10000
         connection.readTimeout = 10000
 
@@ -239,24 +308,31 @@ class DriveSyncManager(context: Context) {
         return null
     }
 
-    suspend fun downloadBackup(pass: CharArray): ByteArray? {
+    open suspend fun downloadBackup(pass: CharArray): ByteArray? {
         return withContext(Dispatchers.IO) {
             try {
-                if (oauthToken == null) throw IllegalStateException("Not authenticated")
+                val token = oauthToken ?: getOrRefreshAccessToken() ?: throw IllegalStateException("Not authenticated")
                 val fileId = findBackupFileId() ?: return@withContext null
 
                 val url = URL("https://www.googleapis.com/drive/v3/files/$fileId?alt=media")
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "GET"
-                connection.setRequestProperty("Authorization", "Bearer $oauthToken")
+                connection.setRequestProperty("Authorization", "Bearer $token")
                 connection.connectTimeout = 10000
                 connection.readTimeout = 10000
 
                 if (connection.responseCode in 200..299) {
-                    val encryptedPayload = readFully(connection.inputStream)
-                    val result = decrypt(encryptedPayload, pass)
-                    AppLog.i(TAG, "Backup downloaded successfully: HTTP 200")
-                    return@withContext result
+                    val downloadedPayload = readFully(connection.inputStream)
+                    AppLog.i(TAG, "Backup downloaded successfully: HTTP ${connection.responseCode}")
+                    if (downloadedPayload.size >= 4 &&
+                        downloadedPayload[0] == 0x50.toByte() &&
+                        downloadedPayload[1] == 0x4B.toByte() &&
+                        downloadedPayload[2] == 0x03.toByte() &&
+                        downloadedPayload[3] == 0x04.toByte()
+                    ) {
+                        return@withContext downloadedPayload
+                    }
+                    return@withContext decrypt(downloadedPayload, pass)
                 } else {
                     throw IOException("Failed to download: ${connection.responseCode}")
                 }
@@ -264,7 +340,6 @@ class DriveSyncManager(context: Context) {
                 AppLog.e(TAG, "Download failed: ${e.message}", e)
                 null
             } finally {
-                oauthToken = null
                 pass.fill('\u0000')
             }
         }

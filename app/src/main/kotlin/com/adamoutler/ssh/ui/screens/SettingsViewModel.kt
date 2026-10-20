@@ -4,9 +4,12 @@ import android.app.Activity
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.adamoutler.ssh.backup.BackupCryptoManager
 import com.adamoutler.ssh.billing.BillingManager
+import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.crypto.SettingsManager
 import com.adamoutler.ssh.sync.DriveSyncManager
@@ -19,13 +22,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.ByteArrayInputStream
 
 data class SettingsUiState(
     val isCloudSyncEnabled: Boolean = false,
+    val isCloudSyncActive: Boolean = true,
     val isSyncing: Boolean = false,
+    val isRestoring: Boolean = false,
+    val restoreStatusMessage: String? = null,
     val defaultGroupName: String = "Uncategorized",
     val isPassphraseSet: Boolean = false,
     val showPassphraseDialog: Boolean = false,
+    val showRestoreDialog: Boolean = false,
+    val showDisableSyncDialog: Boolean = false,
     val globalColorTheme: String = "COBALT_BLUE",
     val globalFontChoice: String = "DEFAULT_MONOSPACE",
     val isAppLockEnabled: Boolean = false,
@@ -38,10 +47,17 @@ class SettingsViewModel(
     private val driveSyncManager: DriveSyncManager,
     private val settingsManager: SettingsManager = SettingsManager(application),
     private val securityStorageManager: SecurityStorageManager = SecurityStorageManager(application),
+    private val identityStorageManager: IdentityStorageManager = IdentityStorageManager(application),
+    private val workManager: WorkManager? = try { WorkManager.getInstance(application) } catch (_: Throwable) { null },
 ) : AndroidViewModel(application) {
+
+    companion object {
+        const val WORK_NAME_CLOUD_SYNC = "cossh_cloud_sync"
+    }
 
     private val _uiState = MutableStateFlow(
         SettingsUiState(
+            isCloudSyncActive = settingsManager.isCloudSyncActive,
             defaultGroupName = settingsManager.defaultGroupName,
             isPassphraseSet = securityStorageManager.getSyncPassphrase() != null,
             globalColorTheme = settingsManager.globalColorTheme,
@@ -110,20 +126,69 @@ class SettingsViewModel(
         _uiState.update { it.copy(showPassphraseDialog = false) }
     }
 
+    fun showRestoreDialog() {
+        _uiState.update { it.copy(showRestoreDialog = true) }
+    }
+
+    fun dismissRestoreDialog() {
+        _uiState.update { it.copy(showRestoreDialog = false) }
+    }
+
+    fun showDisableSyncDialog() {
+        _uiState.update { it.copy(showDisableSyncDialog = true) }
+    }
+
+    fun dismissDisableSyncDialog() {
+        _uiState.update { it.copy(showDisableSyncDialog = false) }
+    }
+
+    fun clearRestoreStatusMessage() {
+        _uiState.update { it.copy(restoreStatusMessage = null) }
+    }
+
+    fun enableCloudSync() {
+        settingsManager.isCloudSyncActive = true
+        _uiState.update { it.copy(isCloudSyncActive = true) }
+    }
+
+    fun disableCloudSync(deleteRemoteBackup: Boolean) {
+        workManager?.cancelUniqueWork(WORK_NAME_CLOUD_SYNC)
+        securityStorageManager.clearSyncPassphrase()
+        settingsManager.isCloudSyncActive = false
+        _uiState.update {
+            it.copy(
+                isCloudSyncActive = false,
+                isPassphraseSet = false,
+                showDisableSyncDialog = false,
+            )
+        }
+        if (deleteRemoteBackup) {
+            viewModelScope.launch {
+                driveSyncManager.deleteBackup()
+            }
+        }
+    }
+
     fun savePassphraseAndSync(passphrase: String, activity: Activity) {
         securityStorageManager.saveSyncPassphrase(passphrase.toCharArray())
-        _uiState.update { it.copy(isPassphraseSet = true, showPassphraseDialog = false, isSyncing = true) }
+        settingsManager.isCloudSyncActive = true
+        _uiState.update {
+            it.copy(
+                isPassphraseSet = true,
+                isCloudSyncActive = true,
+                showPassphraseDialog = false,
+                isSyncing = true,
+            )
+        }
 
         viewModelScope.launch {
             try {
                 driveSyncManager.authenticate(activity)
-                try {
-                    WorkManager.getInstance(getApplication()).enqueue(
-                        OneTimeWorkRequestBuilder<SyncWorker>().build(),
-                    )
-                } catch (e: Exception) {
-                    AppLog.e("SettingsViewModel", "Failed to enqueue SyncWorker", e)
-                }
+                workManager?.enqueueUniqueWork(
+                    WORK_NAME_CLOUD_SYNC,
+                    ExistingWorkPolicy.REPLACE,
+                    OneTimeWorkRequestBuilder<SyncWorker>().build(),
+                )
             } finally {
                 _uiState.update { it.copy(isSyncing = false) }
             }
@@ -140,15 +205,48 @@ class SettingsViewModel(
         viewModelScope.launch {
             try {
                 driveSyncManager.authenticate(activity)
-                try {
-                    WorkManager.getInstance(getApplication()).enqueue(
-                        OneTimeWorkRequestBuilder<SyncWorker>().build(),
-                    )
-                } catch (e: Exception) {
-                    AppLog.e("SettingsViewModel", "Failed to enqueue SyncWorker", e)
-                }
+                workManager?.enqueueUniqueWork(
+                    WORK_NAME_CLOUD_SYNC,
+                    ExistingWorkPolicy.REPLACE,
+                    OneTimeWorkRequestBuilder<SyncWorker>().build(),
+                )
             } finally {
                 _uiState.update { it.copy(isSyncing = false) }
+            }
+        }
+    }
+
+    fun restoreFromCloud(passphrase: CharArray, activity: Activity? = null) {
+        _uiState.update { it.copy(isRestoring = true, restoreStatusMessage = null) }
+        viewModelScope.launch {
+            try {
+                if (driveSyncManager.oauthToken == null && activity != null) {
+                    driveSyncManager.authenticate(activity)
+                }
+                val backupBytes = driveSyncManager.downloadBackup(passphrase)
+                if (backupBytes == null || backupBytes.isEmpty()) {
+                    _uiState.update { it.copy(restoreStatusMessage = "No remote backup found.") }
+                    return@launch
+                }
+                val (profiles, identities) = BackupCryptoManager.importProfilesFromZip(
+                    ByteArrayInputStream(backupBytes),
+                    passphrase,
+                )
+                profiles.forEach { securityStorageManager.saveProfile(it) }
+                identities.forEach { identityStorageManager.saveIdentity(it) }
+                securityStorageManager.saveSyncPassphrase(passphrase)
+                _uiState.update {
+                    it.copy(
+                        isPassphraseSet = true,
+                        restoreStatusMessage = "Successfully restored ${profiles.size} profiles and ${identities.size} identities.",
+                    )
+                }
+            } catch (e: Exception) {
+                AppLog.e("SettingsViewModel", "Restore failed: ${e.message}", e)
+                _uiState.update { it.copy(restoreStatusMessage = "Restore failed: ${e.message}") }
+            } finally {
+                passphrase.fill('\u0000')
+                _uiState.update { it.copy(isRestoring = false, showRestoreDialog = false) }
             }
         }
     }

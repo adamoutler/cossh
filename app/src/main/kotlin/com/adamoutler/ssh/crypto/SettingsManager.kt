@@ -23,7 +23,12 @@ class SettingsManager(context: Context) {
         private const val DEFAULT_APP_LOCK_ENABLED = false
         private const val KEY_APP_LOCK_TIMEOUT_SECONDS = "app_lock_timeout_seconds"
         private const val DEFAULT_APP_LOCK_TIMEOUT_SECONDS = 0
+        private const val KEY_IS_CLOUD_SYNC_ACTIVE = "is_cloud_sync_active"
     }
+
+    var isCloudSyncActive: Boolean
+        get() = prefs.getBoolean(KEY_IS_CLOUD_SYNC_ACTIVE, true)
+        set(value) = prefs.edit().putBoolean(KEY_IS_CLOUD_SYNC_ACTIVE, value).apply()
 
     var globalFontSize: Int
         get() = prefs.getInt(KEY_GLOBAL_FONT_SIZE, DEFAULT_FONT_SIZE)

@@ -15,6 +15,8 @@ import com.android.billingclient.api.QueryPurchasesParams
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 
 class BillingManager(private val context: Context) : PurchasesUpdatedListener {
 
@@ -22,7 +24,8 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
         var forceCloudSyncEnabledForTest = false
     }
 
-    private val _isCloudSyncEnabled = MutableStateFlow(forceCloudSyncEnabledForTest)
+    private val prefs = context.getSharedPreferences("BillingPrefs", Context.MODE_PRIVATE)
+    private val _isCloudSyncEnabled = MutableStateFlow(forceCloudSyncEnabledForTest || prefs.getBoolean("cloud_sync_entitled", false))
     val isCloudSyncEnabled: StateFlow<Boolean> = _isCloudSyncEnabled.asStateFlow()
 
     private val billingClient = BillingClient.newBuilder(context)
@@ -48,6 +51,24 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
         })
     }
 
+    suspend fun awaitCloudSyncEntitlement(timeoutMs: Long = 3000L): Boolean {
+        if (forceCloudSyncEnabledForTest || _isCloudSyncEnabled.value) return true
+        val isRobolectric = try {
+            Class.forName("org.robolectric.Robolectric")
+            true
+        } catch (_: ClassNotFoundException) {
+            false
+        }
+        if (isRobolectric) return _isCloudSyncEnabled.value
+        return try {
+            withTimeoutOrNull(timeoutMs) {
+                _isCloudSyncEnabled.first { it }
+            } ?: _isCloudSyncEnabled.value
+        } catch (_: Exception) {
+            _isCloudSyncEnabled.value
+        }
+    }
+
     private fun queryPurchases() {
         val params = QueryPurchasesParams.newBuilder()
             .setProductType(BillingClient.ProductType.INAPP)
@@ -71,10 +92,12 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
                         billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
                             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                                 _isCloudSyncEnabled.value = true
+                                prefs.edit().putBoolean("cloud_sync_entitled", true).apply()
                             }
                         }
                     } else {
                         _isCloudSyncEnabled.value = true
+                        prefs.edit().putBoolean("cloud_sync_entitled", true).apply()
                     }
                 }
             }

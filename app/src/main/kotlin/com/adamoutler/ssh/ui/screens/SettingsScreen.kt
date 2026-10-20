@@ -71,15 +71,45 @@ fun SettingsScreen(
         )
     }
 
+    if (uiState.showRestoreDialog) {
+        RestorePassphraseDialog(
+            onDismiss = { viewModel.dismissRestoreDialog() },
+            onConfirm = { passChars ->
+                viewModel.restoreFromCloud(passChars, activity)
+            },
+        )
+    }
+
+    if (uiState.showDisableSyncDialog) {
+        DisableSyncConfirmationDialog(
+            onDismiss = { viewModel.dismissDisableSyncDialog() },
+            onConfirmDisable = { deleteRemote ->
+                viewModel.disableCloudSync(deleteRemote)
+            },
+        )
+    }
+
     SettingsScreenContent(
         isCloudSyncEnabled = uiState.isCloudSyncEnabled,
+        isCloudSyncActive = uiState.isCloudSyncActive,
         isSyncing = uiState.isSyncing,
+        isRestoring = uiState.isRestoring,
+        restoreStatusMessage = uiState.restoreStatusMessage,
         defaultGroupName = uiState.defaultGroupName,
         isPassphraseSet = uiState.isPassphraseSet,
         onDefaultGroupNameChange = { viewModel.updateDefaultGroupName(it) },
         onPurchaseCloudSync = { activity?.let { viewModel.purchaseCloudSync(it) } },
         onAuthenticateGoogle = { activity?.let { viewModel.authenticateGoogle(it) } },
         onResetPassphrase = { viewModel.showPassphraseDialog() },
+        onRestoreFromCloud = { viewModel.showRestoreDialog() },
+        onToggleCloudSync = { isChecked ->
+            if (!isChecked) {
+                viewModel.showDisableSyncDialog()
+            } else {
+                viewModel.enableCloudSync()
+            }
+        },
+        onDismissRestoreStatus = { viewModel.clearRestoreStatusMessage() },
         onNavigateBack = onNavigateBack,
         selectedColorTheme = selectedTheme,
         selectedFontChoice = selectedFont,
@@ -134,6 +164,85 @@ fun SyncPassphraseDialog(
     )
 }
 
+@Composable
+fun RestorePassphraseDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (CharArray) -> Unit,
+) {
+    var passphrase by remember { mutableStateOf("") }
+    AlertDialog(
+        modifier = Modifier.widthIn(max = 320.dp),
+        onDismissRequest = onDismiss,
+        title = { Text("Restore from Cloud") },
+        text = {
+            Column {
+                Text("Enter your sync passphrase to decrypt your cloud backup.")
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = passphrase,
+                    onValueChange = { passphrase = it },
+                    label = { Text("Passphrase") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    singleLine = true,
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(autoCorrect = false, keyboardType = androidx.compose.ui.text.input.KeyboardType.Password),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val chars = passphrase.toCharArray()
+                    passphrase = ""
+                    onConfirm(chars)
+                },
+                enabled = passphrase.isNotBlank(),
+            ) {
+                Text("Restore")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+    )
+}
+
+@Composable
+fun DisableSyncConfirmationDialog(
+    onDismiss: () -> Unit,
+    onConfirmDisable: (deleteRemote: Boolean) -> Unit,
+) {
+    AlertDialog(
+        modifier = Modifier.widthIn(max = 360.dp),
+        onDismissRequest = onDismiss,
+        title = { Text("Disable Cloud Sync") },
+        text = {
+            Text("Disabling Cloud Sync will stop background backups and remove stored sync credentials from this device.\n\nWould you also like to delete your remote backup from Google Drive?")
+        },
+        confirmButton = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.End,
+            ) {
+                TextButton(onClick = { onConfirmDisable(true) }) {
+                    Text("Disable & Delete Remote Backup", color = MaterialTheme.colorScheme.error)
+                }
+                TextButton(onClick = { onConfirmDisable(false) }) {
+                    Text("Disable (Keep Cloud Data)")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreenContent(
@@ -146,6 +255,12 @@ fun SettingsScreenContent(
     onAuthenticateGoogle: () -> Unit,
     onResetPassphrase: () -> Unit,
     onNavigateBack: () -> Unit,
+    isCloudSyncActive: Boolean = true,
+    isRestoring: Boolean = false,
+    restoreStatusMessage: String? = null,
+    onToggleCloudSync: (Boolean) -> Unit = {},
+    onRestoreFromCloud: () -> Unit = {},
+    onDismissRestoreStatus: () -> Unit = {},
     selectedColorTheme: TerminalTheme = TerminalTheme.COBALT_BLUE,
     selectedFontChoice: TerminalFontChoice = TerminalFontChoice.DEFAULT_MONOSPACE,
     onColorThemeChange: (TerminalTheme) -> Unit = {},
@@ -307,29 +422,56 @@ fun SettingsScreenContent(
                             ) {
                                 Text("Cloud Sync Enabled", style = MaterialTheme.typography.bodyLarge)
                                 Switch(
-                                    checked = true,
-                                    onCheckedChange = { /* TODO Disable sync */ },
+                                    checked = isCloudSyncActive,
+                                    onCheckedChange = onToggleCloudSync,
                                 )
                             }
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                if (isPassphraseSet) {
-                                    TextButton(onClick = onResetPassphrase) {
-                                        Text("Reset Passphrase")
-                                    }
-                                } else {
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                }
-
-                                Button(
-                                    onClick = onAuthenticateGoogle,
-                                    enabled = !isSyncing,
+                            if (restoreStatusMessage != null) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    Text(if (isSyncing) "Authenticating..." else "Authenticate with Google")
+                                    Text(
+                                        text = restoreStatusMessage,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                    TextButton(onClick = onDismissRestoreStatus) {
+                                        Text("Dismiss")
+                                    }
+                                }
+                            }
+
+                            if (isCloudSyncActive) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    if (isPassphraseSet) {
+                                        TextButton(onClick = onResetPassphrase) {
+                                            Text("Reset Passphrase")
+                                        }
+                                    } else {
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                    }
+
+                                    OutlinedButton(
+                                        onClick = onRestoreFromCloud,
+                                        enabled = !isSyncing && !isRestoring,
+                                    ) {
+                                        Text(if (isRestoring) "Restoring..." else "Restore from Cloud")
+                                    }
+
+                                    Button(
+                                        onClick = onAuthenticateGoogle,
+                                        enabled = !isSyncing && !isRestoring,
+                                    ) {
+                                        Text(if (isSyncing) "Authenticating..." else "Authenticate with Google")
+                                    }
                                 }
                             }
                         }
