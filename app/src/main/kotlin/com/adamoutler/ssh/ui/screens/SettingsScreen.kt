@@ -85,6 +85,10 @@ fun SettingsScreen(
         selectedFontChoice = selectedFont,
         onColorThemeChange = { viewModel.updateColorTheme(it) },
         onFontChoiceChange = { viewModel.updateFontChoice(it) },
+        isAppLockEnabled = uiState.isAppLockEnabled,
+        appLockTimeoutSeconds = uiState.appLockTimeoutSeconds,
+        onAppLockEnabledChange = { viewModel.updateAppLockEnabled(it) },
+        onAppLockTimeoutChange = { viewModel.updateAppLockTimeout(it) },
     )
 }
 
@@ -146,6 +150,10 @@ fun SettingsScreenContent(
     selectedFontChoice: TerminalFontChoice = TerminalFontChoice.DEFAULT_MONOSPACE,
     onColorThemeChange: (TerminalTheme) -> Unit = {},
     onFontChoiceChange: (TerminalFontChoice) -> Unit = {},
+    isAppLockEnabled: Boolean = false,
+    appLockTimeoutSeconds: Int = 0,
+    onAppLockEnabledChange: (Boolean) -> Unit = {},
+    onAppLockTimeoutChange: (Int) -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -322,6 +330,77 @@ fun SettingsScreenContent(
                                     enabled = !isSyncing,
                                 ) {
                                     Text(if (isSyncing) "Authenticating..." else "Authenticate with Google")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Text(text = "App Security & Biometrics", style = MaterialTheme.typography.titleMedium)
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Biometric App Lock", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "Require biometric authentication to unlock CoSSH",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = isAppLockEnabled,
+                            onCheckedChange = onAppLockEnabledChange,
+                        )
+                    }
+
+                    if (isAppLockEnabled) {
+                        val timeoutOptions = listOf(
+                            0 to "Immediately",
+                            30 to "After 30 seconds",
+                            60 to "After 1 minute",
+                            300 to "After 5 minutes",
+                        )
+                        var isTimeoutExpanded by remember { mutableStateOf(false) }
+                        val currentTimeoutLabel = timeoutOptions.firstOrNull { it.first == appLockTimeoutSeconds }?.second ?: "Immediately"
+
+                        ExposedDropdownMenuBox(
+                            expanded = isTimeoutExpanded,
+                            onExpandedChange = { isTimeoutExpanded = !isTimeoutExpanded },
+                        ) {
+                            OutlinedTextField(
+                                value = currentTimeoutLabel,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Lock Timeout") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isTimeoutExpanded) },
+                                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                                modifier = Modifier.fillMaxWidth().menuAnchor(),
+                            )
+                            ExposedDropdownMenu(
+                                expanded = isTimeoutExpanded,
+                                onDismissRequest = { isTimeoutExpanded = false },
+                            ) {
+                                timeoutOptions.forEach { (seconds, label) ->
+                                    DropdownMenuItem(
+                                        text = { Text(label) },
+                                        onClick = {
+                                            onAppLockTimeoutChange(seconds)
+                                            isTimeoutExpanded = false
+                                        },
+                                    )
                                 }
                             }
                         }

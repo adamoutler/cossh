@@ -1,7 +1,10 @@
 package com.adamoutler.ssh.crypto
 
+import android.hardware.biometrics.BiometricPrompt
+import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import androidx.annotation.RequiresApi
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -49,9 +52,30 @@ object PasswordCipher {
         }
     }
 
-    fun encrypt(plaintext: ByteArray): ByteArray {
+    fun initEncryptCipher(): Cipher {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, getOrGenerateKey())
+        return cipher
+    }
+
+    fun initDecryptCipher(iv: ByteArray): Cipher {
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        val spec = GCMParameterSpec(128, iv)
+        cipher.init(Cipher.DECRYPT_MODE, getOrGenerateKey(), spec)
+        return cipher
+    }
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    fun wrapCryptoObject(cipher: Cipher): BiometricPrompt.CryptoObject {
+        return BiometricPrompt.CryptoObject(cipher)
+    }
+
+    internal fun resetFallbackKeyForTesting() {
+        fallbackKey = null
+    }
+
+    fun encrypt(plaintext: ByteArray): ByteArray {
+        val cipher = initEncryptCipher()
         val iv = cipher.iv
         val ciphertext = cipher.doFinal(plaintext)
         return iv + ciphertext
@@ -59,11 +83,9 @@ object PasswordCipher {
 
     fun decrypt(encryptedData: ByteArray): ByteArray {
         try {
-            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
             val iv = encryptedData.copyOfRange(0, 12)
             val ciphertext = encryptedData.copyOfRange(12, encryptedData.size)
-            val spec = GCMParameterSpec(128, iv)
-            cipher.init(Cipher.DECRYPT_MODE, getOrGenerateKey(), spec)
+            val cipher = initDecryptCipher(iv)
             return cipher.doFinal(ciphertext)
         } catch (e: Exception) {
             e.handleKeystoreExceptions("Decryption failed due to Keystore error.")

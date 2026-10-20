@@ -28,6 +28,8 @@ data class SettingsUiState(
     val showPassphraseDialog: Boolean = false,
     val globalColorTheme: String = "COBALT_BLUE",
     val globalFontChoice: String = "DEFAULT_MONOSPACE",
+    val isAppLockEnabled: Boolean = false,
+    val appLockTimeoutSeconds: Int = 0,
 )
 
 class SettingsViewModel(
@@ -44,6 +46,8 @@ class SettingsViewModel(
             isPassphraseSet = securityStorageManager.getSyncPassphrase() != null,
             globalColorTheme = settingsManager.globalColorTheme,
             globalFontChoice = settingsManager.globalFontChoice,
+            isAppLockEnabled = settingsManager.isAppLockEnabled,
+            appLockTimeoutSeconds = settingsManager.appLockTimeoutSeconds,
         ),
     )
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
@@ -70,6 +74,28 @@ class SettingsViewModel(
         val newName = if (name.isBlank()) "Uncategorized" else name
         settingsManager.defaultGroupName = newName
         _uiState.update { it.copy(defaultGroupName = newName) }
+    }
+
+    fun updateAppLockEnabled(enabled: Boolean) {
+        settingsManager.isAppLockEnabled = enabled
+        if (enabled) {
+            if (!securityStorageManager.isAppLockConfigured()) {
+                try {
+                    val cipher = com.adamoutler.ssh.crypto.PasswordCipher.initEncryptCipher()
+                    securityStorageManager.setupAppLock(cipher)
+                } catch (e: Exception) {
+                    // Handled if cipher initialization fails
+                }
+            }
+        } else {
+            securityStorageManager.clearAppLock()
+        }
+        _uiState.update { it.copy(isAppLockEnabled = enabled) }
+    }
+
+    fun updateAppLockTimeout(timeoutSeconds: Int) {
+        settingsManager.appLockTimeoutSeconds = timeoutSeconds
+        _uiState.update { it.copy(appLockTimeoutSeconds = timeoutSeconds) }
     }
 
     fun purchaseCloudSync(activity: Activity) {

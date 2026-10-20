@@ -36,24 +36,34 @@ import com.adamoutler.ssh.ui.screens.identity.AddEditIdentityScreen
 import com.adamoutler.ssh.ui.screens.identity.IdentityListScreen
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    appLockManager: com.adamoutler.ssh.security.AppLockManager? = null,
+) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val activity = context as? androidx.activity.ComponentActivity
     val billingManager = remember { BillingManager(context) }
     val driveSyncManager = remember { DriveSyncManager(context) }
     val securityStorageManager = remember { SecurityStorageManager(context) }
+    val lockManager = remember(appLockManager) {
+        appLockManager ?: com.adamoutler.ssh.security.AppLockManager.getInstance(context.applicationContext)
+    }
 
+    val isLocked by lockManager.isLocked.collectAsState()
     var showKeystoreDialog by remember { mutableStateOf(false) }
 
-    androidx.compose.runtime.DisposableEffect(activity) {
+    androidx.compose.runtime.DisposableEffect(activity, isLocked) {
         val listener = androidx.core.util.Consumer<android.content.Intent> { intent ->
-            IntentSanitizer.sanitizeAndNavigate(
-                intent = intent,
-                navController = navController,
-                activity = activity,
-                securityStorageManager = securityStorageManager,
-            )
+            if (lockManager.isLocked.value) {
+                lockManager.pendingResumeIntent.value = intent
+            } else {
+                IntentSanitizer.sanitizeAndNavigate(
+                    intent = intent,
+                    navController = navController,
+                    activity = activity,
+                    securityStorageManager = securityStorageManager,
+                )
+            }
         }
         activity?.addOnNewIntentListener(listener)
         onDispose {
@@ -61,13 +71,34 @@ fun AppNavigation() {
         }
     }
 
+    androidx.compose.runtime.LaunchedEffect(isLocked) {
+        if (!isLocked) {
+            val pendingIntent = lockManager.pendingResumeIntent.value
+            if (pendingIntent != null) {
+                lockManager.pendingResumeIntent.value = null
+                IntentSanitizer.sanitizeAndNavigate(
+                    intent = pendingIntent,
+                    navController = navController,
+                    activity = activity,
+                    securityStorageManager = securityStorageManager,
+                )
+            }
+        }
+    }
+
     androidx.compose.runtime.LaunchedEffect(Unit) {
-        IntentSanitizer.sanitizeAndNavigate(
-            intent = activity?.intent,
-            navController = navController,
-            activity = activity,
-            securityStorageManager = securityStorageManager,
-        )
+        if (lockManager.isLocked.value) {
+            if (activity?.intent != null) {
+                lockManager.pendingResumeIntent.value = activity.intent
+            }
+        } else {
+            IntentSanitizer.sanitizeAndNavigate(
+                intent = activity?.intent,
+                navController = navController,
+                activity = activity,
+                securityStorageManager = securityStorageManager,
+            )
+        }
 
         com.adamoutler.ssh.ui.events.UiEventBus.events.collect { event ->
             if (event is com.adamoutler.ssh.ui.events.UiEvent.Navigate) {
