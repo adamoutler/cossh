@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
         // Security mitigations: Implement root detection to protect sensitive SSH keys
         val buildTags = android.os.Build.TAGS
         if (buildTags != null && buildTags.contains("test-keys")) {
-            println("CoSSH: Warning: Device is rooted (test-keys)")
+            com.adamoutler.ssh.util.AppLog.w("MainActivity", "CoSSH: Warning: Device is rooted (test-keys)")
         }
 
         // Hardware/API constraints:

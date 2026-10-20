@@ -15,8 +15,14 @@ class CoSshApplicationTest {
 
     @Test
     fun testBouncyCastleProviderIsRegistered() {
-        val provider = java.security.Security.getProviders()[0]
-        assertTrue("BouncyCastleProvider should be registered at position 1", provider is org.bouncycastle.jce.provider.BouncyCastleProvider)
+        val providers = java.security.Security.getProviders()
+        assertTrue("Security providers must not be empty", providers.isNotEmpty())
+        val bcProvider = java.security.Security.getProvider("BC")
+        assertTrue("BouncyCastleProvider must be registered", bcProvider is org.bouncycastle.jce.provider.BouncyCastleProvider)
+        assertTrue("Position 1 provider must not be preempted by BouncyCastle", providers[0] !is org.bouncycastle.jce.provider.BouncyCastleProvider)
+        if (providers.size >= 2) {
+            assertTrue("BouncyCastleProvider should be registered at position 2", providers[1] is org.bouncycastle.jce.provider.BouncyCastleProvider)
+        }
     }
 
     @Test

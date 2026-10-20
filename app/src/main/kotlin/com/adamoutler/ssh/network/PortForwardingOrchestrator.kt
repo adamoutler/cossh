@@ -2,6 +2,7 @@ package com.adamoutler.ssh.network
 
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.PortForwardType
+import com.adamoutler.ssh.util.AppLog
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.common.StreamCopier
 import net.schmizz.sshj.connection.channel.direct.DirectTCPIPChannel
@@ -12,6 +13,7 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -19,10 +21,15 @@ import kotlin.concurrent.thread
 
 class PortForwardingOrchestrator {
     companion object {
+        private const val TAG = "PortForwardingOrchestrator"
         private const val LOCAL_HOST = "127.0.0.1"
+        const val MAX_CONCURRENT_FORWARD_CONNECTIONS = 32
+        const val SERVER_SOCKET_SO_TIMEOUT_MS = 5000
+        const val SOCKS5_HANDSHAKE_TIMEOUT_MS = 15_000
     }
 
     private val localServerSockets = CopyOnWriteArrayList<ServerSocket>()
+    val activeClientSockets = ConcurrentHashMap.newKeySet<Socket>()
     private val socksExecutor = Executors.newFixedThreadPool(16) { runnable ->
         Thread(runnable, "SOCKS5_Worker").apply { isDaemon = true }
     }
@@ -38,7 +45,7 @@ class PortForwardingOrchestrator {
                     startDynamicPortForward(client, config)
                 }
             } catch (e: Exception) {
-                println(("PortForwardingOrchestrator").toString() + ": " + ("Failed to setup port forward $config").toString() + " " + (e).toString())
+                AppLog.e(TAG, "Failed to setup port forward $config: ${e.message}", e)
             }
         }
     }
@@ -54,7 +61,7 @@ class PortForwardingOrchestrator {
             try {
                 localPortForwarder.listen()
             } catch (e: Exception) {
-                println(("PortForwardingOrchestrator").toString() + ": " + ("Local port forwarder error").toString() + " " + (e).toString())
+                AppLog.w(TAG, "Local port forwarder error: ${e.message}", e)
             } finally {
                 try {
                     serverSocket.close()
@@ -76,24 +83,46 @@ class PortForwardingOrchestrator {
     private fun startDynamicPortForward(client: SSHClient, config: com.adamoutler.ssh.data.PortForwardConfig) {
         val serverSocket = ServerSocket()
         serverSocket.reuseAddress = true
+        serverSocket.soTimeout = SERVER_SOCKET_SO_TIMEOUT_MS
         serverSocket.bind(InetSocketAddress(LOCAL_HOST, config.localPort))
         localServerSockets.add(serverSocket)
 
         thread(name = "DynamicPortForwarder_${config.localPort}") {
             try {
                 while (!serverSocket.isClosed) {
-                    val socket = serverSocket.accept()
+                    val socket = try {
+                        serverSocket.accept()
+                    } catch (e: java.net.SocketTimeoutException) {
+                        continue
+                    } catch (e: Exception) {
+                        if (!serverSocket.isClosed) {
+                            AppLog.e(TAG, "Dynamic port forwarder accept error: ${e.message}", e)
+                        }
+                        break
+                    }
+
+                    if (activeClientSockets.size >= MAX_CONCURRENT_FORWARD_CONNECTIONS) {
+                        AppLog.w(TAG, "Max concurrent connections reached ($MAX_CONCURRENT_FORWARD_CONNECTIONS), rejecting socket")
+                        try {
+                            socket.close()
+                        } catch (e: Exception) {
+                            // ignore
+                        }
+                        continue
+                    }
+
+                    activeClientSockets.add(socket)
                     socksExecutor.execute {
                         handleSocks5Connection(client, socket)
                     }
                 }
             } catch (e: Exception) {
-                println("Dynamic port forwarder error: $e")
+                AppLog.e(TAG, "Dynamic port forwarder error: ${e.message}", e)
             } finally {
                 try {
                     serverSocket.close()
                 } catch (e: Exception) {
-                    println("Error closing dynamic server socket: $e")
+                    AppLog.w(TAG, "Error closing dynamic server socket: ${e.message}")
                 }
             }
         }
@@ -101,6 +130,7 @@ class PortForwardingOrchestrator {
 
     private fun handleSocks5Connection(client: SSHClient, socket: Socket) {
         try {
+            socket.soTimeout = SOCKS5_HANDSHAKE_TIMEOUT_MS
             val input = DataInputStream(socket.getInputStream())
             val output = DataOutputStream(socket.getOutputStream())
 
@@ -159,6 +189,11 @@ class PortForwardingOrchestrator {
             // Open SSH tunnel
             val channel = net.schmizz.sshj.connection.channel.direct.ChannelFactory.createDirectTCPIPChannel(client.connection, LOCAL_HOST, socket.port, targetHost, targetPort)
 
+            // Reset socket to streaming mode once tunnel opens
+            socket.soTimeout = 0
+            socket.keepAlive = true
+            socket.tcpNoDelay = true
+
             // Reply: Success
             output.writeByte(0x05)
             output.writeByte(0x00) // Success
@@ -176,13 +211,14 @@ class PortForwardingOrchestrator {
             toServer.await()
             toClient.await()
             channel.close()
-            socket.close()
         } catch (e: Exception) {
-            println("SOCKS5 connection error: $e")
+            AppLog.w(TAG, "SOCKS5 connection error: ${e.message}")
+        } finally {
+            activeClientSockets.remove(socket)
             try {
                 socket.close()
             } catch (ignored: Exception) {
-                println("Failed to close socket: $ignored")
+                AppLog.w(TAG, "Failed to close socket: ${ignored.message}")
             }
         }
     }
@@ -195,10 +231,18 @@ class PortForwardingOrchestrator {
                 } catch (ignored: Exception) {}
             }
             localServerSockets.clear()
+
+            activeClientSockets.forEach {
+                try {
+                    it.close()
+                } catch (ignored: Exception) {}
+            }
+            activeClientSockets.clear()
+
             socksExecutor.shutdownNow()
             socksExecutor.awaitTermination(1, TimeUnit.SECONDS)
         } catch (e: Exception) {
-            println(("PortForwardingOrchestrator").toString() + ": " + ("Error closing local port forwarders").toString() + " " + (e).toString())
+            AppLog.e(TAG, "Error closing local port forwarders: ${e.message}", e)
         }
     }
 }

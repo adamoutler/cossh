@@ -13,6 +13,7 @@ import com.adamoutler.ssh.sync.DriveSyncManager
 import com.adamoutler.ssh.sync.SyncWorker
 import com.adamoutler.ssh.ui.theme.TerminalFontChoice
 import com.adamoutler.ssh.ui.theme.TerminalTheme
+import com.adamoutler.ssh.util.AppLog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -90,9 +91,13 @@ class SettingsViewModel(
         viewModelScope.launch {
             try {
                 driveSyncManager.authenticate(activity)
-                WorkManager.getInstance(getApplication()).enqueue(
-                    OneTimeWorkRequestBuilder<SyncWorker>().build(),
-                )
+                try {
+                    WorkManager.getInstance(getApplication()).enqueue(
+                        OneTimeWorkRequestBuilder<SyncWorker>().build(),
+                    )
+                } catch (e: Exception) {
+                    AppLog.e("SettingsViewModel", "Failed to enqueue SyncWorker", e)
+                }
             } finally {
                 _uiState.update { it.copy(isSyncing = false) }
             }
@@ -109,9 +114,13 @@ class SettingsViewModel(
         viewModelScope.launch {
             try {
                 driveSyncManager.authenticate(activity)
-                WorkManager.getInstance(getApplication()).enqueue(
-                    OneTimeWorkRequestBuilder<SyncWorker>().build(),
-                )
+                try {
+                    WorkManager.getInstance(getApplication()).enqueue(
+                        OneTimeWorkRequestBuilder<SyncWorker>().build(),
+                    )
+                } catch (e: Exception) {
+                    AppLog.e("SettingsViewModel", "Failed to enqueue SyncWorker", e)
+                }
             } finally {
                 _uiState.update { it.copy(isSyncing = false) }
             }

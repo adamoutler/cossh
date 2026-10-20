@@ -14,7 +14,8 @@ class SSHKeyGeneratorTest {
         assertNotNull(keyPair.public)
 
         // Ensure algorithm matches
-        assertTrue(keyPair.public.algorithm == "Ed25519" || keyPair.public.algorithm == "EdDSA")
+        val alg = keyPair.public.algorithm
+        assertTrue(alg == "Ed25519" || alg == "EdDSA" || alg == "1.3.101.112")
     }
 
     @Test

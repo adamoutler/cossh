@@ -1,6 +1,7 @@
 package com.adamoutler.ssh.network
 
 import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.util.AppLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
@@ -14,6 +15,10 @@ import org.apache.commons.net.telnet.TerminalTypeOptionHandler
 import java.io.OutputStream
 
 class TelnetConnectionHandler : ConnectionProtocol {
+    companion object {
+        private const val TAG = "TelnetConnectionHandler"
+    }
+
     var telnetClient: TelnetClient? = null
         private set
 
@@ -42,7 +47,7 @@ class TelnetConnectionHandler : ConnectionProtocol {
                         tc.outputStream.write(bytes)
                         tc.outputStream.flush()
                     } catch (e: Exception) {
-                        println(("TelnetConnectionHandler").toString() + ": " + ("Error writing to telnet stream").toString() + " " + (e).toString())
+                        AppLog.e(TAG, "Error writing to telnet stream: ${e.message}", e)
                         break
                     }
                 }
@@ -68,7 +73,7 @@ class TelnetConnectionHandler : ConnectionProtocol {
                         writeChannel.trySend(byteArrayOf(byteVal))
                     }
                     if (result?.isFailure == true) {
-                        println(("TelnetConnectionHandler").toString() + ": " + ("Failed to send to writeChannel").toString())
+                        AppLog.w(TAG, "Failed to send to writeChannel")
                     }
                 }
                 override fun write(b: Int) {
@@ -117,7 +122,7 @@ class TelnetConnectionHandler : ConnectionProtocol {
             try {
                 tc.disconnect()
             } catch (e: Exception) {
-                println(("TelnetConnectionHandler").toString() + ": " + ("Error during telnet disconnect").toString() + " " + (e).toString())
+                AppLog.w(TAG, "Error during telnet disconnect: ${e.message}", e)
             }
         }
     }
@@ -126,7 +131,7 @@ class TelnetConnectionHandler : ConnectionProtocol {
         try {
             telnetClient?.disconnect()
         } catch (e: Exception) {
-            println(("TelnetConnectionHandler").toString() + ": " + ("Error during manual telnet disconnect").toString() + " " + (e).toString())
+            AppLog.w(TAG, "Error during manual telnet disconnect: ${e.message}", e)
         }
     }
 }
