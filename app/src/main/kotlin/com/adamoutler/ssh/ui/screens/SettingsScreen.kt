@@ -269,6 +269,7 @@ fun SettingsScreenContent(
     appLockTimeoutSeconds: Int = 0,
     onAppLockEnabledChange: (Boolean) -> Unit = {},
     onAppLockTimeoutChange: (Int) -> Unit = {},
+    scrollState: androidx.compose.foundation.ScrollState = rememberScrollState(),
 ) {
     Scaffold(
         topBar = {
@@ -290,7 +291,7 @@ fun SettingsScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {

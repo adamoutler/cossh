@@ -14,7 +14,7 @@ class SettingsScreenScreenshotTest {
 
     @get:Rule
     val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.PIXEL_5,
+        deviceConfig = DeviceConfig.PIXEL_5.copy(screenHeight = 3200),
         theme = "android:Theme.Material.Light.NoActionBar",
     )
 
@@ -108,6 +108,63 @@ class SettingsScreenScreenshotTest {
                         onAuthenticateGoogle = {},
                         onResetPassphrase = {},
                         onNavigateBack = {},
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun screenWithAppLockEnabled() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    SettingsScreenContent(
+                        isCloudSyncEnabled = true,
+                        isSyncing = false,
+                        defaultGroupName = "Uncategorized",
+                        isPassphraseSet = true,
+                        isAppLockEnabled = true,
+                        appLockTimeoutSeconds = 30,
+                        onDefaultGroupNameChange = {},
+                        onPurchaseCloudSync = {},
+                        onAuthenticateGoogle = {},
+                        onResetPassphrase = {},
+                        onNavigateBack = {},
+                        scrollState = androidx.compose.foundation.rememberScrollState(Int.MAX_VALUE),
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun screenWithCloudSyncControls() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    SettingsScreenContent(
+                        isCloudSyncEnabled = true,
+                        isCloudSyncActive = true,
+                        isSyncing = false,
+                        isRestoring = false,
+                        defaultGroupName = "Uncategorized",
+                        isPassphraseSet = true,
+                        isAppLockEnabled = false,
+                        onDefaultGroupNameChange = {},
+                        onPurchaseCloudSync = {},
+                        onAuthenticateGoogle = {},
+                        onResetPassphrase = {},
+                        onRestoreFromCloud = {},
+                        onToggleCloudSync = {},
+                        onNavigateBack = {},
+                        scrollState = androidx.compose.foundation.rememberScrollState(1300),
                     )
                 }
             }
