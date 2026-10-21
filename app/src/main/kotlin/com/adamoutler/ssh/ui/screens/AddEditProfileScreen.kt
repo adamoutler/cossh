@@ -50,6 +50,7 @@ fun AddEditProfileScreen(
 
     var availableKeys by remember { mutableStateOf(viewModel.getAvailableKeys()) }
     var identities by remember { mutableStateOf(viewModel.getIdentities()) }
+    var availableProfiles by remember { mutableStateOf(viewModel.getAllProfiles()) }
 
     val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -57,6 +58,7 @@ fun AddEditProfileScreen(
             if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
                 availableKeys = viewModel.getAvailableKeys()
                 identities = viewModel.getIdentities()
+                availableProfiles = viewModel.getAllProfiles()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -124,6 +126,15 @@ fun AddEditProfileScreen(
         onUseLocalDnsChange = { newValue -> viewModel.updateState { it.copy(useLocalDns = newValue) } },
         hostError = uiState.hostError,
         portError = uiState.portError,
+        keepAliveIntervalSeconds = uiState.keepAliveIntervalSeconds,
+        onKeepAliveIntervalSecondsChange = { seconds -> viewModel.updateState { it.copy(keepAliveIntervalSeconds = seconds) } },
+        autoReconnect = uiState.autoReconnect,
+        onAutoReconnectChange = { auto -> viewModel.updateState { it.copy(autoReconnect = auto) } },
+        maxReconnectAttempts = uiState.maxReconnectAttempts,
+        onMaxReconnectAttemptsChange = { max -> viewModel.updateState { it.copy(maxReconnectAttempts = max) } },
+        jumpHostProfileId = uiState.jumpHostProfileId,
+        onJumpHostProfileIdChange = { jumpId -> viewModel.updateState { it.copy(jumpHostProfileId = jumpId) } },
+        availableProfiles = availableProfiles,
         onSave = {
             if (viewModel.saveProfile(profileId)) {
                 onNavigateBack()
@@ -186,6 +197,15 @@ fun AddEditProfileScreenContent(
     defaultPortForwardType: PortForwardType = PortForwardType.LOCAL,
     hostError: String? = null,
     portError: String? = null,
+    keepAliveIntervalSeconds: Int = 15,
+    onKeepAliveIntervalSecondsChange: (Int) -> Unit = {},
+    autoReconnect: Boolean = true,
+    onAutoReconnectChange: (Boolean) -> Unit = {},
+    maxReconnectAttempts: Int = 5,
+    onMaxReconnectAttemptsChange: (Int) -> Unit = {},
+    jumpHostProfileId: String? = null,
+    onJumpHostProfileIdChange: (String?) -> Unit = {},
+    availableProfiles: List<com.adamoutler.ssh.data.ConnectionProfile> = emptyList(),
 ) {
     var isKeyDropdownExpanded by remember { mutableStateOf(false) }
     var isIdentityDropdownExpanded by remember { mutableStateOf(false) }
@@ -288,6 +308,17 @@ fun AddEditProfileScreenContent(
                 },
                 modifier = Modifier.fillMaxWidth().testTag("PortInput"),
             )
+
+            if (protocol == Protocol.SSH) {
+                Spacer(modifier = Modifier.height(8.dp))
+                com.adamoutler.ssh.ui.components.JumpHostSelector(
+                    currentProfileId = profileId,
+                    selectedJumpHostId = jumpHostProfileId,
+                    availableProfiles = availableProfiles,
+                    targetHost = host,
+                    onJumpHostSelected = onJumpHostProfileIdChange,
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider()
@@ -508,6 +539,75 @@ fun AddEditProfileScreenContent(
                     onCheckedChange = onUseLocalDnsChange,
                     modifier = Modifier.testTag("UseLocalDnsToggle"),
                 )
+            }
+
+            if (protocol == Protocol.SSH) {
+                Spacer(modifier = Modifier.height(16.dp))
+                SectionHeaderWithInfo(title = "SSH Keepalive", topic = "SSH Keepalive")
+                val keepAlivePresets = listOf(0, 15, 30, 60)
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().testTag("KeepAliveSegmentedRow")) {
+                    keepAlivePresets.forEachIndexed { index, seconds ->
+                        SegmentedButton(
+                            selected = keepAliveIntervalSeconds == seconds,
+                            onClick = { onKeepAliveIntervalSecondsChange(seconds) },
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = keepAlivePresets.size),
+                            modifier = Modifier.testTag("KeepAlive_${seconds}s"),
+                        ) {
+                            Text(if (seconds == 0) "Off" else "${seconds}s")
+                        }
+                    }
+                }
+                Text(
+                    text = "Sends encrypted SSH ping packets to prevent middleboxes and carrier NATs from dropping idle sessions.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp, start = 16.dp, end = 16.dp),
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Column(modifier = Modifier.weight(1f).padding(end = 16.dp)) {
+                        Text("Auto-Reconnect", style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            "Automatically reconnects session on network drops with exponential backoff (up to $maxReconnectAttempts attempts).",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Switch(
+                        checked = autoReconnect,
+                        onCheckedChange = onAutoReconnectChange,
+                        modifier = Modifier.testTag("AutoReconnectToggle"),
+                    )
+                }
+
+                if (autoReconnect) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text("Max Retries: $maxReconnectAttempts", style = MaterialTheme.typography.bodyMedium)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            FilledTonalButton(
+                                onClick = { onMaxReconnectAttemptsChange((maxReconnectAttempts - 1).coerceAtLeast(1)) },
+                                modifier = Modifier.testTag("DecrementReconnectAttempts"),
+                            ) {
+                                Text("-")
+                            }
+                            FilledTonalButton(
+                                onClick = { onMaxReconnectAttemptsChange((maxReconnectAttempts + 1).coerceAtMost(10)) },
+                                modifier = Modifier.testTag("IncrementReconnectAttempts"),
+                            ) {
+                                Text("+")
+                            }
+                        }
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
 

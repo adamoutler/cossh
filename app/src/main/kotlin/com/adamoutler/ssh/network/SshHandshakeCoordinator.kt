@@ -25,14 +25,14 @@ open class SshHandshakeCoordinator(
 ) {
 
     @PublishedApi
-    internal fun configureHostKeyVerifier(client: SSHClient) {
+    internal fun configureHostKeyVerifier(client: SSHClient, isAutonomousReconnect: Boolean = false) {
         if (hostKeyVerifier != null) {
             client.addHostKeyVerifier(hostKeyVerifier)
         } else {
             val knownHostsFile = context?.let { File(it.filesDir, "ssh_known_hosts") }
             if (knownHostsFile != null) {
                 if (!knownHostsFile.exists()) knownHostsFile.createNewFile()
-                client.addHostKeyVerifier(TofuHostKeyVerifier(knownHostsFile))
+                client.addHostKeyVerifier(TofuHostKeyVerifier(knownHostsFile, isAutonomousReconnect))
             } else {
                 throw IOException("No Context provided for TOFU verifier and no HostKeyVerifier configured. Refusing to connect insecurely.")
             }
@@ -184,6 +184,8 @@ open class SshHandshakeCoordinator(
         client: SSHClient,
         profile: ConnectionProfile,
         keyPair: KeyPair? = null,
+        skipSocketConnect: Boolean = false,
+        isAutonomousReconnect: Boolean = false,
         block: suspend (effectiveProfile: ConnectionProfile) -> T,
     ): T {
         client.connectTimeout = 10000
@@ -192,20 +194,22 @@ open class SshHandshakeCoordinator(
         val identity = resolveIdentity(profile)
 
         try {
-            configureHostKeyVerifier(client)
+            configureHostKeyVerifier(client, isAutonomousReconnect)
 
-            if (profile.useLocalDns) {
-                val inetAddresses = resolveHostLocally(profile.host)
-                if (!inetAddresses.isNullOrEmpty()) {
-                    val inetAddress = java.net.InetAddress.getByAddress(profile.host, inetAddresses[0].address)
-                    println("SshHandshakeCoordinator: Resolved ${profile.host} via local network DNS: ${inetAddress.hostAddress}")
-                    connectClient(client, inetAddress, profile.port)
+            if (!skipSocketConnect) {
+                if (profile.useLocalDns) {
+                    val inetAddresses = resolveHostLocally(profile.host)
+                    if (!inetAddresses.isNullOrEmpty()) {
+                        val inetAddress = java.net.InetAddress.getByAddress(profile.host, inetAddresses[0].address)
+                        println("SshHandshakeCoordinator: Resolved ${profile.host} via local network DNS: ${inetAddress.hostAddress}")
+                        connectClient(client, inetAddress, profile.port)
+                    } else {
+                        println("SshHandshakeCoordinator: Local DNS resolution returned empty for ${profile.host}, using system fallback")
+                        connectClient(client, profile.host, profile.port)
+                    }
                 } else {
-                    println("SshHandshakeCoordinator: Local DNS resolution returned empty for ${profile.host}, using system fallback")
                     connectClient(client, profile.host, profile.port)
                 }
-            } else {
-                connectClient(client, profile.host, profile.port)
             }
 
             val effectiveProfile = if (identity != null) {
@@ -215,6 +219,13 @@ open class SshHandshakeCoordinator(
             }
 
             authenticateClient(client, profile, keyPair, identity, effectiveProfile)
+
+            // Configure KeepAlive if requested
+            if (profile.keepAliveIntervalSeconds > 0) {
+                client.connection.keepAlive.keepAliveInterval = profile.keepAliveIntervalSeconds
+                // Reset socket read timeout to 0 (infinite) so quiescent reads rely on transport keepalive
+                client.timeout = 0
+            }
 
             return block(effectiveProfile)
         } finally {

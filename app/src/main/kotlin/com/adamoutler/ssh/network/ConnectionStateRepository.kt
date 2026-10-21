@@ -12,6 +12,7 @@ sealed interface ConnectionState {
     object Connected : ConnectionState
     object Disconnecting : ConnectionState
     object Disconnected : ConnectionState
+    data class Reconnecting(val attempt: Int, val maxAttempts: Int, val message: String = "Reconnecting...") : ConnectionState
     data class Terminated(val reason: String?) : ConnectionState
     data class Error(val message: String) : ConnectionState
 }

@@ -90,6 +90,8 @@ fun TerminalScreen(
     val disconnectedStateEntry = connectionStates.entries.firstOrNull { it.key == profileId && (it.value is com.adamoutler.ssh.network.ConnectionState.Disconnected || it.value is com.adamoutler.ssh.network.ConnectionState.Disconnecting) }
     val isDisconnected = disconnectedStateEntry != null
 
+    val reconnectingState = connectionStates[profileId] as? com.adamoutler.ssh.network.ConnectionState.Reconnecting
+
     val authPromptRequest by ConnectionStateRepository.authPromptRequest.collectAsState()
 
     if (authPromptRequest != null && authPromptRequest?.profileId == profileId) {
@@ -131,6 +133,16 @@ fun TerminalScreen(
         terminalViewModel = terminalViewModel,
         currentTheme = currentTheme,
         currentFont = currentFont,
+        reconnectingState = reconnectingState,
+        onCancelReconnect = {
+            val intent = android.content.Intent(context, com.adamoutler.ssh.network.SshService::class.java).apply {
+                action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
+                putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profileId)
+                putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, actualSessionId)
+            }
+            context.startService(intent)
+            onNavigateBack()
+        },
     )
 }
 
@@ -155,6 +167,8 @@ fun TerminalScreenContent(
     terminalViewModel: TerminalViewModel? = null,
     currentTheme: TerminalTheme = TerminalTheme.COBALT_BLUE,
     currentFont: TerminalFontChoice = TerminalFontChoice.DEFAULT_MONOSPACE,
+    reconnectingState: com.adamoutler.ssh.network.ConnectionState.Reconnecting? = null,
+    onCancelReconnect: () -> Unit = {},
 ) {
     val resolvedTheme = remember(currentTheme, profile?.colorTheme) {
         if (profile?.colorTheme != null) {
@@ -407,6 +421,15 @@ fun TerminalScreenContent(
         modifier = modifier
             .fillMaxSize(),
     ) {
+        if (reconnectingState != null) {
+            TerminalReconnectBanner(
+                attempt = reconnectingState.attempt,
+                maxAttempts = reconnectingState.maxAttempts,
+                message = reconnectingState.message,
+                onCancel = onCancelReconnect,
+            )
+        }
+
         if (profile?.protocol == com.adamoutler.ssh.data.Protocol.TELNET) {
             TelnetInsecureWarning(nickname = profile.nickname)
         }

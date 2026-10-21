@@ -96,6 +96,10 @@ data class ConnectionProfile(
     val useLocalDns: Boolean = false,
     val colorTheme: String? = null,
     val fontChoice: String? = null,
+    val keepAliveIntervalSeconds: Int = 0,
+    val autoReconnect: Boolean = false,
+    val maxReconnectAttempts: Int = 5,
+    val jumpHostProfileId: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -130,6 +134,10 @@ data class ConnectionProfile(
         if (commandSnippets != other.commandSnippets) return false
         if (colorTheme != other.colorTheme) return false
         if (fontChoice != other.fontChoice) return false
+        if (keepAliveIntervalSeconds != other.keepAliveIntervalSeconds) return false
+        if (autoReconnect != other.autoReconnect) return false
+        if (maxReconnectAttempts != other.maxReconnectAttempts) return false
+        if (jumpHostProfileId != other.jumpHostProfileId) return false
 
         return true
     }
@@ -157,6 +165,10 @@ data class ConnectionProfile(
         result = 31 * result + commandSnippets.hashCode()
         result = 31 * result + (colorTheme?.hashCode() ?: 0)
         result = 31 * result + (fontChoice?.hashCode() ?: 0)
+        result = 31 * result + keepAliveIntervalSeconds
+        result = 31 * result + autoReconnect.hashCode()
+        result = 31 * result + maxReconnectAttempts
+        result = 31 * result + (jumpHostProfileId?.hashCode() ?: 0)
         return result
     }
 

@@ -15,9 +15,14 @@ class SshConnectionHandler(
     private val identityStorageManager: IdentityStorageManager? = null,
     private val context: Context? = null,
     private val portForwardingOrchestrator: PortForwardingOrchestrator,
+    private val securityStorageManager: com.adamoutler.ssh.crypto.SecurityStorageManager? = null,
 ) : ConnectionProtocol {
 
     var client: SSHClient? = null
+        private set
+    var jumpClient: SSHClient? = null
+        private set
+    var jumpTunnel: net.schmizz.sshj.connection.channel.direct.DirectConnection? = null
         private set
 
     override suspend fun connect(
@@ -31,7 +36,31 @@ class SshConnectionHandler(
         val handshakeCoordinator = SshHandshakeCoordinator(hostKeyVerifier, identityStorageManager, context)
 
         try {
-            handshakeCoordinator.executeWithConnection(sshClient, profile, keyPair) { effectiveProfile ->
+            if (!profile.jumpHostProfileId.isNullOrEmpty()) {
+                val jumpProfile = securityStorageManager?.getProfile(profile.jumpHostProfileId)
+                    ?: throw java.io.IOException("Jump host profile ${profile.jumpHostProfileId} not found")
+
+                val jumpSshClient = SSHClient(SecureSshConfig())
+                jumpClient = jumpSshClient
+
+                // 1. Connect and authenticate to Jump Host
+                handshakeCoordinator.executeWithConnection(jumpSshClient, jumpProfile) { _ ->
+                    // 2. Open direct-tcpip channel to target host:port via the Jump Host
+                    val tunnel = jumpSshClient.newDirectConnection(profile.host, profile.port)
+                    jumpTunnel = tunnel
+
+                    // 3. Connect target SSHClient through the established tunnel using native SSHJ connectVia
+                    sshClient.connectVia(tunnel)
+                }
+            }
+
+            // 4. Authenticate target SSHClient and start session
+            handshakeCoordinator.executeWithConnection(
+                sshClient,
+                profile,
+                keyPair,
+                skipSocketConnect = !profile.jumpHostProfileId.isNullOrEmpty(),
+            ) { effectiveProfile ->
                 portForwardingOrchestrator.startPortForwards(sshClient, effectiveProfile)
 
                 sshClient.startSession().use { session ->
@@ -68,6 +97,16 @@ class SshConnectionHandler(
             client?.disconnect()
         } catch (e: Exception) {
             println(("SshConnectionHandler").toString() + ": " + ("Error during disconnect").toString() + " " + (e).toString())
+        }
+        try {
+            jumpTunnel?.close()
+        } catch (e: Exception) {
+            println(("SshConnectionHandler").toString() + ": " + ("Error closing jump tunnel").toString() + " " + (e).toString())
+        }
+        try {
+            jumpClient?.disconnect()
+        } catch (e: Exception) {
+            println(("SshConnectionHandler").toString() + ": " + ("Error during jump client disconnect").toString() + " " + (e).toString())
         }
     }
 }

@@ -19,10 +19,18 @@ import java.security.MessageDigest
 import java.security.PublicKey
 import java.util.Base64
 
-class TofuHostKeyVerifier(private val knownHostsFile: File) : OpenSSHKnownHosts(knownHostsFile) {
+class TofuHostKeyVerifier(
+    private val knownHostsFile: File,
+    private val isAutonomousReconnect: Boolean = false,
+) : OpenSSHKnownHosts(knownHostsFile) {
     override fun verify(hostname: String, port: Int, key: PublicKey): Boolean {
         if (super.verify(hostname, port, key)) {
             return true
+        }
+
+        if (isAutonomousReconnect) {
+            // Zero-Prompt Security Policy: Never prompt in background on host key mismatch or unknown host
+            return false
         }
 
         val formattedHost = if (port != 22) "[$hostname]:$port" else hostname
@@ -177,9 +185,16 @@ class SshConnectionManager(
     private val hostKeyVerifier: HostKeyVerifier? = null,
     private val identityStorageManager: IdentityStorageManager? = null,
     private val context: android.content.Context? = null,
+    private val securityStorageManager: com.adamoutler.ssh.crypto.SecurityStorageManager? = null,
 ) {
     private val portForwardingOrchestrator = PortForwardingOrchestrator()
-    private val protocolFactory = ConnectionProtocolFactory(hostKeyVerifier, identityStorageManager, context, portForwardingOrchestrator)
+    private val protocolFactory = ConnectionProtocolFactory(
+        hostKeyVerifier = hostKeyVerifier,
+        identityStorageManager = identityStorageManager,
+        context = context,
+        portForwardingOrchestrator = portForwardingOrchestrator,
+        securityStorageManager = securityStorageManager,
+    )
 
     private var activeProtocol: ConnectionProtocol? = null
 

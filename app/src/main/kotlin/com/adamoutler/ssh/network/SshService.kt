@@ -112,41 +112,94 @@ class SshService : Service() {
                 if (profile != null) {
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Connecting)
                     updateSessionNotification(profileId, sessionId, profile.nickname, "Connecting...")
-                    val manager = SshConnectionManager(identityStorageManager = identityStorageManager, context = applicationContext)
-                    sshManagers[sessionId] = manager
 
-                    manager.connectPty(
-                        profile = profile,
-                        onConnect = { outStream, session ->
-                            val activeSession = ConnectionStateRepository.getOrCreateSession(profileId, sessionId)
-                            activeSession.ptyOutputStream = outStream
-                            activeSession.sshShell = session
-                            ConnectionStateRepository.addConnection(profileId)
-                            ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Connected)
-                            updateSessionNotification(profileId, sessionId, profile.nickname, "Connected")
-                        },
-                        onOutput = { bytes, length ->
-                            val activeSession = ConnectionStateRepository.getOrCreateSession(profileId, sessionId)
+                    var reconnectAttempt = 0
+                    val maxAttempts = profile.maxReconnectAttempts.coerceIn(1, 10)
+                    var shouldAttemptConnection = true
 
-                            // Only update mock transcript during headless test runs to avoid leaking sensitive session data in memory
-                            if (ConnectionStateRepository.isHeadlessTest) {
-                                val newText = String(bytes, 0, length, Charsets.UTF_8)
-                                val current = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: ""
-                                ConnectionStateRepository.mockTestTranscripts[sessionId] = current + newText
+                    while (shouldAttemptConnection && job.isActive) {
+                        try {
+                            val manager = SshConnectionManager(
+                                identityStorageManager = identityStorageManager,
+                                context = applicationContext,
+                                securityStorageManager = storageManager,
+                            )
+                            sshManagers[sessionId] = manager
+
+                            manager.connectPty(
+                                profile = profile,
+                                onConnect = { outStream, session ->
+                                    val activeSession = ConnectionStateRepository.getOrCreateSession(profileId, sessionId)
+                                    activeSession.ptyOutputStream = outStream
+                                    activeSession.sshShell = session
+                                    if (reconnectAttempt == 0) {
+                                        ConnectionStateRepository.addConnection(profileId)
+                                    } else {
+                                        val restoredMsg = "\r\n\u001B[32m[CoSSH: Connection restored]\u001B[0m\r\n"
+                                        serviceScope.launch {
+                                            ConnectionStateRepository.emitOutput(sessionId, restoredMsg.toByteArray(Charsets.UTF_8))
+                                        }
+                                    }
+                                    ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Connected)
+                                    updateSessionNotification(profileId, sessionId, profile.nickname, "Connected")
+                                    reconnectAttempt = 0
+                                },
+                                onOutput = { bytes, length ->
+                                    val activeSession = ConnectionStateRepository.getOrCreateSession(profileId, sessionId)
+
+                                    if (ConnectionStateRepository.isHeadlessTest) {
+                                        val newText = String(bytes, 0, length, Charsets.UTF_8)
+                                        val current = ConnectionStateRepository.mockTestTranscripts[sessionId] ?: ""
+                                        ConnectionStateRepository.mockTestTranscripts[sessionId] = current + newText
+                                    }
+
+                                    val copyBytes = bytes.copyOf(length)
+                                    ConnectionStateRepository.emitOutput(sessionId, copyBytes)
+
+                                    if (!activeSession.firstSshOutputReceived) {
+                                        activeSession.firstSshOutputReceived = true
+                                    }
+                                },
+                            )
+                            shouldAttemptConnection = false
+                            ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnected)
+                        } catch (e: Exception) {
+                            val currentState = ConnectionStateRepository.connectionStates.value[profileId]
+                            val isManualDisconnect = !job.isActive || currentState is ConnectionState.Disconnecting || e is kotlinx.coroutines.CancellationException
+                            val isAuthFailure = e is net.schmizz.sshj.userauth.UserAuthException ||
+                                e.message?.contains("authentication failed", ignoreCase = true) == true ||
+                                e.message?.contains("Exhausted available authentication methods", ignoreCase = true) == true
+                            val isHostKeyMismatch = e.message?.contains("HOST_KEY", ignoreCase = true) == true ||
+                                e.message?.contains("Host key", ignoreCase = true) == true
+
+                            if (isManualDisconnect || isAuthFailure || isHostKeyMismatch || !profile.autoReconnect || reconnectAttempt >= maxAttempts) {
+                                if (isHostKeyMismatch) {
+                                    ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Terminated("HOST_KEY_MISMATCH_SECURITY_ALERT"))
+                                    updateSessionNotification(profileId, sessionId, "Security Alert", "Host key mismatch rejected")
+                                } else if (!isManualDisconnect) {
+                                    val userMessage = mapExceptionMessage(e)
+                                    ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error(userMessage))
+                                    updateSessionNotification(profileId, sessionId, "Connection", "Connection failed")
+                                } else {
+                                    ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnected)
+                                }
+                                break
                             }
 
-                            // Send bytes to UI via shared flow
-                            val copyBytes = bytes.copyOf(length)
-                            ConnectionStateRepository.emitOutput(sessionId, copyBytes)
+                            reconnectAttempt++
+                            ConnectionStateRepository.updateConnectionState(
+                                profileId,
+                                ConnectionState.Reconnecting(reconnectAttempt, maxAttempts, "Reconnecting ($reconnectAttempt/$maxAttempts)..."),
+                            )
+                            updateSessionNotification(profileId, sessionId, profile.nickname, "Reconnecting ($reconnectAttempt/$maxAttempts)...")
 
-                            if (!activeSession.firstSshOutputReceived) {
-                                activeSession.firstSshOutputReceived = true
-                                println(("SshService").toString() + ": " + ("First SSH output received for $sessionId").toString())
-                            }
-                        },
-                    )
-                    println(("SshService").toString() + ": " + ("SSH Session disconnected normally for $profileId (Session: $sessionId)").toString())
-                    ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnected)
+                            val warnMsg = "\r\n\u001B[33m[CoSSH: Connection lost. Reconnecting ($reconnectAttempt/$maxAttempts)...]\u001B[0m\r\n"
+                            ConnectionStateRepository.emitOutput(sessionId, warnMsg.toByteArray(Charsets.UTF_8))
+
+                            val backoffMs = kotlin.math.min(60_000L, 2_000L * (1 shl (reconnectAttempt - 1)))
+                            kotlinx.coroutines.delay(backoffMs)
+                        }
+                    }
                 } else {
                     println(("SshService").toString() + ": " + ("Profile not found: $profileId").toString())
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error("Profile not found"))

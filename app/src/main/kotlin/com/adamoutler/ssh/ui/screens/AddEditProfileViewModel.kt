@@ -35,6 +35,10 @@ data class ProfileFormState(
     val terminalInputState: Int = 0,
     val keepScreenOnMode: KeepScreenOnMode = KeepScreenOnMode.SYSTEM_DEFAULT,
     val useLocalDns: Boolean = false,
+    val keepAliveIntervalSeconds: Int = 15,
+    val autoReconnect: Boolean = true,
+    val maxReconnectAttempts: Int = 5,
+    val jumpHostProfileId: String? = null,
     val isLoaded: Boolean = false,
     val hostError: String? = null,
     val portError: String? = null,
@@ -216,6 +220,10 @@ class AddEditProfileViewModel(
             terminalInputState = currentState.terminalInputState,
             keepScreenOnMode = currentState.keepScreenOnMode,
             useLocalDns = currentState.useLocalDns,
+            keepAliveIntervalSeconds = currentState.keepAliveIntervalSeconds,
+            autoReconnect = currentState.autoReconnect,
+            maxReconnectAttempts = currentState.maxReconnectAttempts,
+            jumpHostProfileId = currentState.jumpHostProfileId,
         )
         storageManager.saveProfile(profile)
         resetState()
@@ -246,6 +254,10 @@ class AddEditProfileViewModel(
                         terminalInputState = profile.terminalInputState,
                         keepScreenOnMode = profile.keepScreenOnMode,
                         useLocalDns = profile.useLocalDns,
+                        keepAliveIntervalSeconds = profile.keepAliveIntervalSeconds,
+                        autoReconnect = profile.autoReconnect,
+                        maxReconnectAttempts = profile.maxReconnectAttempts,
+                        jumpHostProfileId = profile.jumpHostProfileId,
                         isLoaded = true,
                         hostError = null,
                         portError = null,
@@ -285,6 +297,10 @@ class AddEditProfileViewModel(
         terminalInputState: Int = 0,
         keepScreenOnMode: KeepScreenOnMode = KeepScreenOnMode.SYSTEM_DEFAULT,
         useLocalDns: Boolean = false,
+        keepAliveIntervalSeconds: Int = 15,
+        autoReconnect: Boolean = true,
+        maxReconnectAttempts: Int = 5,
+        jumpHostProfileId: String? = null,
     ) {
         val portInt = if (validatePort(port)) {
             port.toInt()
@@ -310,12 +326,18 @@ class AddEditProfileViewModel(
             terminalInputState = terminalInputState,
             keepScreenOnMode = keepScreenOnMode,
             useLocalDns = useLocalDns,
+            keepAliveIntervalSeconds = keepAliveIntervalSeconds,
+            autoReconnect = autoReconnect,
+            maxReconnectAttempts = maxReconnectAttempts,
+            jumpHostProfileId = jumpHostProfileId,
         )
         storageManager.saveProfile(profile)
         resetState()
     }
 
     fun getProfile(id: String): ConnectionProfile? = storageManager.getProfile(id)
+
+    fun getAllProfiles(): List<ConnectionProfile> = storageManager.getAllProfiles()
 
     fun getAvailableKeys(): List<String> = storageManager.getAllKeys()
 

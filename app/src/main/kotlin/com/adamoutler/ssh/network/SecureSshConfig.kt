@@ -34,5 +34,7 @@ class SecureSshConfig : AndroidConfig() {
             val name = factory.name.lowercase()
             name.contains("sha1") || name.contains("md5")
         }
+
+        keepAliveProvider = net.schmizz.keepalive.KeepAliveProvider.KEEP_ALIVE
     }
 }
