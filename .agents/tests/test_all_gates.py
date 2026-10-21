@@ -177,18 +177,11 @@ class TestAllGates(unittest.TestCase):
             result_text=reality_report
         )
 
-        # 1. Both agent submission and reality checker sections must be present
-        self.assertIn("Agent Submission Comment", html_out)
-        self.assertIn("Reality Checker Report", html_out)
-
-        # 2. Agent's exact comment must be contained
-        self.assertIn("implemented secure keystore fallback", html_out)
-
-        # 3. Reality checker's exact report must be contained
+        # 1. Reality checker's exact report must be directly contained without codebox wrapping
         self.assertIn("All 4 unit tests passing", html_out)
-
-        # 4. Must contain cryptographic commit reference
-        self.assertIn("a1b2c3d", html_out)
+        self.assertEqual(html_out, reality_report)
+        self.assertNotIn("<pre>", html_out)
+        self.assertNotIn("<code>", html_out)
 
 
 if __name__ == "__main__":

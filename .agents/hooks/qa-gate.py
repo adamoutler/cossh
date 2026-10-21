@@ -325,33 +325,9 @@ def post_kanban_comment(workspace, project_id, work_item_id, html_content, api_k
     )
 
 def format_qa_comment(ticket_id, head_sha, tree_hash, transition_comment, result_text):
-    """Formats a unified QA Certification comment logging reality checker report alongside agent comment."""
-    agent_section = ""
-    if transition_comment and str(transition_comment).strip():
-        safe_agent_comment = html.escape(str(transition_comment).strip())
-        agent_section = f"""<div class="agent-submission-block">
-<h4>🤖 Agent Submission Comment</h4>
-<blockquote>{safe_agent_comment}</blockquote>
-</div>
-<hr/>"""
-    else:
-        agent_section = """<div class="agent-submission-block">
-<h4>🤖 Agent Submission Comment</h4>
-<p><em>(No transition comment provided by agent)</em></p>
-</div>
-<hr/>"""
+    """Directly formats the reality checker response for Kanban posting without codebox wrapping."""
+    return str(result_text).strip()
 
-    safe_report = html.escape(str(result_text).strip())
-    formatted_html = f"""<div class="qa-certification-report">
-<h3>🛡️ QA Gate Evaluation & Reality Certification</h3>
-<p><strong>Ticket:</strong> <code>{ticket_id}</code> | <strong>Commit:</strong> <code>{head_sha[:7]}</code> | <strong>Tree:</strong> <code>{tree_hash[:8]}</code></p>
-{agent_section}
-<div class="reality-checker-block">
-<h4>🛡️ Reality Checker Report (Pattern B Clean-Room)</h4>
-<pre><code>{safe_report}</code></pre>
-</div>
-</div>"""
-    return formatted_html
 
 # =============================================================================
 # Five Verification Stages

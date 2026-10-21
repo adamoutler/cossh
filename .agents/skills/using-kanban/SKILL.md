@@ -64,6 +64,7 @@ The QA Gate enforces six non-negotiable minimum requirements before any ticket c
    - The ticket description and its full comment thread
    - Committed proof artifacts and screenshots in `docs/qa/` (generated beforehand by engineering or `evidence-collector` agents)
    The `reality-checker` produces an evidence-based report that is posted directly as a comment on the Kanban ticket.
+   - **Direct Posting Mandate (No Codebox Wrapping):** The `reality-checker` response must be posted directly as native Markdown. Never wrap the report in a code block (` ``` `) or `<pre><code>` codebox, which breaks rich markdown rendering (headings, bold text, lists, and links) in the Kanban board UI.
 5. **Enforced Feedback Loop:** If the `reality-checker` returns `NEEDS WORK` (or worse), the agent MUST inspect the feedback, address every specific defect identified, and repeat the full validation loop. Premature closure is strictly blocked.
 6. **Restricted Communication Channel:** The agent can communicate with `reality-checker` **ONLY** via comments on the Kanban ticket or through committed proof artifacts.
    - Kanban comments should be used sparingly for direct clarifications: e.g., *"See artifact in docs/qa/SSH-X.md"*, *"This case cannot occur because..."*, or *"Addressed feedback by adding bounds checking in commit Y"*.
