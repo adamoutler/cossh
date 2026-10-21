@@ -447,29 +447,37 @@ fun SettingsScreenContent(
                             }
 
                             if (isCloudSyncActive) {
-                                Row(
+                                Column(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
                                 ) {
-                                    if (isPassphraseSet) {
-                                        TextButton(onClick = onResetPassphrase) {
-                                            Text("Reset Passphrase")
-                                        }
-                                    } else {
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                    }
-
-                                    OutlinedButton(
-                                        onClick = onRestoreFromCloud,
-                                        enabled = !isSyncing && !isRestoring,
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
                                     ) {
-                                        Text(if (isRestoring) "Restoring..." else "Restore from Cloud")
+                                        if (isPassphraseSet) {
+                                            TextButton(
+                                                onClick = onResetPassphrase,
+                                                modifier = Modifier.weight(1f),
+                                            ) {
+                                                Text("Reset Passphrase", maxLines = 1)
+                                            }
+                                        }
+
+                                        OutlinedButton(
+                                            onClick = onRestoreFromCloud,
+                                            enabled = !isSyncing && !isRestoring,
+                                            modifier = if (isPassphraseSet) Modifier.weight(1f) else Modifier.fillMaxWidth(),
+                                        ) {
+                                            Text(if (isRestoring) "Restoring..." else "Restore from Cloud", maxLines = 1)
+                                        }
                                     }
 
                                     Button(
                                         onClick = onAuthenticateGoogle,
                                         enabled = !isSyncing && !isRestoring,
+                                        modifier = Modifier.fillMaxWidth(),
                                     ) {
                                         Text(if (isSyncing) "Authenticating..." else "Authenticate with Google")
                                     }

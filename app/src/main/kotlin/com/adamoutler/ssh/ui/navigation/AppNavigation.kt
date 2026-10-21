@@ -38,10 +38,10 @@ import com.adamoutler.ssh.ui.screens.identity.IdentityListScreen
 @Composable
 fun AppNavigation(
     appLockManager: com.adamoutler.ssh.security.AppLockManager? = null,
+    activity: androidx.activity.ComponentActivity? = androidx.compose.ui.platform.LocalContext.current as? androidx.activity.ComponentActivity,
 ) {
     val navController = rememberNavController()
     val context = LocalContext.current
-    val activity = context as? androidx.activity.ComponentActivity
     val billingManager = remember { BillingManager(context) }
     val driveSyncManager = remember { DriveSyncManager(context) }
     val securityStorageManager = remember { SecurityStorageManager(context) }

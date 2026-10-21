@@ -227,7 +227,7 @@ class SettingsViewModel(
                 if (driveSyncManager.oauthToken == null && activity != null) {
                     driveSyncManager.authenticate(activity)
                 }
-                val backupBytes = driveSyncManager.downloadBackup(passphrase)
+                val backupBytes = driveSyncManager.downloadBackup(passphrase.clone())
                 if (backupBytes == null || backupBytes.isEmpty()) {
                     _uiState.update { it.copy(restoreStatusMessage = "No remote backup found.") }
                     return@launch

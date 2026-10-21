@@ -3,6 +3,7 @@ package com.adamoutler.ssh.ui.navigation
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -24,6 +25,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
@@ -83,18 +85,16 @@ class AppLockNavigationGateTest {
         assertTrue("appLockManager must be locked initially", appLockManager.isLocked.value)
 
         val deepLinkIntent = Intent(Intent.ACTION_VIEW, Uri.parse("ssh://testuser@192.168.1.100:22"))
+        val testActivity = Robolectric.buildActivity(ComponentActivity::class.java).get()
+        testActivity.intent = deepLinkIntent
 
         composeTestRule.setContent {
-            AppNavigation(appLockManager = appLockManager)
+            AppNavigation(appLockManager = appLockManager, activity = testActivity)
         }
 
         composeTestRule.waitForIdle()
 
-        // Buffer the intent into pendingResumeIntent while locked
-        appLockManager.pendingResumeIntent.value = deepLinkIntent
-        composeTestRule.waitForIdle()
-
-        assertEquals("Intent must remain buffered while locked", deepLinkIntent, appLockManager.pendingResumeIntent.value)
+        assertEquals("Intent from activity must be captured into pendingResumeIntent by AppNavigation when locked", deepLinkIntent, appLockManager.pendingResumeIntent.value)
     }
 
     @Test
@@ -102,13 +102,15 @@ class AppLockNavigationGateTest {
         assertTrue(appLockManager.isLocked.value)
 
         val testIntent = Intent(Intent.ACTION_VIEW, Uri.parse("ssh://admin@server.local:2222"))
-        appLockManager.pendingResumeIntent.value = testIntent
+        val testActivity = Robolectric.buildActivity(ComponentActivity::class.java).get()
+        testActivity.intent = testIntent
 
         composeTestRule.setContent {
-            AppNavigation(appLockManager = appLockManager)
+            AppNavigation(appLockManager = appLockManager, activity = testActivity)
         }
 
         composeTestRule.waitForIdle()
+        assertEquals(testIntent, appLockManager.pendingResumeIntent.value)
 
         // Perform unlock with valid decrypt cipher
         val iv = securityStorageManager.getAppLockIv()!!
@@ -120,26 +122,37 @@ class AppLockNavigationGateTest {
 
         composeTestRule.waitForIdle()
 
-        // Once unlocked, the LaunchedEffect(isLocked) pops the pending intent and clears it
+        // Once unlocked, LaunchedEffect(isLocked) clears the pending intent and dispatches it
         assertNull("Pending resume intent should be cleared after dispatch", appLockManager.pendingResumeIntent.value)
     }
 
     @Test
     fun testOnNewIntentBuffersWhileLockedAndProcessesWhenUnlocked() {
-        val manager = AppLockManager(settingsManager, securityStorageManager)
-        assertTrue(manager.isLocked.value)
+        val testActivity = Robolectric.buildActivity(ComponentActivity::class.java).get()
 
-        val newIntent = Intent(Intent.ACTION_VIEW, Uri.parse("ssh://user2@router.lan"))
-        manager.pendingResumeIntent.value = newIntent
+        composeTestRule.setContent {
+            AppNavigation(appLockManager = appLockManager, activity = testActivity)
+        }
+        composeTestRule.waitForIdle()
 
-        assertNotNull(manager.pendingResumeIntent.value)
-        assertEquals("router.lan", manager.pendingResumeIntent.value?.data?.host)
-        assertEquals("user2", manager.pendingResumeIntent.value?.data?.userInfo)
+        val newIntent = Intent(Intent.ACTION_VIEW, Uri.parse("ssh://user2@router.lan:22"))
+
+        // Dispatch through activity's onNewIntent, invoking registered OnNewIntentListeners
+        val method = ComponentActivity::class.java.getDeclaredMethod("onNewIntent", Intent::class.java)
+        method.isAccessible = true
+        method.invoke(testActivity, newIntent)
+
+        composeTestRule.waitForIdle()
+
+        assertNotNull("Pending intent must be captured via onNewIntent listener while locked", appLockManager.pendingResumeIntent.value)
+        assertEquals("router.lan", appLockManager.pendingResumeIntent.value?.data?.host)
+        assertEquals("user2", appLockManager.pendingResumeIntent.value?.data?.userInfo)
 
         val iv = securityStorageManager.getAppLockIv()!!
         val decryptCipher = PasswordCipher.initDecryptCipher(iv)
-        manager.unlockWithCipher(decryptCipher)
+        appLockManager.unlockWithCipher(decryptCipher)
+        composeTestRule.waitForIdle()
 
-        assertFalse(manager.isLocked.value)
+        assertFalse(appLockManager.isLocked.value)
     }
 }

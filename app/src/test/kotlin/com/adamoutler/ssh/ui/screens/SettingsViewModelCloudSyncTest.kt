@@ -73,8 +73,12 @@ class SettingsViewModelCloudSyncTest {
         }
 
         override suspend fun downloadBackup(pass: CharArray): ByteArray? {
-            downloadBackupThrows?.let { throw it }
-            return downloadBackupResponse
+            try {
+                downloadBackupThrows?.let { throw it }
+                return downloadBackupResponse
+            } finally {
+                pass.fill('\u0000')
+            }
         }
     }
 

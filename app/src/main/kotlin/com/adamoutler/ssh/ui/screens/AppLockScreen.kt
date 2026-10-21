@@ -64,7 +64,7 @@ fun AppLockScreen(
                     imageVector = Icons.Default.Lock,
                     contentDescription = "Lock Icon",
                     modifier = Modifier.size(48.dp),
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
 
