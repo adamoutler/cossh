@@ -16,6 +16,7 @@ class SshConnectionHandler(
     private val context: Context? = null,
     private val portForwardingOrchestrator: PortForwardingOrchestrator,
     private val securityStorageManager: com.adamoutler.ssh.crypto.SecurityStorageManager? = null,
+    private val injectedHandshakeCoordinator: SshHandshakeCoordinator? = null,
 ) : ConnectionProtocol {
 
     var client: SSHClient? = null
@@ -34,7 +35,7 @@ class SshConnectionHandler(
     ) = withContext(Dispatchers.IO) {
         val sshClient = SSHClient(SecureSshConfig())
         client = sshClient
-        val handshakeCoordinator = SshHandshakeCoordinator(hostKeyVerifier, identityStorageManager, context)
+        val handshakeCoordinator = injectedHandshakeCoordinator ?: SshHandshakeCoordinator(hostKeyVerifier, identityStorageManager, context)
 
         try {
             if (!profile.jumpHostProfileId.isNullOrEmpty()) {
