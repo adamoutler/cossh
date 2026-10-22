@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
@@ -37,6 +38,25 @@ class SshService : Service() {
         const val ACTION_DISCONNECT = "com.adamoutler.ssh.DISCONNECT_SSH"
         const val EXTRA_PROFILE_ID = "profile_id"
         const val EXTRA_SESSION_ID = "session_id"
+
+        fun isCircuitBreakerException(e: Throwable): Boolean {
+            val isAuthFailure = e is net.schmizz.sshj.userauth.UserAuthException ||
+                e.message?.contains("authentication failed", ignoreCase = true) == true ||
+                e.message?.contains("Exhausted available authentication methods", ignoreCase = true) == true ||
+                e.message?.contains("Auth fail", ignoreCase = true) == true
+
+            val isHostKeyMismatch = e.message?.contains("HOST_KEY", ignoreCase = true) == true ||
+                e.message?.contains("Host key", ignoreCase = true) == true
+
+            return isAuthFailure || isHostKeyMismatch
+        }
+
+        fun calculateBackoffDelay(attempt: Int, baseDelayMs: Long = 2000L, maxDelayMs: Long = 60000L): Long {
+            if (attempt <= 1) return baseDelayMs
+            val shift = (attempt - 1).coerceAtMost(5)
+            val factor = 1L shl shift
+            return (baseDelayMs * factor).coerceAtMost(maxDelayMs)
+        }
 
         fun mapExceptionMessage(e: Exception): String {
             val rawMessage = e.message ?: "Connection failed"
@@ -118,7 +138,18 @@ class SshService : Service() {
                     var shouldAttemptConnection = true
 
                     while (shouldAttemptConnection && job.isActive) {
+                        var attemptProfile: ConnectionProfile? = null
                         try {
+                            // Pause retries when ConnectivityManager detects no active internet network
+                            val cm = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
+                            while (cm != null && cm.activeNetwork == null && job.isActive) {
+                                kotlinx.coroutines.delay(1000L)
+                            }
+
+                            // Fetch fresh credentials from Keystore on-demand per attempt
+                            val freshProfile = storageManager.getProfile(profileId) ?: profile
+                            attemptProfile = freshProfile
+
                             val manager = SshConnectionManager(
                                 identityStorageManager = identityStorageManager,
                                 context = applicationContext,
@@ -126,8 +157,10 @@ class SshService : Service() {
                             )
                             sshManagers[sessionId] = manager
 
+                            val isAutonomous = reconnectAttempt > 0
                             manager.connectPty(
-                                profile = profile,
+                                profile = freshProfile,
+                                isAutonomousReconnect = isAutonomous,
                                 onConnect = { outStream, session ->
                                     val activeSession = ConnectionStateRepository.getOrCreateSession(profileId, sessionId)
                                     activeSession.ptyOutputStream = outStream
@@ -141,7 +174,7 @@ class SshService : Service() {
                                         }
                                     }
                                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Connected)
-                                    updateSessionNotification(profileId, sessionId, profile.nickname, "Connected")
+                                    updateSessionNotification(profileId, sessionId, freshProfile.nickname, "Connected")
                                     reconnectAttempt = 0
                                 },
                                 onOutput = { bytes, length ->
@@ -166,13 +199,11 @@ class SshService : Service() {
                         } catch (e: Exception) {
                             val currentState = ConnectionStateRepository.connectionStates.value[profileId]
                             val isManualDisconnect = !job.isActive || currentState is ConnectionState.Disconnecting || e is kotlinx.coroutines.CancellationException
-                            val isAuthFailure = e is net.schmizz.sshj.userauth.UserAuthException ||
-                                e.message?.contains("authentication failed", ignoreCase = true) == true ||
-                                e.message?.contains("Exhausted available authentication methods", ignoreCase = true) == true
+                            val isCircuitBreaker = isCircuitBreakerException(e)
                             val isHostKeyMismatch = e.message?.contains("HOST_KEY", ignoreCase = true) == true ||
                                 e.message?.contains("Host key", ignoreCase = true) == true
 
-                            if (isManualDisconnect || isAuthFailure || isHostKeyMismatch || !profile.autoReconnect || reconnectAttempt >= maxAttempts) {
+                            if (isManualDisconnect || isCircuitBreaker || !profile.autoReconnect || reconnectAttempt >= maxAttempts) {
                                 if (isHostKeyMismatch) {
                                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Terminated("HOST_KEY_MISMATCH_SECURITY_ALERT"))
                                     updateSessionNotification(profileId, sessionId, "Security Alert", "Host key mismatch rejected")
@@ -196,8 +227,10 @@ class SshService : Service() {
                             val warnMsg = "\r\n\u001B[33m[CoSSH: Connection lost. Reconnecting ($reconnectAttempt/$maxAttempts)...]\u001B[0m\r\n"
                             ConnectionStateRepository.emitOutput(sessionId, warnMsg.toByteArray(Charsets.UTF_8))
 
-                            val backoffMs = kotlin.math.min(60_000L, 2_000L * (1 shl (reconnectAttempt - 1)))
+                            val backoffMs = calculateBackoffDelay(reconnectAttempt)
                             kotlinx.coroutines.delay(backoffMs)
+                        } finally {
+                            attemptProfile?.clearSensitiveData()
                         }
                     }
                 } else {

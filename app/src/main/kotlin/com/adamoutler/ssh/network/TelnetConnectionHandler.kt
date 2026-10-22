@@ -27,6 +27,7 @@ class TelnetConnectionHandler : ConnectionProtocol {
         keyPair: java.security.KeyPair?,
         onOutput: suspend (ByteArray, Int) -> Unit,
         onConnect: (OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit,
+        isAutonomousReconnect: Boolean,
     ): Unit = withContext(Dispatchers.IO) {
         val tc = TelnetClient()
         telnetClient = tc

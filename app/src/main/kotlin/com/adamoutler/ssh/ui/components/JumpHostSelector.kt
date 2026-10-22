@@ -162,8 +162,39 @@ fun JumpHostSelector(
                 }
             }
         }
+        val isSelectedCycle = remember(currentProfileId, selectedJumpHostId, profilesMap) {
+            JumpHostGraphValidator.hasJumpHostCycle(currentProfileId, selectedJumpHostId, profilesMap)
+        }
 
-        if (selectedProfile != null) {
+        if (isSelectedCycle) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("JumpHostCycleWarningCard"),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                ),
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = "Routing Loop Detected",
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.error,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Routing loop detected: this configuration creates a recursive jump cycle.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                }
+            }
+        } else if (selectedProfile != null) {
             Spacer(modifier = Modifier.height(8.dp))
             Card(
                 modifier = Modifier

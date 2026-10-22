@@ -106,4 +106,47 @@ class JumpHostChainingTest {
         assertEquals(p1.hashCode(), p2.hashCode())
         assertNotEquals(p1, p3)
     }
+
+    @Test
+    fun sshConnectionHandler_whenJumpHostProfileMissing_throwsIOException() = kotlinx.coroutines.runBlocking {
+        val orchestrator = PortForwardingOrchestrator()
+        val handler = SshConnectionHandler(
+            hostKeyVerifier = null,
+            identityStorageManager = null,
+            context = null,
+            portForwardingOrchestrator = orchestrator,
+            securityStorageManager = null,
+        )
+
+        val targetProfile = createProfile("target", "TargetHost", jumpHostId = "non-existent-jump-id")
+        try {
+            handler.connect(
+                profile = targetProfile,
+                keyPair = null,
+                onOutput = { _, _ -> },
+                onConnect = { _, _ -> },
+            )
+            org.junit.Assert.fail("Expected IOException when jump host profile is missing")
+        } catch (e: java.io.IOException) {
+            assertTrue("Exception must state jump host not found", e.message?.contains("not found") == true)
+        }
+    }
+
+    @Test
+    fun sshConnectionHandler_disconnect_safelyHandlesCascadedTeardown() {
+        val orchestrator = PortForwardingOrchestrator()
+        val handler = SshConnectionHandler(
+            hostKeyVerifier = null,
+            identityStorageManager = null,
+            context = null,
+            portForwardingOrchestrator = orchestrator,
+            securityStorageManager = null,
+        )
+
+        // Verifies no NullPointerException or unhandled exception occurs on uninitialized or chained disconnect
+        handler.disconnect()
+        org.junit.Assert.assertNull(handler.client)
+        org.junit.Assert.assertNull(handler.jumpClient)
+        org.junit.Assert.assertNull(handler.jumpTunnel)
+    }
 }

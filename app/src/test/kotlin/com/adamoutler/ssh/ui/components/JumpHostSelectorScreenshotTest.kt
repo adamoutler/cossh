@@ -88,4 +88,26 @@ class JumpHostSelectorScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun jumpHostSelectorWithCycleWarning() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    Box(modifier = Modifier.padding(16.dp)) {
+                        JumpHostSelector(
+                            currentProfileId = "bastion-1",
+                            selectedJumpHostId = "internal-db",
+                            availableProfiles = listOf(sampleBastion, sampleInternal),
+                            targetHost = "bastion.example.org",
+                            onJumpHostSelected = {},
+                        )
+                    }
+                }
+            }
+        }
+    }
 }

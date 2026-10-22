@@ -10,6 +10,7 @@ interface ConnectionProtocol {
         keyPair: KeyPair? = null,
         onOutput: suspend (ByteArray, Int) -> Unit,
         onConnect: (OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit,
+        isAutonomousReconnect: Boolean = false,
     )
 
     fun disconnect()

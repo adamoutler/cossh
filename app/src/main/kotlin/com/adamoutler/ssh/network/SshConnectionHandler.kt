@@ -30,6 +30,7 @@ class SshConnectionHandler(
         keyPair: KeyPair?,
         onOutput: suspend (ByteArray, Int) -> Unit,
         onConnect: (OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit,
+        isAutonomousReconnect: Boolean,
     ) = withContext(Dispatchers.IO) {
         val sshClient = SSHClient(SecureSshConfig())
         client = sshClient
@@ -43,23 +44,31 @@ class SshConnectionHandler(
                 val jumpSshClient = SSHClient(SecureSshConfig())
                 jumpClient = jumpSshClient
 
-                // 1. Connect and authenticate to Jump Host
-                handshakeCoordinator.executeWithConnection(jumpSshClient, jumpProfile) { _ ->
+                // 1. Connect and authenticate to Jump Host with independent TOFU verification
+                handshakeCoordinator.executeWithConnection(
+                    jumpSshClient,
+                    jumpProfile,
+                    isAutonomousReconnect = isAutonomousReconnect,
+                ) { _ ->
                     // 2. Open direct-tcpip channel to target host:port via the Jump Host
                     val tunnel = jumpSshClient.newDirectConnection(profile.host, profile.port)
                     jumpTunnel = tunnel
 
-                    // 3. Connect target SSHClient through the established tunnel using native SSHJ connectVia
+                    // 3. Configure independent Host Key Verifier on target sshClient BEFORE connectVia initiates key exchange
+                    handshakeCoordinator.configureHostKeyVerifier(sshClient, isAutonomousReconnect)
+
+                    // 4. Connect target SSHClient through the established tunnel using native SSHJ connectVia
                     sshClient.connectVia(tunnel)
                 }
             }
 
-            // 4. Authenticate target SSHClient and start session
+            // 5. Authenticate target SSHClient and start session
             handshakeCoordinator.executeWithConnection(
                 sshClient,
                 profile,
                 keyPair,
                 skipSocketConnect = !profile.jumpHostProfileId.isNullOrEmpty(),
+                isAutonomousReconnect = isAutonomousReconnect,
             ) { effectiveProfile ->
                 portForwardingOrchestrator.startPortForwards(sshClient, effectiveProfile)
 

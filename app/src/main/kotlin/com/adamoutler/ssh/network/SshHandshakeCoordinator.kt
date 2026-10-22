@@ -24,8 +24,7 @@ open class SshHandshakeCoordinator(
     private val context: Context? = null,
 ) {
 
-    @PublishedApi
-    internal fun configureHostKeyVerifier(client: SSHClient, isAutonomousReconnect: Boolean = false) {
+    open fun configureHostKeyVerifier(client: SSHClient, isAutonomousReconnect: Boolean = false) {
         if (hostKeyVerifier != null) {
             client.addHostKeyVerifier(hostKeyVerifier)
         } else {
@@ -220,9 +219,10 @@ open class SshHandshakeCoordinator(
 
             authenticateClient(client, profile, keyPair, identity, effectiveProfile)
 
-            // Configure KeepAlive if requested
-            if (profile.keepAliveIntervalSeconds > 0) {
-                client.connection.keepAlive.keepAliveInterval = profile.keepAliveIntervalSeconds
+            // Configure KeepAlive if requested, applying baseband cellular anti-thrashing clamping
+            val keepAliveSecs = profile.effectiveKeepAliveInterval
+            if (keepAliveSecs > 0) {
+                client.connection.keepAlive.keepAliveInterval = keepAliveSecs
                 // Reset socket read timeout to 0 (infinite) so quiescent reads rely on transport keepalive
                 client.timeout = 0
             }

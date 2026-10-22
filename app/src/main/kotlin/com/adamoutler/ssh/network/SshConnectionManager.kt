@@ -243,9 +243,10 @@ class SshConnectionManager(
         keyPair: KeyPair? = null,
         onOutput: suspend (ByteArray, Int) -> Unit,
         onConnect: (java.io.OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit,
+        isAutonomousReconnect: Boolean = false,
     ) = withContext(Dispatchers.IO) {
         activeProtocol = protocolFactory.create(profile.protocol)
-        activeProtocol?.connect(profile, keyPair, onOutput, onConnect)
+        activeProtocol?.connect(profile, keyPair, onOutput, onConnect, isAutonomousReconnect)
     }
 
     /**

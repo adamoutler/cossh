@@ -175,6 +175,21 @@ data class ConnectionProfile(
     fun clearSensitiveData() {
         password?.fill(0)
     }
+
+    val effectiveKeepAliveInterval: Int
+        get() = sanitizeKeepAliveInterval(keepAliveIntervalSeconds)
+
+    companion object {
+        const val MIN_ACTIVE_KEEPALIVE_SECONDS = 10
+
+        fun sanitizeKeepAliveInterval(seconds: Int): Int {
+            return when {
+                seconds <= 0 -> 0
+                seconds < MIN_ACTIVE_KEEPALIVE_SECONDS -> MIN_ACTIVE_KEEPALIVE_SECONDS
+                else -> seconds
+            }
+        }
+    }
 }
 
 @Serializable
