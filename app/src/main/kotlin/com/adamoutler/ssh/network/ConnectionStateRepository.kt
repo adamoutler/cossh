@@ -73,6 +73,19 @@ object ConnectionStateRepository {
     val authPromptRequest: StateFlow<AuthPromptRequest?>
         get() = UserPromptRegistry.authPromptRequest
 
+    val keyboardInteractivePromptRequest: StateFlow<KeyboardInteractivePromptRequest?>
+        get() = UserPromptRegistry.keyboardInteractivePromptRequest
+
+    suspend fun requestKeyboardInteractivePrompt(
+        profileId: String,
+        name: String,
+        instruction: String,
+        prompts: List<PamPrompt>,
+        round: Int,
+    ): List<CharArray>? = UserPromptRegistry.requestKeyboardInteractivePrompt(profileId, name, instruction, prompts, round)
+
+    fun resolveKeyboardInteractivePrompt(responses: List<CharArray>?) = UserPromptRegistry.resolveKeyboardInteractivePrompt(responses)
+
     suspend fun requestAuthPrompt(profileId: String, requireUsername: Boolean, isRetry: Boolean): AuthCredentials? = UserPromptRegistry.requestAuthPrompt(profileId, requireUsername, isRetry)
 
     fun resolveAuthPrompt(credentials: AuthCredentials?) = UserPromptRegistry.resolveAuthPrompt(credentials)
@@ -91,6 +104,9 @@ object ConnectionStateRepository {
 
     @VisibleForTesting
     fun setAuthPromptRequestForTest(request: AuthPromptRequest?) = UserPromptRegistry.setAuthPromptRequestForTest(request)
+
+    @VisibleForTesting
+    fun setKeyboardInteractivePromptRequestForTest(request: KeyboardInteractivePromptRequest?) = UserPromptRegistry.setKeyboardInteractivePromptRequestForTest(request)
 
     // --- Delegations to SessionStreamRegistry (Backwards Compatibility) ---
     val sessions: ConcurrentHashMap<String, ActiveSessionState>

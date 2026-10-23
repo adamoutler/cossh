@@ -87,9 +87,10 @@ open class SshHandshakeCoordinator(
                 }
             }
 
-            // Try password auth if a password exists or if authType is PASSWORD
+            // Try password or keyboard-interactive auth if a password exists or if authType is PASSWORD
             if (identity.password != null || profile.authType == AuthType.PASSWORD) {
                 authenticators.add(PasswordAuthenticator(identity.password))
+                authenticators.add(KeyboardInteractiveAuthenticator())
             }
 
             if (authenticators.isNotEmpty()) {
@@ -100,7 +101,9 @@ open class SshHandshakeCoordinator(
         }
 
         return when (profile.authType) {
-            AuthType.PASSWORD -> PasswordAuthenticator()
+            AuthType.PASSWORD -> CompositeAuthenticator(
+                listOf(PasswordAuthenticator(), KeyboardInteractiveAuthenticator()),
+            )
 
             AuthType.KEY -> {
                 val validKeyPair = requireNotNull(keyPair) { "Valid KeyPair required for key-based authentication" }

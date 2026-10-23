@@ -104,6 +104,20 @@ fun TerminalScreen(
         )
     }
 
+    val kbdPromptRequest by ConnectionStateRepository.keyboardInteractivePromptRequest.collectAsState()
+
+    if (kbdPromptRequest != null && kbdPromptRequest?.profileId == profileId) {
+        val req = kbdPromptRequest!!
+        PamAuthDialog(
+            name = req.name,
+            instruction = req.instruction,
+            prompts = req.prompts,
+            round = req.round,
+            onConfirm = { responses -> ConnectionStateRepository.resolveKeyboardInteractivePrompt(responses) },
+            onDismiss = { ConnectionStateRepository.resolveKeyboardInteractivePrompt(null) },
+        )
+    }
+
     androidx.compose.runtime.LaunchedEffect(isDisconnected) {
         if (isDisconnected) {
             disconnectedStateEntry?.key?.let { ConnectionStateRepository.clearConnectionState(it) }
