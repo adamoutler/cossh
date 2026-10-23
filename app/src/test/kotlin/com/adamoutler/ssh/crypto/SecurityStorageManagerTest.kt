@@ -186,10 +186,10 @@ class SecurityStorageManagerTest {
     }
 
     @Test
-    fun testGetAllKeys() {
+    fun testKeyPrefixesNotParsedAsProfiles() {
         storageManager.encryptedPrefs.edit().putString("key_123", "value").apply()
-        val keys = storageManager.getAllKeys()
-        assertTrue(keys.contains("key_123"))
+        val profiles = storageManager.getAllProfiles()
+        assertTrue(profiles.none { it.id == "key_123" })
     }
 
     @Test
@@ -292,16 +292,6 @@ class SecurityStorageManagerTest {
         }
     }
 
-    @Test
-    fun testGetAllKeys_KeystoreExceptionFallback() {
-        val manager = SecurityStorageManager(context, throwingPrefs)
-        try {
-            manager.getAllKeys()
-            fail("Expected CryptoException")
-        } catch (e: CryptoException) {
-            // expected
-        }
-    }
 
     @Test
     fun testDeleteProfile_KeystoreExceptionFallback() {
@@ -357,10 +347,6 @@ class SecurityStorageManagerTest {
             fail()
         } catch (e: SecureStorageUnavailableException) {}
         try {
-            manager.getAllKeys()
-            fail()
-        } catch (e: SecureStorageUnavailableException) {}
-        try {
             manager.deleteProfile("id")
             fail()
         } catch (e: SecureStorageUnavailableException) {}
@@ -383,10 +369,6 @@ class SecurityStorageManagerTest {
             fail()
         } catch (e: CryptoException) {}
         try {
-            manager.getAllKeys()
-            fail()
-        } catch (e: CryptoException) {}
-        try {
             manager.deleteProfile("id")
             fail()
         } catch (e: CryptoException) {}
@@ -406,10 +388,6 @@ class SecurityStorageManagerTest {
         } catch (e: CryptoException) {}
         try {
             manager.getAllProfiles()
-            fail()
-        } catch (e: CryptoException) {}
-        try {
-            manager.getAllKeys()
             fail()
         } catch (e: CryptoException) {}
         try {

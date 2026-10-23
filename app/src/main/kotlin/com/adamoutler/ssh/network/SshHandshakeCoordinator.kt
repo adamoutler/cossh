@@ -97,7 +97,7 @@ open class SshHandshakeCoordinator(
                 return CompositeAuthenticator(authenticators)
             }
 
-            throw IllegalArgumentException("Identity has neither valid password nor complete private/public key")
+            throw UserAuthException("Selected Identity '${identity.name}' has neither a valid password nor an SSH private key")
         }
 
         return when (profile.authType) {
@@ -106,9 +106,13 @@ open class SshHandshakeCoordinator(
             )
 
             AuthType.KEY -> {
-                val validKeyPair = requireNotNull(keyPair) { "Valid KeyPair required for key-based authentication" }
-                requireNotNull(validKeyPair.public) { "Valid KeyPair with public key required for key-based authentication" }
-                KeyAuthenticator(validKeyPair)
+                if (keyPair?.public != null) {
+                    KeyAuthenticator(keyPair)
+                } else {
+                    throw UserAuthException(
+                        "SSH Key authentication requires an Identity Profile. Please select or configure an Identity in the connection profile settings."
+                    )
+                }
             }
         }
     }

@@ -94,13 +94,10 @@ class AddEditProfileViewModelTest {
     }
 
     @Test
-    fun `test getAvailableKeys and getIdentities`() {
+    fun `test getIdentities`() {
         val (viewModel, _, identityStorageManager) = createViewModel()
 
         identityStorageManager.saveIdentity(IdentityProfile(id = "id-1", name = "Test Identity", username = "test"))
-
-        val keys = viewModel.getAvailableKeys()
-        assertNotNull(keys)
 
         val identities = viewModel.getIdentities()
         assertTrue(identities.any { it.name == "Test Identity" })

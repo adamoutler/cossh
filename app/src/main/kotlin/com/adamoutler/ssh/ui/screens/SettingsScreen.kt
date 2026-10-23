@@ -3,18 +3,21 @@ package com.adamoutler.ssh.ui.screens
 import android.app.Activity
 import android.app.Application
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +38,7 @@ fun SettingsScreen(
     billingManager: BillingManager,
     driveSyncManager: DriveSyncManager,
     onNavigateBack: () -> Unit,
+    onNavigateToKnownHosts: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
@@ -119,6 +123,7 @@ fun SettingsScreen(
         appLockTimeoutSeconds = uiState.appLockTimeoutSeconds,
         onAppLockEnabledChange = { viewModel.updateAppLockEnabled(it) },
         onAppLockTimeoutChange = { viewModel.updateAppLockTimeout(it) },
+        onNavigateToKnownHosts = onNavigateToKnownHosts,
     )
 }
 
@@ -269,6 +274,7 @@ fun SettingsScreenContent(
     appLockTimeoutSeconds: Int = 0,
     onAppLockEnabledChange: (Boolean) -> Unit = {},
     onAppLockTimeoutChange: (Int) -> Unit = {},
+    onNavigateToKnownHosts: () -> Unit = {},
     scrollState: androidx.compose.foundation.ScrollState = rememberScrollState(),
 ) {
     Scaffold(
@@ -554,6 +560,35 @@ fun SettingsScreenContent(
                                     )
                                 }
                             }
+                        }
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onNavigateToKnownHosts() }
+                            .testTag("KnownHostsSettingsRow"),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Known Hosts", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "Inspect trusted server keys, fingerprints, and hashed host parity",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        IconButton(
+                            onClick = onNavigateToKnownHosts,
+                            modifier = Modifier.testTag("KnownHostsNavigateButton"),
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = "Manage Known Hosts",
+                            )
                         }
                     }
                 }

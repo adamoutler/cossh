@@ -43,7 +43,6 @@ class SecurityStorageManagerCoverageTest {
 
         manager.resetInvalidatedKeys()
 
-        manager.getAllKeys()
         manager.getAllProfiles()
     }
 }

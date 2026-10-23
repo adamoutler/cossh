@@ -105,7 +105,7 @@ class SshHandshakeCoordinatorTest {
     @Test
     fun `getAuthenticator throws if KEY auth but no keypair`() {
         val profile = ConnectionProfile(id = "p1", nickname = "n1", host = "h1", authType = AuthType.KEY)
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows(net.schmizz.sshj.userauth.UserAuthException::class.java) {
             coordinator.getAuthenticator(profile, null, null)
         }
     }
@@ -124,7 +124,7 @@ class SshHandshakeCoordinatorTest {
         val profile = ConnectionProfile(id = "p1", nickname = "n1", host = "h1", authType = AuthType.KEY)
         val identity = IdentityProfile("id1", "MyId", "user")
 
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows(net.schmizz.sshj.userauth.UserAuthException::class.java) {
             coordinator.getAuthenticator(profile, null, identity)
         }
     }

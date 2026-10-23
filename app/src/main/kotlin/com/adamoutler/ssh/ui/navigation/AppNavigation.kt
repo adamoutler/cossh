@@ -147,6 +147,12 @@ fun AppNavigation(
                 billingManager = billingManager,
                 driveSyncManager = driveSyncManager,
                 onNavigateBack = { navController.popBackStack() },
+                onNavigateToKnownHosts = { navController.navigate("knownHosts") },
+            )
+        }
+        composable("knownHosts") {
+            com.adamoutler.ssh.ui.screens.knownhosts.KnownHostsScreen(
+                onNavigateBack = { navController.popBackStack() },
             )
         }
         composable(

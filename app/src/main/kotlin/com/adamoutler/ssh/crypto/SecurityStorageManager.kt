@@ -150,24 +150,6 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
         return profiles
     }
 
-    fun getAllKeys(): List<String> {
-        val keys = mutableListOf<String>()
-        try {
-            // Keys will be stored with a specific prefix when implemented,
-            // or for now we can just search for anything containing "key" that isn't a profile.
-            // Assuming keys will be saved as "key_{id}"
-            for ((key, _) in encryptedPrefs.all) {
-                if (key.startsWith("key_")) {
-                    keys.add(key)
-                }
-            }
-        } catch (e: Exception) {
-            if (e is CryptoException) throw e
-            e.handleKeystoreExceptions("Failed to retrieve keys due to Keystore error.")
-        }
-        return keys
-    }
-
     fun deleteProfile(id: String) {
         if (id.startsWith("ephemeral_") || EphemeralProfileStore.get(id) != null) {
             EphemeralProfileStore.remove(id)

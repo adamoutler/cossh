@@ -118,51 +118,11 @@ class TofuHostKeyVerifier(
 
         if (userAccepted) {
             EphemeralHostKeyRegistry.record(formattedHost, key)
-            val newEntry = "$formattedHost $keyType $keyBlobBase64\n"
-            if (hostExists && knownHostsFile.exists()) {
-                // Atomic overwrite: remove old entry, write new
-                val tempFile = File(knownHostsFile.absolutePath + ".tmp")
-                knownHostsFile.useLines { lines ->
-                    tempFile.printWriter().use { out ->
-                        lines.forEach { line ->
-                            val trimmed = line.trim()
-                            if (trimmed.isNotEmpty() && !trimmed.startsWith("#")) {
-                                val tokens = trimmed.split("\\s+".toRegex())
-                                val hostsToken = tokens.firstOrNull()
-                                val isTargetHost = if (hostsToken != null) {
-                                    val hostList = hostsToken.split(",")
-                                    hostList.contains(formattedHost) || (port == 22 && hostList.contains(hostname))
-                                } else {
-                                    false
-                                }
-                                if (!isTargetHost) {
-                                    out.println(line)
-                                }
-                            } else if (trimmed.isNotEmpty()) {
-                                out.println(line)
-                            }
-                        }
-                        out.print(newEntry)
-                    }
-                }
-                try {
-                    Files.move(
-                        tempFile.toPath(),
-                        knownHostsFile.toPath(),
-                        StandardCopyOption.ATOMIC_MOVE,
-                        StandardCopyOption.REPLACE_EXISTING,
-                    )
-                } catch (e: AtomicMoveNotSupportedException) {
-                    Files.move(
-                        tempFile.toPath(),
-                        knownHostsFile.toPath(),
-                        StandardCopyOption.REPLACE_EXISTING,
-                    )
-                }
-            } else {
-                knownHostsFile.parentFile?.mkdirs()
-                knownHostsFile.appendText(newEntry)
-            }
+            val hostsManager = com.adamoutler.ssh.crypto.KnownHostsManager(knownHostsFile)
+            val existingEntries = hostsManager.getEntries()
+            val oldMatching = existingEntries.find { hostsManager.matchesHost(it, formattedHost, port) }
+            val shouldHash = oldMatching?.isHashed ?: (existingEntries.isNotEmpty() && existingEntries.all { it.isHashed })
+            hostsManager.saveOrUpdateHostKey(formattedHost, port, keyType, keyBlobBase64, hashHost = shouldHash)
             try {
                 entries.clear()
                 entries.addAll(OpenSSHKnownHosts(knownHostsFile).entries())

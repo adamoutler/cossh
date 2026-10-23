@@ -339,7 +339,5 @@ class AddEditProfileViewModel(
 
     fun getAllProfiles(): List<ConnectionProfile> = storageManager.getAllProfiles()
 
-    fun getAvailableKeys(): List<String> = storageManager.getAllKeys()
-
     fun getIdentities(): List<IdentityProfile> = identityStorageManager.getAllIdentities()
 }

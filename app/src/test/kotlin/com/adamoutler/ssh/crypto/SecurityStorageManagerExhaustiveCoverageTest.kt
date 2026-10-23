@@ -61,10 +61,10 @@ class SecurityStorageManagerExhaustiveCoverageTest {
         assertNotNull(retrievedWithPass?.password)
         assertEquals("SecretPassword123", String(retrievedWithPass!!.password!!, Charsets.UTF_8))
 
-        // 3. getAllKeys()
+        // 3. getAllProfiles() skips phantom key_ prefixes
         prefs.edit().putString("key_12345", "test-key-content").commit()
-        val allKeys = manager.getAllKeys()
-        assertTrue(allKeys.contains("key_12345"))
+        val allProfilesAfterKey = manager.getAllProfiles()
+        assertTrue(allProfilesAfterKey.none { it.id == "key_12345" })
 
         // 4. getAllProfiles()
         val allProfiles = manager.getAllProfiles()
