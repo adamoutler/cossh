@@ -21,6 +21,8 @@ class TerminalKeyMapper(
 ) {
     private var shiftState = ModifierState.INACTIVE
     private var hardwareShiftPressed = false
+    private var hardwareAltPressed = false
+    private var hardwareCtrlPressed = false
 
     fun getShiftState(): ModifierState = shiftState
 
@@ -30,6 +32,17 @@ class TerminalKeyMapper(
 
     fun setHardwareShiftPressed(pressed: Boolean) {
         hardwareShiftPressed = pressed
+    }
+
+    fun resetModifiers() {
+        hardwareShiftPressed = false
+        hardwareAltPressed = false
+        hardwareCtrlPressed = false
+        shiftState = ModifierState.INACTIVE
+        if (getCtrlState() == ModifierState.STICKY) setCtrlState(ModifierState.INACTIVE)
+        if (getAltState() == ModifierState.STICKY) setAltState(ModifierState.INACTIVE)
+        if (getSuperState() == ModifierState.STICKY) setSuperState(ModifierState.INACTIVE)
+        if (getMenuState() == ModifierState.STICKY) setMenuState(ModifierState.INACTIVE)
     }
 
     fun onKeyDown(keyCode: Int, e: KeyEvent? = null): Boolean {
@@ -44,6 +57,12 @@ class TerminalKeyMapper(
         if (e?.isShiftPressed == true || keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT) {
             hardwareShiftPressed = true
         }
+        if (e?.isAltPressed == true || keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT) {
+            hardwareAltPressed = true
+        }
+        if (e?.isCtrlPressed == true || keyCode == KeyEvent.KEYCODE_CTRL_LEFT || keyCode == KeyEvent.KEYCODE_CTRL_RIGHT) {
+            hardwareCtrlPressed = true
+        }
 
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             onVolumeUp()
@@ -54,8 +73,11 @@ class TerminalKeyMapper(
             return true
         }
 
-        val ctrlActive = getCtrlState().isActive || (e?.isCtrlPressed == true)
-        val bytesToSend = mapKeyCode(keyCode, e, ctrlActive)
+        val shiftActive = shiftState.isActive || hardwareShiftPressed || e?.isShiftPressed == true
+        val altActive = getAltState().isActive || hardwareAltPressed || e?.isAltPressed == true
+        val ctrlActive = getCtrlState().isActive || hardwareCtrlPressed || (e?.isCtrlPressed == true)
+
+        val bytesToSend = mapKeyCode(keyCode, e, shiftActive, altActive, ctrlActive)
 
         if (bytesToSend != null) {
             consumeStickyModifiers()
@@ -69,11 +91,17 @@ class TerminalKeyMapper(
         if (keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT || e?.isShiftPressed == false) {
             hardwareShiftPressed = false
         }
+        if (keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT || e?.isAltPressed == false) {
+            hardwareAltPressed = false
+        }
+        if (keyCode == KeyEvent.KEYCODE_CTRL_LEFT || keyCode == KeyEvent.KEYCODE_CTRL_RIGHT || e?.isCtrlPressed == false) {
+            hardwareCtrlPressed = false
+        }
         return true
     }
 
-    fun readControlKey(): Boolean = getCtrlState().isActive
-    fun readAltKey(): Boolean = getAltState().isActive
+    fun readControlKey(): Boolean = getCtrlState().isActive || hardwareCtrlPressed
+    fun readAltKey(): Boolean = getAltState().isActive || hardwareAltPressed
     fun readShiftKey(): Boolean = shiftState.isActive || hardwareShiftPressed
     fun readFnKey(): Boolean = false
 
@@ -116,10 +144,10 @@ class TerminalKeyMapper(
     }
 
     fun processBytesWithAlt(bytes: ByteArray): ByteArray {
-        val currentAlt = getAltState()
-        if (currentAlt.isActive && bytes.size == 1) {
+        val altActive = getAltState().isActive || hardwareAltPressed
+        if (altActive && bytes.size == 1) {
             val finalBytes = applyAltModifier(bytes, true)
-            if (currentAlt == ModifierState.STICKY) {
+            if (getAltState() == ModifierState.STICKY) {
                 setAltState(ModifierState.INACTIVE)
             }
             return finalBytes
@@ -208,28 +236,34 @@ class TerminalKeyMapper(
             else -> null
         }
 
-        fun mapKeyCode(keyCode: Int, e: KeyEvent?, ctrlActive: Boolean): ByteArray? = when (keyCode) {
-            KeyEvent.KEYCODE_ENTER -> "\r".toByteArray()
+        fun mapKeyCode(
+            keyCode: Int,
+            e: KeyEvent?,
+            shiftActive: Boolean = false,
+            altActive: Boolean = false,
+            ctrlActive: Boolean = false
+        ): ByteArray? {
+            // First check ANSI key mapper for F-keys, navigation keys, backtab, and escape
+            val ansiBytes = TerminalAnsiKeyMapper.mapKeyCode(keyCode, shiftActive, altActive, ctrlActive)
+            if (ansiBytes != null) {
+                return ansiBytes
+            }
 
-            KeyEvent.KEYCODE_DEL -> byteArrayOf(0x7F)
+            return when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> "\r".toByteArray(Charsets.US_ASCII)
 
-            KeyEvent.KEYCODE_TAB -> "\t".toByteArray()
+                KeyEvent.KEYCODE_DEL -> byteArrayOf(0x7F)
 
-            KeyEvent.KEYCODE_DPAD_UP -> byteArrayOf(0x1B, '['.code.toByte(), 'A'.code.toByte())
+                KeyEvent.KEYCODE_TAB -> "\t".toByteArray(Charsets.US_ASCII)
 
-            KeyEvent.KEYCODE_DPAD_DOWN -> byteArrayOf(0x1B, '['.code.toByte(), 'B'.code.toByte())
-
-            KeyEvent.KEYCODE_DPAD_RIGHT -> byteArrayOf(0x1B, '['.code.toByte(), 'C'.code.toByte())
-
-            KeyEvent.KEYCODE_DPAD_LEFT -> byteArrayOf(0x1B, '['.code.toByte(), 'D'.code.toByte())
-
-            else -> {
-                val unicodeChar = e?.unicodeChar ?: 0
-                if (unicodeChar != 0) {
-                    val cp = if (ctrlActive) applyCtrlModifier(unicodeChar) else unicodeChar
-                    String(Character.toChars(cp)).toByteArray(Charsets.UTF_8)
-                } else {
-                    null
+                else -> {
+                    val unicodeChar = e?.unicodeChar ?: 0
+                    if (unicodeChar != 0) {
+                        val cp = if (ctrlActive) applyCtrlModifier(unicodeChar) else unicodeChar
+                        String(Character.toChars(cp)).toByteArray(Charsets.UTF_8)
+                    } else {
+                        null
+                    }
                 }
             }
         }

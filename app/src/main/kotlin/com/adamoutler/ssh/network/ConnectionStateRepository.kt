@@ -27,8 +27,23 @@ object ConnectionStateRepository {
     private val _connectionStates = MutableStateFlow<Map<String, ConnectionState>>(emptyMap())
     val connectionStates: StateFlow<Map<String, ConnectionState>> = _connectionStates.asStateFlow()
 
+    private val _sessionStates = MutableStateFlow<Map<String, ConnectionState>>(emptyMap())
+    val sessionStates: StateFlow<Map<String, ConnectionState>> = _sessionStates.asStateFlow()
+
     private val _activeConnectionCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
     val activeConnectionCounts: StateFlow<Map<String, Int>> = _activeConnectionCounts.asStateFlow()
+
+    fun updateSessionState(sessionId: String, state: ConnectionState) {
+        val newMap = _sessionStates.value.toMutableMap()
+        newMap[sessionId] = state
+        _sessionStates.value = newMap
+    }
+
+    fun clearSessionState(sessionId: String) {
+        val newMap = _sessionStates.value.toMutableMap()
+        newMap.remove(sessionId)
+        _sessionStates.value = newMap
+    }
 
     fun updateConnectionState(profileId: String, state: ConnectionState) {
         val newMap = _connectionStates.value.toMutableMap()

@@ -45,6 +45,14 @@ class TerminalViewModel(application: Application) :
     private val _fontChoiceFlow = MutableStateFlow(TerminalFontChoice.DEFAULT_MONOSPACE)
     val fontChoiceFlow = _fontChoiceFlow.asStateFlow()
 
+    private val _cursorStyleFlow = MutableStateFlow(
+        com.adamoutler.ssh.data.TerminalCursorStyle.fromId(settingsManager.globalCursorStyle)
+    )
+    val cursorStyleFlow = _cursorStyleFlow.asStateFlow()
+
+    private val _cursorBlinkFlow = MutableStateFlow(settingsManager.globalCursorBlink)
+    val cursorBlinkFlow = _cursorBlinkFlow.asStateFlow()
+
     private val _bellEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val bellEvents = _bellEvents.asSharedFlow()
 
@@ -116,6 +124,36 @@ class TerminalViewModel(application: Application) :
             }
         }
         settingsManager.globalFontChoice = font.id
+    }
+
+    fun initCursor(profileId: String) {
+        activeProfileId = profileId
+        val profile = storageManager.getProfile(profileId)
+        val styleName = profile?.cursorStyle ?: settingsManager.globalCursorStyle
+        _cursorStyleFlow.value = com.adamoutler.ssh.data.TerminalCursorStyle.fromId(styleName)
+        _cursorBlinkFlow.value = profile?.cursorBlink ?: settingsManager.globalCursorBlink
+    }
+
+    fun updateCursorStyle(style: com.adamoutler.ssh.data.TerminalCursorStyle) {
+        _cursorStyleFlow.value = style
+        activeProfileId?.let { profileId ->
+            val profile = storageManager.getProfile(profileId)
+            if (profile != null) {
+                storageManager.saveProfile(profile.copy(cursorStyle = style.id))
+            }
+        }
+        settingsManager.globalCursorStyle = style.id
+    }
+
+    fun updateCursorBlink(blink: Boolean) {
+        _cursorBlinkFlow.value = blink
+        activeProfileId?.let { profileId ->
+            val profile = storageManager.getProfile(profileId)
+            if (profile != null) {
+                storageManager.saveProfile(profile.copy(cursorBlink = blink))
+            }
+        }
+        settingsManager.globalCursorBlink = blink
     }
 
     fun getOrCreateSession(sessionId: String, context: Context): TerminalSession {
@@ -215,7 +253,7 @@ class TerminalViewModel(application: Application) :
     }
     override fun onColorsChanged(session: TerminalSession) { /* No-op */ }
     override fun onTerminalCursorStateChange(state: Boolean) { /* No-op */ }
-    override fun getTerminalCursorStyle(): Int = 0
+    override fun getTerminalCursorStyle(): Int = _cursorStyleFlow.value.styleCode
     override fun logError(tag: String?, msg: String?) { /* No-op */ }
     override fun logWarn(tag: String?, msg: String?) { /* No-op */ }
     override fun logInfo(tag: String?, msg: String?) { /* No-op */ }

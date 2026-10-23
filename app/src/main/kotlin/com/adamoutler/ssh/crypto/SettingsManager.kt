@@ -24,7 +24,19 @@ class SettingsManager(context: Context) {
         private const val KEY_APP_LOCK_TIMEOUT_SECONDS = "app_lock_timeout_seconds"
         private const val DEFAULT_APP_LOCK_TIMEOUT_SECONDS = 0
         private const val KEY_IS_CLOUD_SYNC_ACTIVE = "is_cloud_sync_active"
+        private const val KEY_GLOBAL_CURSOR_STYLE = "global_cursor_style"
+        private const val DEFAULT_CURSOR_STYLE = "BLOCK"
+        private const val KEY_GLOBAL_CURSOR_BLINK = "global_cursor_blink"
+        private const val DEFAULT_CURSOR_BLINK = true
     }
+
+    var globalCursorStyle: String
+        get() = prefs.getString(KEY_GLOBAL_CURSOR_STYLE, DEFAULT_CURSOR_STYLE) ?: DEFAULT_CURSOR_STYLE
+        set(value) = prefs.edit().putString(KEY_GLOBAL_CURSOR_STYLE, value).apply()
+
+    var globalCursorBlink: Boolean
+        get() = prefs.getBoolean(KEY_GLOBAL_CURSOR_BLINK, DEFAULT_CURSOR_BLINK)
+        set(value) = prefs.edit().putBoolean(KEY_GLOBAL_CURSOR_BLINK, value).apply()
 
     var isCloudSyncActive: Boolean
         get() = prefs.getBoolean(KEY_IS_CLOUD_SYNC_ACTIVE, true)

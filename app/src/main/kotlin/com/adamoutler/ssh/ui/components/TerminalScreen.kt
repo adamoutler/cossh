@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,11 +40,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.adamoutler.ssh.data.TerminalCursorStyle
 import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.adamoutler.ssh.ui.screens.TerminalViewModel
 import com.adamoutler.ssh.ui.theme.TerminalFontChoice
 import com.adamoutler.ssh.ui.theme.TerminalTheme
 import com.adamoutler.ssh.util.AppLog
+import com.adamoutler.ssh.util.SanitizedUrl
+import com.adamoutler.ssh.util.TerminalUrlSanitizer
 import com.termux.terminal.TerminalSession
 import com.termux.view.TerminalView
 import kotlinx.coroutines.Dispatchers
@@ -60,42 +64,51 @@ fun TerminalScreen(
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
 
-    // Resolve session ID or get the first active one
-    val actualSessionId = remember(sessionId, profileId) {
+    // Resolve initial session ID or get the first active one
+    val initialSessionId = remember(sessionId, profileId) {
         sessionId ?: ConnectionStateRepository.sessions.values.firstOrNull { it.profileId == profileId }?.sessionId ?: java.util.UUID.randomUUID().toString()
     }
+    var activeSessionId by remember(initialSessionId) { mutableStateOf(initialSessionId) }
 
-    val session = remember(actualSessionId) { terminalViewModel.getOrCreateSession(actualSessionId, context) }
-    val activeSession = remember(actualSessionId) { ConnectionStateRepository.getOrCreateSession(profileId, actualSessionId) }
+    val activeProfileId = remember(activeSessionId) {
+        ConnectionStateRepository.sessions[activeSessionId]?.profileId ?: profileId
+    }
+
+    val session = remember(activeSessionId) { terminalViewModel.getOrCreateSession(activeSessionId, context) }
+    val activeSession = remember(activeSessionId, activeProfileId) { ConnectionStateRepository.getOrCreateSession(activeProfileId, activeSessionId) }
     val currentFontSize by terminalViewModel.fontSizeFlow.collectAsState()
     val currentTheme by terminalViewModel.colorThemeFlow.collectAsState()
     val currentFont by terminalViewModel.fontChoiceFlow.collectAsState()
+    val currentCursorStyle by terminalViewModel.cursorStyleFlow.collectAsState()
+    val currentCursorBlink by terminalViewModel.cursorBlinkFlow.collectAsState()
 
-    androidx.compose.runtime.LaunchedEffect(profileId) {
-        terminalViewModel.initFontSize(profileId)
-        terminalViewModel.initTheme(profileId)
-        terminalViewModel.initFont(profileId)
+    androidx.compose.runtime.LaunchedEffect(activeProfileId) {
+        terminalViewModel.initFontSize(activeProfileId)
+        terminalViewModel.initTheme(activeProfileId)
+        terminalViewModel.initFont(activeProfileId)
+        terminalViewModel.initCursor(activeProfileId)
     }
 
+    val sessionStates by ConnectionStateRepository.sessionStates.collectAsState()
     val activeConnectionCounts by ConnectionStateRepository.activeConnectionCounts.collectAsState()
-    val activeCount = activeConnectionCounts[profileId] ?: 0
+    val activeCount = activeConnectionCounts[activeProfileId] ?: 0
     val isConnectionActive = activeCount > 0
 
     val connectionStates by ConnectionStateRepository.connectionStates.collectAsState()
-    val errorStateEntry = connectionStates.entries.firstOrNull { it.key == profileId && it.value is com.adamoutler.ssh.network.ConnectionState.Error }
+    val errorStateEntry = connectionStates.entries.firstOrNull { it.key == activeProfileId && it.value is com.adamoutler.ssh.network.ConnectionState.Error }
     val errorMessage = (errorStateEntry?.value as? com.adamoutler.ssh.network.ConnectionState.Error)?.message
 
-    val terminatedStateEntry = connectionStates.entries.firstOrNull { it.key == profileId && it.value is com.adamoutler.ssh.network.ConnectionState.Terminated }
+    val terminatedStateEntry = connectionStates.entries.firstOrNull { it.key == activeProfileId && it.value is com.adamoutler.ssh.network.ConnectionState.Terminated }
     val isTerminated = terminatedStateEntry != null
 
-    val disconnectedStateEntry = connectionStates.entries.firstOrNull { it.key == profileId && (it.value is com.adamoutler.ssh.network.ConnectionState.Disconnected || it.value is com.adamoutler.ssh.network.ConnectionState.Disconnecting) }
+    val disconnectedStateEntry = connectionStates.entries.firstOrNull { it.key == activeProfileId && (it.value is com.adamoutler.ssh.network.ConnectionState.Disconnected || it.value is com.adamoutler.ssh.network.ConnectionState.Disconnecting) }
     val isDisconnected = disconnectedStateEntry != null
 
-    val reconnectingState = connectionStates[profileId] as? com.adamoutler.ssh.network.ConnectionState.Reconnecting
+    val reconnectingState = connectionStates[activeProfileId] as? com.adamoutler.ssh.network.ConnectionState.Reconnecting
 
     val authPromptRequest by ConnectionStateRepository.authPromptRequest.collectAsState()
 
-    if (authPromptRequest != null && authPromptRequest?.profileId == profileId) {
+    if (authPromptRequest != null && authPromptRequest?.profileId == activeProfileId) {
         AuthPromptDialog(
             requireUsername = authPromptRequest!!.requireUsername,
             isRetry = authPromptRequest!!.isRetry,
@@ -106,7 +119,7 @@ fun TerminalScreen(
 
     val kbdPromptRequest by ConnectionStateRepository.keyboardInteractivePromptRequest.collectAsState()
 
-    if (kbdPromptRequest != null && kbdPromptRequest?.profileId == profileId) {
+    if (kbdPromptRequest != null && kbdPromptRequest?.profileId == activeProfileId) {
         val req = kbdPromptRequest!!
         PamAuthDialog(
             name = req.name,
@@ -125,9 +138,46 @@ fun TerminalScreen(
         }
     }
 
+    val storageManager = remember(context) { com.adamoutler.ssh.crypto.SecurityStorageManager(context) }
+    val sessionTabs = remember(sessionStates, connectionStates, activeSessionId, activeConnectionCounts) {
+        val allActive = ConnectionStateRepository.sessions.values.toList()
+        allActive.map { s ->
+            val p = storageManager.getProfile(s.profileId)
+            SessionTabItem(
+                sessionId = s.sessionId,
+                profileId = s.profileId,
+                nickname = p?.nickname ?: s.profileId,
+                isTelnet = p?.protocol == com.adamoutler.ssh.data.Protocol.TELNET,
+                connectionState = sessionStates[s.sessionId] ?: connectionStates[s.profileId] ?: com.adamoutler.ssh.network.ConnectionState.Connected,
+                isSelected = s.sessionId == activeSessionId,
+            )
+        }
+    }
+
+    val handleCloseSession: (String) -> Unit = { targetSessionId ->
+        val targetSession = ConnectionStateRepository.sessions[targetSessionId]
+        val targetProfileId = targetSession?.profileId ?: activeProfileId
+        val intent = android.content.Intent(context, com.adamoutler.ssh.network.SshService::class.java).apply {
+            action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
+            putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, targetProfileId)
+            putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, targetSessionId)
+        }
+        context.startService(intent)
+        ConnectionStateRepository.clearSessionState(targetSessionId)
+
+        if (targetSessionId == activeSessionId) {
+            val remaining = ConnectionStateRepository.sessions.values.filter { it.sessionId != targetSessionId }
+            if (remaining.isNotEmpty()) {
+                activeSessionId = remaining.first().sessionId
+            } else {
+                onNavigateBack()
+            }
+        }
+    }
+
     TerminalScreenContent(
-        profileId = profileId,
-        sessionId = actualSessionId,
+        profileId = activeProfileId,
+        sessionId = activeSessionId,
         session = session,
         activeSession = activeSession,
         currentFontSize = currentFontSize,
@@ -141,8 +191,8 @@ fun TerminalScreen(
             terminatedStateEntry?.key?.let { ConnectionStateRepository.clearConnectionState(it) }
         },
         onPaste = { terminalViewModel.onPasteTextFromClipboard(session) },
-        profile = remember(profileId) {
-            com.adamoutler.ssh.crypto.SecurityStorageManager(context).getProfile(profileId)
+        profile = remember(activeProfileId) {
+            storageManager.getProfile(activeProfileId)
         },
         modifier = modifier,
         terminalViewModel = terminalViewModel,
@@ -152,12 +202,20 @@ fun TerminalScreen(
         onCancelReconnect = {
             val intent = android.content.Intent(context, com.adamoutler.ssh.network.SshService::class.java).apply {
                 action = com.adamoutler.ssh.network.SshService.ACTION_DISCONNECT
-                putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, profileId)
-                putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, actualSessionId)
+                putExtra(com.adamoutler.ssh.network.SshService.EXTRA_PROFILE_ID, activeProfileId)
+                putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, activeSessionId)
             }
             context.startService(intent)
             onNavigateBack()
         },
+        sessionTabs = sessionTabs,
+        onSelectSession = { activeSessionId = it },
+        onCloseSession = handleCloseSession,
+        onNewSession = onNavigateBack,
+        cursorStyle = currentCursorStyle,
+        cursorBlink = currentCursorBlink,
+        onUpdateCursorStyle = { terminalViewModel.updateCursorStyle(it) },
+        onUpdateCursorBlink = { terminalViewModel.updateCursorBlink(it) },
     )
 }
 
@@ -184,6 +242,14 @@ fun TerminalScreenContent(
     currentFont: TerminalFontChoice = TerminalFontChoice.DEFAULT_MONOSPACE,
     reconnectingState: com.adamoutler.ssh.network.ConnectionState.Reconnecting? = null,
     onCancelReconnect: () -> Unit = {},
+    sessionTabs: List<SessionTabItem> = emptyList(),
+    onSelectSession: (String) -> Unit = {},
+    onCloseSession: (String) -> Unit = {},
+    onNewSession: () -> Unit = {},
+    cursorStyle: TerminalCursorStyle = TerminalCursorStyle.BLOCK,
+    cursorBlink: Boolean = true,
+    onUpdateCursorStyle: (TerminalCursorStyle) -> Unit = {},
+    onUpdateCursorBlink: (Boolean) -> Unit = {},
 ) {
     val resolvedTheme = remember(currentTheme, profile?.colorTheme) {
         if (profile?.colorTheme != null) {
@@ -200,6 +266,7 @@ fun TerminalScreenContent(
         }
     }
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
+    var detectedUrlForConfirmation by remember { mutableStateOf<SanitizedUrl?>(null) }
     val density = androidx.compose.ui.platform.LocalDensity.current
     var lastDataTime by remember { androidx.compose.runtime.mutableLongStateOf(System.currentTimeMillis()) }
 
@@ -207,6 +274,17 @@ fun TerminalScreenContent(
         terminalViewModel?.bellEvents?.collect {
             terminalViewRef?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
         }
+    }
+
+    androidx.compose.runtime.LaunchedEffect(cursorStyle, cursorBlink, terminalViewRef, session) {
+        terminalViewRef?.setTerminalCursorBlinkerState(cursorBlink, true)
+        val decscusrCode = when (cursorStyle) {
+            TerminalCursorStyle.BLOCK -> if (cursorBlink) 1 else 2
+            TerminalCursorStyle.UNDERLINE -> if (cursorBlink) 3 else 4
+            TerminalCursorStyle.VERTICAL_BAR -> if (cursorBlink) 5 else 6
+        }
+        val decscusrSeq = "\u001B[${decscusrCode} q".toByteArray()
+        session.emulator?.append(decscusrSeq, decscusrSeq.size)
     }
 
     androidx.compose.runtime.LaunchedEffect(sessionId) {
@@ -428,6 +506,12 @@ fun TerminalScreenContent(
         )
     }
 
+    androidx.compose.runtime.DisposableEffect(terminalKeyMapper) {
+        onDispose {
+            terminalKeyMapper.resetModifiers()
+        }
+    }
+
     val sendToTerminal: (ByteArray) -> Unit = { bytes ->
         terminalKeyMapper.sendToTerminal(bytes)
     }
@@ -436,6 +520,14 @@ fun TerminalScreenContent(
         modifier = modifier
             .fillMaxSize(),
     ) {
+        TerminalSessionTabBar(
+            sessions = sessionTabs,
+            onSelectSession = onSelectSession,
+            onCloseSession = onCloseSession,
+            onNewSession = onNewSession,
+            backgroundColor = Color(resolvedTheme.background),
+        )
+
         if (reconnectingState != null) {
             TerminalReconnectBanner(
                 attempt = reconnectingState.attempt,
@@ -506,6 +598,21 @@ fun TerminalScreenContent(
                             )
 
                             override fun onSingleTapUp(e: android.view.MotionEvent?) {
+                                if (e != null) {
+                                    val colRow = terminalView.getColumnAndRow(e, true)
+                                    val emulator = session.emulator
+                                    if (emulator != null && colRow != null && colRow.size >= 2) {
+                                        val word = emulator.screen.getWordAtLocation(colRow[0], colRow[1])
+                                        if (!word.isNullOrBlank()) {
+                                            val candidate = TerminalUrlSanitizer.extractFirstUrl(word)
+                                            if (candidate != null) {
+                                                detectedUrlForConfirmation = candidate
+                                                return
+                                            }
+                                        }
+                                    }
+                                }
+
                                 showOverlayButtons = true
                                 val isFixed = terminalInputState == 2
 
@@ -554,7 +661,23 @@ fun TerminalScreenContent(
                             override fun readShiftKey(): Boolean = terminalKeyMapper.readShiftKey()
                             override fun readFnKey(): Boolean = false
                             override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, s: TerminalSession?): Boolean = terminalKeyMapper.onCodePoint(codePoint, ctrlDown)
-                            override fun onLongPress(e: android.view.MotionEvent?): Boolean = false
+                            override fun onLongPress(e: android.view.MotionEvent?): Boolean {
+                                if (e != null) {
+                                    val colRow = terminalView.getColumnAndRow(e, true)
+                                    val emulator = session.emulator
+                                    if (emulator != null && colRow != null && colRow.size >= 2) {
+                                        val word = emulator.screen.getWordAtLocation(colRow[0], colRow[1])
+                                        if (!word.isNullOrBlank()) {
+                                            val candidate = TerminalUrlSanitizer.extractFirstUrl(word)
+                                            if (candidate != null) {
+                                                detectedUrlForConfirmation = candidate
+                                                return true
+                                            }
+                                        }
+                                    }
+                                }
+                                return false
+                            }
                             override fun onEmulatorSet() { /* No-op */ }
                             override fun logError(tag: String?, msg: String?) { /* No-op */ }
                             override fun logWarn(tag: String?, msg: String?) { /* No-op */ }
@@ -593,6 +716,11 @@ fun TerminalScreenContent(
                         terminalViewRef = terminalView
                         terminalView.onScreenUpdated()
                         terminalView.requestFocus()
+                        terminalView.setOnFocusChangeListener { _, hasFocus ->
+                            if (!hasFocus) {
+                                terminalKeyMapper.resetModifiers()
+                            }
+                        }
 
                         terminalView.setOnCreateContextMenuListener { menu, _, _ ->
                             val pasteItem = menu.add(android.view.Menu.NONE, android.R.id.paste, android.view.Menu.NONE, android.R.string.paste)
@@ -899,6 +1027,46 @@ fun TerminalScreenContent(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Text("Cursor Style", style = MaterialTheme.typography.labelMedium)
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    val styles = TerminalCursorStyle.entries
+                    styles.forEachIndexed { index, style ->
+                        SegmentedButton(
+                            selected = cursorStyle == style,
+                            onClick = { onUpdateCursorStyle(style) },
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = styles.size),
+                        ) {
+                            Text(style.displayName)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                ) {
+                    Text("Blinking Cursor", style = MaterialTheme.typography.bodyMedium)
+                    Switch(
+                        checked = cursorBlink,
+                        onCheckedChange = { onUpdateCursorBlink(it) },
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                TerminalCursorPreviewBox(
+                    theme = resolvedTheme,
+                    fontChoice = resolvedFont,
+                    cursorStyle = cursorStyle,
+                    cursorBlink = cursorBlink,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Text("Font Size", style = MaterialTheme.typography.labelMedium)
                 androidx.compose.foundation.layout.Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     IconButton(onClick = { onUpdateFontSize(currentFontSize - 1) }) {
@@ -925,5 +1093,32 @@ fun TerminalScreenContent(
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
+    }
+
+    detectedUrlForConfirmation?.let { sanitizedUrl ->
+        UrlConfirmationBottomSheet(
+            sanitizedUrl = sanitizedUrl,
+            onOpenBrowser = {
+                try {
+                    val browserIntent = android.content.Intent(android.content.Intent.ACTION_VIEW, sanitizedUrl.uri).apply {
+                        addCategory(android.content.Intent.CATEGORY_BROWSABLE)
+                        flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    context.startActivity(android.content.Intent.createChooser(browserIntent, "Open with"))
+                } catch (e: Exception) {
+                    AppLog.w("TerminalScreen", "No browser app found: ${e.message}")
+                }
+                detectedUrlForConfirmation = null
+            },
+            onCopyLink = {
+                com.adamoutler.ssh.security.SecureClipboardManager.copyToClipboard(
+                    context = context,
+                    text = sanitizedUrl.rawUrl,
+                    label = "URL",
+                )
+                detectedUrlForConfirmation = null
+            },
+            onDismiss = { detectedUrlForConfirmation = null },
+        )
     }
 }

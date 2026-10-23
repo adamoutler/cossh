@@ -101,6 +101,8 @@ data class ConnectionProfile(
     val maxReconnectAttempts: Int = 5,
     val jumpHostProfileId: String? = null,
     val isEphemeral: Boolean = false,
+    val cursorStyle: String? = null,
+    val cursorBlink: Boolean? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -140,6 +142,8 @@ data class ConnectionProfile(
         if (maxReconnectAttempts != other.maxReconnectAttempts) return false
         if (jumpHostProfileId != other.jumpHostProfileId) return false
         if (isEphemeral != other.isEphemeral) return false
+        if (cursorStyle != other.cursorStyle) return false
+        if (cursorBlink != other.cursorBlink) return false
 
         return true
     }
@@ -172,6 +176,8 @@ data class ConnectionProfile(
         result = 31 * result + maxReconnectAttempts
         result = 31 * result + (jumpHostProfileId?.hashCode() ?: 0)
         result = 31 * result + isEphemeral.hashCode()
+        result = 31 * result + (cursorStyle?.hashCode() ?: 0)
+        result = 31 * result + (cursorBlink?.hashCode() ?: 0)
         return result
     }
 
