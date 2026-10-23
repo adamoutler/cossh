@@ -20,6 +20,7 @@ data class ActiveSessionState(
     var firstSshOutputReceived: Boolean = false,
     val connectedAt: Long = System.currentTimeMillis(),
     var isUiAttached: Boolean = false,
+    var onWindowResize: ((cols: Int, rows: Int, widthPx: Int, heightPx: Int) -> Unit)? = null,
     val outputBuffer: ConcurrentLinkedQueue<ByteArray> = ConcurrentLinkedQueue(),
     val bufferLock: Any = Any(),
 ) {
@@ -36,6 +37,7 @@ data class ActiveSessionState(
         }
         ptyOutputStream = null
         sshShell = null
+        onWindowResize = null
     }
 }
 

@@ -165,6 +165,9 @@ class SshService : Service() {
                                     val activeSession = ConnectionStateRepository.getOrCreateSession(profileId, sessionId)
                                     activeSession.ptyOutputStream = outStream
                                     activeSession.sshShell = session
+                                    activeSession.onWindowResize = { cols, rows, w, h ->
+                                        manager.updateWindowSize(cols, rows, w, h)
+                                    }
                                     if (reconnectAttempt == 0) {
                                         ConnectionStateRepository.addConnection(profileId)
                                     } else {

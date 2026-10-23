@@ -12,6 +12,7 @@ import org.apache.commons.net.telnet.EchoOptionHandler
 import org.apache.commons.net.telnet.SuppressGAOptionHandler
 import org.apache.commons.net.telnet.TelnetClient
 import org.apache.commons.net.telnet.TerminalTypeOptionHandler
+import org.apache.commons.net.telnet.WindowSizeOptionHandler
 import java.io.OutputStream
 
 class TelnetConnectionHandler : ConnectionProtocol {
@@ -21,6 +22,9 @@ class TelnetConnectionHandler : ConnectionProtocol {
 
     var telnetClient: TelnetClient? = null
         private set
+
+    private var resizeJob: kotlinx.coroutines.Job? = null
+    private val resizeScope = CoroutineScope(Dispatchers.IO)
 
     override suspend fun connect(
         profile: ConnectionProfile,
@@ -37,6 +41,16 @@ class TelnetConnectionHandler : ConnectionProtocol {
             tc.addOptionHandler(TerminalTypeOptionHandler("xterm-256color", false, false, true, false))
             tc.addOptionHandler(EchoOptionHandler(false, false, false, true))
             tc.addOptionHandler(SuppressGAOptionHandler(false, false, true, true))
+            tc.addOptionHandler(
+                WindowSizeOptionHandler(
+                    TelnetNawsProtocol.DEFAULT_COLS,
+                    TelnetNawsProtocol.DEFAULT_ROWS,
+                    true,
+                    false,
+                    true,
+                    false,
+                ),
+            )
 
             tc.connect(profile.host, profile.port)
 
@@ -120,6 +134,7 @@ class TelnetConnectionHandler : ConnectionProtocol {
                 bridgeJob.cancel()
             }
         } finally {
+            resizeJob?.cancel()
             try {
                 tc.disconnect()
             } catch (e: Exception) {
@@ -128,7 +143,36 @@ class TelnetConnectionHandler : ConnectionProtocol {
         }
     }
 
+    override fun updateWindowSize(cols: Int, rows: Int, widthPx: Int, heightPx: Int) {
+        updateWindowSizeWithDebounce(cols, rows, 100L)
+    }
+
+    fun updateWindowSizeWithDebounce(cols: Int, rows: Int, debounceMs: Long = 100L) {
+        resizeJob?.cancel()
+        if (debounceMs <= 0L) {
+            sendWindowSizeChange(cols, rows)
+        } else {
+            resizeJob = resizeScope.launch {
+                kotlinx.coroutines.delay(debounceMs)
+                sendWindowSizeChange(cols, rows)
+            }
+        }
+    }
+
+    fun sendWindowSizeChange(cols: Int, rows: Int) {
+        val tc = telnetClient ?: return
+        if (!tc.isConnected) return
+        try {
+            val payload = TelnetNawsProtocol.buildSubnegotiationPayload(cols, rows)
+            tc.sendSubnegotiation(payload)
+            AppLog.d(TAG, "Sent Telnet NAWS subnegotiation: cols=$cols, rows=$rows")
+        } catch (e: Exception) {
+            AppLog.w(TAG, "Failed to send Telnet NAWS subnegotiation: ${e.message}", e)
+        }
+    }
+
     override fun disconnect() {
+        resizeJob?.cancel()
         try {
             telnetClient?.disconnect()
         } catch (e: Exception) {

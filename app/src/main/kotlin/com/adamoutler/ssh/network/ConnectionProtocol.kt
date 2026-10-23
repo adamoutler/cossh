@@ -14,4 +14,6 @@ interface ConnectionProtocol {
     )
 
     fun disconnect()
+
+    fun updateWindowSize(cols: Int, rows: Int, widthPx: Int = 0, heightPx: Int = 0) { }
 }

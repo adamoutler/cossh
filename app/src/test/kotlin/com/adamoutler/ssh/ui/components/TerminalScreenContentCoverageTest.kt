@@ -27,18 +27,15 @@ class TerminalScreenContentCoverageTest {
 
     @Test
     fun testTerminalScreenContentVariousStates() {
-        var navigateBackClicked = false
         var clearErrorClicked = false
-
-        var updateFontSizeCalled = false
 
         val mockSessionId = "test-session-123"
         ConnectionStateRepository.clearSession(mockSessionId)
         ConnectionStateRepository.isHeadlessTest = true
 
         val pos = PipedOutputStream()
-
         val pis = PipedInputStream(pos)
+        try {
 
         val mockSession = TerminalSession(
             "/system/bin/sh",
@@ -75,8 +72,8 @@ class TerminalScreenContentCoverageTest {
                 currentFontSize = 14,
                 isConnectionActive = true,
                 errorMessage = "Test Error Message", // Trigger error state
-                onUpdateFontSize = { updateFontSizeCalled = true },
-                onNavigateBack = { navigateBackClicked = true },
+                onUpdateFontSize = {},
+                onNavigateBack = {},
                 onClearError = { clearErrorClicked = true },
                 profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH),
                 initialTerminalInputState = 1,
@@ -91,6 +88,10 @@ class TerminalScreenContentCoverageTest {
         // Click dismiss on error
         composeTestRule.onNodeWithText("OK").performClick()
         assertTrue(clearErrorClicked)
+        } finally {
+            pis.close()
+            pos.close()
+        }
     }
 
     @Test

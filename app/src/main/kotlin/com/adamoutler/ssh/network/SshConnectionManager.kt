@@ -215,6 +215,10 @@ class SshConnectionManager(
         }
     }
 
+    fun updateWindowSize(cols: Int, rows: Int, widthPx: Int = 0, heightPx: Int = 0) {
+        activeProtocol?.updateWindowSize(cols, rows, widthPx, heightPx)
+    }
+
     suspend fun connectAndExecute(profile: ConnectionProfile, command: String, keyPair: KeyPair? = null): String = withContext(Dispatchers.IO) {
         val sshClient = SSHClient(SecureSshConfig())
         val handshakeCoordinator = SshHandshakeCoordinator(hostKeyVerifier, identityStorageManager, context)

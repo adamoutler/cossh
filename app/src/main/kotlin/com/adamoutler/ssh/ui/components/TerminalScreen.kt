@@ -43,6 +43,7 @@ import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.adamoutler.ssh.ui.screens.TerminalViewModel
 import com.adamoutler.ssh.ui.theme.TerminalFontChoice
 import com.adamoutler.ssh.ui.theme.TerminalTheme
+import com.adamoutler.ssh.util.AppLog
 import com.termux.terminal.TerminalSession
 import com.termux.view.TerminalView
 import kotlinx.coroutines.Dispatchers
@@ -563,10 +564,11 @@ fun TerminalScreenContent(
                                     val rows = emulator.mRows
                                     coroutineScope.launch(Dispatchers.IO) {
                                         try {
+                                            activeSession.onWindowResize?.invoke(cols, rows, newWidth, newHeight)
                                             activeSession.sshShell?.changeWindowDimensions(cols, rows, newWidth, newHeight)
-                                            println(("TerminalScreen").toString() + ": " + ("SIGWINCH dispatched successfully: cols=$cols, rows=$rows, width=$newWidth, height=$newHeight").toString())
+                                            AppLog.d("TerminalScreen", "SIGWINCH dispatched successfully: cols=$cols, rows=$rows, width=$newWidth, height=$newHeight")
                                         } catch (e: Exception) {
-                                            println(("TerminalScreen").toString() + ": " + ("Failed to send SIGWINCH").toString() + " " + (e).toString())
+                                            AppLog.w("TerminalScreen", "Failed to send SIGWINCH: ${e.message}", e)
                                         }
                                     }
                                 }
