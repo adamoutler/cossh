@@ -5,7 +5,11 @@ import android.net.Uri
 import com.adamoutler.ssh.backup.BackupManager
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.data.IdentityProfile
+import com.adamoutler.ssh.openssh.OpenSshConfigParser
+import com.adamoutler.ssh.openssh.OpenSshParseResult
 import com.adamoutler.ssh.ui.base.BaseAndroidViewModel
+import com.adamoutler.ssh.ui.screens.connectionlist.components.ConflictResolutionStrategy
 import com.adamoutler.ssh.util.AppLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +26,7 @@ class ConnectionListViewModel(
     application: Application,
     private val storageManager: SecurityStorageManager,
     private val backupManager: BackupManager,
+    private val identityStorageManager: com.adamoutler.ssh.crypto.IdentityStorageManager = com.adamoutler.ssh.crypto.IdentityStorageManager(application),
 ) : BaseAndroidViewModel(application) {
 
     companion object {
@@ -32,10 +37,14 @@ class ConnectionListViewModel(
         application,
         SecurityStorageManager(application),
         BackupManager(application, SecurityStorageManager(application), com.adamoutler.ssh.crypto.IdentityStorageManager(application)),
+        com.adamoutler.ssh.crypto.IdentityStorageManager(application),
     )
 
     private val _profiles = MutableStateFlow<List<ConnectionProfile>>(emptyList())
     val profiles: StateFlow<List<ConnectionProfile>> = _profiles.asStateFlow()
+
+    private val _identities = MutableStateFlow<List<IdentityProfile>>(emptyList())
+    val identities: StateFlow<List<IdentityProfile>> = _identities.asStateFlow()
 
     private val _groupedProfiles = MutableStateFlow<Map<String?, List<ConnectionProfile>>>(emptyMap())
     val groupedProfiles: StateFlow<Map<String?, List<ConnectionProfile>>> = _groupedProfiles.asStateFlow()
@@ -103,6 +112,7 @@ class ConnectionListViewModel(
                 profs.forEach { flatList.add(ConnectionListItem.Profile(it)) }
             }
             _flatItems.value = flatList
+            _identities.value = identityStorageManager.getAllIdentities()
         }
     }
 
@@ -247,5 +257,104 @@ class ConnectionListViewModel(
 
     fun importBackup(uri: Uri, password: CharArray, onComplete: (Boolean) -> Unit) {
         importBackup(uri, password) { success, _ -> onComplete(success) }
+    }
+
+    fun inspectOpenSshConfig(uri: Uri, onResult: (OpenSshParseResult?, List<String>) -> Unit) {
+        launchWithHandler(Dispatchers.IO) {
+            try {
+                val contentResolver = getApplication<Application>().contentResolver
+                val inputStream = contentResolver.openInputStream(uri)
+                    ?: throw java.io.IOException("Unable to open input stream for $uri")
+                val parseResult = inputStream.use { stream ->
+                    OpenSshConfigParser.parse(
+                        stream,
+                        existingIdentities = identityStorageManager.getAllIdentities(),
+                        existingProfiles = storageManager.getAllProfiles(),
+                    )
+                }
+                val existingNicknames = storageManager.getAllProfiles().map { it.nickname.lowercase() }.toSet()
+                val conflicts = parseResult.profiles
+                    .filter { it.nickname.lowercase() in existingNicknames }
+                    .map { it.nickname }
+
+                withContext(Dispatchers.Main) {
+                    onResult(parseResult, conflicts)
+                }
+            } catch (e: Exception) {
+                AppLog.e(TAG, "Failed to inspect OpenSSH config: ${e.message}", e)
+                withContext(Dispatchers.Main) {
+                    onResult(null, emptyList())
+                }
+            }
+        }
+    }
+
+    fun importOpenSshConfig(
+        parsedResult: OpenSshParseResult,
+        strategy: ConflictResolutionStrategy,
+        onComplete: (Result<OpenSshParseResult>) -> Unit,
+    ) {
+        launchWithHandler(Dispatchers.IO) {
+            try {
+                val existingProfiles = storageManager.getAllProfiles()
+                val existingNicknames = existingProfiles.map { it.nickname.lowercase() }.toSet()
+                val existingMap = existingProfiles.associateBy { it.nickname.lowercase() }
+
+                val imported = mutableListOf<ConnectionProfile>()
+                val skipped = parsedResult.skippedHosts.toMutableList()
+
+                for (profile in parsedResult.profiles) {
+                    val isConflict = profile.nickname.lowercase() in existingNicknames
+                    if (isConflict) {
+                        when (strategy) {
+                            ConflictResolutionStrategy.SKIP_EXISTING -> {
+                                skipped.add(profile.nickname)
+                                continue
+                            }
+                            ConflictResolutionStrategy.RENAME_WITH_SUFFIX -> {
+                                val renamed = profile.copy(nickname = "${profile.nickname} (Imported)")
+                                storageManager.saveProfile(renamed)
+                                imported.add(renamed)
+                            }
+                            ConflictResolutionStrategy.OVERWRITE -> {
+                                val existingId = existingMap[profile.nickname.lowercase()]?.id ?: profile.id
+                                val overwritten = profile.copy(id = existingId)
+                                storageManager.saveProfile(overwritten)
+                                imported.add(overwritten)
+                            }
+                        }
+                    } else {
+                        storageManager.saveProfile(profile)
+                        imported.add(profile)
+                    }
+                }
+
+                loadProfiles()
+                val finalResult = parsedResult.copy(profiles = imported, skippedHosts = skipped)
+                withContext(Dispatchers.Main) {
+                    onComplete(Result.success(finalResult))
+                }
+            } catch (e: Exception) {
+                AppLog.e(TAG, "Failed to import OpenSSH config: ${e.message}", e)
+                withContext(Dispatchers.Main) {
+                    onComplete(Result.failure(e))
+                }
+            }
+        }
+    }
+
+    fun saveQuickConnectProfile(profile: ConnectionProfile) {
+        launchWithHandler(Dispatchers.IO) {
+            val permanentProfile = if (profile.isEphemeral) {
+                profile.copy(
+                    id = java.util.UUID.randomUUID().toString(),
+                    isEphemeral = false,
+                )
+            } else {
+                profile
+            }
+            storageManager.saveProfile(permanentProfile)
+            loadProfiles()
+        }
     }
 }

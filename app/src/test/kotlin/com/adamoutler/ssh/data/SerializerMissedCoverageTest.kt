@@ -9,8 +9,8 @@ import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.lang.reflect.Method
 
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 class SerializerMissedCoverageTest {
 
     @Test

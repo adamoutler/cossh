@@ -26,7 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.adamoutler.ssh.network.SshService
+import com.adamoutler.ssh.openssh.OpenSshParseResult
 import com.adamoutler.ssh.ui.screens.connectionlist.ConnectionListContent
+import com.adamoutler.ssh.ui.screens.connectionlist.components.ConflictResolutionStrategy
+import com.adamoutler.ssh.ui.screens.connectionlist.components.OpenSshConflictDialog
+import com.adamoutler.ssh.ui.screens.connectionlist.components.OpenSshImportSummaryDialog
+import com.adamoutler.ssh.ui.screens.connectionlist.components.QuickConnectBottomSheet
 
 private const val ACTION_IMPORT_BACKUP = "Import Backup"
 
@@ -51,6 +56,10 @@ fun ConnectionListScreen(
     var showExportPasswordDialog by remember { mutableStateOf<Uri?>(null) }
     var showImportPasswordDialog by remember { mutableStateOf<Uri?>(null) }
     var importErrorDialogMessage by remember { mutableStateOf<String?>(null) }
+    var showQuickConnectSheet by remember { mutableStateOf(false) }
+    var pendingOpenSshResult by remember { mutableStateOf<OpenSshParseResult?>(null) }
+    var openSshConflicts by remember { mutableStateOf<List<String>>(emptyList()) }
+    var openSshSummary by remember { mutableStateOf<OpenSshParseResult?>(null) }
 
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/octet-stream"),
@@ -65,6 +74,31 @@ fun ConnectionListScreen(
     ) { uri ->
         if (uri != null) {
             showImportPasswordDialog = uri
+        }
+    }
+
+    val openSshLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri != null) {
+            viewModel.inspectOpenSshConfig(uri) { parseResult, conflicts ->
+                if (parseResult != null) {
+                    if (conflicts.isNotEmpty()) {
+                        pendingOpenSshResult = parseResult
+                        openSshConflicts = conflicts
+                    } else {
+                        viewModel.importOpenSshConfig(parseResult, ConflictResolutionStrategy.SKIP_EXISTING) { result ->
+                            if (result.isSuccess) {
+                                openSshSummary = result.getOrNull()
+                            } else {
+                                importErrorDialogMessage = result.exceptionOrNull()?.message ?: "Failed to import OpenSSH config"
+                            }
+                        }
+                    }
+                } else {
+                    importErrorDialogMessage = "Failed to parse OpenSSH configuration file"
+                }
+            }
         }
     }
 
@@ -284,6 +318,59 @@ fun ConnectionListScreen(
         }
     }
 
+    if (showQuickConnectSheet) {
+        val identities by viewModel.identities.collectAsState()
+        QuickConnectBottomSheet(
+            identities = identities,
+            onConnect = { profile, isEphemeral ->
+                showQuickConnectSheet = false
+                if (!isEphemeral) {
+                    viewModel.saveQuickConnectProfile(profile)
+                }
+                val newSessionId = java.util.UUID.randomUUID().toString()
+                val intent = Intent(context, SshService::class.java).apply {
+                    action = SshService.ACTION_START
+                    putExtra(SshService.EXTRA_PROFILE_ID, profile.id)
+                    putExtra(SshService.EXTRA_SESSION_ID, newSessionId)
+                }
+                context.startForegroundService(intent)
+                onConnect(profile.id, newSessionId)
+            },
+            onDismiss = { showQuickConnectSheet = false },
+        )
+    }
+
+    if (openSshConflicts.isNotEmpty() && pendingOpenSshResult != null) {
+        OpenSshConflictDialog(
+            conflictingNames = openSshConflicts,
+            onResolve = { strategy ->
+                val resultToImport = pendingOpenSshResult!!
+                openSshConflicts = emptyList()
+                pendingOpenSshResult = null
+                viewModel.importOpenSshConfig(resultToImport, strategy) { result ->
+                    if (result.isSuccess) {
+                        openSshSummary = result.getOrNull()
+                    } else {
+                        importErrorDialogMessage = result.exceptionOrNull()?.message ?: "Failed to import OpenSSH config"
+                    }
+                }
+            },
+            onDismiss = {
+                openSshConflicts = emptyList()
+                pendingOpenSshResult = null
+            },
+        )
+    }
+
+    if (openSshSummary != null) {
+        OpenSshImportSummaryDialog(
+            importedCount = openSshSummary!!.profiles.size,
+            skippedCount = openSshSummary!!.skippedHosts.size,
+            sanitizedDirectives = openSshSummary!!.sanitizedDirectives,
+            onDismiss = { openSshSummary = null },
+        )
+    }
+
     ConnectionListContent(
         groupedProfiles = groupedProfiles,
         flatItems = flatItems,
@@ -298,6 +385,8 @@ fun ConnectionListScreen(
         onMoveToFolder = { profileId, folderId -> viewModel.moveToFolder(profileId, folderId) },
         onExportRequested = { exportLauncher.launch("connections_and_identities.cossh") },
         onImportRequested = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) },
+        onQuickConnectRequested = { showQuickConnectSheet = true },
+        onImportOpenSshRequested = { openSshLauncher.launch(arrayOf("*/*", "text/*", "application/octet-stream")) },
         onSettingsRequested = onSettingsRequested,
         onManageIdentitiesRequested = onManageIdentitiesRequested,
     )
