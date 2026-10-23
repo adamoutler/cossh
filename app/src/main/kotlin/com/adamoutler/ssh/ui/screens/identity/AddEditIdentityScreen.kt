@@ -1,5 +1,7 @@
 package com.adamoutler.ssh.ui.screens.identity
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -7,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
@@ -25,8 +28,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
+import com.adamoutler.ssh.ui.events.UiEvent
+import com.adamoutler.ssh.ui.events.UiEventBus
 import com.adamoutler.ssh.ui.screens.IdentityFormState
 import com.adamoutler.ssh.ui.screens.IdentityViewModel
+import com.adamoutler.ssh.ui.screens.identity.components.EncryptedKeyPassphraseModal
 
 @Composable
 fun AddEditIdentityScreen(
@@ -45,6 +51,21 @@ fun AddEditIdentityScreen(
 
     val context = androidx.compose.ui.platform.LocalContext.current
     val profiles = remember { com.adamoutler.ssh.crypto.SecurityStorageManager(context).getAllProfiles() }
+
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri != null) {
+            try {
+                context.contentResolver.openInputStream(uri)?.use { stream ->
+                    val bytes = stream.readBytes()
+                    viewModel.importKeyFromBytes(bytes)
+                }
+            } catch (e: Exception) {
+                UiEventBus.publish(UiEvent.ShowSnackbar("Failed to read key file: ${e.message}"))
+            }
+        }
+    }
 
     AddEditIdentityScreenContent(
         identityId = identityId,
@@ -70,7 +91,15 @@ fun AddEditIdentityScreen(
         },
         onPublicKeyChange = { newKey -> viewModel.updateState { it.copy(publicKey = newKey) } },
         onGenerateEd25519 = { viewModel.generateEd25519KeyPair() },
+        onGenerateECDSA = { viewModel.generateECDSAKeyPair() },
         onGenerateRSA = { viewModel.generateRSAKeyPair() },
+        onImportFromFile = {
+            filePickerLauncher.launch(
+                arrayOf("*/*", "text/plain", "application/x-pem-file", "application/pkcs8", "application/octet-stream"),
+            )
+        },
+        onUnlockPendingKey = { passphrase -> viewModel.unlockPendingKey(passphrase) },
+        onCancelPendingUnlock = { viewModel.cancelPendingKeyUnlock() },
         onInjectPublicKey = { host, port, tempPassword -> viewModel.injectPublicKey(host, port, tempPassword) },
         onSave = {
             val passBytes = if (uiState.isPasswordLocked) {
@@ -120,7 +149,11 @@ fun AddEditIdentityScreenContent(
     onManualPrivKeyChange: (String) -> Unit,
     onPublicKeyChange: (String) -> Unit,
     onGenerateEd25519: () -> Unit,
+    onGenerateECDSA: () -> Unit = {},
     onGenerateRSA: () -> Unit,
+    onImportFromFile: () -> Unit = {},
+    onUnlockPendingKey: (CharArray) -> Unit = {},
+    onCancelPendingUnlock: () -> Unit = {},
     onInjectPublicKey: (String, Int, String) -> Unit,
     onSave: () -> Unit,
     onBack: () -> Unit,
@@ -219,12 +252,35 @@ fun AddEditIdentityScreenContent(
                 }
 
                 Button(
+                    onClick = onGenerateECDSA,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Icon(Icons.Default.Lock, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Gen ECDSA")
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Button(
                     onClick = onGenerateRSA,
                     modifier = Modifier.weight(1f),
                 ) {
                     Icon(Icons.Default.Lock, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Gen RSA-4096")
+                }
+
+                FilledTonalButton(
+                    onClick = onImportFromFile,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Import File")
                 }
             }
 
@@ -284,6 +340,15 @@ fun AddEditIdentityScreenContent(
                 onInjectPublicKey(host, port, tempPassword)
             },
             profiles = profiles,
+        )
+    }
+
+    if (uiState.pendingEncryptedKeyBytes != null) {
+        EncryptedKeyPassphraseModal(
+            keyFormatSummary = uiState.pendingCipherSummary ?: "Encrypted Key",
+            errorMessage = uiState.passphraseError,
+            onConfirm = onUnlockPendingKey,
+            onDismiss = onCancelPendingUnlock,
         )
     }
 }

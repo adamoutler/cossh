@@ -166,4 +166,43 @@ class AddEditIdentityScreenScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun addScreen_WithEncryptedKeyModalVisible() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    AddEditIdentityScreenContent(
+                        identityId = null,
+                        uiState = IdentityFormState(
+                            name = "Imported Identity",
+                            username = "ubuntu",
+                            pendingEncryptedKeyBytes = byteArrayOf(1, 2, 3),
+                            pendingCipherSummary = "OpenSSH (aes256-cbc)",
+                        ),
+                        passwordVisible = false,
+                        onPasswordVisibleChange = {},
+                        showInjectDialog = false,
+                        onShowInjectDialogChange = {},
+                        profiles = emptyList(),
+                        onNameChange = {},
+                        onUsernameChange = {},
+                        onPasswordChange = {},
+                        onPasswordLockedChange = {},
+                        onManualKeyEntryChange = {},
+                        onManualPrivKeyChange = {},
+                        onPublicKeyChange = {},
+                        onGenerateEd25519 = {},
+                        onGenerateRSA = {},
+                        onInjectPublicKey = { _, _, _ -> },
+                        onSave = {},
+                        onBack = {},
+                    )
+                }
+            }
+        }
+    }
 }

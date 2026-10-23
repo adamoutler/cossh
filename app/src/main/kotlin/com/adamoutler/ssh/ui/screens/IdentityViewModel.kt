@@ -2,9 +2,17 @@ package com.adamoutler.ssh.ui.screens
 
 import android.app.Application
 import com.adamoutler.ssh.crypto.IdentityStorageManager
+import com.adamoutler.ssh.crypto.InvalidPassphraseException
+import com.adamoutler.ssh.crypto.PemUtils
+import com.adamoutler.ssh.crypto.SSHKeyGenerator
 import com.adamoutler.ssh.data.AuthType
+import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
+import com.adamoutler.ssh.network.SshConnectionManager
 import com.adamoutler.ssh.ui.base.BaseAndroidViewModel
+import com.adamoutler.ssh.ui.events.UiEvent
+import com.adamoutler.ssh.ui.events.UiEventBus
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +30,61 @@ data class IdentityFormState(
     val manualKeyEntry: Boolean = false,
     val manualPrivKey: String = "",
     val isLoaded: Boolean = false,
-)
+    val pendingEncryptedKeyBytes: ByteArray? = null,
+    val pendingCipherSummary: String? = null,
+    val passphraseError: String? = null,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as IdentityFormState
+
+        if (name != other.name) return false
+        if (username != other.username) return false
+        if (authType != other.authType) return false
+        if (originalPassword != null) {
+            if (other.originalPassword == null) return false
+            if (!originalPassword.contentEquals(other.originalPassword)) return false
+        } else if (other.originalPassword != null) return false
+        if (isPasswordLocked != other.isPasswordLocked) return false
+        if (password != other.password) return false
+        if (publicKey != other.publicKey) return false
+        if (privateKey != null) {
+            if (other.privateKey == null) return false
+            if (!privateKey.contentEquals(other.privateKey)) return false
+        } else if (other.privateKey != null) return false
+        if (manualKeyEntry != other.manualKeyEntry) return false
+        if (manualPrivKey != other.manualPrivKey) return false
+        if (isLoaded != other.isLoaded) return false
+        if (pendingEncryptedKeyBytes != null) {
+            if (other.pendingEncryptedKeyBytes == null) return false
+            if (!pendingEncryptedKeyBytes.contentEquals(other.pendingEncryptedKeyBytes)) return false
+        } else if (other.pendingEncryptedKeyBytes != null) return false
+        if (pendingCipherSummary != other.pendingCipherSummary) return false
+        if (passphraseError != other.passphraseError) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + username.hashCode()
+        result = 31 * result + authType.hashCode()
+        result = 31 * result + (originalPassword?.contentHashCode() ?: 0)
+        result = 31 * result + isPasswordLocked.hashCode()
+        result = 31 * result + password.hashCode()
+        result = 31 * result + publicKey.hashCode()
+        result = 31 * result + (privateKey?.contentHashCode() ?: 0)
+        result = 31 * result + manualKeyEntry.hashCode()
+        result = 31 * result + manualPrivKey.hashCode()
+        result = 31 * result + isLoaded.hashCode()
+        result = 31 * result + (pendingEncryptedKeyBytes?.contentHashCode() ?: 0)
+        result = 31 * result + (pendingCipherSummary?.hashCode() ?: 0)
+        result = 31 * result + (passphraseError?.hashCode() ?: 0)
+        return result
+    }
+}
 
 class IdentityViewModel(
     application: Application,
@@ -75,6 +137,7 @@ class IdentityViewModel(
         val currentState = _uiState.value
         currentState.originalPassword?.fill(0)
         currentState.privateKey?.fill(0)
+        currentState.pendingEncryptedKeyBytes?.fill(0)
         _uiState.value = IdentityFormState()
     }
 
@@ -106,12 +169,12 @@ class IdentityViewModel(
     fun getIdentity(id: String): IdentityProfile? = storageManager.getIdentity(id)
 
     fun generateEd25519KeyPair() {
-        launchWithHandler(kotlinx.coroutines.Dispatchers.Default) {
-            val keyPair = com.adamoutler.ssh.crypto.SSHKeyGenerator.generateEd25519KeyPair()
+        launchWithHandler(Dispatchers.Default) {
+            val keyPair = SSHKeyGenerator.generateEd25519KeyPair()
             _uiState.update {
                 it.copy(
-                    publicKey = com.adamoutler.ssh.crypto.SSHKeyGenerator.encodePublicKey(keyPair),
-                    privateKey = com.adamoutler.ssh.crypto.SSHKeyGenerator.encodePrivateKey(keyPair),
+                    publicKey = SSHKeyGenerator.encodePublicKey(keyPair),
+                    privateKey = SSHKeyGenerator.encodePrivateKey(keyPair),
                     authType = AuthType.KEY,
                 )
             }
@@ -119,23 +182,111 @@ class IdentityViewModel(
     }
 
     fun generateRSAKeyPair() {
-        launchWithHandler(kotlinx.coroutines.Dispatchers.Default) {
-            val keyPair = com.adamoutler.ssh.crypto.SSHKeyGenerator.generateRSAKeyPair()
+        launchWithHandler(Dispatchers.Default) {
+            val keyPair = SSHKeyGenerator.generateRSAKeyPair()
             _uiState.update {
                 it.copy(
-                    publicKey = com.adamoutler.ssh.crypto.SSHKeyGenerator.encodePublicKey(keyPair),
-                    privateKey = com.adamoutler.ssh.crypto.SSHKeyGenerator.encodePrivateKey(keyPair),
+                    publicKey = SSHKeyGenerator.encodePublicKey(keyPair),
+                    privateKey = SSHKeyGenerator.encodePrivateKey(keyPair),
                     authType = AuthType.KEY,
                 )
             }
         }
     }
 
+    fun generateECDSAKeyPair(curveName: String = "secp256r1") {
+        launchWithHandler(Dispatchers.Default) {
+            val keyPair = SSHKeyGenerator.generateECDSAKeyPair(curveName)
+            _uiState.update {
+                it.copy(
+                    publicKey = SSHKeyGenerator.encodePublicKey(keyPair),
+                    privateKey = SSHKeyGenerator.encodePrivateKey(keyPair),
+                    authType = AuthType.KEY,
+                )
+            }
+        }
+    }
+
+    fun importKeyFromBytes(bytes: ByteArray) {
+        launchWithHandler(Dispatchers.Default) {
+            if (bytes.size > 65536) {
+                UiEventBus.publish(UiEvent.ShowSnackbar("Key file exceeds 64KB limit"))
+                return@launchWithHandler
+            }
+
+            val encSummary = PemUtils.detectKeyEncryptionSummary(bytes)
+            if (encSummary != null) {
+                _uiState.update {
+                    it.copy(
+                        pendingEncryptedKeyBytes = bytes.clone(),
+                        pendingCipherSummary = encSummary,
+                        passphraseError = null,
+                    )
+                }
+            } else {
+                try {
+                    val keyPair = PemUtils.parsePemToKeyPair(bytes)
+                    _uiState.update {
+                        it.copy(
+                            publicKey = SSHKeyGenerator.encodePublicKey(keyPair),
+                            privateKey = SSHKeyGenerator.encodePrivateKey(keyPair),
+                            authType = AuthType.KEY,
+                            pendingEncryptedKeyBytes = null,
+                            pendingCipherSummary = null,
+                            passphraseError = null,
+                        )
+                    }
+                    UiEventBus.publish(UiEvent.ShowSnackbar("SSH Key imported successfully"))
+                } catch (e: Exception) {
+                    UiEventBus.publish(UiEvent.ShowSnackbar("Failed to import key: ${e.message}"))
+                }
+            }
+        }
+    }
+
+    fun unlockPendingKey(passphrase: CharArray) {
+        launchWithHandler(Dispatchers.Default) {
+            val pendingBytes = _uiState.value.pendingEncryptedKeyBytes ?: return@launchWithHandler
+            try {
+                val keyPair = PemUtils.parsePemToKeyPair(pendingBytes, null, passphrase)
+                pendingBytes.fill(0)
+                _uiState.update {
+                    it.copy(
+                        publicKey = SSHKeyGenerator.encodePublicKey(keyPair),
+                        privateKey = SSHKeyGenerator.encodePrivateKey(keyPair),
+                        authType = AuthType.KEY,
+                        pendingEncryptedKeyBytes = null,
+                        pendingCipherSummary = null,
+                        passphraseError = null,
+                    )
+                }
+                UiEventBus.publish(UiEvent.ShowSnackbar("SSH Key unlocked and imported"))
+            } catch (_: InvalidPassphraseException) {
+                _uiState.update { it.copy(passphraseError = "Incorrect passphrase for private key") }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(passphraseError = "Decryption failed: ${e.message}") }
+            } finally {
+                passphrase.fill('\u0000')
+            }
+        }
+    }
+
+    fun cancelPendingKeyUnlock() {
+        _uiState.value.pendingEncryptedKeyBytes?.fill(0)
+        _uiState.update {
+            it.copy(
+                pendingEncryptedKeyBytes = null,
+                pendingCipherSummary = null,
+                passphraseError = null,
+            )
+        }
+    }
+
     fun injectPublicKey(host: String, port: Int, tempPassword: String) {
-        launchWithHandler(kotlinx.coroutines.Dispatchers.IO) {
-            com.adamoutler.ssh.ui.events.UiEventBus.publish(com.adamoutler.ssh.ui.events.UiEvent.ShowSnackbar("Injecting key..."))
-            val manager = com.adamoutler.ssh.network.SshConnectionManager(context = getApplication())
-            val tempProfile = com.adamoutler.ssh.data.ConnectionProfile(
+        launchWithHandler(Dispatchers.IO) {
+            UiEventBus.publish(UiEvent.ShowSnackbar("Injecting key..."))
+            val manager = SshConnectionManager(context = getApplication())
+            val tempProfile = ConnectionProfile(
                 id = "temp",
                 nickname = "Temp",
                 host = host,
@@ -147,9 +298,9 @@ class IdentityViewModel(
             try {
                 val success = manager.injectPublicKey(tempProfile, _uiState.value.publicKey)
                 if (success) {
-                    com.adamoutler.ssh.ui.events.UiEventBus.publish(com.adamoutler.ssh.ui.events.UiEvent.ShowSnackbar("Key injected successfully!"))
+                    UiEventBus.publish(UiEvent.ShowSnackbar("Key injected successfully!"))
                 } else {
-                    com.adamoutler.ssh.ui.events.UiEventBus.publish(com.adamoutler.ssh.ui.events.UiEvent.ShowSnackbar("Failed to inject key. Check logs."))
+                    UiEventBus.publish(UiEvent.ShowSnackbar("Failed to inject key. Check logs."))
                 }
             } finally {
                 tempProfile.clearSensitiveData()
