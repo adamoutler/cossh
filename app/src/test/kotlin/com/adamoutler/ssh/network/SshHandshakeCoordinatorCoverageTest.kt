@@ -51,7 +51,7 @@ class SshHandshakeCoordinatorCoverageTest {
         val coordinator = SshHandshakeCoordinator()
         val profile = ConnectionProfile(id = "1", nickname = "test", host = "localhost", authType = AuthType.PASSWORD)
         val authenticator = coordinator.getAuthenticator(profile, null, null)
-        assertTrue(authenticator is PasswordAuthenticator)
+        assertEquals("CompositeAuthenticator", authenticator.javaClass.simpleName)
     }
 
     @Test

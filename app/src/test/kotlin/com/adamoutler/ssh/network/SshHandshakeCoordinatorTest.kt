@@ -96,10 +96,10 @@ class SshHandshakeCoordinatorTest {
     }
 
     @Test
-    fun `getAuthenticator returns PasswordAuthenticator for profile PASSWORD auth`() {
+    fun `getAuthenticator returns CompositeAuthenticator for profile PASSWORD auth`() {
         val profile = ConnectionProfile(id = "p1", nickname = "n1", host = "h1", authType = AuthType.PASSWORD)
         val authenticator = coordinator.getAuthenticator(profile, null, null)
-        assertEquals("PasswordAuthenticator", authenticator.javaClass.simpleName)
+        assertEquals("CompositeAuthenticator", authenticator.javaClass.simpleName)
     }
 
     @Test
@@ -240,10 +240,10 @@ class SshHandshakeCoordinatorTest {
     }
 
     @Test
-    fun `getAuthenticator returns PasswordAuthenticator if only profile auth is password and no identity`() {
+    fun `getAuthenticator returns CompositeAuthenticator if only profile auth is password and no identity`() {
         val profile = ConnectionProfile(id = "p_pwd", nickname = "n1", host = "h1", authType = AuthType.PASSWORD)
         val auth = coordinator.getAuthenticator(profile, null, null)
-        assertEquals("PasswordAuthenticator", auth.javaClass.simpleName)
+        assertEquals("CompositeAuthenticator", auth.javaClass.simpleName)
     }
 
     @Test
