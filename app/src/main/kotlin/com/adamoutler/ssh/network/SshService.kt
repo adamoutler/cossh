@@ -131,6 +131,7 @@ class SshService : Service() {
                 profile = storageManager.getProfile(profileId)
                 if (profile != null) {
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Connecting)
+                    ConnectionStateRepository.updateSessionState(sessionId, ConnectionState.Connecting)
                     updateSessionNotification(profileId, sessionId, profile.nickname, "Connecting...")
 
                     var reconnectAttempt = 0
@@ -177,6 +178,7 @@ class SshService : Service() {
                                         }
                                     }
                                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Connected)
+                                    ConnectionStateRepository.updateSessionState(sessionId, ConnectionState.Connected)
                                     updateSessionNotification(profileId, sessionId, freshProfile.nickname, "Connected")
                                     reconnectAttempt = 0
                                 },
@@ -199,6 +201,7 @@ class SshService : Service() {
                             )
                             shouldAttemptConnection = false
                             ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnected)
+                            ConnectionStateRepository.updateSessionState(sessionId, ConnectionState.Disconnected)
                         } catch (e: Exception) {
                             val currentState = ConnectionStateRepository.connectionStates.value[profileId]
                             val isManualDisconnect = !job.isActive || currentState is ConnectionState.Disconnecting || e is kotlinx.coroutines.CancellationException
@@ -209,22 +212,24 @@ class SshService : Service() {
                             if (isManualDisconnect || isCircuitBreaker || !profile.autoReconnect || reconnectAttempt >= maxAttempts) {
                                 if (isHostKeyMismatch) {
                                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Terminated("HOST_KEY_MISMATCH_SECURITY_ALERT"))
+                                    ConnectionStateRepository.updateSessionState(sessionId, ConnectionState.Terminated("HOST_KEY_MISMATCH_SECURITY_ALERT"))
                                     updateSessionNotification(profileId, sessionId, "Security Alert", "Host key mismatch rejected")
                                 } else if (!isManualDisconnect) {
                                     val userMessage = mapExceptionMessage(e)
                                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error(userMessage))
+                                    ConnectionStateRepository.updateSessionState(sessionId, ConnectionState.Error(userMessage))
                                     updateSessionNotification(profileId, sessionId, "Connection", "Connection failed")
                                 } else {
                                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnected)
+                                    ConnectionStateRepository.updateSessionState(sessionId, ConnectionState.Disconnected)
                                 }
                                 break
                             }
 
                             reconnectAttempt++
-                            ConnectionStateRepository.updateConnectionState(
-                                profileId,
-                                ConnectionState.Reconnecting(reconnectAttempt, maxAttempts, "Reconnecting ($reconnectAttempt/$maxAttempts)..."),
-                            )
+                            val recState = ConnectionState.Reconnecting(reconnectAttempt, maxAttempts, "Reconnecting ($reconnectAttempt/$maxAttempts)...")
+                            ConnectionStateRepository.updateConnectionState(profileId, recState)
+                            ConnectionStateRepository.updateSessionState(sessionId, recState)
                             updateSessionNotification(profileId, sessionId, profile.nickname, "Reconnecting ($reconnectAttempt/$maxAttempts)...")
 
                             val warnMsg = "\r\n\u001B[33m[CoSSH: Connection lost. Reconnecting ($reconnectAttempt/$maxAttempts)...]\u001B[0m\r\n"
@@ -239,6 +244,7 @@ class SshService : Service() {
                 } else {
                     println(("SshService").toString() + ": " + ("Profile not found: $profileId").toString())
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error("Profile not found"))
+                    ConnectionStateRepository.updateSessionState(sessionId, ConnectionState.Error("Profile not found"))
                 }
             } catch (e: Exception) {
                 val isNormalClosure = e is kotlinx.coroutines.CancellationException ||
@@ -251,9 +257,11 @@ class SshService : Service() {
                     updateSessionNotification(profileId, sessionId, "Connection", "Connection failed")
                     val userMessage = mapExceptionMessage(e)
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error(userMessage))
+                    ConnectionStateRepository.updateSessionState(sessionId, ConnectionState.Error(userMessage))
                 } else {
                     println(("SshService").toString() + ": " + ("SSH Session disconnected normally for $profileId (Session: $sessionId)").toString())
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnected)
+                    ConnectionStateRepository.updateSessionState(sessionId, ConnectionState.Disconnected)
                 }
             } finally {
                 profile?.clearSensitiveData()
@@ -265,6 +273,7 @@ class SshService : Service() {
                 }
 
                 ConnectionStateRepository.clearSession(sessionId)
+                ConnectionStateRepository.clearSessionState(sessionId)
 
                 val notificationManager = getSystemService(NotificationManager::class.java)
                 notificationManager.cancel(getNotificationId(sessionId))
@@ -287,6 +296,7 @@ class SshService : Service() {
         if (profileId != null) {
             ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnecting)
         }
+        ConnectionStateRepository.updateSessionState(sessionId, ConnectionState.Disconnecting)
         sshManagers[sessionId]?.disconnect()
         connectionJobs[sessionId]?.cancel()
     }
@@ -294,6 +304,7 @@ class SshService : Service() {
     private fun stopAllConnections() {
         ConnectionStateRepository.sessions.values.forEach { session ->
             ConnectionStateRepository.updateConnectionState(session.profileId, ConnectionState.Disconnecting)
+            ConnectionStateRepository.updateSessionState(session.sessionId, ConnectionState.Disconnecting)
         }
         serviceScope.cancel()
     }

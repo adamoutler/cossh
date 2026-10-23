@@ -139,6 +139,9 @@ object ConnectionStateRepository {
     val sessionOutput: SharedFlow<Pair<String, ByteArray>>
         get() = SessionStreamRegistry.sessionOutput
 
+    fun getSessionOutputFlow(sessionId: String): SharedFlow<ByteArray> =
+        SessionStreamRegistry.getSessionOutputFlow(sessionId)
+
     fun getOrCreateSession(profileId: String, sessionId: String? = null): ActiveSessionState = SessionStreamRegistry.getOrCreateSession(profileId, sessionId)
 
     fun clearSession(sessionId: String) = SessionStreamRegistry.clearSession(sessionId)

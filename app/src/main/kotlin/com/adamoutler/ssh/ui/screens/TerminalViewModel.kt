@@ -262,6 +262,11 @@ class TerminalViewModel(application: Application) :
     override fun logStackTraceWithMessage(tag: String?, msg: String?, e: java.lang.Exception?) { /* No-op */ }
     override fun logStackTrace(tag: String?, e: java.lang.Exception?) { /* No-op */ }
 
+    fun closeSession(sessionId: String) {
+        val session = sessions.remove(sessionId)
+        session?.finishIfRunning()
+    }
+
     override fun onCleared() {
         super.onCleared()
         sessions.values.forEach { it.finishIfRunning() }

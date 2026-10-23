@@ -54,6 +54,14 @@ object SessionStreamRegistry {
     private val _sessionOutput = MutableSharedFlow<Pair<String, ByteArray>>(extraBufferCapacity = 1000)
     val sessionOutput: SharedFlow<Pair<String, ByteArray>> = _sessionOutput.asSharedFlow()
 
+    private val perSessionFlows = ConcurrentHashMap<String, MutableSharedFlow<ByteArray>>()
+
+    fun getSessionOutputFlow(sessionId: String): SharedFlow<ByteArray> {
+        return perSessionFlows.computeIfAbsent(sessionId) {
+            MutableSharedFlow(extraBufferCapacity = 1000)
+        }.asSharedFlow()
+    }
+
     fun getOrCreateSession(profileId: String, sessionId: String? = null): ActiveSessionState {
         if (sessionId != null) {
             sessions[sessionId]?.let { return it }
@@ -67,15 +75,17 @@ object SessionStreamRegistry {
     fun clearSession(sessionId: String) {
         val session = sessions.remove(sessionId)
         session?.sanitize()
+        perSessionFlows.remove(sessionId)
         if (!isHeadlessTest) {
             mockTestTranscripts.remove(sessionId)
         }
     }
 
     fun clearAllSessions() {
-        for (sessionId in sessions.keys()) {
+        for (sessionId in sessions.keys().toList()) {
             clearSession(sessionId)
         }
+        perSessionFlows.clear()
     }
 
     suspend fun emitOutput(sessionId: String, data: ByteArray) {
@@ -91,9 +101,11 @@ object SessionStreamRegistry {
             }
             if (emitToFlow) {
                 _sessionOutput.emit(Pair(sessionId, data))
+                perSessionFlows[sessionId]?.emit(data)
             }
         } else {
             _sessionOutput.emit(Pair(sessionId, data))
+            perSessionFlows[sessionId]?.emit(data)
         }
     }
 

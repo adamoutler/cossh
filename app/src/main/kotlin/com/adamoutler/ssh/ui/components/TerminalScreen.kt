@@ -163,6 +163,8 @@ fun TerminalScreen(
             putExtra(com.adamoutler.ssh.network.SshService.EXTRA_SESSION_ID, targetSessionId)
         }
         context.startService(intent)
+        terminalViewModel.closeSession(targetSessionId)
+        ConnectionStateRepository.clearSession(targetSessionId)
         ConnectionStateRepository.clearSessionState(targetSessionId)
 
         if (targetSessionId == activeSessionId) {
@@ -276,6 +278,13 @@ fun TerminalScreenContent(
         }
     }
 
+    androidx.compose.runtime.LaunchedEffect(session, terminalViewRef) {
+        terminalViewRef?.let { tv ->
+            tv.attachSession(session)
+            tv.onScreenUpdated()
+        }
+    }
+
     androidx.compose.runtime.LaunchedEffect(cursorStyle, cursorBlink, terminalViewRef, session) {
         terminalViewRef?.setTerminalCursorBlinkerState(cursorBlink, true)
         val decscusrCode = when (cursorStyle) {
@@ -311,10 +320,8 @@ fun TerminalScreenContent(
         }
 
         launch {
-            ConnectionStateRepository.sessionOutput.collect { (id, bytes) ->
-                if (id == sessionId) {
-                    processBytes(bytes)
-                }
+            ConnectionStateRepository.getSessionOutputFlow(sessionId).collect { bytes ->
+                processBytes(bytes)
             }
         }
 
@@ -824,6 +831,8 @@ fun TerminalScreenContent(
                         tv.setTextSize((currentFontSize * density.density * density.fontScale).toInt())
                         tv.setTypeface(resolvedFont.getTypeface())
                         resolvedTheme.applyTo(tv, session)
+                        tv.attachSession(session)
+                        tv.onScreenUpdated()
                     },
                 )
             }
