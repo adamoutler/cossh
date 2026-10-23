@@ -2,6 +2,7 @@ package com.adamoutler.ssh.ui.screens.connectionlist.components
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Info
@@ -23,6 +24,8 @@ fun ConnectionListTopBar(
     onSettingsRequested: () -> Unit,
     onManageIdentitiesRequested: () -> Unit,
     modifier: Modifier = Modifier,
+    onQuickConnectRequested: () -> Unit = {},
+    onImportOpenSshRequested: () -> Unit = {},
     onReorderRequested: () -> Unit = {},
     onReorderDone: () -> Unit = {},
     isReordering: Boolean = false,
@@ -38,6 +41,12 @@ fun ConnectionListTopBar(
                     Icon(Icons.Filled.Check, contentDescription = "Done Reordering")
                 }
             } else {
+                IconButton(
+                    onClick = onQuickConnectRequested,
+                    modifier = Modifier.testTag("quick_connect_action"),
+                ) {
+                    Icon(Icons.Filled.Bolt, contentDescription = "Quick Connect")
+                }
                 IconButton(onClick = { menuExpanded = true }) {
                     Icon(Icons.Filled.MoreVert, contentDescription = "Menu")
                 }
@@ -86,6 +95,14 @@ fun ConnectionListTopBar(
                         onClick = {
                             menuExpanded = false
                             onImportRequested()
+                        },
+                    )
+                    DropdownMenuItem(
+                        modifier = Modifier.testTag("ImportOpenSshMenu"),
+                        text = { Text("Import OpenSSH Config") },
+                        onClick = {
+                            menuExpanded = false
+                            onImportOpenSshRequested()
                         },
                     )
                     DropdownMenuItem(

@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.data.EphemeralProfileStore
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.nio.ByteBuffer
@@ -82,6 +83,9 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
     }
 
     fun saveProfile(profile: ConnectionProfile) {
+        if (profile.isEphemeral) {
+            throw IllegalArgumentException("Cannot persist ephemeral connection profile")
+        }
         try {
             val jsonString = Json.encodeToString(profile)
             val editor = encryptedPrefs.edit()
@@ -95,12 +99,15 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
             }
             editor.apply() // Asynchronous background write. In-memory state is updated immediately.
         } catch (e: Exception) {
-            if (e is CryptoException) throw e
+            if (e is CryptoException || e is IllegalArgumentException) throw e
             e.handleKeystoreExceptions("Failed to save profile due to Keystore error.")
         }
     }
 
     fun getProfile(id: String): ConnectionProfile? {
+        if (id.startsWith("ephemeral_") || EphemeralProfileStore.get(id) != null) {
+            return EphemeralProfileStore.get(id)
+        }
         try {
             val jsonString = encryptedPrefs.getString(id, null) ?: return null
             val profile = Json.decodeFromString<ConnectionProfile>(jsonString)
@@ -162,6 +169,10 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
     }
 
     fun deleteProfile(id: String) {
+        if (id.startsWith("ephemeral_") || EphemeralProfileStore.get(id) != null) {
+            EphemeralProfileStore.remove(id)
+            return
+        }
         try {
             encryptedPrefs.edit()
                 .remove(id)

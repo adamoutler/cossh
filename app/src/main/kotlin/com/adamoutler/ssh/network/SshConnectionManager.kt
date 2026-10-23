@@ -35,6 +35,10 @@ class TofuHostKeyVerifier(
 
         val formattedHost = if (port != 22) "[$hostname]:$port" else hostname
 
+        if (EphemeralHostKeyRegistry.verify(formattedHost, key)) {
+            return true
+        }
+
         var oldFingerprint: String? = null
         var hostExists = false
 
@@ -113,6 +117,7 @@ class TofuHostKeyVerifier(
         }
 
         if (userAccepted) {
+            EphemeralHostKeyRegistry.record(formattedHost, key)
             val newEntry = "$formattedHost $keyType $keyBlobBase64\n"
             if (hostExists && knownHostsFile.exists()) {
                 // Atomic overwrite: remove old entry, write new

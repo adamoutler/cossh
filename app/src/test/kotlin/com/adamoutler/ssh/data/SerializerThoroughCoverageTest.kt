@@ -9,12 +9,12 @@ import kotlinx.serialization.encoding.Decoder
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 class SerializerThoroughCoverageTest {
 
     @Test
     fun testConnectionProfileSerializer_AllIndices() {
         val serializer = ConnectionProfile.serializer()
-        val desc = serializer.descriptor
         val decoder = object : SerializerMissedCoverageTest.FakeDecoder() {
             var currentIndex = 0
             override fun decodeElementIndex(descriptor: SerialDescriptor): Int = if (currentIndex < descriptor.elementsCount) currentIndex++ else CompositeDecoder.DECODE_DONE
@@ -45,7 +45,6 @@ class SerializerThoroughCoverageTest {
     @Test
     fun testBackupPayloadSerializer_AllIndices() {
         val serializer = BackupPayload.serializer()
-        val desc = serializer.descriptor
         val decoder = object : SerializerMissedCoverageTest.FakeDecoder() {
             var currentIndex = 0
             override fun decodeElementIndex(descriptor: SerialDescriptor): Int = if (currentIndex < descriptor.elementsCount) currentIndex++ else CompositeDecoder.DECODE_DONE

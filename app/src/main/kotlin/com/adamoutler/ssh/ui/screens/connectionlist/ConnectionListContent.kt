@@ -34,6 +34,8 @@ fun ConnectionListContent(
     onMoveToFolder: (String, String?) -> Unit = { _, _ -> },
     onExportRequested: () -> Unit = {},
     onImportRequested: () -> Unit = {},
+    onQuickConnectRequested: () -> Unit = {},
+    onImportOpenSshRequested: () -> Unit = {},
     onSettingsRequested: () -> Unit = {},
     onManageIdentitiesRequested: () -> Unit = {},
     initialMenuExpanded: Boolean = false,
@@ -51,6 +53,8 @@ fun ConnectionListContent(
             ConnectionListTopBar(
                 onExportRequested = onExportRequested,
                 onImportRequested = onImportRequested,
+                onQuickConnectRequested = onQuickConnectRequested,
+                onImportOpenSshRequested = onImportOpenSshRequested,
                 onSettingsRequested = onSettingsRequested,
                 onManageIdentitiesRequested = onManageIdentitiesRequested,
                 onReorderRequested = { isReordering = true },
