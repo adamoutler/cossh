@@ -112,7 +112,7 @@ jobs:
         run: |
           if [ -f /tmp/build-test.log ]; then
             echo "Uploading /tmp/build-test.log ($(wc -c < /tmp/build-test.log) bytes) to Dash..."
-            curl -sS --max-time 30 -X POST "https://dash.hackedyour.info/api/logs?provider=forgejo&owner=aoutler&repo=CoSSH" \
+            curl -sS --max-time 30 -X POST "http://dash.hackedyour.info/api/logs?provider=forgejo&owner=aoutler&repo=CoSSH" \
                  -H "Content-Type: text/plain" \
                  --data-binary @/tmp/build-test.log || echo "⚠️ Dash log upload failed"
           else
