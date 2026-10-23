@@ -34,13 +34,14 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuickConnectBottomSheet(
-    identities: List<IdentityProfile> = emptyList(),
     onConnect: (profile: ConnectionProfile, isEphemeral: Boolean) -> Unit,
     onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+    identities: List<IdentityProfile> = emptyList(),
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        modifier = Modifier.testTag("quick_connect_sheet"),
+        modifier = modifier.testTag("quick_connect_sheet"),
     ) {
         QuickConnectContent(
             identities = identities,
@@ -52,13 +53,13 @@ fun QuickConnectBottomSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuickConnectContent(
+    modifier: Modifier = Modifier,
     identities: List<IdentityProfile> = emptyList(),
     initialAddress: String = "",
     initialProtocol: Protocol = Protocol.SSH,
     initialPort: String = "22",
     initialErrorMessage: String? = null,
     onConnect: (profile: ConnectionProfile, isEphemeral: Boolean) -> Unit = { _, _ -> },
-    modifier: Modifier = Modifier,
 ) {
     var addressInput by remember { mutableStateOf(initialAddress) }
     var selectedProtocol by remember { mutableStateOf(initialProtocol) }
