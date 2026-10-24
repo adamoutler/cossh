@@ -588,9 +588,14 @@ fun TerminalScreenContent(
                     factory = { ctx ->
                         val terminalView = TerminalView(ctx, null)
                         terminalView.attachSession(session)
+                        val calculatedTextSize = (currentFontSize * density.density * density.fontScale).toInt().coerceAtLeast(10)
+                        terminalView.setTextSize(calculatedTextSize)
+                        try {
+                            terminalView.setTypeface(resolvedFont.getTypeface())
+                        } catch (e: Exception) {
+                            AppLog.w("TerminalScreen", "Failed to set typeface on TerminalView: ${e.message}")
+                        }
                         resolvedTheme.applyTo(terminalView, session)
-                        terminalView.setTypeface(resolvedFont.getTypeface())
-                        terminalView.setTextSize((currentFontSize * density.density * density.fontScale).toInt())
                         terminalView.layoutParams = FrameLayout.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -830,8 +835,13 @@ fun TerminalScreenContent(
                     update = { view ->
                         val tv = (view as android.widget.FrameLayout).getChildAt(0) as TerminalView
                         tv.attachSession(session)
-                        tv.setTextSize((currentFontSize * density.density * density.fontScale).toInt())
-                        tv.setTypeface(resolvedFont.getTypeface())
+                        val calculatedTextSize = (currentFontSize * density.density * density.fontScale).toInt().coerceAtLeast(10)
+                        tv.setTextSize(calculatedTextSize)
+                        try {
+                            tv.setTypeface(resolvedFont.getTypeface())
+                        } catch (e: Exception) {
+                            AppLog.w("TerminalScreen", "Failed to set typeface on TerminalView update: ${e.message}")
+                        }
                         resolvedTheme.applyTo(tv, session)
                         tv.onScreenUpdated()
                     },

@@ -61,30 +61,29 @@ class ConnectionListViewModel(
 
     fun loadProfiles() {
         launchWithHandler {
-            if (com.adamoutler.ssh.BuildConfig.DEBUG && storageManager.getAllProfiles().isEmpty()) {
-                // Troubleshooting profile: mock.hackedyour.info — port 32222 is SSH, port 32223 is HTTP health check
-                val identityStorage = com.adamoutler.ssh.crypto.IdentityStorageManager(getApplication())
-                val generatedKey = com.adamoutler.ssh.crypto.SSHKeyGenerator.generateRSAKeyPair()
-                val dynamicUser = "dev_" + System.currentTimeMillis()
-
-                val mockIdentity = com.adamoutler.ssh.data.IdentityProfile(
-                    id = "mock_identity",
-                    name = "Mock Server Key",
-                    username = dynamicUser,
-                    privateKey = generatedKey.private.encoded,
-                )
-                identityStorage.saveIdentity(mockIdentity)
-
-                val testProfile = ConnectionProfile(
-                    id = "default_test_profile",
-                    nickname = "mock.hackedyour.info",
-                    host = "mock.hackedyour.info",
-                    username = dynamicUser,
-                    authType = com.adamoutler.ssh.data.AuthType.KEY,
-                    port = 32222,
-                    identityId = mockIdentity.id,
-                )
-                storageManager.saveProfile(testProfile)
+            if (com.adamoutler.ssh.BuildConfig.DEBUG) {
+                if (storageManager.getAllProfiles().isEmpty()) {
+                    val testProfile = ConnectionProfile(
+                        id = "default_test_profile",
+                        nickname = "mock.hackedyour.info",
+                        host = "mock.hackedyour.info",
+                        username = "cossh_tester",
+                        authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
+                        password = "password".toByteArray(),
+                        port = 32222,
+                    )
+                    storageManager.saveProfile(testProfile)
+                } else {
+                    val existingDefault = storageManager.getProfile("default_test_profile")
+                    if (existingDefault != null && existingDefault.authType == com.adamoutler.ssh.data.AuthType.KEY) {
+                        val updatedProfile = existingDefault.copy(
+                            username = "cossh_tester",
+                            authType = com.adamoutler.ssh.data.AuthType.PASSWORD,
+                            password = "password".toByteArray(),
+                        )
+                        storageManager.saveProfile(updatedProfile)
+                    }
+                }
             }
 
             val all = storageManager.getAllProfiles().sortedBy { it.sortOrder }
