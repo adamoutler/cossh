@@ -26,10 +26,6 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@748248ddd2a24f49513d8f472f81c3a07d4d50e1 # v4.4.4
-        with:
-          cache-read-only: true
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         
@@ -118,7 +114,7 @@ jobs:
         run: |
           if [ -f build-test.log ]; then
             echo "Uploading build-test.log ($(wc -c < build-test.log) bytes) to Dash..."
-            curl -sS --max-time 30 -X POST "http://dash.hackedyour.info/api/logs?provider=forgejo&owner=aoutler&repo=CoSSH" \
+            curl -sSL --max-time 30 -X POST "https://dash.hackedyour.info/api/logs?provider=forgejo&owner=aoutler&repo=CoSSH" \
                  -H "Content-Type: text/plain" \
                  --data-binary @build-test.log || echo "⚠️ Dash log upload failed"
           else
