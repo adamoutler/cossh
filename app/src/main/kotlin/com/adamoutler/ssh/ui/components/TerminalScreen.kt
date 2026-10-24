@@ -587,6 +587,7 @@ fun TerminalScreenContent(
                     },
                     factory = { ctx ->
                         val terminalView = TerminalView(ctx, null)
+                        terminalView.attachSession(session)
                         resolvedTheme.applyTo(terminalView, session)
                         terminalView.setTypeface(resolvedFont.getTypeface())
                         terminalView.setTextSize((currentFontSize * density.density * density.fontScale).toInt())
@@ -828,10 +829,10 @@ fun TerminalScreenContent(
                     },
                     update = { view ->
                         val tv = (view as android.widget.FrameLayout).getChildAt(0) as TerminalView
+                        tv.attachSession(session)
                         tv.setTextSize((currentFontSize * density.density * density.fontScale).toInt())
                         tv.setTypeface(resolvedFont.getTypeface())
                         resolvedTheme.applyTo(tv, session)
-                        tv.attachSession(session)
                         tv.onScreenUpdated()
                     },
                 )

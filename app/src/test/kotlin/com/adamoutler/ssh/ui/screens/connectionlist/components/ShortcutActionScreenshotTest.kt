@@ -3,6 +3,9 @@ package com.adamoutler.ssh.ui.screens.connectionlist.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -37,15 +40,55 @@ class ShortcutActionScreenshotTest {
             CoSSHTheme(darkTheme = true) {
                 Surface {
                     Box(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
-                        ConnectionItem(
-                            profile = sampleProfile,
-                            activeCount = 1,
-                            isReordering = false,
-                            onClick = {},
-                            onEdit = {},
-                            onAddToHomeScreen = {},
-                            initialMenuExpanded = true,
-                        )
+                        androidx.compose.foundation.layout.Column {
+                            ConnectionItem(
+                                profile = sampleProfile,
+                                activeCount = 1,
+                                isReordering = false,
+                                onClick = {},
+                                onEdit = {},
+                                onAddToHomeScreen = {},
+                                initialMenuExpanded = false,
+                            )
+                            androidx.compose.foundation.layout.Spacer(modifier = Modifier.padding(top = 8.dp))
+                            // Render the contextual menu surface directly so Paparazzi captures the "Add to Home Screen" action
+                            androidx.compose.foundation.layout.Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = androidx.compose.ui.Alignment.TopEnd,
+                            ) {
+                                Surface(
+                                    shape = androidx.compose.material3.MaterialTheme.shapes.extraSmall,
+                                    tonalElevation = 3.dp,
+                                    shadowElevation = 3.dp,
+                                    modifier = Modifier.padding(end = 8.dp),
+                                ) {
+                                    androidx.compose.foundation.layout.Column(
+                                        modifier = Modifier.padding(vertical = 4.dp),
+                                    ) {
+                                        androidx.compose.material3.DropdownMenuItem(
+                                            text = { androidx.compose.material3.Text("Add to Home Screen") },
+                                            leadingIcon = {
+                                                androidx.compose.material3.Icon(
+                                                    androidx.compose.material.icons.Icons.Filled.Home,
+                                                    contentDescription = null,
+                                                )
+                                            },
+                                            onClick = {},
+                                        )
+                                        androidx.compose.material3.DropdownMenuItem(
+                                            text = { androidx.compose.material3.Text("Edit Connection") },
+                                            leadingIcon = {
+                                                androidx.compose.material3.Icon(
+                                                    androidx.compose.material.icons.Icons.Filled.Edit,
+                                                    contentDescription = null,
+                                                )
+                                            },
+                                            onClick = {},
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
