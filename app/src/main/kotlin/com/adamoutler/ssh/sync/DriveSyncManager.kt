@@ -42,6 +42,7 @@ open class DriveSyncManager(context: Context) {
     companion object {
         private const val TAG = "DriveSyncManager"
         const val DEFAULT_PBKDF2_ITERATIONS = 65536
+
         @Volatile
         var pbkdf2Iterations: Int = DEFAULT_PBKDF2_ITERATIONS
             private set

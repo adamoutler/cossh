@@ -87,8 +87,11 @@ fun SftpTransferBanner(
                                     val percentStr = "%.0f%%".format(state.percent)
                                     "$speedStr • $percentStr"
                                 }
+
                                 is SftpTransferState.Completed -> "Transfer complete"
+
                                 is SftpTransferState.Failed -> "Transfer failed: ${state.throwable.message}"
+
                                 SftpTransferState.Idle -> "Preparing transfer..."
                             }
 

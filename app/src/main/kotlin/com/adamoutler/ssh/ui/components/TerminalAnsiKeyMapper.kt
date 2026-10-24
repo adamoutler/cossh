@@ -42,47 +42,64 @@ object TerminalAnsiKeyMapper {
             }
 
             KeyEvent.KEYCODE_DPAD_UP -> mapCursorKey('A'.code.toByte(), mod)
+
             KeyEvent.KEYCODE_DPAD_DOWN -> mapCursorKey('B'.code.toByte(), mod)
+
             KeyEvent.KEYCODE_DPAD_RIGHT -> mapCursorKey('C'.code.toByte(), mod)
+
             KeyEvent.KEYCODE_DPAD_LEFT -> mapCursorKey('D'.code.toByte(), mod)
+
             KeyEvent.KEYCODE_MOVE_HOME -> mapCursorKey('H'.code.toByte(), mod)
+
             KeyEvent.KEYCODE_MOVE_END -> mapCursorKey('F'.code.toByte(), mod)
 
             KeyEvent.KEYCODE_INSERT -> mapTildeKey("2", mod)
+
             KeyEvent.KEYCODE_FORWARD_DEL -> mapTildeKey("3", mod)
+
             KeyEvent.KEYCODE_PAGE_UP -> mapTildeKey("5", mod)
+
             KeyEvent.KEYCODE_PAGE_DOWN -> mapTildeKey("6", mod)
 
             KeyEvent.KEYCODE_F1 -> mapFunctionKey(1, mod)
+
             KeyEvent.KEYCODE_F2 -> mapFunctionKey(2, mod)
+
             KeyEvent.KEYCODE_F3 -> mapFunctionKey(3, mod)
+
             KeyEvent.KEYCODE_F4 -> mapFunctionKey(4, mod)
+
             KeyEvent.KEYCODE_F5 -> mapFunctionKey(5, mod)
+
             KeyEvent.KEYCODE_F6 -> mapFunctionKey(6, mod)
+
             KeyEvent.KEYCODE_F7 -> mapFunctionKey(7, mod)
+
             KeyEvent.KEYCODE_F8 -> mapFunctionKey(8, mod)
+
             KeyEvent.KEYCODE_F9 -> mapFunctionKey(9, mod)
+
             KeyEvent.KEYCODE_F10 -> mapFunctionKey(10, mod)
+
             KeyEvent.KEYCODE_F11 -> mapFunctionKey(11, mod)
+
             KeyEvent.KEYCODE_F12 -> mapFunctionKey(12, mod)
 
             else -> null
         }
     }
 
-    private fun mapCursorKey(finalChar: Byte, mod: Int): ByteArray {
-        return if (mod == 1) {
-            byteArrayOf(ESC, CSI, finalChar)
-        } else {
-            byteArrayOf(ESC, CSI, '1'.code.toByte(), ';'.code.toByte(), ('0'.code + mod).toByte(), finalChar)
-        }
+    private fun mapCursorKey(finalChar: Byte, mod: Int): ByteArray = if (mod == 1) {
+        byteArrayOf(ESC, CSI, finalChar)
+    } else {
+        byteArrayOf(ESC, CSI, '1'.code.toByte(), ';'.code.toByte(), ('0'.code + mod).toByte(), finalChar)
     }
 
     private fun mapTildeKey(codeStr: String, mod: Int): ByteArray {
         val seq = if (mod == 1) {
-            "\u001B[${codeStr}~"
+            "\u001B[$codeStr~"
         } else {
-            "\u001B[${codeStr};${mod}~"
+            "\u001B[$codeStr;$mod~"
         }
         val bytes = seq.toByteArray(Charsets.US_ASCII)
         check(bytes.size <= 16) { "Escape sequence exceeded 16-byte bounds" }

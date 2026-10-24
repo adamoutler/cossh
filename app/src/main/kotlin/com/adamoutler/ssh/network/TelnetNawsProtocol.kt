@@ -109,11 +109,15 @@ object TelnetNawsProtocol {
                 state = State.YES
                 true
             }
-            State.YES -> false // Already negotiated; ignore duplicate to prevent loop
+
+            State.YES -> false
+
+            // Already negotiated; ignore duplicate to prevent loop
             State.WANT_NO -> {
                 state = State.NO
                 false
             }
+
             State.WANT_YES -> {
                 state = State.YES
                 false
@@ -130,11 +134,15 @@ object TelnetNawsProtocol {
                 state = State.NO
                 true
             }
-            State.NO -> false // Already disabled; ignore duplicate
+
+            State.NO -> false
+
+            // Already disabled; ignore duplicate
             State.WANT_YES -> {
                 state = State.NO
                 false
             }
+
             State.WANT_NO -> {
                 state = State.NO
                 false

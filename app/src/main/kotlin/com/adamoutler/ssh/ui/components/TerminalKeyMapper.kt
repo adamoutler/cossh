@@ -241,7 +241,7 @@ class TerminalKeyMapper(
             e: KeyEvent?,
             shiftActive: Boolean = false,
             altActive: Boolean = false,
-            ctrlActive: Boolean = false
+            ctrlActive: Boolean = false,
         ): ByteArray? {
             // First check ANSI key mapper for F-keys, navigation keys, backtab, and escape
             val ansiBytes = TerminalAnsiKeyMapper.mapKeyCode(keyCode, shiftActive, altActive, ctrlActive)

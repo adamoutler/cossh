@@ -292,7 +292,7 @@ fun TerminalScreenContent(
             TerminalCursorStyle.UNDERLINE -> if (cursorBlink) 3 else 4
             TerminalCursorStyle.VERTICAL_BAR -> if (cursorBlink) 5 else 6
         }
-        val decscusrSeq = "\u001B[${decscusrCode} q".toByteArray()
+        val decscusrSeq = "\u001B[$decscusrCode q".toByteArray()
         session.emulator?.append(decscusrSeq, decscusrSeq.size)
     }
 

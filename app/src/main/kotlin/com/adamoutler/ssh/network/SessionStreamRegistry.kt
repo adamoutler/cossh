@@ -56,11 +56,9 @@ object SessionStreamRegistry {
 
     private val perSessionFlows = ConcurrentHashMap<String, MutableSharedFlow<ByteArray>>()
 
-    fun getSessionOutputFlow(sessionId: String): SharedFlow<ByteArray> {
-        return perSessionFlows.computeIfAbsent(sessionId) {
-            MutableSharedFlow(extraBufferCapacity = 1000)
-        }.asSharedFlow()
-    }
+    fun getSessionOutputFlow(sessionId: String): SharedFlow<ByteArray> = perSessionFlows.computeIfAbsent(sessionId) {
+        MutableSharedFlow(extraBufferCapacity = 1000)
+    }.asSharedFlow()
 
     fun getOrCreateSession(profileId: String, sessionId: String? = null): ActiveSessionState {
         if (sessionId != null) {

@@ -32,7 +32,7 @@ class UrlConfirmationScreenshotTest {
                             sanitizedUrl = sanitized,
                             onOpenBrowser = {},
                             onCopyLink = {},
-                            onDismiss = {}
+                            onDismiss = {},
                         )
                     }
                 }
@@ -51,7 +51,7 @@ class UrlConfirmationScreenshotTest {
                             sanitizedUrl = sanitized,
                             onOpenBrowser = {},
                             onCopyLink = {},
-                            onDismiss = {}
+                            onDismiss = {},
                         )
                     }
                 }
@@ -70,7 +70,7 @@ class UrlConfirmationScreenshotTest {
                             sanitizedUrl = sanitized,
                             onOpenBrowser = {},
                             onCopyLink = {},
-                            onDismiss = {}
+                            onDismiss = {},
                         )
                     }
                 }

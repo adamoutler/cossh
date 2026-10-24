@@ -50,7 +50,7 @@ class TelnetNawsSecurityTest {
         val expectedStandard = byteArrayOf(
             255.toByte(), // IAC
             250.toByte(), // SB
-            31.toByte(),  // NAWS
+            31.toByte(), // NAWS
             0.toByte(),
             80.toByte(),
             0.toByte(),
@@ -66,7 +66,7 @@ class TelnetNawsSecurityTest {
         val expectedSingleDoubled = byteArrayOf(
             255.toByte(), // IAC
             250.toByte(), // SB
-            31.toByte(),  // NAWS
+            31.toByte(), // NAWS
             0.toByte(),
             255.toByte(), // Escaped byte
             255.toByte(), // Escaped byte duplicate
@@ -85,7 +85,7 @@ class TelnetNawsSecurityTest {
         val expectedMaxDoubled = byteArrayOf(
             255.toByte(), // IAC
             250.toByte(), // SB
-            31.toByte(),  // NAWS
+            31.toByte(), // NAWS
             255.toByte(), 255.toByte(), // Width high (255 doubled)
             255.toByte(), 255.toByte(), // Width low (255 doubled)
             255.toByte(), 255.toByte(), // Height high (255 doubled)

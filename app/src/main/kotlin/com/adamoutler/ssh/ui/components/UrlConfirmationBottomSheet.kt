@@ -1,5 +1,6 @@
 package com.adamoutler.ssh.ui.components
 
+import android.view.WindowManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -46,7 +47,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import android.view.WindowManager
 import com.adamoutler.ssh.util.SanitizedUrl
 
 /**
@@ -92,7 +92,7 @@ fun UrlConfirmationBottomSheet(
             sanitizedUrl = sanitizedUrl,
             onOpenBrowser = onOpenBrowser,
             onCopyLink = onCopyLink,
-            onDismiss = onDismiss
+            onDismiss = onDismiss,
         )
     }
 }
@@ -110,181 +110,187 @@ fun UrlConfirmationContent(
 
     val isAlert = !sanitizedUrl.isSecure || sanitizedUrl.isDirectIp || sanitizedUrl.isPunycode
     val warningColor = when {
-        sanitizedUrl.isPunycode -> Color(0xFFEF4444) // Red alert for homographs
-        !sanitizedUrl.isSecure -> Color(0xFFEAB308) // Amber warning for cleartext HTTP
-        sanitizedUrl.isDirectIp -> Color(0xFFF97316) // Orange warning for direct IP
+        sanitizedUrl.isPunycode -> Color(0xFFEF4444)
+
+        // Red alert for homographs
+        !sanitizedUrl.isSecure -> Color(0xFFEAB308)
+
+        // Amber warning for cleartext HTTP
+        sanitizedUrl.isDirectIp -> Color(0xFFF97316)
+
+        // Orange warning for direct IP
         else -> colorScheme.primary
     }
 
     Column(
         modifier = modifier
             .padding(horizontal = 24.dp, vertical = 12.dp)
-            .fillMaxWidth()
+            .fillMaxWidth(),
     ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Security,
+                contentDescription = null,
+                tint = warningColor,
+                modifier = Modifier.size(24.dp),
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = "External Link Confirmation",
+                style = MaterialTheme.typography.titleMedium,
+                color = colorScheme.onSurface,
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(onClick = onDismiss) {
                 Icon(
-                    imageVector = Icons.Outlined.Security,
-                    contentDescription = null,
-                    tint = warningColor,
-                    modifier = Modifier.size(24.dp)
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Close link confirmation",
                 )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "External Link Confirmation",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = onDismiss) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close link confirmation"
-                    )
-                }
+            }
+        }
+
+        if (isAlert) {
+            val warningText = when {
+                sanitizedUrl.isPunycode -> "Security Alert: Domain uses internationalized lookalike characters (Punycode: ${sanitizedUrl.punycodeHost})"
+                !sanitizedUrl.isSecure && sanitizedUrl.isDirectIp -> "Warning: Insecure plain HTTP transport on direct IP address."
+                !sanitizedUrl.isSecure -> "Warning: Insecure plaintext HTTP transport. Data sent across this connection is unencrypted."
+                sanitizedUrl.isDirectIp -> "Notice: Direct IP address host (No SSL certificate parity)."
+                else -> ""
             }
 
-            if (isAlert) {
-                val warningText = when {
-                    sanitizedUrl.isPunycode -> "Security Alert: Domain uses internationalized lookalike characters (Punycode: ${sanitizedUrl.punycodeHost})"
-                    !sanitizedUrl.isSecure && sanitizedUrl.isDirectIp -> "Warning: Insecure plain HTTP transport on direct IP address."
-                    !sanitizedUrl.isSecure -> "Warning: Insecure plaintext HTTP transport. Data sent across this connection is unencrypted."
-                    sanitizedUrl.isDirectIp -> "Notice: Direct IP address host (No SSL certificate parity)."
-                    else -> ""
-                }
-
-                Surface(
-                    color = warningColor.copy(alpha = 0.12f),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.WarningAmber,
-                            contentDescription = null,
-                            tint = warningColor,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = warningText,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = colorScheme.onSurface
-                        )
-                    }
-                }
-            }
-
-            OutlinedCard(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.outlinedCardColors(containerColor = colorScheme.surfaceContainer),
+            Surface(
+                color = warningColor.copy(alpha = 0.12f),
+                shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-                    .semantics(mergeDescendants = true) {
-                        contentDescription = "Destination host: ${sanitizedUrl.host}, protocol: ${sanitizedUrl.scheme}."
-                    }
+                    .padding(vertical = 8.dp),
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    Icon(
+                        imageVector = Icons.Default.WarningAmber,
+                        contentDescription = null,
+                        tint = warningColor,
+                        modifier = Modifier.size(20.dp),
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "DESTINATION HOST",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = colorScheme.primary,
-                        fontWeight = FontWeight.Bold
+                        text = warningText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colorScheme.onSurface,
                     )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "${sanitizedUrl.scheme}://",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = sanitizedUrl.host,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = colorScheme.onSurface
-                        )
-                        if (sanitizedUrl.port != -1) {
-                            Text(
-                                text = ":${sanitizedUrl.port}",
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = colorScheme.tertiary
-                            )
-                        }
-                    }
-
-                    val pathAndQuery = sanitizedUrl.uri.path.orEmpty() +
-                        (sanitizedUrl.uri.query?.let { "?$it" } ?: "")
-                    if (pathAndQuery.isNotEmpty()) {
-                        HorizontalDivider(
-                            color = colorScheme.outlineVariant,
-                            modifier = Modifier.padding(vertical = 4.dp)
-                        )
-                        Text(
-                            text = "PATH & PARAMETERS",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = pathAndQuery,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontFamily = FontFamily.Monospace,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
-                            color = colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedButton(
-                    onClick = onCopyLink,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.ContentCopy,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Copy Link", style = MaterialTheme.typography.labelLarge)
-                }
-
-                Button(
-                    onClick = onOpenBrowser,
-                    colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.OpenInBrowser,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Open Link", style = MaterialTheme.typography.labelLarge)
                 }
             }
         }
+
+        OutlinedCard(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.outlinedCardColors(containerColor = colorScheme.surfaceContainer),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp)
+                .semantics(mergeDescendants = true) {
+                    contentDescription = "Destination host: ${sanitizedUrl.host}, protocol: ${sanitizedUrl.scheme}."
+                },
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Text(
+                    text = "DESTINATION HOST",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "${sanitizedUrl.scheme}://",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = sanitizedUrl.host,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = colorScheme.onSurface,
+                    )
+                    if (sanitizedUrl.port != -1) {
+                        Text(
+                            text = ":${sanitizedUrl.port}",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = colorScheme.tertiary,
+                        )
+                    }
+                }
+
+                val pathAndQuery = sanitizedUrl.uri.path.orEmpty() +
+                    (sanitizedUrl.uri.query?.let { "?$it" } ?: "")
+                if (pathAndQuery.isNotEmpty()) {
+                    HorizontalDivider(
+                        color = colorScheme.outlineVariant,
+                        modifier = Modifier.padding(vertical = 4.dp),
+                    )
+                    Text(
+                        text = "PATH & PARAMETERS",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = pathAndQuery,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily.Monospace,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                        color = colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp, bottom = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            OutlinedButton(
+                onClick = onCopyLink,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(48.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.ContentCopy,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Copy Link", style = MaterialTheme.typography.labelLarge)
+            }
+
+            Button(
+                onClick = onOpenBrowser,
+                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(48.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.OpenInBrowser,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Open Link", style = MaterialTheme.typography.labelLarge)
+            }
+        }
+    }
 }

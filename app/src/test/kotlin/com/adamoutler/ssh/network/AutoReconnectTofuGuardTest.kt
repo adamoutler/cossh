@@ -101,7 +101,7 @@ class AutoReconnectTofuGuardTest {
 
         // Manual connect (isAutonomousReconnect = false)
         val verifier = TofuHostKeyVerifier(knownHostsFile, isAutonomousReconnect = false)
-        
+
         // In a headless test without user prompt handler, the verifier will create a prompt request and timeout or wait
         // We verify that isAutonomousReconnect = false reaches the prompt logic unlike isAutonomousReconnect = true
         Thread {

@@ -1,10 +1,10 @@
 package com.adamoutler.ssh.ui.components
 
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -112,6 +112,7 @@ fun TerminalCursorPreviewBox(
                                     .background(Color(theme.cursor)),
                             )
                         }
+
                         TerminalCursorStyle.UNDERLINE -> {
                             Box(
                                 modifier = Modifier
@@ -127,6 +128,7 @@ fun TerminalCursorPreviewBox(
                                 )
                             }
                         }
+
                         TerminalCursorStyle.VERTICAL_BAR -> {
                             Box(
                                 modifier = Modifier

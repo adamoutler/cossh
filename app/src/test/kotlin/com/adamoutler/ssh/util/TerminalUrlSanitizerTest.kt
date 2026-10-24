@@ -31,7 +31,7 @@ class TerminalUrlSanitizerTest {
             "https://example.com/api/v1,",
             "'https://example.com/api/v1'",
             "\"https://example.com/api/v1\":",
-            "<https://example.com/api/v1>"
+            "<https://example.com/api/v1>",
         )
 
         for (input in inputs) {
@@ -50,7 +50,7 @@ class TerminalUrlSanitizerTest {
             "javascript:alert(document.cookie)",
             "data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==",
             "tel:+1234567890",
-            "mailto:admin@example.com"
+            "mailto:admin@example.com",
         )
 
         for (hostile in hostileUrls) {
@@ -63,7 +63,7 @@ class TerminalUrlSanitizerTest {
         val attackUrls = listOf(
             "https://trusted.bank.com@attacker-site.com/login",
             "https://admin:password@192.168.1.1:8080/shell",
-            "https://user@legit.org/page"
+            "https://user@legit.org/page",
         )
 
         for (attack in attackUrls) {

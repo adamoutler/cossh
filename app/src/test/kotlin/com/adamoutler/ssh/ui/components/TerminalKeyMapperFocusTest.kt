@@ -16,13 +16,17 @@ class TerminalKeyMapperFocusTest {
     fun testHardwareAltModifierPrefixesEsc() {
         var dispatchedBytes: ByteArray? = null
         val mapper = TerminalKeyMapper(
-            sendRawBytes = { dispatchedBytes = it }
+            sendRawBytes = { dispatchedBytes = it },
         )
 
         // Simulate Alt+B key event
         val altEvent = KeyEvent(
-            0L, 0L, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_B, 0,
-            KeyEvent.META_ALT_ON or KeyEvent.META_ALT_LEFT_ON
+            0L,
+            0L,
+            KeyEvent.ACTION_DOWN,
+            KeyEvent.KEYCODE_B,
+            0,
+            KeyEvent.META_ALT_ON or KeyEvent.META_ALT_LEFT_ON,
         )
 
         mapper.onKeyDown(KeyEvent.KEYCODE_B, altEvent)
@@ -63,7 +67,7 @@ class TerminalKeyMapperFocusTest {
     fun testEscapeAndBacktabThroughKeyMapper() {
         var dispatchedBytes: ByteArray? = null
         val mapper = TerminalKeyMapper(
-            sendRawBytes = { dispatchedBytes = it }
+            sendRawBytes = { dispatchedBytes = it },
         )
 
         // Escape
@@ -72,8 +76,12 @@ class TerminalKeyMapperFocusTest {
 
         // Shift+Tab -> Backtab \e[Z
         val shiftTabEvent = KeyEvent(
-            0L, 0L, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB, 0,
-            KeyEvent.META_SHIFT_ON or KeyEvent.META_SHIFT_LEFT_ON
+            0L,
+            0L,
+            KeyEvent.ACTION_DOWN,
+            KeyEvent.KEYCODE_TAB,
+            0,
+            KeyEvent.META_SHIFT_ON or KeyEvent.META_SHIFT_LEFT_ON,
         )
         mapper.onKeyDown(KeyEvent.KEYCODE_TAB, shiftTabEvent)
         assertArrayEquals(byteArrayOf(0x1B, '['.code.toByte(), 'Z'.code.toByte()), dispatchedBytes)

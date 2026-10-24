@@ -13,18 +13,16 @@ import org.junit.Test
  */
 class JumpHostCycleDetectionTest {
 
-    private fun createProfile(id: String, nickname: String, jumpHostId: String? = null): ConnectionProfile {
-        return ConnectionProfile(
-            id = id,
-            nickname = nickname,
-            host = "$nickname.local",
-            port = 22,
-            protocol = Protocol.SSH,
-            username = "user",
-            authType = AuthType.PASSWORD,
-            jumpHostProfileId = jumpHostId,
-        )
-    }
+    private fun createProfile(id: String, nickname: String, jumpHostId: String? = null): ConnectionProfile = ConnectionProfile(
+        id = id,
+        nickname = nickname,
+        host = "$nickname.local",
+        port = 22,
+        protocol = Protocol.SSH,
+        username = "user",
+        authType = AuthType.PASSWORD,
+        jumpHostProfileId = jumpHostId,
+    )
 
     @Test
     fun hasJumpHostCycle_selfSelection_detectsCycle() {

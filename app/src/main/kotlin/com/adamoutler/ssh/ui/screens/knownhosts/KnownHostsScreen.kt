@@ -214,6 +214,14 @@ fun KnownHostsContent(
                 }
                 item {
                     FilterChip(
+                        selected = uiState.selectedAlgorithm == KeyAlgorithmFilter.HOST_CA,
+                        onClick = { onAlgorithmFilterSelect(KeyAlgorithmFilter.HOST_CA) },
+                        label = { Text("Host-CA (${uiState.countHostCa})") },
+                        modifier = Modifier.testTag("FilterChip_HostCA"),
+                    )
+                }
+                item {
+                    FilterChip(
                         selected = uiState.selectedAlgorithm == KeyAlgorithmFilter.ED25519,
                         onClick = { onAlgorithmFilterSelect(KeyAlgorithmFilter.ED25519) },
                         label = { Text("Ed25519 (${uiState.countEd25519})") },
@@ -365,7 +373,7 @@ fun KnownHostsContent(
                                             onClick = {},
                                             label = {
                                                 Text(
-                                                    record.keyType.uppercase().replace("SSH-", ""),
+                                                    if (record.isCertAuthority) "HOST-CA 🏛️" else record.keyType.uppercase().replace("SSH-", ""),
                                                     style = MaterialTheme.typography.labelSmall,
                                                 )
                                             },

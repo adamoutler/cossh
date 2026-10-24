@@ -25,20 +25,18 @@ class SshConnectionHandlerCoverageTest {
         jumpHostId: String? = null,
         envVars: Map<String, String> = emptyMap(),
         initialDirectory: String? = null,
-    ): ConnectionProfile {
-        return ConnectionProfile(
-            id = id,
-            nickname = "Test",
-            host = "localhost",
-            port = 22,
-            protocol = Protocol.SSH,
-            username = "user",
-            authType = AuthType.PASSWORD,
-            jumpHostProfileId = jumpHostId,
-            envVars = envVars,
-            initialDirectory = initialDirectory,
-        )
-    }
+    ): ConnectionProfile = ConnectionProfile(
+        id = id,
+        nickname = "Test",
+        host = "localhost",
+        port = 22,
+        protocol = Protocol.SSH,
+        username = "user",
+        authType = AuthType.PASSWORD,
+        jumpHostProfileId = jumpHostId,
+        envVars = envVars,
+        initialDirectory = initialDirectory,
+    )
 
     @Test
     fun disconnect_whenExceptionsThrownByClients_doesNotThrow() {

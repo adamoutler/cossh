@@ -14,6 +14,7 @@ class ConnectionProtocolFactory(
 ) {
     fun create(protocol: Protocol): ConnectionProtocol = when (protocol) {
         Protocol.TELNET -> TelnetConnectionHandler()
+
         else -> SshConnectionHandler(
             hostKeyVerifier = hostKeyVerifier,
             identityStorageManager = identityStorageManager,

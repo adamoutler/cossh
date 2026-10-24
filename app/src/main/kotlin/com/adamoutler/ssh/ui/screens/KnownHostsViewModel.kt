@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 
 enum class KeyAlgorithmFilter {
     ALL,
+    HOST_CA,
     ED25519,
     RSA,
     ECDSA,
@@ -35,16 +36,17 @@ data class KnownHostsUiState(
     val statusMessage: String? = null,
 ) {
     val plaintextCount: Int
-        get() = entries.count { !it.isHashed }
+        get() = entries.count { !it.isHashed && !it.isCertAuthority }
 
     val filteredEntries: List<KnownHostRecord>
         get() = entries.filter { record ->
             // Algorithm Filter
             val matchesAlgo = when (selectedAlgorithm) {
                 KeyAlgorithmFilter.ALL -> true
-                KeyAlgorithmFilter.ED25519 -> record.keyType.contains("ed25519", ignoreCase = true)
-                KeyAlgorithmFilter.RSA -> record.keyType.contains("rsa", ignoreCase = true)
-                KeyAlgorithmFilter.ECDSA -> record.keyType.contains("ecdsa", ignoreCase = true)
+                KeyAlgorithmFilter.HOST_CA -> record.isCertAuthority
+                KeyAlgorithmFilter.ED25519 -> !record.isCertAuthority && record.keyType.contains("ed25519", ignoreCase = true)
+                KeyAlgorithmFilter.RSA -> !record.isCertAuthority && record.keyType.contains("rsa", ignoreCase = true)
+                KeyAlgorithmFilter.ECDSA -> !record.isCertAuthority && record.keyType.contains("ecdsa", ignoreCase = true)
             }
             if (!matchesAlgo) return@filter false
 
@@ -57,14 +59,17 @@ data class KnownHostsUiState(
                 record.keyType.lowercase().contains(query)
         }
 
+    val countHostCa: Int
+        get() = entries.count { it.isCertAuthority }
+
     val countEd25519: Int
-        get() = entries.count { it.keyType.contains("ed25519", ignoreCase = true) }
+        get() = entries.count { !it.isCertAuthority && it.keyType.contains("ed25519", ignoreCase = true) }
 
     val countRsa: Int
-        get() = entries.count { it.keyType.contains("rsa", ignoreCase = true) }
+        get() = entries.count { !it.isCertAuthority && it.keyType.contains("rsa", ignoreCase = true) }
 
     val countEcdsa: Int
-        get() = entries.count { it.keyType.contains("ecdsa", ignoreCase = true) }
+        get() = entries.count { !it.isCertAuthority && it.keyType.contains("ecdsa", ignoreCase = true) }
 }
 
 open class KnownHostsViewModel(

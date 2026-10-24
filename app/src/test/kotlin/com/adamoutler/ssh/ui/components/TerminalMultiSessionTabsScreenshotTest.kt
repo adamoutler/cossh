@@ -31,7 +31,7 @@ class TerminalMultiSessionTabsScreenshotTest {
                 nickname = "Prod Bastion",
                 isTelnet = false,
                 connectionState = ConnectionState.Connected,
-                isSelected = true
+                isSelected = true,
             ),
             SessionTabItem(
                 sessionId = "s2",
@@ -39,8 +39,8 @@ class TerminalMultiSessionTabsScreenshotTest {
                 nickname = "Staging Gateway",
                 isTelnet = false,
                 connectionState = ConnectionState.Reconnecting(attempt = 2, maxAttempts = 5),
-                isSelected = false
-            )
+                isSelected = false,
+            ),
         )
 
         paparazzi.snapshot {
@@ -52,7 +52,7 @@ class TerminalMultiSessionTabsScreenshotTest {
                             onSelectSession = {},
                             onCloseSession = {},
                             onNewSession = {},
-                            backgroundColor = Color(0xFF10192C)
+                            backgroundColor = Color(0xFF10192C),
                         )
                     }
                 }
@@ -69,7 +69,7 @@ class TerminalMultiSessionTabsScreenshotTest {
                 nickname = "App Server",
                 isTelnet = false,
                 connectionState = ConnectionState.Connected,
-                isSelected = true
+                isSelected = true,
             ),
             SessionTabItem(
                 sessionId = "s2",
@@ -77,7 +77,7 @@ class TerminalMultiSessionTabsScreenshotTest {
                 nickname = "Legacy Router",
                 isTelnet = true,
                 connectionState = ConnectionState.Connected,
-                isSelected = false
+                isSelected = false,
             ),
             SessionTabItem(
                 sessionId = "s3",
@@ -85,8 +85,8 @@ class TerminalMultiSessionTabsScreenshotTest {
                 nickname = "Dev Container",
                 isTelnet = false,
                 connectionState = ConnectionState.Error("Broken pipe"),
-                isSelected = false
-            )
+                isSelected = false,
+            ),
         )
 
         paparazzi.snapshot {
@@ -98,7 +98,7 @@ class TerminalMultiSessionTabsScreenshotTest {
                             onSelectSession = {},
                             onCloseSession = {},
                             onNewSession = {},
-                            backgroundColor = Color(0xFF10192C)
+                            backgroundColor = Color(0xFF10192C),
                         )
                     }
                 }

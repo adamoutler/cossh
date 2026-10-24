@@ -132,6 +132,10 @@ fun IdentityItem(
                 Column {
                     Text(identity.name, style = MaterialTheme.typography.titleMedium)
                     Text(identity.username, style = MaterialTheme.typography.bodySmall)
+                    if (identity.authType == com.adamoutler.ssh.data.AuthType.KEY) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        com.adamoutler.ssh.ui.components.SecurityTierBadge(securityTier = identity.securityTier)
+                    }
                 }
             }
             IconButton(onClick = onDelete) {

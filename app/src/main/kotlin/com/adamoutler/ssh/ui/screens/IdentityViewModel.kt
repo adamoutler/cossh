@@ -33,6 +33,8 @@ data class IdentityFormState(
     val pendingEncryptedKeyBytes: ByteArray? = null,
     val pendingCipherSummary: String? = null,
     val passphraseError: String? = null,
+    val securityTier: String? = null,
+    val attestationRecord: com.adamoutler.ssh.crypto.strongbox.KeyAttestationRecord? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -46,23 +48,31 @@ data class IdentityFormState(
         if (originalPassword != null) {
             if (other.originalPassword == null) return false
             if (!originalPassword.contentEquals(other.originalPassword)) return false
-        } else if (other.originalPassword != null) return false
+        } else if (other.originalPassword != null) {
+            return false
+        }
         if (isPasswordLocked != other.isPasswordLocked) return false
         if (password != other.password) return false
         if (publicKey != other.publicKey) return false
         if (privateKey != null) {
             if (other.privateKey == null) return false
             if (!privateKey.contentEquals(other.privateKey)) return false
-        } else if (other.privateKey != null) return false
+        } else if (other.privateKey != null) {
+            return false
+        }
         if (manualKeyEntry != other.manualKeyEntry) return false
         if (manualPrivKey != other.manualPrivKey) return false
         if (isLoaded != other.isLoaded) return false
         if (pendingEncryptedKeyBytes != null) {
             if (other.pendingEncryptedKeyBytes == null) return false
             if (!pendingEncryptedKeyBytes.contentEquals(other.pendingEncryptedKeyBytes)) return false
-        } else if (other.pendingEncryptedKeyBytes != null) return false
+        } else if (other.pendingEncryptedKeyBytes != null) {
+            return false
+        }
         if (pendingCipherSummary != other.pendingCipherSummary) return false
         if (passphraseError != other.passphraseError) return false
+        if (securityTier != other.securityTier) return false
+        if (attestationRecord != other.attestationRecord) return false
 
         return true
     }
@@ -82,6 +92,8 @@ data class IdentityFormState(
         result = 31 * result + (pendingEncryptedKeyBytes?.contentHashCode() ?: 0)
         result = 31 * result + (pendingCipherSummary?.hashCode() ?: 0)
         result = 31 * result + (passphraseError?.hashCode() ?: 0)
+        result = 31 * result + (securityTier?.hashCode() ?: 0)
+        result = 31 * result + (attestationRecord?.hashCode() ?: 0)
         return result
     }
 }
@@ -124,6 +136,7 @@ class IdentityViewModel(
                         isPasswordLocked = identity.password != null,
                         publicKey = identity.publicKey ?: "",
                         privateKey = identity.privateKey,
+                        securityTier = identity.securityTier,
                         isLoaded = true,
                     )
                 }
@@ -176,6 +189,7 @@ class IdentityViewModel(
                     publicKey = SSHKeyGenerator.encodePublicKey(keyPair),
                     privateKey = SSHKeyGenerator.encodePrivateKey(keyPair),
                     authType = AuthType.KEY,
+                    securityTier = "TEE",
                 )
             }
         }
@@ -189,6 +203,7 @@ class IdentityViewModel(
                     publicKey = SSHKeyGenerator.encodePublicKey(keyPair),
                     privateKey = SSHKeyGenerator.encodePrivateKey(keyPair),
                     authType = AuthType.KEY,
+                    securityTier = "TEE",
                 )
             }
         }
@@ -202,6 +217,29 @@ class IdentityViewModel(
                     publicKey = SSHKeyGenerator.encodePublicKey(keyPair),
                     privateKey = SSHKeyGenerator.encodePrivateKey(keyPair),
                     authType = AuthType.KEY,
+                    securityTier = "TEE",
+                )
+            }
+        }
+    }
+
+    fun generateStrongBoxKeyPair() {
+        launchWithHandler(Dispatchers.Default) {
+            val manager = com.adamoutler.ssh.crypto.strongbox.StrongBoxKeyManager(getApplication())
+            val alias = "strongbox_ssh_${java.util.UUID.randomUUID()}"
+            val challenge = java.security.SecureRandom().generateSeed(32)
+            val result = manager.generateStrongBoxKeyPair(alias = alias, customChallenge = challenge)
+            _uiState.update {
+                it.copy(
+                    publicKey = result.publicKeyOpenSsh,
+                    privateKey = try {
+                        result.keyPair.private.encoded
+                    } catch (_: Throwable) {
+                        null
+                    },
+                    authType = AuthType.KEY,
+                    securityTier = if (result.isStrongBoxBacked) "STRONGBOX" else "TEE",
+                    attestationRecord = result.attestationRecord,
                 )
             }
         }
@@ -231,6 +269,7 @@ class IdentityViewModel(
                             publicKey = SSHKeyGenerator.encodePublicKey(keyPair),
                             privateKey = SSHKeyGenerator.encodePrivateKey(keyPair),
                             authType = AuthType.KEY,
+                            securityTier = "SOFTWARE",
                             pendingEncryptedKeyBytes = null,
                             pendingCipherSummary = null,
                             passphraseError = null,
@@ -255,6 +294,7 @@ class IdentityViewModel(
                         publicKey = SSHKeyGenerator.encodePublicKey(keyPair),
                         privateKey = SSHKeyGenerator.encodePrivateKey(keyPair),
                         authType = AuthType.KEY,
+                        securityTier = "SOFTWARE",
                         pendingEncryptedKeyBytes = null,
                         pendingCipherSummary = null,
                         passphraseError = null,

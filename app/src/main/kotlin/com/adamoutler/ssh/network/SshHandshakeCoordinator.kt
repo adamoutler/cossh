@@ -110,7 +110,7 @@ open class SshHandshakeCoordinator(
                     KeyAuthenticator(keyPair)
                 } else {
                     throw UserAuthException(
-                        "SSH Key authentication requires an Identity Profile. Please select or configure an Identity in the connection profile settings."
+                        "SSH Key authentication requires an Identity Profile. Please select or configure an Identity in the connection profile settings.",
                     )
                 }
             }

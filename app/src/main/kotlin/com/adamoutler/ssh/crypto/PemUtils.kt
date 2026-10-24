@@ -28,11 +28,9 @@ import java.security.PublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.util.Base64
 
-class KeyIsEncryptedException(val cipherSummary: String) :
-    Exception("Key is encrypted ($cipherSummary), passphrase required")
+class KeyIsEncryptedException(val cipherSummary: String) : Exception("Key is encrypted ($cipherSummary), passphrase required")
 
-class InvalidPassphraseException(message: String = "Incorrect passphrase for encrypted private key") :
-    Exception(message)
+class InvalidPassphraseException(message: String = "Incorrect passphrase for encrypted private key") : Exception(message)
 
 object PemUtils {
 

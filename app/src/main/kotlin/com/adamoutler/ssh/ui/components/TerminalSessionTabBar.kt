@@ -79,7 +79,7 @@ fun TerminalSessionTabBar(
         visible = sessions.size > 1,
         enter = expandVertically() + fadeIn(),
         exit = shrinkVertically() + fadeOut(),
-        modifier = modifier
+        modifier = modifier,
     ) {
         val selectedIndex = sessions.indexOfFirst { it.isSelected }.coerceAtLeast(0)
         val colorScheme = MaterialTheme.colorScheme
@@ -89,7 +89,7 @@ fun TerminalSessionTabBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(38.dp)
-                .semantics { contentDescription = "Terminal Session Tabs" }
+                .semantics { contentDescription = "Terminal Session Tabs" },
         ) {
             ScrollableTabRow(
                 selectedTabIndex = selectedIndex,
@@ -100,13 +100,19 @@ fun TerminalSessionTabBar(
             ) {
                 sessions.forEach { session ->
                     val statusColor = when (session.connectionState) {
-                        is ConnectionState.Connected -> Color(0xFF22C55E) // Emerald Green
+                        is ConnectionState.Connected -> Color(0xFF22C55E)
+
+                        // Emerald Green
                         is ConnectionState.Connecting,
-                        is ConnectionState.Reconnecting -> Color(0xFFEAB308) // Amber
+                        is ConnectionState.Reconnecting,
+                        -> Color(0xFFEAB308)
+
+                        // Amber
                         is ConnectionState.Error,
                         is ConnectionState.Disconnected,
                         is ConnectionState.Disconnecting,
-                        is ConnectionState.Terminated -> Color(0xFFEF4444) // Crimson Red
+                        is ConnectionState.Terminated,
+                        -> Color(0xFFEF4444) // Crimson Red
                     }
 
                     val statusText = when (session.connectionState) {
@@ -128,25 +134,25 @@ fun TerminalSessionTabBar(
                                 role = Role.Tab
                                 selected = session.isSelected
                                 contentDescription = "Session ${session.nickname}, $statusText, ${if (session.isTelnet) "Telnet" else "SSH"}. Double tap to activate tab."
-                            }
+                            },
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             if (session.isTelnet) {
                                 Icon(
                                     imageVector = Icons.Outlined.WarningAmber,
                                     contentDescription = "Insecure Telnet Protocol",
                                     tint = Color(0xFFEAB308),
-                                    modifier = Modifier.size(13.dp)
+                                    modifier = Modifier.size(13.dp),
                                 )
                             } else {
                                 Icon(
                                     imageVector = Icons.Outlined.Terminal,
                                     contentDescription = "Encrypted SSH Protocol",
                                     tint = colorScheme.primary,
-                                    modifier = Modifier.size(13.dp)
+                                    modifier = Modifier.size(13.dp),
                                 )
                             }
 
@@ -159,7 +165,7 @@ fun TerminalSessionTabBar(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.widthIn(max = 110.dp),
-                                color = if (session.isSelected) colorScheme.onSurface else colorScheme.onSurfaceVariant
+                                color = if (session.isSelected) colorScheme.onSurface else colorScheme.onSurfaceVariant,
                             )
 
                             Spacer(modifier = Modifier.width(6.dp))
@@ -167,7 +173,7 @@ fun TerminalSessionTabBar(
                             Box(
                                 modifier = Modifier
                                     .size(6.dp)
-                                    .background(color = statusColor, shape = CircleShape)
+                                    .background(color = statusColor, shape = CircleShape),
                             )
 
                             Spacer(modifier = Modifier.width(6.dp))
@@ -178,13 +184,13 @@ fun TerminalSessionTabBar(
                                     .size(18.dp)
                                     .semantics {
                                         contentDescription = "Disconnect and close session ${session.nickname}"
-                                    }
+                                    },
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = null,
                                     modifier = Modifier.size(11.dp),
-                                    tint = colorScheme.onSurfaceVariant
+                                    tint = colorScheme.onSurfaceVariant,
                                 )
                             }
                         }
@@ -201,24 +207,24 @@ fun TerminalSessionTabBar(
                         .semantics {
                             role = Role.Button
                             contentDescription = "Open new connection session"
-                        }
+                        },
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = null,
                             modifier = Modifier.size(14.dp),
-                            tint = colorScheme.primary
+                            tint = colorScheme.primary,
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Connect",
                             style = MaterialTheme.typography.labelSmall,
                             color = colorScheme.primary,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
                         )
                     }
                 }

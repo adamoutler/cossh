@@ -311,11 +311,13 @@ class ConnectionListViewModel(
                                 skipped.add(profile.nickname)
                                 continue
                             }
+
                             ConflictResolutionStrategy.RENAME_WITH_SUFFIX -> {
                                 val renamed = profile.copy(nickname = "${profile.nickname} (Imported)")
                                 storageManager.saveProfile(renamed)
                                 imported.add(renamed)
                             }
+
                             ConflictResolutionStrategy.OVERWRITE -> {
                                 val existingId = existingMap[profile.nickname.lowercase()]?.id ?: profile.id
                                 val overwritten = profile.copy(id = existingId)

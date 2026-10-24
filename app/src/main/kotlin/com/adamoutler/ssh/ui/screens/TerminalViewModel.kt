@@ -46,7 +46,7 @@ class TerminalViewModel(application: Application) :
     val fontChoiceFlow = _fontChoiceFlow.asStateFlow()
 
     private val _cursorStyleFlow = MutableStateFlow(
-        com.adamoutler.ssh.data.TerminalCursorStyle.fromId(settingsManager.globalCursorStyle)
+        com.adamoutler.ssh.data.TerminalCursorStyle.fromId(settingsManager.globalCursorStyle),
     )
     val cursorStyleFlow = _cursorStyleFlow.asStateFlow()
 

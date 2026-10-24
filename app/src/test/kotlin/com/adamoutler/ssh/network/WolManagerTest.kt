@@ -121,9 +121,7 @@ class WolManagerTest {
         )
 
         val failingSocket = object : DatagramSocket() {
-            override fun send(p: DatagramPacket?) {
-                throw IOException("Network unreachable")
-            }
+            override fun send(p: DatagramPacket?): Unit = throw IOException("Network unreachable")
         }
 
         try {

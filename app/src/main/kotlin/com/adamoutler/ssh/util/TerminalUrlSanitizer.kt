@@ -39,13 +39,13 @@ object TerminalUrlSanitizer {
     // Strict RFC HTTP/HTTPS pattern with word boundary
     private val URL_PATTERN = Pattern.compile(
         "\\bhttps?://[a-zA-Z0-9.-]+(?::\\d{1,5})?(?:/[^\\s<>\"'\u0000-\u001F\u007F]*)?",
-        Pattern.CASE_INSENSITIVE
+        Pattern.CASE_INSENSITIVE,
     )
 
     private val TRAILING_PUNCTUATION = charArrayOf(')', ']', '}', '.', ',', ';', ':', '\'', '"', '>')
 
     private val IPV4_PATTERN = Pattern.compile(
-        "^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+        "^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
     )
 
     /**
@@ -68,9 +68,7 @@ object TerminalUrlSanitizer {
     /**
      * Extracts and validates the first valid HTTP/HTTPS URL from raw terminal text or word.
      */
-    fun extractFirstUrl(rawText: String): SanitizedUrl? {
-        return extractValidUrls(rawText).firstOrNull() ?: sanitize(rawText)
-    }
+    fun extractFirstUrl(rawText: String): SanitizedUrl? = extractValidUrls(rawText).firstOrNull() ?: sanitize(rawText)
 
     /**
      * Sanitizes and validates a candidate URL string.
@@ -144,7 +142,7 @@ object TerminalUrlSanitizer {
             isDirectIp = isDirectIp,
             isPunycode = isPunycode,
             punycodeHost = asciiHost,
-            unicodeHost = unicodeHost
+            unicodeHost = unicodeHost,
         )
     }
 }

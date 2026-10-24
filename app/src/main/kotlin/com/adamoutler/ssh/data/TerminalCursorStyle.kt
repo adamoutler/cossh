@@ -11,13 +11,12 @@ package com.adamoutler.ssh.data
 enum class TerminalCursorStyle(val id: String, val styleCode: Int, val displayName: String) {
     BLOCK("BLOCK", 0, "Block"),
     UNDERLINE("UNDERLINE", 1, "Underline"),
-    VERTICAL_BAR("BAR", 2, "Bar");
+    VERTICAL_BAR("BAR", 2, "Bar"),
+    ;
 
     companion object {
-        fun fromId(id: String?): TerminalCursorStyle =
-            entries.firstOrNull { it.id.equals(id, ignoreCase = true) } ?: BLOCK
+        fun fromId(id: String?): TerminalCursorStyle = entries.firstOrNull { it.id.equals(id, ignoreCase = true) } ?: BLOCK
 
-        fun fromStyleCode(code: Int): TerminalCursorStyle =
-            entries.firstOrNull { it.styleCode == code } ?: BLOCK
+        fun fromStyleCode(code: Int): TerminalCursorStyle = entries.firstOrNull { it.styleCode == code } ?: BLOCK
     }
 }

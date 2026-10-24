@@ -75,9 +75,7 @@ class SftpSafBridgeTest {
         val targetUri = Uri.parse("content://invalid/uri")
 
         val failingHandler = object : SafIoHandler {
-            override fun openOutputStream(uri: Uri, mode: String): OutputStream {
-                throw java.io.IOException("Permission denied on storage provider")
-            }
+            override fun openOutputStream(uri: Uri, mode: String): OutputStream = throw java.io.IOException("Permission denied on storage provider")
             override fun openInputStream(uri: Uri): InputStream? = null
         }
 

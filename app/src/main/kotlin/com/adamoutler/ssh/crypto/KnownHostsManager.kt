@@ -24,6 +24,8 @@ data class KnownHostRecord(
     val rawLine: String,
     val saltBase64: String? = null,
     val hashBase64: String? = null,
+    val isCertAuthority: Boolean = false,
+    val comment: String? = null,
 )
 
 open class KnownHostsManager(
@@ -87,13 +89,13 @@ open class KnownHostsManager(
 
         knownHostsFile.forEachLine { line ->
             val trimmed = line.trim()
-            if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+            if (trimmed.isEmpty() || trimmed.startsWith("#") || trimmed.startsWith("@cert-authority")) {
                 newLines.add(line)
                 return@forEachLine
             }
 
             val record = parseLine(line)
-            if (record != null && !record.isHashed) {
+            if (record != null && !record.isHashed && !record.isCertAuthority) {
                 val hashedToken = hashHostPattern(record.rawHostPattern)
                 newLines.add("$hashedToken ${record.keyType} ${record.publicKeyBase64}")
                 convertedCount++
@@ -135,7 +137,7 @@ open class KnownHostsManager(
                     return@forEachLine
                 }
                 val record = parseLine(line)
-                val matches = if (record != null) {
+                val matches = if (record != null && !record.isCertAuthority) {
                     matchesHost(record, formattedHost, port)
                 } else {
                     false
@@ -192,16 +194,23 @@ open class KnownHostsManager(
         val tokens = trimmed.split("\\s+".toRegex())
         if (tokens.size < 3) return null
 
-        val hostToken = tokens[0]
-        val keyType = tokens[1]
-        val keyBlob = tokens[2]
+        val isCertAuthority = tokens[0] == "@cert-authority"
+        val startIndex = if (isCertAuthority) 1 else 0
+        if (tokens.size < startIndex + 3) return null
 
-        val isHashed = hostToken.startsWith("|1|")
+        val hostToken = tokens[startIndex]
+        val keyType = tokens[startIndex + 1]
+        val keyBlob = tokens[startIndex + 2]
+        val comment = if (tokens.size > startIndex + 3) tokens.subList(startIndex + 3, tokens.size).joinToString(" ") else null
+
+        val isHashed = !isCertAuthority && hostToken.startsWith("|1|")
         var saltB64: String? = null
         var hashB64: String? = null
         val displayHost: String
 
-        if (isHashed) {
+        if (isCertAuthority) {
+            displayHost = "$hostToken (CA)"
+        } else if (isHashed) {
             val parts = hostToken.split("|")
             if (parts.size >= 4) {
                 saltB64 = parts[2]
@@ -235,7 +244,110 @@ open class KnownHostsManager(
             rawLine = line,
             saltBase64 = saltB64,
             hashBase64 = hashB64,
+            isCertAuthority = isCertAuthority,
+            comment = comment,
         )
+    }
+
+    /**
+     * Looks up all trusted CA public keys matching the target hostname.
+     */
+    open fun findTrustedCaForHost(hostname: String, port: Int = 22): List<java.security.PublicKey> = synchronized(lock) {
+        val caEntries = getEntries().filter { it.isCertAuthority }
+        val trustedKeys = mutableListOf<java.security.PublicKey>()
+        for (entry in caEntries) {
+            if (matchesCaHostPattern(entry.rawHostPattern, hostname, port)) {
+                try {
+                    val keyBytes = Base64.getDecoder().decode(entry.publicKeyBase64)
+                    val pubKey = com.adamoutler.ssh.crypto.certificate.OpenSshCertificateParser.parsePublicKeyBlob(keyBytes)
+                    trustedKeys.add(pubKey)
+                } catch (_: Exception) {
+                    // Ignore unparseable CA key
+                }
+            }
+        }
+        return trustedKeys
+    }
+
+    /**
+     * Saves or replaces a @cert-authority entry for the specified host pattern.
+     */
+    open fun saveCertAuthority(
+        hostPattern: String,
+        keyType: String,
+        keyBlobBase64: String,
+        comment: String? = null,
+    ): Boolean = synchronized(lock) {
+        val commentPart = if (comment != null) " $comment" else ""
+        val newLine = "@cert-authority $hostPattern $keyType $keyBlobBase64$commentPart"
+
+        val linesToKeep = mutableListOf<String>()
+        if (knownHostsFile.exists()) {
+            knownHostsFile.forEachLine { line ->
+                val trimmed = line.trim()
+                if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+                    linesToKeep.add(line)
+                    return@forEachLine
+                }
+                val record = parseLine(line)
+                if (record != null && record.isCertAuthority && record.rawHostPattern == hostPattern && record.keyType == keyType) {
+                    // Overwrite matching CA
+                } else {
+                    linesToKeep.add(line)
+                }
+            }
+        }
+        linesToKeep.add(newLine)
+        atomicWriteLines(linesToKeep)
+        return true
+    }
+
+    /**
+     * Determines whether a host pattern matches a target host and port.
+     */
+    fun matchesCaHostPattern(rawPattern: String, hostname: String, port: Int): Boolean {
+        val patterns = rawPattern.split(",")
+        val formattedHost = if (port != 22 && !hostname.startsWith("[")) "[$hostname]:$port" else hostname
+        val plainHost = if (hostname.startsWith("[") && hostname.contains("]:")) {
+            hostname.substring(1, hostname.indexOf("]:"))
+        } else {
+            hostname
+        }
+
+        for (pattern in patterns) {
+            val trimmedPattern = pattern.trim()
+            if (trimmedPattern.isEmpty()) continue
+            if (trimmedPattern.startsWith("!")) {
+                val negPattern = trimmedPattern.substring(1)
+                if (matchesSingleWildcard(negPattern, formattedHost) || (port == 22 && matchesSingleWildcard(negPattern, plainHost))) {
+                    return false
+                }
+            } else {
+                if (matchesSingleWildcard(trimmedPattern, formattedHost) || (port == 22 && matchesSingleWildcard(trimmedPattern, plainHost))) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    private fun matchesSingleWildcard(pattern: String, candidate: String): Boolean {
+        if (pattern == "*" || pattern.equals(candidate, ignoreCase = true)) return true
+        val regex = buildString {
+            append("^")
+            for (char in pattern) {
+                when (char) {
+                    '*' -> append(".*")
+                    '?' -> append(".")
+                    '.' -> append("\\.")
+                    '[' -> append("\\[")
+                    ']' -> append("\\]")
+                    else -> append(Regex.escape(char.toString()))
+                }
+            }
+            append("$")
+        }.toRegex(RegexOption.IGNORE_CASE)
+        return regex.matches(candidate)
     }
 
     fun hashHostPattern(host: String): String {

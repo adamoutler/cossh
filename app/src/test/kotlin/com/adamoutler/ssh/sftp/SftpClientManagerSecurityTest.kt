@@ -127,12 +127,8 @@ class SftpClientManagerSecurityTest {
     @Test
     fun `downloadFile immediately deletes partial staging file upon error`() = runTest {
         val failingAdapter = object : SftpClientAdapter by fakeAdapter {
-            override suspend fun openInputStream(remotePath: String): InputStream {
-                return object : InputStream() {
-                    override fun read(): Int {
-                        throw java.io.IOException("Simulated network drop")
-                    }
-                }
+            override suspend fun openInputStream(remotePath: String): InputStream = object : InputStream() {
+                override fun read(): Int = throw java.io.IOException("Simulated network drop")
             }
         }
         val failingManager = SftpClientManager(failingAdapter)

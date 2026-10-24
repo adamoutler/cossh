@@ -36,58 +36,57 @@ class TerminalScreenContentCoverageTest {
         val pos = PipedOutputStream()
         val pis = PipedInputStream(pos)
         try {
-
-        val mockSession = TerminalSession(
-            "/system/bin/sh",
-            "/",
-            arrayOf(),
-            arrayOf(),
-            0,
-            object : TerminalSessionClient {
-                override fun onTextChanged(session: TerminalSession) {}
-                override fun onTitleChanged(session: TerminalSession) {}
-                override fun onSessionFinished(session: TerminalSession) {}
-                override fun onCopyTextToClipboard(session: TerminalSession, text: String) {}
-                override fun onPasteTextFromClipboard(session: TerminalSession) {}
-                override fun onBell(session: TerminalSession) {}
-                override fun onColorsChanged(session: TerminalSession) {}
-                override fun onTerminalCursorStateChange(state: Boolean) {}
-                override fun getTerminalCursorStyle(): Int = 0
-                override fun logError(tag: String?, msg: String?) {}
-                override fun logWarn(tag: String?, msg: String?) {}
-                override fun logInfo(tag: String?, msg: String?) {}
-                override fun logDebug(tag: String?, msg: String?) {}
-                override fun logVerbose(tag: String?, msg: String?) {}
-                override fun logStackTraceWithMessage(tag: String?, msg: String?, e: java.lang.Exception?) {}
-                override fun logStackTrace(tag: String?, e: java.lang.Exception?) {}
-            },
-        )
-
-        composeTestRule.setContent {
-            TerminalScreenContent(
-                profileId = "test-profile-123",
-                sessionId = mockSessionId,
-                session = mockSession,
-                activeSession = ActiveSessionState(profileId = "test-profile-123", ptyOutputStream = pos, sshShell = null),
-                currentFontSize = 14,
-                isConnectionActive = true,
-                errorMessage = "Test Error Message", // Trigger error state
-                onUpdateFontSize = {},
-                onNavigateBack = {},
-                onClearError = { clearErrorClicked = true },
-                profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH),
-                initialTerminalInputState = 1,
+            val mockSession = TerminalSession(
+                "/system/bin/sh",
+                "/",
+                arrayOf(),
+                arrayOf(),
+                0,
+                object : TerminalSessionClient {
+                    override fun onTextChanged(session: TerminalSession) {}
+                    override fun onTitleChanged(session: TerminalSession) {}
+                    override fun onSessionFinished(session: TerminalSession) {}
+                    override fun onCopyTextToClipboard(session: TerminalSession, text: String) {}
+                    override fun onPasteTextFromClipboard(session: TerminalSession) {}
+                    override fun onBell(session: TerminalSession) {}
+                    override fun onColorsChanged(session: TerminalSession) {}
+                    override fun onTerminalCursorStateChange(state: Boolean) {}
+                    override fun getTerminalCursorStyle(): Int = 0
+                    override fun logError(tag: String?, msg: String?) {}
+                    override fun logWarn(tag: String?, msg: String?) {}
+                    override fun logInfo(tag: String?, msg: String?) {}
+                    override fun logDebug(tag: String?, msg: String?) {}
+                    override fun logVerbose(tag: String?, msg: String?) {}
+                    override fun logStackTraceWithMessage(tag: String?, msg: String?, e: java.lang.Exception?) {}
+                    override fun logStackTrace(tag: String?, e: java.lang.Exception?) {}
+                },
             )
-        }
 
-        composeTestRule.waitForIdle()
+            composeTestRule.setContent {
+                TerminalScreenContent(
+                    profileId = "test-profile-123",
+                    sessionId = mockSessionId,
+                    session = mockSession,
+                    activeSession = ActiveSessionState(profileId = "test-profile-123", ptyOutputStream = pos, sshShell = null),
+                    currentFontSize = 14,
+                    isConnectionActive = true,
+                    errorMessage = "Test Error Message", // Trigger error state
+                    onUpdateFontSize = {},
+                    onNavigateBack = {},
+                    onClearError = { clearErrorClicked = true },
+                    profile = ConnectionProfile(id = "1", nickname = "My Server", host = "localhost", protocol = Protocol.SSH),
+                    initialTerminalInputState = 1,
+                )
+            }
 
-        // Error message should be displayed
-        composeTestRule.onNodeWithText("Error: Test Error Message").assertExists()
+            composeTestRule.waitForIdle()
 
-        // Click dismiss on error
-        composeTestRule.onNodeWithText("OK").performClick()
-        assertTrue(clearErrorClicked)
+            // Error message should be displayed
+            composeTestRule.onNodeWithText("Error: Test Error Message").assertExists()
+
+            // Click dismiss on error
+            composeTestRule.onNodeWithText("OK").performClick()
+            assertTrue(clearErrorClicked)
         } finally {
             pis.close()
             pos.close()

@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -93,6 +94,7 @@ fun AddEditIdentityScreen(
         onGenerateEd25519 = { viewModel.generateEd25519KeyPair() },
         onGenerateECDSA = { viewModel.generateECDSAKeyPair() },
         onGenerateRSA = { viewModel.generateRSAKeyPair() },
+        onGenerateStrongBox = { viewModel.generateStrongBoxKeyPair() },
         onImportFromFile = {
             filePickerLauncher.launch(
                 arrayOf("*/*", "text/plain", "application/x-pem-file", "application/pkcs8", "application/octet-stream"),
@@ -118,6 +120,7 @@ fun AddEditIdentityScreen(
                 publicKey = if (uiState.publicKey.isNotEmpty()) uiState.publicKey else null,
                 privateKey = uiState.privateKey,
                 authType = uiState.authType,
+                securityTier = uiState.securityTier,
             )
             viewModel.saveIdentity(identity)
             viewModel.resetState()
@@ -151,6 +154,7 @@ fun AddEditIdentityScreenContent(
     onGenerateEd25519: () -> Unit,
     onGenerateECDSA: () -> Unit = {},
     onGenerateRSA: () -> Unit,
+    onGenerateStrongBox: () -> Unit = {},
     onImportFromFile: () -> Unit = {},
     onUnlockPendingKey: (CharArray) -> Unit = {},
     onCancelPendingUnlock: () -> Unit = {},
@@ -285,6 +289,15 @@ fun AddEditIdentityScreenContent(
             }
 
             Button(
+                onClick = onGenerateStrongBox,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.Default.Lock, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Gen StrongBox / Hardware EC Key 🛡️💎")
+            }
+
+            Button(
                 onClick = { onManualKeyEntryChange(!uiState.manualKeyEntry) },
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -305,6 +318,30 @@ fun AddEditIdentityScreenContent(
             }
 
             if (uiState.publicKey.isNotEmpty()) {
+                var showAttestationSheet by remember { mutableStateOf(false) }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    com.adamoutler.ssh.ui.components.SecurityTierBadge(
+                        securityTier = uiState.securityTier,
+                        attestationRecord = uiState.attestationRecord,
+                    )
+                    TextButton(onClick = { showAttestationSheet = true }) {
+                        Text("View Attestation")
+                    }
+                }
+
+                if (showAttestationSheet) {
+                    com.adamoutler.ssh.ui.components.KeyAttestationBottomSheet(
+                        attestationRecord = uiState.attestationRecord,
+                        securityTier = uiState.securityTier,
+                        onDismiss = { showAttestationSheet = false },
+                    )
+                }
+
                 OutlinedTextField(
                     value = uiState.publicKey,
                     onValueChange = onPublicKeyChange,

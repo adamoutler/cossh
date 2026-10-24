@@ -86,6 +86,7 @@ object PortKnockingManager {
                             // Expected behavior: firewall/closed port refuses or drops connection
                         }
                     }
+
                     KnockProtocol.UDP -> {
                         try {
                             udpSend(host, step.port)

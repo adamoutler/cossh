@@ -24,6 +24,49 @@ class TofuHostKeyVerifier(
     private val isAutonomousReconnect: Boolean = false,
 ) : OpenSSHKnownHosts(knownHostsFile) {
     override fun verify(hostname: String, port: Int, key: PublicKey): Boolean {
+        // Zero-TOFU Host Certificate Verification via Trusted Host-CA
+        val hostCert = try {
+            when (key) {
+                is com.hierynomus.sshj.userauth.certificate.Certificate<*> -> {
+                    if (key.encoded != null) {
+                        com.adamoutler.ssh.crypto.certificate.OpenSshCertificateParser.parseWireBytes(key.encoded)
+                    } else {
+                        null
+                    }
+                }
+
+                else -> {
+                    if (key.encoded != null && (key.algorithm.contains("cert", ignoreCase = true) || key.format == "OpenSSH")) {
+                        try {
+                            com.adamoutler.ssh.crypto.certificate.OpenSshCertificateParser.parseWireBytes(key.encoded)
+                        } catch (_: Throwable) {
+                            null
+                        }
+                    } else {
+                        null
+                    }
+                }
+            }
+        } catch (_: Throwable) {
+            null
+        }
+
+        if (hostCert != null && hostCert.certType == com.adamoutler.ssh.crypto.certificate.OpenSshCertType.HOST) {
+            val knownHostsMgr = com.adamoutler.ssh.crypto.KnownHostsManager(knownHostsFile)
+            val trustedCas = knownHostsMgr.findTrustedCaForHost(hostname, port)
+            if (trustedCas.isNotEmpty()) {
+                val result = com.adamoutler.ssh.crypto.certificate.OpenSshCertificateValidator.validate(
+                    cert = hostCert,
+                    requestedPrincipal = hostname,
+                    trustedCaKeys = trustedCas,
+                )
+                if (result is com.adamoutler.ssh.crypto.certificate.CertValidationResult.Valid) {
+                    println("TofuHostKeyVerifier: Valid Host Certificate for $hostname verified via trusted CA. Zero-TOFU auto-accepted.")
+                    return true
+                }
+            }
+        }
+
         if (super.verify(hostname, port, key)) {
             return true
         }

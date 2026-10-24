@@ -146,10 +146,15 @@ object OpenSshConfigParser {
             val target = currentStanza ?: globalDefaults
             when (directive) {
                 "hostname" -> target.hostName = value
+
                 "port" -> target.port = value.toIntOrNull()?.coerceIn(1, 65535)
+
                 "user" -> target.user = value
+
                 "serveraliveinterval" -> target.serverAliveInterval = value.toIntOrNull()?.coerceAtLeast(0)
+
                 "proxyjump" -> target.proxyJump = value
+
                 "identityfile" -> {
                     // Path Traversal Neutralization: Extract strictly the filename basename
                     val sanitizedFilename = File(value).name.trim()

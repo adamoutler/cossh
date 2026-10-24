@@ -292,7 +292,6 @@ class SecurityStorageManagerTest {
         }
     }
 
-
     @Test
     fun testDeleteProfile_KeystoreExceptionFallback() {
         val manager = SecurityStorageManager(context, throwingPrefs)
