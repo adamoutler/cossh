@@ -79,67 +79,72 @@ fun RandomartBox(
     }
 }
 
-private fun buildAnnotatedRandomart(art: String): AnnotatedString {
-    return buildAnnotatedString {
-        val lines = art.split("\n")
-        lines.forEachIndexed { lineIndex, line ->
-            val isHeaderOrFooter = lineIndex == 0 || lineIndex == lines.size - 1
+private fun buildAnnotatedRandomart(art: String): AnnotatedString = buildAnnotatedString {
+    val lines = art.split("\n")
+    lines.forEachIndexed { lineIndex, line ->
+        val isHeaderOrFooter = lineIndex == 0 || lineIndex == lines.size - 1
 
-            if (isHeaderOrFooter) {
-                var inBracket = false
-                line.forEach { ch ->
-                    when {
-                        ch == '[' -> {
-                            inBracket = true
-                            pushStyle(SpanStyle(color = TitleHighlightColor, fontWeight = FontWeight.Bold))
-                            append(ch)
-                        }
-                        ch == ']' -> {
-                            append(ch)
-                            pop()
-                            inBracket = false
-                        }
-                        inBracket -> {
-                            append(ch)
-                        }
-                        ch == '+' || ch == '-' -> {
-                            pushStyle(SpanStyle(color = BorderCharColor))
-                            append(ch)
-                            pop()
-                        }
-                        else -> {
-                            append(ch)
-                        }
+        if (isHeaderOrFooter) {
+            var inBracket = false
+            line.forEach { ch ->
+                when {
+                    ch == '[' -> {
+                        inBracket = true
+                        pushStyle(SpanStyle(color = TitleHighlightColor, fontWeight = FontWeight.Bold))
+                        append(ch)
                     }
-                }
-            } else {
-                line.forEach { ch ->
-                    when (ch) {
-                        '|' -> {
-                            pushStyle(SpanStyle(color = BorderCharColor))
-                            append(ch)
-                            pop()
-                        }
-                        'S' -> {
-                            pushStyle(SpanStyle(color = StartMarkerGreen, fontWeight = FontWeight.ExtraBold))
-                            append(ch)
-                            pop()
-                        }
-                        'E' -> {
-                            pushStyle(SpanStyle(color = EndMarkerAmber, fontWeight = FontWeight.ExtraBold))
-                            append(ch)
-                            pop()
-                        }
-                        else -> {
-                            append(ch)
-                        }
+
+                    ch == ']' -> {
+                        append(ch)
+                        pop()
+                        inBracket = false
+                    }
+
+                    inBracket -> {
+                        append(ch)
+                    }
+
+                    ch == '+' || ch == '-' -> {
+                        pushStyle(SpanStyle(color = BorderCharColor))
+                        append(ch)
+                        pop()
+                    }
+
+                    else -> {
+                        append(ch)
                     }
                 }
             }
+        } else {
+            line.forEach { ch ->
+                when (ch) {
+                    '|' -> {
+                        pushStyle(SpanStyle(color = BorderCharColor))
+                        append(ch)
+                        pop()
+                    }
 
-            if (lineIndex < lines.size - 1) {
-                append("\n")
+                    'S' -> {
+                        pushStyle(SpanStyle(color = StartMarkerGreen, fontWeight = FontWeight.ExtraBold))
+                        append(ch)
+                        pop()
+                    }
+
+                    'E' -> {
+                        pushStyle(SpanStyle(color = EndMarkerAmber, fontWeight = FontWeight.ExtraBold))
+                        append(ch)
+                        pop()
+                    }
+
+                    else -> {
+                        append(ch)
+                    }
+                }
             }
+        }
+
+        if (lineIndex < lines.size - 1) {
+            append("\n")
         }
     }
 }

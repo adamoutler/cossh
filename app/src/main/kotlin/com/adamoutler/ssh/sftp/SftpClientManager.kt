@@ -25,7 +25,9 @@ class SftpClientManager(
     private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher = Dispatchers.IO,
 ) : AutoCloseable {
 
-    private val TAG = "SftpClientManager"
+    companion object {
+        private const val TAG = "SftpClientManager"
+    }
 
     suspend fun listDirectory(path: String): List<SftpFileItem> = withContext(ioDispatcher) {
         val canonical = SftpPathValidator.canonicalize(path)

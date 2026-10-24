@@ -26,103 +26,117 @@ fun KeyAttestationBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+        KeyAttestationContent(
+            attestationRecord = attestationRecord,
+            securityTier = securityTier,
+            onDismiss = onDismiss,
+        )
+    }
+}
+
+@Composable
+fun KeyAttestationContent(
+    attestationRecord: KeyAttestationRecord?,
+    securityTier: String?,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .padding(bottom = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Shield,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-                Text(
-                    text = "Hardware Key Attestation",
-                    style = MaterialTheme.typography.titleLarge,
-                )
+            Icon(
+                imageVector = Icons.Default.Shield,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                text = "Hardware Key Attestation",
+                style = MaterialTheme.typography.titleLarge,
+            )
+        }
+
+        // Security tier badge
+        SecurityTierBadge(securityTier = securityTier, attestationRecord = attestationRecord)
+
+        HorizontalDivider()
+
+        if (attestationRecord != null) {
+            AttestationRow(
+                label = "Attestation Level",
+                value = formatSecurityLevel(attestationRecord.attestationSecurityLevel),
+            )
+            AttestationRow(
+                label = "Keymaster Level",
+                value = formatSecurityLevel(attestationRecord.keymasterSecurityLevel),
+            )
+            AttestationRow(
+                label = "Attestation Version",
+                value = "v${attestationRecord.attestationVersion}",
+            )
+            AttestationRow(
+                label = "Keymaster Version",
+                value = "v${attestationRecord.keymasterVersion}",
+            )
+
+            if (attestationRecord.attestationChallenge.isNotEmpty()) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = "Attestation Challenge (SHA-256 / Base64)",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.secondary,
+                    )
+                    Text(
+                        text = Base64.getEncoder().encodeToString(attestationRecord.attestationChallenge),
+                        style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                    )
+                }
             }
 
-            // Security tier badge
-            SecurityTierBadge(securityTier = securityTier, attestationRecord = attestationRecord)
-
-            HorizontalDivider()
-
-            if (attestationRecord != null) {
-                AttestationRow(
-                    label = "Attestation Level",
-                    value = formatSecurityLevel(attestationRecord.attestationSecurityLevel),
-                )
-                AttestationRow(
-                    label = "Keymaster Level",
-                    value = formatSecurityLevel(attestationRecord.keymasterSecurityLevel),
-                )
-                AttestationRow(
-                    label = "Attestation Version",
-                    value = "v${attestationRecord.attestationVersion}",
-                )
-                AttestationRow(
-                    label = "Keymaster Version",
-                    value = "v${attestationRecord.keymasterVersion}",
-                )
-
-                if (attestationRecord.attestationChallenge.isNotEmpty()) {
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            text = "Attestation Challenge (SHA-256 / Base64)",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.secondary,
-                        )
-                        Text(
-                            text = Base64.getEncoder().encodeToString(attestationRecord.attestationChallenge),
-                            style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-                        )
-                    }
+            if (attestationRecord.uniqueId != null) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = "Device Unique ID",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.secondary,
+                    )
+                    Text(
+                        text = Base64.getEncoder().encodeToString(attestationRecord.uniqueId),
+                        style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                    )
                 }
-
-                if (attestationRecord.uniqueId != null) {
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            text = "Device Unique ID",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.secondary,
-                        )
-                        Text(
-                            text = Base64.getEncoder().encodeToString(attestationRecord.uniqueId),
-                            style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-                        )
-                    }
-                }
-            } else {
-                Surface(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = MaterialTheme.shapes.medium,
+            }
+        } else {
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = MaterialTheme.shapes.medium,
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Icon(Icons.Default.Info, contentDescription = null)
-                        Text(
-                            text = "No cryptographic attestation certificate chain was attached to this key. It is protected by local keystore or software encryption.",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
+                    Icon(Icons.Default.Info, contentDescription = null)
+                    Text(
+                        text = "No cryptographic attestation certificate chain was attached to this key. It is protected by local keystore or software encryption.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
                 }
             }
+        }
 
-            Button(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Close")
-            }
+        Button(
+            onClick = onDismiss,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Close")
         }
     }
 }
@@ -130,8 +144,8 @@ fun KeyAttestationBottomSheet(
 @Composable
 fun SecurityTierBadge(
     securityTier: String?,
-    attestationRecord: KeyAttestationRecord? = null,
     modifier: Modifier = Modifier,
+    attestationRecord: KeyAttestationRecord? = null,
 ) {
     val tier = when {
         attestationRecord?.isStrongBox == true || securityTier == "STRONGBOX" -> "StrongBox Hardware-Backed 🛡️💎"

@@ -112,32 +112,6 @@ fun SecurityAuditLogScreen(
         refreshData()
     }
 
-    val filteredRecords = remember(records, selectedFilter) {
-        when (selectedFilter) {
-            AuditCategoryFilter.ALL -> records.reversed()
-            AuditCategoryFilter.AUTH -> records.filter {
-                it.eventType == AuditEventType.AUTH_FAILURE || it.payload.containsKey("auth_type")
-            }.reversed()
-            AuditCategoryFilter.SESSIONS -> records.filter {
-                it.eventType == AuditEventType.SESSION_CONNECTED || it.eventType == AuditEventType.SESSION_TERMINATED
-            }.reversed()
-            AuditCategoryFilter.HOST_KEYS -> records.filter {
-                it.eventType == AuditEventType.HOST_KEY_VERIFIED || it.eventType == AuditEventType.HOST_KEY_REJECTED
-            }.reversed()
-            AuditCategoryFilter.APP_LOCK -> records.filter {
-                it.eventType == AuditEventType.APP_LOCK_CONFIGURED ||
-                    it.eventType == AuditEventType.APP_LOCK_UNLOCKED ||
-                    it.eventType == AuditEventType.APP_LOCK_FAILED
-            }.reversed()
-            AuditCategoryFilter.KEYS -> records.filter {
-                it.eventType == AuditEventType.KEY_PAIR_GENERATED ||
-                    it.eventType == AuditEventType.SECURITY_CONFIG_MODIFIED ||
-                    it.eventType == AuditEventType.SECURITY_INITIALIZED ||
-                    it.eventType == AuditEventType.CERTIFICATE_VALIDATED
-            }.reversed()
-        }
-    }
-
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
@@ -180,76 +154,127 @@ fun SecurityAuditLogScreen(
             )
         },
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
+        SecurityAuditLogContent(
+            records = records,
+            integrityResult = integrityResult,
+            modifier = Modifier.padding(paddingValues),
+            selectedFilter = selectedFilter,
+            expandedRecordSeq = expandedRecordSeq,
+            onFilterChange = { selectedFilter = it },
+            onRecordToggle = { seq -> expandedRecordSeq = if (expandedRecordSeq == seq) null else seq },
+            onCopyHash = { hash ->
+                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                clipboard.setPrimaryClip(ClipData.newPlainText("Hash", hash))
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar("Hash copied to clipboard")
+                }
+            },
+        )
+    }
+}
+
+@Composable
+fun SecurityAuditLogContent(
+    records: List<AuditRecord>,
+    integrityResult: AuditIntegrityResult,
+    modifier: Modifier = Modifier,
+    selectedFilter: AuditCategoryFilter = AuditCategoryFilter.ALL,
+    expandedRecordSeq: Long? = null,
+    onFilterChange: (AuditCategoryFilter) -> Unit = {},
+    onRecordToggle: (Long) -> Unit = {},
+    onCopyHash: (String) -> Unit = {},
+) {
+    val filteredRecords = remember(records, selectedFilter) {
+        when (selectedFilter) {
+            AuditCategoryFilter.ALL -> records.reversed()
+
+            AuditCategoryFilter.AUTH -> records.filter {
+                it.eventType == AuditEventType.AUTH_FAILURE || it.payload.containsKey("auth_type")
+            }.reversed()
+
+            AuditCategoryFilter.SESSIONS -> records.filter {
+                it.eventType == AuditEventType.SESSION_CONNECTED || it.eventType == AuditEventType.SESSION_TERMINATED
+            }.reversed()
+
+            AuditCategoryFilter.HOST_KEYS -> records.filter {
+                it.eventType == AuditEventType.HOST_KEY_VERIFIED || it.eventType == AuditEventType.HOST_KEY_REJECTED
+            }.reversed()
+
+            AuditCategoryFilter.APP_LOCK -> records.filter {
+                it.eventType == AuditEventType.APP_LOCK_CONFIGURED ||
+                    it.eventType == AuditEventType.APP_LOCK_UNLOCKED ||
+                    it.eventType == AuditEventType.APP_LOCK_FAILED
+            }.reversed()
+
+            AuditCategoryFilter.KEYS -> records.filter {
+                it.eventType == AuditEventType.KEY_PAIR_GENERATED ||
+                    it.eventType == AuditEventType.SECURITY_CONFIG_MODIFIED ||
+                    it.eventType == AuditEventType.SECURITY_INITIALIZED ||
+                    it.eventType == AuditEventType.CERTIFICATE_VALIDATED
+            }.reversed()
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+    ) {
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // 1. Status Banner: Hash Chain Integrity Verified vs TAMPERING DETECTED
+        IntegrityStatusBanner(integrityResult)
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // 2. Category Filter Chips
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth().testTag("AuditFilterChipsRow"),
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
+            items(AuditCategoryFilter.values()) { filter ->
+                FilterChip(
+                    selected = selectedFilter == filter,
+                    onClick = { onFilterChange(filter) },
+                    label = { Text(filter.label) },
+                    modifier = Modifier.testTag("FilterChip_${filter.name}"),
+                )
+            }
+        }
 
-            // 1. Status Banner: Hash Chain Integrity Verified vs TAMPERING DETECTED
-            IntegrityStatusBanner(integrityResult)
+        Spacer(modifier = Modifier.height(12.dp))
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // 2. Category Filter Chips
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth().testTag("AuditFilterChipsRow"),
+        // 3. Records List
+        if (filteredRecords.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
             ) {
-                items(AuditCategoryFilter.values()) { filter ->
-                    FilterChip(
-                        selected = selectedFilter == filter,
-                        onClick = { selectedFilter = filter },
-                        label = { Text(filter.label) },
-                        modifier = Modifier.testTag("FilterChip_${filter.name}"),
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Icon(Icons.Outlined.Info, contentDescription = null, modifier = Modifier.size(40.dp))
+                    Text(
+                        text = "No audit log entries matching '${selectedFilter.label}'.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // 3. Records List
-            if (filteredRecords.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Icon(Icons.Outlined.Info, contentDescription = null, modifier = Modifier.size(40.dp))
-                        Text(
-                            text = "No audit log entries matching '${selectedFilter.label}'.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxSize().testTag("AuditLogList"),
-                ) {
-                    items(filteredRecords, key = { it.sequenceNumber }) { record ->
-                        val isExpanded = expandedRecordSeq == record.sequenceNumber
-                        AuditRecordCard(
-                            record = record,
-                            isExpanded = isExpanded,
-                            onToggleExpand = {
-                                expandedRecordSeq = if (isExpanded) null else record.sequenceNumber
-                            },
-                            onCopyHash = { hash ->
-                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                clipboard.setPrimaryClip(ClipData.newPlainText("Hash", hash))
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar("Hash copied to clipboard")
-                                }
-                            },
-                        )
-                    }
+        } else {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxSize().testTag("AuditLogList"),
+            ) {
+                items(filteredRecords, key = { it.sequenceNumber }) { record ->
+                    val isExpanded = expandedRecordSeq == record.sequenceNumber
+                    AuditRecordCard(
+                        record = record,
+                        isExpanded = isExpanded,
+                        onToggleExpand = { onRecordToggle(record.sequenceNumber) },
+                        onCopyHash = onCopyHash,
+                    )
                 }
             }
         }
@@ -294,6 +319,7 @@ fun IntegrityStatusBanner(result: AuditIntegrityResult) {
                 }
             }
         }
+
         is AuditIntegrityResult.Corrupted -> {
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)),
@@ -329,6 +355,7 @@ fun IntegrityStatusBanner(result: AuditIntegrityResult) {
                 }
             }
         }
+
         is AuditIntegrityResult.EmptyLog -> {
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),

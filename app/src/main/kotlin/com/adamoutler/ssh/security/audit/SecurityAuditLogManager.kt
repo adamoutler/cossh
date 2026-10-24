@@ -23,7 +23,7 @@ import java.io.File
 class SecurityAuditLogManager(
     context: Context,
     val logger: SecurityAuditLogger = SecurityAuditLogger(
-        File(context.applicationContext.filesDir, "security_audit/audit_chain.jsonl")
+        File(context.applicationContext.filesDir, "security_audit/audit_chain.jsonl"),
     ),
     injectedPrefs: SharedPreferences? = null,
 ) {
@@ -35,12 +35,11 @@ class SecurityAuditLogManager(
         @Volatile
         private var instance: SecurityAuditLogManager? = null
 
-        fun getInstance(context: Context): SecurityAuditLogManager =
-            instance ?: synchronized(this) {
-                instance ?: SecurityAuditLogManager(context.applicationContext).also {
-                    instance = it
-                }
+        fun getInstance(context: Context): SecurityAuditLogManager = instance ?: synchronized(this) {
+            instance ?: SecurityAuditLogManager(context.applicationContext).also {
+                instance = it
             }
+        }
 
         fun getInstanceOrNull(): SecurityAuditLogManager? = instance
 
@@ -237,7 +236,7 @@ class SecurityAuditLogManager(
                                     record.payload.forEach { (k, v) -> put(k, v) }
                                 }
                             }
-                        }
+                        },
                     )
                 }
             }

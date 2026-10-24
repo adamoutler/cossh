@@ -39,7 +39,9 @@ class SftpSafBridge(
     private val context: Context,
     private val sftpManager: SftpClientManager,
 ) {
-    private val TAG = "SftpSafBridge"
+    companion object {
+        private const val TAG = "SftpSafBridge"
+    }
 
     /**
      * Downloads a remote SFTP file directly to a user-selected SAF [targetUri] (DocumentFile / Content URI).
