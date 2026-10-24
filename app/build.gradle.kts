@@ -1,5 +1,7 @@
 import java.time.Duration
 import java.util.Properties
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 
 plugins {
     alias(libs.plugins.android.application)
@@ -258,6 +260,36 @@ tasks.withType<Test> {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 4).coerceIn(1, 4)
     forkEvery = 0
     systemProperty("java.security.egd", "file:/dev/./urandom")
+
+    val jniDir = File(layout.buildDirectory.asFile.get(), "test-jniLibs")
+    val defaultLibPath = System.getProperty("java.library.path") ?: "/usr/lib"
+    systemProperty("java.library.path", "${jniDir.absolutePath}:$defaultLibPath")
+
+    doFirst {
+        jniDir.mkdirs()
+        try {
+            project.configurations.findByName("debugUnitTestRuntimeClasspath")?.files?.forEach { jarFile ->
+                if (jarFile.name.contains("conscrypt-openjdk-uber")) {
+                    ZipFile(jarFile).use { zip ->
+                        val entries = zip.entries()
+                        while (entries.hasMoreElements()) {
+                            val entry: ZipEntry = entries.nextElement()
+                            if (entry.name.startsWith("META-INF/native/") && !entry.isDirectory) {
+                                val dest = File(jniDir, File(entry.name).name)
+                                if (!dest.exists()) {
+                                    zip.getInputStream(entry).use { input ->
+                                        dest.outputStream().use { output -> input.copyTo(output) }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            println("⚠️  Could not unpack native test libraries: ${e.message}")
+        }
+    }
     testLogging {
         events("passed", "skipped", "failed")
     }
