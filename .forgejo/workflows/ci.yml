@@ -16,6 +16,7 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       ANDROID_HOME: /home/adamoutler/Android/Sdk
       ANDROID_SDK_ROOT: /home/adamoutler/Android/Sdk
+      QEMU_LD_PREFIX: /home/adamoutler/Android/x86_64-rootfs
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
