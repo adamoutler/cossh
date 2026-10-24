@@ -110,7 +110,16 @@ object ConnectionStateRepository {
         expectedFingerprint: String?,
         receivedFingerprint: String,
         isKeyChanged: Boolean,
-    ): Boolean = UserPromptRegistry.requestPrompt(hostname, expectedFingerprint, receivedFingerprint, isKeyChanged)
+        expectedRandomart: String? = null,
+        receivedRandomart: String? = null,
+    ): Boolean = UserPromptRegistry.requestPrompt(
+        hostname,
+        expectedFingerprint,
+        receivedFingerprint,
+        isKeyChanged,
+        expectedRandomart,
+        receivedRandomart,
+    )
 
     fun resolvePrompt(accept: Boolean) = UserPromptRegistry.resolvePrompt(accept)
 

@@ -31,7 +31,7 @@ open class SshHandshakeCoordinator(
             val knownHostsFile = context?.let { File(it.filesDir, "ssh_known_hosts") }
             if (knownHostsFile != null) {
                 if (!knownHostsFile.exists()) knownHostsFile.createNewFile()
-                client.addHostKeyVerifier(TofuHostKeyVerifier(knownHostsFile, isAutonomousReconnect))
+                client.addHostKeyVerifier(TofuHostKeyVerifier(knownHostsFile, isAutonomousReconnect, context))
             } else {
                 throw IOException("No Context provided for TOFU verifier and no HostKeyVerifier configured. Refusing to connect insecurely.")
             }
@@ -248,7 +248,40 @@ open class SshHandshakeCoordinator(
                 profile
             }
 
-            authenticateClient(client, profile, keyPair, identity, effectiveProfile)
+            try {
+                authenticateClient(client, profile, keyPair, identity, effectiveProfile)
+                try {
+                    val auditManager = context?.let { com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstance(it) }
+                        ?: com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstanceOrNull()
+                    auditManager?.logSessionStart(
+                        profileId = effectiveProfile.id,
+                        host = effectiveProfile.host,
+                        port = effectiveProfile.port,
+                        username = effectiveProfile.username,
+                    )
+                    auditManager?.logAuthResult(
+                        profileId = effectiveProfile.id,
+                        host = effectiveProfile.host,
+                        username = effectiveProfile.username,
+                        authType = effectiveProfile.authType.name,
+                        success = true,
+                    )
+                } catch (_: Exception) {}
+            } catch (e: Exception) {
+                try {
+                    val auditManager = context?.let { com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstance(it) }
+                        ?: com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstanceOrNull()
+                    auditManager?.logAuthResult(
+                        profileId = effectiveProfile.id,
+                        host = effectiveProfile.host,
+                        username = effectiveProfile.username,
+                        authType = effectiveProfile.authType.name,
+                        success = false,
+                        failureReason = e.message,
+                    )
+                } catch (_: Exception) {}
+                throw e
+            }
 
             // Configure KeepAlive if requested, applying baseband cellular anti-thrashing clamping
             val keepAliveSecs = profile.effectiveKeepAliveInterval

@@ -39,6 +39,7 @@ fun SettingsScreen(
     driveSyncManager: DriveSyncManager,
     onNavigateBack: () -> Unit,
     onNavigateToKnownHosts: () -> Unit = {},
+    onNavigateToAuditLog: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
@@ -124,6 +125,7 @@ fun SettingsScreen(
         onAppLockEnabledChange = { viewModel.updateAppLockEnabled(it) },
         onAppLockTimeoutChange = { viewModel.updateAppLockTimeout(it) },
         onNavigateToKnownHosts = onNavigateToKnownHosts,
+        onNavigateToAuditLog = onNavigateToAuditLog,
     )
 }
 
@@ -275,6 +277,7 @@ fun SettingsScreenContent(
     onAppLockEnabledChange: (Boolean) -> Unit = {},
     onAppLockTimeoutChange: (Int) -> Unit = {},
     onNavigateToKnownHosts: () -> Unit = {},
+    onNavigateToAuditLog: () -> Unit = {},
     scrollState: androidx.compose.foundation.ScrollState = rememberScrollState(),
 ) {
     Scaffold(
@@ -588,6 +591,35 @@ fun SettingsScreenContent(
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowForward,
                                 contentDescription = "Manage Known Hosts",
+                            )
+                        }
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onNavigateToAuditLog() }
+                            .testTag("SecurityAuditLogSettingsRow"),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Security Audit Log", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "Inspect tamper-evident SHA-256 hash-chained security and authentication events",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        IconButton(
+                            onClick = onNavigateToAuditLog,
+                            modifier = Modifier.testTag("SecurityAuditLogNavigateButton"),
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = "View Security Audit Log",
                             )
                         }
                     }
