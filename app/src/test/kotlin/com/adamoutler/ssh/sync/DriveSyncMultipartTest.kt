@@ -67,6 +67,7 @@ class DriveSyncMultipartTest {
 
     @Before
     fun setUp() {
+        DriveSyncManager.setIterationsForTesting(1_000)
         context = ApplicationProvider.getApplicationContext()
         driveSyncManager = DriveSyncManager(context)
         driveSyncManager.setOAuthToken("test_bearer_token")
@@ -74,6 +75,7 @@ class DriveSyncMultipartTest {
 
     @After
     fun tearDown() {
+        DriveSyncManager.resetIterationsForTesting()
         MockURLStreamHandlerFactory.connectionProvider = null
         MockURLStreamHandlerFactory.mockConnection = null
         DriveSyncManager.cachedOAuthToken = null

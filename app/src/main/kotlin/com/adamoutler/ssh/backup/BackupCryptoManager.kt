@@ -52,7 +52,25 @@ object BackupCryptoManager {
     private const val KEY_LENGTH = 256
     private const val TAG_LENGTH_BIT = 128
 
-    fun buildFormatV3Header(salt: ByteArray, iv: ByteArray, iterations: Int = ITERATION_COUNT_V3): ByteArray {
+    @Volatile
+    var defaultIterationsV3: Int = ITERATION_COUNT_V3
+        private set
+
+    @Volatile
+    var defaultIterationsV2: Int = ITERATION_COUNT_V2
+        private set
+
+    fun setIterationsForTesting(v3: Int = 1_000, v2: Int = 1_000) {
+        defaultIterationsV3 = v3
+        defaultIterationsV2 = v2
+    }
+
+    fun resetIterationsForTesting() {
+        defaultIterationsV3 = ITERATION_COUNT_V3
+        defaultIterationsV2 = ITERATION_COUNT_V2
+    }
+
+    fun buildFormatV3Header(salt: ByteArray, iv: ByteArray, iterations: Int = defaultIterationsV3): ByteArray {
         val header = ByteArray(MAGIC_BYTES.size + 1 + 4 + 1 + salt.size + 1 + iv.size)
         val buf = java.nio.ByteBuffer.wrap(header)
         buf.put(MAGIC_BYTES)
@@ -115,7 +133,7 @@ object BackupCryptoManager {
             secureRandom.nextBytes(iv)
 
             val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-            val keySpec = PBEKeySpec(password, salt, ITERATION_COUNT_V3, KEY_LENGTH)
+            val keySpec = PBEKeySpec(password, salt, defaultIterationsV3, KEY_LENGTH)
             val secretKey = try {
                 secretKeyBytes = secretKeyFactory.generateSecret(keySpec).encoded
                 SecretKeySpec(secretKeyBytes, "AES")
@@ -123,7 +141,7 @@ object BackupCryptoManager {
                 keySpec.clearPassword()
             }
 
-            val header = buildFormatV3Header(salt, iv, ITERATION_COUNT_V3)
+            val header = buildFormatV3Header(salt, iv, defaultIterationsV3)
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
             val gcmSpec = GCMParameterSpec(TAG_LENGTH_BIT, iv)
             cipher.init(Cipher.ENCRYPT_MODE, secretKey, gcmSpec)
@@ -253,9 +271,9 @@ object BackupCryptoManager {
                 iv = data.copyOfRange(SALT_LENGTH_V2, SALT_LENGTH_V2 + IV_LENGTH_V2)
                 val cipherText = data.copyOfRange(SALT_LENGTH_V2 + IV_LENGTH_V2, data.size)
 
-                AppLog.d(TAG, "Deriving AES-256 key via PBKDF2WithHmacSHA256 (iterations=$ITERATION_COUNT_V2, Format v2)...")
+                AppLog.d(TAG, "Deriving AES-256 key via PBKDF2WithHmacSHA256 (iterations=$defaultIterationsV2, Format v2)...")
                 val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-                val spec = PBEKeySpec(password, salt, ITERATION_COUNT_V2, KEY_LENGTH)
+                val spec = PBEKeySpec(password, salt, defaultIterationsV2, KEY_LENGTH)
                 keySpec = spec
                 secretKeyBytes = secretKeyFactory.generateSecret(spec).encoded
                 val secretKey = SecretKeySpec(secretKeyBytes, "AES")

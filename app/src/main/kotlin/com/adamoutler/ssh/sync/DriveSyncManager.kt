@@ -41,6 +41,19 @@ open class DriveSyncManager(context: Context) {
 
     companion object {
         private const val TAG = "DriveSyncManager"
+        const val DEFAULT_PBKDF2_ITERATIONS = 65536
+        @Volatile
+        var pbkdf2Iterations: Int = DEFAULT_PBKDF2_ITERATIONS
+            private set
+
+        fun setIterationsForTesting(iterations: Int) {
+            pbkdf2Iterations = iterations
+        }
+
+        fun resetIterationsForTesting() {
+            pbkdf2Iterations = DEFAULT_PBKDF2_ITERATIONS
+        }
+
         var authorizationContinuation: kotlin.coroutines.Continuation<Unit>? = null
         var currentInstance: DriveSyncManager? = null
         var cachedOAuthToken: String? = null
@@ -360,7 +373,7 @@ open class DriveSyncManager(context: Context) {
         SecureRandom().nextBytes(salt)
 
         val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        val spec = PBEKeySpec(pass, salt, 65536, 256)
+        val spec = PBEKeySpec(pass, salt, pbkdf2Iterations, 256)
         val tmp = factory.generateSecret(spec)
         val secretKey = SecretKeySpec(tmp.encoded, "AES")
 
@@ -389,7 +402,7 @@ open class DriveSyncManager(context: Context) {
         val encrypted = encryptedPayload.copyOfRange(28, encryptedPayload.size)
 
         val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        val spec = PBEKeySpec(pass, salt, 65536, 256)
+        val spec = PBEKeySpec(pass, salt, pbkdf2Iterations, 256)
         val tmp = factory.generateSecret(spec)
         val secretKey = SecretKeySpec(tmp.encoded, "AES")
 

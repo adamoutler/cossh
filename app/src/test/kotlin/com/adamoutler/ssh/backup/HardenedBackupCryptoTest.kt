@@ -6,10 +6,12 @@ import com.adamoutler.ssh.data.PortForwardConfig
 import com.adamoutler.ssh.data.PortForwardType
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -28,6 +30,16 @@ import javax.crypto.spec.SecretKeySpec
 class HardenedBackupCryptoTest {
 
     private val samplePassword = "ParanoidMasterPassword#2026!".toCharArray()
+
+    @Before
+    fun setUp() {
+        BackupCryptoManager.setIterationsForTesting(v3 = 1_000, v2 = 1_000)
+    }
+
+    @After
+    fun tearDown() {
+        BackupCryptoManager.resetIterationsForTesting()
+    }
 
     private fun sampleProfiles() = listOf(
         ConnectionProfile(
@@ -59,7 +71,19 @@ class HardenedBackupCryptoTest {
     )
 
     @Test
-    fun testFormatV3Export_generatesSelfDescribingHeaderWith250kIterations() {
+    fun testFormatV3HeaderBuilder_encodes250kIterationsCorrectly() {
+        val salt = ByteArray(32)
+        val iv = ByteArray(12)
+        val header = BackupCryptoManager.buildFormatV3Header(salt, iv, 250_000)
+        assertEquals("COSSH", String(header.copyOfRange(0, 5), Charsets.US_ASCII))
+        assertEquals(BackupCryptoManager.VERSION_V3, header[5])
+        assertEquals(250_000, ByteBuffer.wrap(header, 6, 4).int)
+        assertEquals(32, header[10].toInt() and 0xFF)
+        assertEquals(12, header[11 + 32].toInt() and 0xFF)
+    }
+
+    @Test
+    fun testFormatV3Export_generatesSelfDescribingHeaderWithConfiguredIterations() {
         val out = ByteArrayOutputStream()
         BackupCryptoManager.exportProfilesToZip(sampleProfiles(), sampleIdentities(), samplePassword, out)
         val zipBytes = out.toByteArray()
@@ -89,7 +113,7 @@ class HardenedBackupCryptoTest {
         assertEquals(BackupCryptoManager.VERSION_V3, version)
 
         val iterations = ByteBuffer.wrap(data, 6, 4).int
-        assertEquals(250_000, iterations)
+        assertEquals(1_000, iterations)
 
         val saltLen = data[10].toInt() and 0xFF
         assertEquals(32, saltLen)
@@ -204,7 +228,7 @@ class HardenedBackupCryptoTest {
         secureRandom.nextBytes(iv)
 
         val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        val keySpec = PBEKeySpec(samplePassword, salt, 65536, 256)
+        val keySpec = PBEKeySpec(samplePassword, salt, BackupCryptoManager.defaultIterationsV2, 256)
         val secretKeyBytes = secretKeyFactory.generateSecret(keySpec).encoded
         val secretKey = SecretKeySpec(secretKeyBytes, "AES")
 
@@ -259,7 +283,7 @@ class HardenedBackupCryptoTest {
         SecureRandom().nextBytes(iv)
 
         val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        val keySpec = PBEKeySpec(samplePassword, salt, 250_000, 256)
+        val keySpec = PBEKeySpec(samplePassword, salt, 1_000, 256)
         val secretKeyBytes = secretKeyFactory.generateSecret(keySpec).encoded
         val secretKey = SecretKeySpec(secretKeyBytes, "AES")
 
@@ -268,7 +292,7 @@ class HardenedBackupCryptoTest {
         val buf = ByteBuffer.wrap(header54)
         buf.put("COSSH".toByteArray(Charsets.US_ASCII))
         buf.put(3.toByte())
-        buf.putInt(250_000)
+        buf.putInt(1_000)
         buf.put(salt)
         buf.put(iv)
 

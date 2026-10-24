@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
+import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert.*
 import org.junit.Before
@@ -79,12 +80,18 @@ class DriveSyncManagerTest {
 
     @Before
     fun setUp() {
+        DriveSyncManager.setIterationsForTesting(1_000)
         context = ApplicationProvider.getApplicationContext()
         driveSyncManager = DriveSyncManager(context)
         DriveSyncManager.authorizationContinuation = null
 
         mockConnection = MockHttpURLConnection(URL("https://dummy"))
         MockURLStreamHandlerFactory.mockConnection = mockConnection
+    }
+
+    @After
+    fun tearDown() {
+        DriveSyncManager.resetIterationsForTesting()
     }
 
     @Test
