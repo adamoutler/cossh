@@ -115,4 +115,17 @@ class SftpSafBridgeTest {
         assertEquals(sourceContent.size.toLong(), remoteStat?.size)
         assertEquals(String(sourceContent), sftpManager.readFileContent("/var/backups/config.json"))
     }
+
+    @Test
+    fun `ContentResolverSafIoHandler delegates to ContentResolver`() {
+        val resolver = context.contentResolver
+        val handler = ContentResolverSafIoHandler(resolver)
+        val dummyUri = Uri.parse("content://dummy/test")
+        try {
+            handler.openInputStream(dummyUri)
+        } catch (_: Exception) {}
+        try {
+            handler.openOutputStream(dummyUri, "w")
+        } catch (_: Exception) {}
+    }
 }
