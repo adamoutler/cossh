@@ -38,6 +38,7 @@ fun ConnectionListContent(
     onImportOpenSshRequested: () -> Unit = {},
     onSettingsRequested: () -> Unit = {},
     onManageIdentitiesRequested: () -> Unit = {},
+    onAddToHomeScreen: (ConnectionProfile) -> Unit = {},
     initialMenuExpanded: Boolean = false,
     isReorderingPreview: Boolean = false,
 ) {
@@ -93,6 +94,7 @@ fun ConnectionListContent(
                 onEditConnection = onEditConnection,
                 onDeleteConnection = onDeleteConnection,
                 onMoveToFolder = { profileId -> profileIdMovingToFolder = profileId },
+                onAddToHomeScreen = onAddToHomeScreen,
             )
         }
     }

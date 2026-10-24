@@ -36,6 +36,7 @@ fun GroupedConnectionList(
     onEditConnection: (String) -> Unit,
     onDeleteConnection: (String) -> Unit,
     onMoveToFolder: (String) -> Unit,
+    onAddToHomeScreen: (ConnectionProfile) -> Unit = {},
 ) {
     var profileToDelete by remember { mutableStateOf<ConnectionProfile?>(null) }
 
@@ -184,6 +185,7 @@ fun GroupedConnectionList(
                                 elevation = if (isDragging) 8.dp else 2.dp,
                                 onClick = { onConnect(profile.id) },
                                 onEdit = { onEditConnection(profile.id) },
+                                onAddToHomeScreen = { onAddToHomeScreen(profile) },
                             )
                         } else {
                             val currentConfig = androidx.compose.ui.platform.LocalViewConfiguration.current
@@ -249,6 +251,7 @@ fun GroupedConnectionList(
                                             elevation = 2.dp,
                                             onClick = { onConnect(profile.id) },
                                             onEdit = { onEditConnection(profile.id) },
+                                            onAddToHomeScreen = { onAddToHomeScreen(profile) },
                                         )
                                     },
                                 )

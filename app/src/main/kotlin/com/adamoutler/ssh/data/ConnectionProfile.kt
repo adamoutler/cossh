@@ -50,6 +50,37 @@ enum class Protocol {
 }
 
 @Serializable
+enum class KnockProtocol {
+    @SerialName("TCP")
+    TCP,
+
+    @SerialName("UDP")
+    UDP,
+}
+
+@Serializable
+data class PortKnockStep(
+    val port: Int,
+    val protocol: KnockProtocol = KnockProtocol.TCP,
+)
+
+@Serializable
+data class PortKnockingConfig(
+    val steps: List<PortKnockStep> = emptyList(),
+    val stepDelayMs: Long = 150L,
+    val postKnockDelayMs: Long = 1000L,
+    val probeTimeoutMs: Int = 400,
+)
+
+@Serializable
+data class WolConfig(
+    val macAddress: String,
+    val broadcastIp: String = "255.255.255.255",
+    val port: Int = 9,
+    val postWakeDelayMs: Long = 2000L,
+)
+
+@Serializable
 enum class KeepScreenOnMode {
     @SerialName("SYSTEM_DEFAULT")
     SYSTEM_DEFAULT,
@@ -103,6 +134,8 @@ data class ConnectionProfile(
     val isEphemeral: Boolean = false,
     val cursorStyle: String? = null,
     val cursorBlink: Boolean? = null,
+    val wolConfig: WolConfig? = null,
+    val portKnockingConfig: PortKnockingConfig? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -144,6 +177,8 @@ data class ConnectionProfile(
         if (isEphemeral != other.isEphemeral) return false
         if (cursorStyle != other.cursorStyle) return false
         if (cursorBlink != other.cursorBlink) return false
+        if (wolConfig != other.wolConfig) return false
+        if (portKnockingConfig != other.portKnockingConfig) return false
 
         return true
     }
@@ -178,6 +213,8 @@ data class ConnectionProfile(
         result = 31 * result + isEphemeral.hashCode()
         result = 31 * result + (cursorStyle?.hashCode() ?: 0)
         result = 31 * result + (cursorBlink?.hashCode() ?: 0)
+        result = 31 * result + (wolConfig?.hashCode() ?: 0)
+        result = 31 * result + (portKnockingConfig?.hashCode() ?: 0)
         return result
     }
 

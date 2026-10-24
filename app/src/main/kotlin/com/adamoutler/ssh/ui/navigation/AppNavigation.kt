@@ -228,6 +228,29 @@ fun AppNavigation(
         composable("keyManagement") {
             KeyManagementScreen()
         }
+        composable(
+            route = "sftpBrowser?profileId={profileId}",
+            arguments = listOf(
+                navArgument("profileId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+            ),
+        ) { backStackEntry ->
+            val profileId = backStackEntry.arguments?.getString("profileId") ?: ""
+            val profile = remember(profileId) { securityStorageManager.getProfile(profileId) }
+            val nickname = profile?.nickname ?: profile?.host ?: "SFTP"
+            val fakeAdapter = remember { com.adamoutler.ssh.sftp.FakeSftpClientAdapter() }
+            val sftpManager = remember { com.adamoutler.ssh.sftp.SftpClientManager(fakeAdapter) }
+            val sftpViewModel = remember { com.adamoutler.ssh.sftp.ui.SftpBrowserViewModel(sftpManager) }
+
+            com.adamoutler.ssh.sftp.ui.SftpBrowserScreen(
+                profileNickname = nickname,
+                viewModel = sftpViewModel,
+                onNavigateBack = { navController.popBackStack() },
+            )
+        }
     }
 
     HostKeyPromptDialog()

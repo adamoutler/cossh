@@ -529,7 +529,7 @@ class EmpiricalChallengerTest {
         val handler = TerminalSnippetHandler(
             sendToTerminal = { dispatchedBytes = it },
             requestConfirmation = {},
-            requestAuthentication = { snippet, onAuthenticated ->
+            requestAuthentication = { _, onAuthenticated ->
                 authInvoked = true
                 onAuthCallback = onAuthenticated
             },

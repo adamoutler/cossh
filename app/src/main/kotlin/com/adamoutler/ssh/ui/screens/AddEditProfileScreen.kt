@@ -148,6 +148,10 @@ fun AddEditProfileScreen(
         onMaxReconnectAttemptsChange = { max -> viewModel.updateState { it.copy(maxReconnectAttempts = max) } },
         jumpHostProfileId = uiState.jumpHostProfileId,
         onJumpHostProfileIdChange = { jumpId -> viewModel.updateState { it.copy(jumpHostProfileId = jumpId) } },
+        wolConfig = uiState.wolConfig,
+        onWolConfigChange = { wol -> viewModel.updateState { it.copy(wolConfig = wol) } },
+        portKnockingConfig = uiState.portKnockingConfig,
+        onPortKnockingConfigChange = { knock -> viewModel.updateState { it.copy(portKnockingConfig = knock) } },
         availableProfiles = availableProfiles,
         onSave = {
             if (viewModel.saveProfile(profileId)) {
@@ -221,6 +225,10 @@ fun AddEditProfileScreenContent(
     jumpHostProfileId: String? = null,
     onJumpHostProfileIdChange: (String?) -> Unit = {},
     availableProfiles: List<com.adamoutler.ssh.data.ConnectionProfile> = emptyList(),
+    wolConfig: com.adamoutler.ssh.data.WolConfig? = null,
+    onWolConfigChange: (com.adamoutler.ssh.data.WolConfig?) -> Unit = {},
+    portKnockingConfig: com.adamoutler.ssh.data.PortKnockingConfig? = null,
+    onPortKnockingConfigChange: (com.adamoutler.ssh.data.PortKnockingConfig?) -> Unit = {},
 ) {
     var isIdentityDropdownExpanded by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(defaultPasswordVisible) }
@@ -642,7 +650,16 @@ fun AddEditProfileScreenContent(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            com.adamoutler.ssh.ui.components.PreConnectActionsCard(
+                wolConfig = wolConfig,
+                onWolConfigChange = onWolConfigChange,
+                portKnockingConfig = portKnockingConfig,
+                onPortKnockingConfigChange = onPortKnockingConfigChange,
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
                 value = initialDirectory,

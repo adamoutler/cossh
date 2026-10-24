@@ -4,11 +4,15 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,8 +32,12 @@ fun ConnectionItem(
     dragHandleModifier: Modifier = Modifier,
     onClick: () -> Unit,
     onEdit: () -> Unit,
+    onAddToHomeScreen: () -> Unit = {},
+    initialMenuExpanded: Boolean = false,
     elevation: Dp = 2.dp,
 ) {
+    var menuExpanded by remember { mutableStateOf(initialMenuExpanded) }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -79,6 +87,46 @@ fun ConnectionItem(
                         .padding(start = 16.dp)
                         .size(32.dp),
                 )
+            } else {
+                Box {
+                    IconButton(
+                        onClick = { menuExpanded = true },
+                        modifier = Modifier.testTag("ConnectionMenuButton_${profile.id}"),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "Options for ${profile.nickname}",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false },
+                        modifier = Modifier.testTag("ConnectionItemDropdown_${profile.id}"),
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Add to Home Screen") },
+                            leadingIcon = {
+                                Icon(Icons.Filled.Home, contentDescription = null)
+                            },
+                            onClick = {
+                                menuExpanded = false
+                                onAddToHomeScreen()
+                            },
+                            modifier = Modifier.testTag("AddToHomeScreen_${profile.id}"),
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Edit Connection") },
+                            leadingIcon = {
+                                Icon(Icons.Filled.Edit, contentDescription = null)
+                            },
+                            onClick = {
+                                menuExpanded = false
+                                onEdit()
+                            },
+                        )
+                    }
+                }
             }
         }
     }

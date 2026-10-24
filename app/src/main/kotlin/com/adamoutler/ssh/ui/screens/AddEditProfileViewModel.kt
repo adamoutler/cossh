@@ -39,6 +39,8 @@ data class ProfileFormState(
     val autoReconnect: Boolean = true,
     val maxReconnectAttempts: Int = 5,
     val jumpHostProfileId: String? = null,
+    val wolConfig: com.adamoutler.ssh.data.WolConfig? = null,
+    val portKnockingConfig: com.adamoutler.ssh.data.PortKnockingConfig? = null,
     val isLoaded: Boolean = false,
     val hostError: String? = null,
     val portError: String? = null,
@@ -224,6 +226,8 @@ class AddEditProfileViewModel(
             autoReconnect = currentState.autoReconnect,
             maxReconnectAttempts = currentState.maxReconnectAttempts,
             jumpHostProfileId = currentState.jumpHostProfileId,
+            wolConfig = currentState.wolConfig,
+            portKnockingConfig = currentState.portKnockingConfig,
         )
         storageManager.saveProfile(profile)
         resetState()
@@ -258,6 +262,8 @@ class AddEditProfileViewModel(
                         autoReconnect = profile.autoReconnect,
                         maxReconnectAttempts = profile.maxReconnectAttempts,
                         jumpHostProfileId = profile.jumpHostProfileId,
+                        wolConfig = profile.wolConfig,
+                        portKnockingConfig = profile.portKnockingConfig,
                         isLoaded = true,
                         hostError = null,
                         portError = null,
@@ -301,6 +307,8 @@ class AddEditProfileViewModel(
         autoReconnect: Boolean = true,
         maxReconnectAttempts: Int = 5,
         jumpHostProfileId: String? = null,
+        wolConfig: com.adamoutler.ssh.data.WolConfig? = null,
+        portKnockingConfig: com.adamoutler.ssh.data.PortKnockingConfig? = null,
     ) {
         val portInt = if (validatePort(port)) {
             port.toInt()
@@ -330,6 +338,8 @@ class AddEditProfileViewModel(
             autoReconnect = autoReconnect,
             maxReconnectAttempts = maxReconnectAttempts,
             jumpHostProfileId = jumpHostProfileId,
+            wolConfig = wolConfig,
+            portKnockingConfig = portKnockingConfig,
         )
         storageManager.saveProfile(profile)
         resetState()

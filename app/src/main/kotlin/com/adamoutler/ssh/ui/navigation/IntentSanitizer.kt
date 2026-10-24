@@ -24,17 +24,29 @@ import com.adamoutler.ssh.network.SshService
 object IntentSanitizer {
     private const val TAG = "IntentSanitizer"
     const val RESUME_ACTION_PREFIX = "com.adamoutler.ssh.RESUME_"
+    const val ACTION_LAUNCH_PROFILE = "com.adamoutler.ssh.LAUNCH_PROFILE"
+    const val EXTRA_PROFILE_ID = "com.adamoutler.ssh.EXTRA_PROFILE_ID"
     val IDENTIFIER_REGEX = Regex("^[a-zA-Z0-9_-]{1,64}$")
 
     /**
-     * Checks if the intent represents an attempt to resume or navigate to a terminal session.
+     * Checks if the intent represents an attempt to resume or navigate to a terminal session or launch a profile shortcut.
      */
     fun isResumeIntent(intent: Intent?): Boolean {
         if (intent == null) return false
         val action = intent.action
-        return (action != null && action.startsWith(RESUME_ACTION_PREFIX)) ||
+        return (action != null && (action.startsWith(RESUME_ACTION_PREFIX) || action == ACTION_LAUNCH_PROFILE)) ||
             intent.hasExtra(SshService.EXTRA_PROFILE_ID) ||
+            intent.hasExtra(EXTRA_PROFILE_ID) ||
             intent.hasExtra(SshService.EXTRA_SESSION_ID)
+    }
+
+    /**
+     * Checks if the intent is specifically a home-screen or automation launch profile shortcut.
+     */
+    fun isLaunchProfileIntent(intent: Intent?): Boolean {
+        if (intent == null) return false
+        return intent.action == ACTION_LAUNCH_PROFILE ||
+            (intent.hasExtra(EXTRA_PROFILE_ID) && !intent.hasExtra(SshService.EXTRA_SESSION_ID))
     }
 
     /**
@@ -95,7 +107,52 @@ object IntentSanitizer {
     }
 
     /**
-     * Inspects, clears, validates, and safely navigates for an incoming resume intent.
+     * Validates and sanitizes an incoming profile launch shortcut intent.
+     * Enforces strict regex validation, stored profile existence, and neutralizes any
+     * attempted command, hostname, or credential injection in untrusted extras.
+     */
+    fun validateLaunchIntent(
+        intent: Intent?,
+        securityStorageManager: SecurityStorageManager? = null,
+        profileLookup: (String) -> Boolean = { profileId ->
+            securityStorageManager?.getProfile(profileId) != null
+        },
+    ): SanitizedResumeTarget? {
+        if (intent == null) return null
+
+        val profileId = intent.getStringExtra(EXTRA_PROFILE_ID)
+            ?: intent.getStringExtra(SshService.EXTRA_PROFILE_ID)
+
+        if (profileId.isNullOrEmpty()) {
+            Log.w(TAG, "Rejected launch intent: missing profileId extra")
+            return null
+        }
+
+        if (!IDENTIFIER_REGEX.matches(profileId)) {
+            Log.w(TAG, "Rejected launch intent: profileId failed regex format validation")
+            return null
+        }
+
+        // Security Invariant: Zero External Injection
+        // Explicitly check for hostile injection attempts in untrusted extras
+        val hostileKeys = listOf("command", "cmd", "exec", "host", "hostname", "port", "password", "user", "username")
+        val injectedKeys = hostileKeys.filter { intent.hasExtra(it) }
+        if (injectedKeys.isNotEmpty()) {
+            Log.w(TAG, "Security Alert: Rejected launch intent with hostile injection extras: $injectedKeys")
+            return null
+        }
+
+        if (!profileLookup(profileId)) {
+            Log.w(TAG, "Rejected launch intent: profileId '$profileId' does not exist in storage")
+            return null
+        }
+
+        val route = "terminal?profileId=${Uri.encode(profileId)}"
+        return SanitizedResumeTarget(profileId = profileId, sessionId = "", route = route)
+    }
+
+    /**
+     * Inspects, clears, validates, and safely navigates for an incoming resume or launch intent.
      *
      * @param intent The incoming intent to process.
      * @param navController Navigation controller for routing.
@@ -122,12 +179,20 @@ object IntentSanitizer {
         // Clear processed intent immediately on the activity to prevent replay on activity recreation
         activity?.intent = Intent()
 
-        val target = validateResumeIntent(
-            intent = intent,
-            securityStorageManager = securityStorageManager,
-            sessionLookup = sessionLookup,
-            profileLookup = profileLookup,
-        ) ?: return false
+        val target = if (isLaunchProfileIntent(intent)) {
+            validateLaunchIntent(
+                intent = intent,
+                securityStorageManager = securityStorageManager,
+                profileLookup = profileLookup,
+            )
+        } else {
+            validateResumeIntent(
+                intent = intent,
+                securityStorageManager = securityStorageManager,
+                sessionLookup = sessionLookup,
+                profileLookup = profileLookup,
+            )
+        } ?: return false
 
         return try {
             navController.navigate(target.route) {
