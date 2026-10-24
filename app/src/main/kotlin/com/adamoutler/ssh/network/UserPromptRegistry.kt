@@ -14,6 +14,8 @@ data class HostKeyPromptRequest(
     // True if MITM warning
     val isKeyChanged: Boolean,
     val deferred: CompletableDeferred<Boolean>,
+    val expectedRandomart: String? = null,
+    val receivedRandomart: String? = null,
 )
 
 data class AuthCredentials(val username: String, val password: CharArray?) : AutoCloseable {
@@ -129,9 +131,19 @@ object UserPromptRegistry {
         expectedFingerprint: String?,
         receivedFingerprint: String,
         isKeyChanged: Boolean,
+        expectedRandomart: String? = null,
+        receivedRandomart: String? = null,
     ): Boolean {
         val deferred = CompletableDeferred<Boolean>()
-        _promptRequest.value = HostKeyPromptRequest(hostname, expectedFingerprint, receivedFingerprint, isKeyChanged, deferred)
+        _promptRequest.value = HostKeyPromptRequest(
+            hostname = hostname,
+            expectedFingerprint = expectedFingerprint,
+            receivedFingerprint = receivedFingerprint,
+            isKeyChanged = isKeyChanged,
+            deferred = deferred,
+            expectedRandomart = expectedRandomart,
+            receivedRandomart = receivedRandomart,
+        )
         return deferred.await()
     }
 

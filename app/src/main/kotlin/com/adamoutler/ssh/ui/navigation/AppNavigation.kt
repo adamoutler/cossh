@@ -1,6 +1,7 @@
 package com.adamoutler.ssh.ui.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -8,6 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
@@ -148,10 +153,16 @@ fun AppNavigation(
                 driveSyncManager = driveSyncManager,
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToKnownHosts = { navController.navigate("knownHosts") },
+                onNavigateToAuditLog = { navController.navigate("securityAuditLog") },
             )
         }
         composable("knownHosts") {
             com.adamoutler.ssh.ui.screens.knownhosts.KnownHostsScreen(
+                onNavigateBack = { navController.popBackStack() },
+            )
+        }
+        composable("securityAuditLog") {
+            com.adamoutler.ssh.ui.screens.audit.SecurityAuditLogScreen(
                 onNavigateBack = { navController.popBackStack() },
             )
         }
@@ -271,50 +282,122 @@ fun HostKeyPromptDialog() {
                     androidx.compose.material3.Icon(
                         imageVector = androidx.compose.material.icons.Icons.Filled.Warning,
                         contentDescription = null,
-                        tint = androidx.compose.material3.MaterialTheme.colorScheme.error,
+                        tint = if (request.isKeyChanged) androidx.compose.material3.MaterialTheme.colorScheme.error else androidx.compose.material3.MaterialTheme.colorScheme.primary,
                         modifier = androidx.compose.ui.Modifier.size(24.dp),
                     )
                     androidx.compose.material3.Text(
-                        text = if (request.isKeyChanged) "Security Alert" else "Unknown Host",
+                        text = if (request.isKeyChanged) "Security Alert: Host Key Changed!" else "Unknown Host",
                         style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
                     )
                 }
             },
             text = {
                 androidx.compose.foundation.layout.Column(
-                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+                    modifier = androidx.compose.ui.Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp),
                 ) {
-                    androidx.compose.material3.Text(
-                        text = if (request.isKeyChanged) {
-                            "Host identification changed! This could be a Man-in-the-Middle attack."
-                        } else {
-                            "Establishing trust with ${request.hostname}"
-                        },
-                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
-                    )
+                    if (request.isKeyChanged) {
+                        androidx.compose.material3.Text(
+                            text = "WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED! This could indicate a Man-in-the-Middle (MITM) attack intercepting your connection.",
+                            style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.error,
+                        )
 
-                    androidx.compose.foundation.layout.Column(
-                        modifier = androidx.compose.ui.Modifier
-                            .fillMaxWidth()
-                            .background(
-                                androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
-                                androidx.compose.foundation.shape.RoundedCornerShape(4.dp),
-                            )
-                            .padding(8.dp),
-                    ) {
-                        if (request.expectedFingerprint != null) {
+                        // High-friction comparison: Expected vs Received
+                        androidx.compose.foundation.layout.Column(
+                            modifier = androidx.compose.ui.Modifier
+                                .fillMaxWidth()
+                                .border(
+                                    1.dp,
+                                    Color(0xFF38BDF8),
+                                    RoundedCornerShape(6.dp),
+                                )
+                                .padding(8.dp),
+                        ) {
                             androidx.compose.material3.Text(
-                                "Exp: ${request.expectedFingerprint}",
+                                "Expected Previous Key (Known Hosts)",
+                                style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                color = Color(0xFF38BDF8),
+                            )
+                            if (request.expectedFingerprint != null) {
+                                androidx.compose.material3.Text(
+                                    request.expectedFingerprint,
+                                    style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
+                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                )
+                            }
+                            if (request.expectedRandomart != null) {
+                                Spacer(modifier = androidx.compose.ui.Modifier.height(4.dp))
+                                com.adamoutler.ssh.ui.components.RandomartBox(
+                                    randomart = request.expectedRandomart,
+                                    borderColor = Color(0xFF38BDF8),
+                                    testTag = "ExpectedRandomartBox",
+                                )
+                            }
+                        }
+
+                        androidx.compose.foundation.layout.Column(
+                            modifier = androidx.compose.ui.Modifier
+                                .fillMaxWidth()
+                                .border(
+                                    1.dp,
+                                    androidx.compose.material3.MaterialTheme.colorScheme.error,
+                                    RoundedCornerShape(6.dp),
+                                )
+                                .padding(8.dp),
+                        ) {
+                            androidx.compose.material3.Text(
+                                "Received Host Key (Untrusted / Mismatch)",
+                                style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.error,
+                            )
+                            androidx.compose.material3.Text(
+                                request.receivedFingerprint,
                                 style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
                                 fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                             )
-                            androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(4.dp))
+                            if (request.receivedRandomart != null) {
+                                Spacer(modifier = androidx.compose.ui.Modifier.height(4.dp))
+                                com.adamoutler.ssh.ui.components.RandomartBox(
+                                    randomart = request.receivedRandomart,
+                                    borderColor = androidx.compose.material3.MaterialTheme.colorScheme.error,
+                                    testTag = "ReceivedRandomartBox",
+                                )
+                            }
                         }
+                    } else {
                         androidx.compose.material3.Text(
-                            "Rec: ${request.receivedFingerprint}",
-                            style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
-                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            text = "Establishing trust with ${request.hostname}. Verify the host key fingerprint matches your server.",
+                            style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
                         )
+
+                        androidx.compose.foundation.layout.Column(
+                            modifier = androidx.compose.ui.Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
+                                    androidx.compose.foundation.shape.RoundedCornerShape(4.dp),
+                                )
+                                .padding(8.dp),
+                        ) {
+                            androidx.compose.material3.Text(
+                                "Fingerprint: ${request.receivedFingerprint}",
+                                style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            )
+                        }
+
+                        if (request.receivedRandomart != null) {
+                            com.adamoutler.ssh.ui.components.RandomartBox(
+                                randomart = request.receivedRandomart,
+                                title = "OpenSSH Visual Host Key Randomart",
+                                testTag = "ReceivedRandomartBox",
+                            )
+                        }
                     }
                 }
             },
@@ -322,6 +405,8 @@ fun HostKeyPromptDialog() {
                 if (request.isKeyChanged) {
                     com.adamoutler.ssh.ui.components.HoldToConfirmButton(
                         onConfirm = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) },
+                        durationMillis = 2500,
+                        text = "Hold 2.5s to Overwrite Host Key",
                         modifier = androidx.compose.ui.Modifier.defaultMinSize(minHeight = 48.dp),
                     )
                 } else {

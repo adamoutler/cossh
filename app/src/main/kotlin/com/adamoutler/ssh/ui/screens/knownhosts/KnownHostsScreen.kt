@@ -81,6 +81,7 @@ fun KnownHostsContent(
     onClearStatusMessage: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    var expandedRandomartIds by remember { mutableStateOf(setOf<String>()) }
 
     LaunchedEffect(uiState.statusMessage) {
         uiState.statusMessage?.let { msg ->
@@ -400,6 +401,19 @@ fun KnownHostsContent(
                                             Text("Copy Fingerprint")
                                         }
 
+                                        TextButton(
+                                            onClick = {
+                                                expandedRandomartIds = if (record.id in expandedRandomartIds) {
+                                                    expandedRandomartIds - record.id
+                                                } else {
+                                                    expandedRandomartIds + record.id
+                                                }
+                                            },
+                                            modifier = Modifier.testTag("ToggleRandomartButton_$index"),
+                                        ) {
+                                            Text(if (record.id in expandedRandomartIds) "Hide Randomart" else "Show Randomart")
+                                        }
+
                                         if (!uiState.isMultiSelectMode) {
                                             IconButton(
                                                 onClick = { onConfirmSingleDelete(record) },
@@ -411,6 +425,25 @@ fun KnownHostsContent(
                                                     tint = MaterialTheme.colorScheme.error,
                                                 )
                                             }
+                                        }
+                                    }
+
+                                    if (record.id in expandedRandomartIds) {
+                                        val randomart = remember(record.publicKeyBase64, record.keyType) {
+                                            try {
+                                                val decoded = java.util.Base64.getDecoder().decode(record.publicKeyBase64)
+                                                com.adamoutler.ssh.crypto.randomart.OpenSshRandomartGenerator.generateFromPublicKeyBytes(decoded, record.keyType)
+                                            } catch (_: Exception) {
+                                                null
+                                            }
+                                        }
+                                        if (randomart != null) {
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            com.adamoutler.ssh.ui.components.RandomartBox(
+                                                randomart = randomart,
+                                                title = "OpenSSH Randomart",
+                                                testTag = "HostKeyRandomart_$index",
+                                            )
                                         }
                                     }
                                 }

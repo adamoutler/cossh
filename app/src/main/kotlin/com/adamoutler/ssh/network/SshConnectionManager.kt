@@ -22,6 +22,7 @@ import java.util.Base64
 class TofuHostKeyVerifier(
     private val knownHostsFile: File,
     private val isAutonomousReconnect: Boolean = false,
+    private val context: android.content.Context? = null,
 ) : OpenSSHKnownHosts(knownHostsFile) {
     override fun verify(hostname: String, port: Int, key: PublicKey): Boolean {
         if (super.verify(hostname, port, key)) {
@@ -40,6 +41,7 @@ class TofuHostKeyVerifier(
         }
 
         var oldFingerprint: String? = null
+        var oldRandomart: String? = null
         var hostExists = false
 
         if (knownHostsFile.exists()) {
@@ -59,6 +61,7 @@ class TofuHostKeyVerifier(
                                 val decodedOld = Base64.getDecoder().decode(tokens[2])
                                 val md = MessageDigest.getInstance("SHA-256")
                                 oldFingerprint = "SHA256:" + Base64.getEncoder().encodeToString(md.digest(decodedOld))
+                                oldRandomart = com.adamoutler.ssh.crypto.randomart.OpenSshRandomartGenerator.generateFromPublicKeyBytes(decodedOld, tokens[1])
                             } catch (e: Exception) {
                                 oldFingerprint = "Unknown/Unparseable"
                             }
@@ -85,6 +88,7 @@ class TofuHostKeyVerifier(
                                     val decodedOld = Base64.getDecoder().decode(tokens[2])
                                     val md = MessageDigest.getInstance("SHA-256")
                                     oldFingerprint = "SHA256:" + Base64.getEncoder().encodeToString(md.digest(decodedOld))
+                                    oldRandomart = com.adamoutler.ssh.crypto.randomart.OpenSshRandomartGenerator.generateFromPublicKeyBytes(decodedOld, tokens[1])
                                 } catch (e: Exception) {
                                     oldFingerprint = "Unknown/Unparseable"
                                 }
@@ -105,6 +109,11 @@ class TofuHostKeyVerifier(
         } catch (e: Exception) {
             net.schmizz.sshj.common.SecurityUtils.getFingerprint(key)
         }
+        val receivedRandomart = try {
+            com.adamoutler.ssh.crypto.randomart.OpenSshRandomartGenerator.generateFromPublicKeyBytes(buffer.compactData, keyType)
+        } catch (e: Exception) {
+            null
+        }
 
         // Prompt user (runBlocking because verify is synchronous but we need to await the user's UI action)
         val userAccepted = kotlinx.coroutines.runBlocking {
@@ -113,7 +122,27 @@ class TofuHostKeyVerifier(
                 expectedFingerprint = oldFingerprint,
                 receivedFingerprint = receivedFingerprint,
                 isKeyChanged = hostExists,
+                expectedRandomart = oldRandomart,
+                receivedRandomart = receivedRandomart,
             )
+        }
+
+        // Record audit event
+        kotlinx.coroutines.runBlocking {
+            try {
+                val auditManager = context?.let { com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstance(it) }
+                    ?: com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstanceOrNull()
+                auditManager?.logHostKeyVerification(
+                    host = formattedHost,
+                    port = port,
+                    keyType = keyType,
+                    fingerprint = receivedFingerprint,
+                    accepted = userAccepted,
+                    isKeyChanged = hostExists,
+                )
+            } catch (_: Exception) {
+                // Audit logging failure should not abort connection
+            }
         }
 
         if (userAccepted) {

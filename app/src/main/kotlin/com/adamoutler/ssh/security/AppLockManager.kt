@@ -36,6 +36,13 @@ class AppLockManager(
         settingsManager.isAppLockEnabled = true
         _isLocked.value = false
         backgroundedTimestampMs = 0L
+        try {
+            com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstanceOrNull()?.let { audit ->
+                kotlinx.coroutines.runBlocking {
+                    audit.logAppLockEvent(com.adamoutler.ssh.security.audit.AuditEventType.APP_LOCK_CONFIGURED, "Enabled")
+                }
+            }
+        } catch (_: Exception) {}
     }
 
     fun disableAppLock() {
@@ -44,6 +51,13 @@ class AppLockManager(
         _isLocked.value = false
         pendingResumeIntent.value = null
         backgroundedTimestampMs = 0L
+        try {
+            com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstanceOrNull()?.let { audit ->
+                kotlinx.coroutines.runBlocking {
+                    audit.logAppLockEvent(com.adamoutler.ssh.security.audit.AuditEventType.APP_LOCK_CONFIGURED, "Disabled")
+                }
+            }
+        } catch (_: Exception) {}
     }
 
     fun unlockWithCipher(cipher: Cipher): Boolean {
@@ -51,6 +65,21 @@ class AppLockManager(
         if (success) {
             _isLocked.value = false
             backgroundedTimestampMs = 0L
+            try {
+                com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstanceOrNull()?.let { audit ->
+                    kotlinx.coroutines.runBlocking {
+                        audit.logAppLockEvent(com.adamoutler.ssh.security.audit.AuditEventType.APP_LOCK_UNLOCKED)
+                    }
+                }
+            } catch (_: Exception) {}
+        } else {
+            try {
+                com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstanceOrNull()?.let { audit ->
+                    kotlinx.coroutines.runBlocking {
+                        audit.logAppLockEvent(com.adamoutler.ssh.security.audit.AuditEventType.APP_LOCK_FAILED)
+                    }
+                }
+            } catch (_: Exception) {}
         }
         return success
     }

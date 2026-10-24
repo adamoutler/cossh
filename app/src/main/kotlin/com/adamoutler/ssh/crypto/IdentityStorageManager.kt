@@ -98,6 +98,16 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
             }
 
             editor.apply()
+            try {
+                val auditManager = com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstance(context)
+                kotlinx.coroutines.runBlocking {
+                    auditManager.logKeyOperation(
+                        operation = "SAVE_IDENTITY",
+                        keyAlias = identity.id,
+                        keyType = identity.name,
+                    )
+                }
+            } catch (_: Exception) {}
         } catch (e: Exception) {
             if (e is CryptoException) throw e
             e.handleKeystoreExceptions("Failed to save identity due to Keystore error.")
@@ -152,6 +162,15 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
                 .remove("${id}_pwd")
                 .remove("${id}_key")
                 .apply()
+            try {
+                val auditManager = com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstance(context)
+                kotlinx.coroutines.runBlocking {
+                    auditManager.logKeyOperation(
+                        operation = "DELETE_IDENTITY",
+                        keyAlias = id,
+                    )
+                }
+            } catch (_: Exception) {}
         } catch (e: Exception) {
             if (e is CryptoException) throw e
             e.handleKeystoreExceptions("Failed to delete identity due to Keystore error.")
