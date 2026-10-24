@@ -203,14 +203,38 @@ open class SshHandshakeCoordinator(
             configureHostKeyVerifier(client, isAutonomousReconnect)
 
             if (!skipSocketConnect) {
+                // Pre-Connect Step 1: Wake-on-LAN
+                profile.wolConfig?.let { wol ->
+                    if (WolManager.isValidMacAddress(wol.macAddress)) {
+                        com.adamoutler.ssh.util.AppLog.i("SshHandshakeCoordinator", "[CoSSH: Sending Wake-on-LAN packet to ${wol.macAddress}...]")
+                        try {
+                            WolManager.sendMagicPacket(wol)
+                        } catch (e: Exception) {
+                            com.adamoutler.ssh.util.AppLog.w("SshHandshakeCoordinator", "WOL broadcast failed (proceeding): ${e.message}")
+                        }
+                    }
+                }
+
+                // Pre-Connect Step 2: Port Knocking
+                profile.portKnockingConfig?.let { knock ->
+                    if (knock.steps.isNotEmpty()) {
+                        com.adamoutler.ssh.util.AppLog.i("SshHandshakeCoordinator", "[CoSSH: Executing port knocking sequence (${knock.steps.size} steps)...]")
+                        try {
+                            PortKnockingManager.executePortKnockSequence(profile.host, knock)
+                        } catch (e: Exception) {
+                            com.adamoutler.ssh.util.AppLog.w("SshHandshakeCoordinator", "Port knocking sequence failed (proceeding): ${e.message}")
+                        }
+                    }
+                }
+
                 if (profile.useLocalDns) {
                     val inetAddresses = resolveHostLocally(profile.host)
                     if (!inetAddresses.isNullOrEmpty()) {
                         val inetAddress = java.net.InetAddress.getByAddress(profile.host, inetAddresses[0].address)
-                        println("SshHandshakeCoordinator: Resolved ${profile.host} via local network DNS: ${inetAddress.hostAddress}")
+                        com.adamoutler.ssh.util.AppLog.d("SshHandshakeCoordinator", "Resolved ${profile.host} via local network DNS: ${inetAddress.hostAddress}")
                         connectClient(client, inetAddress, profile.port)
                     } else {
-                        println("SshHandshakeCoordinator: Local DNS resolution returned empty for ${profile.host}, using system fallback")
+                        com.adamoutler.ssh.util.AppLog.d("SshHandshakeCoordinator", "Local DNS resolution returned empty for ${profile.host}, using system fallback")
                         connectClient(client, profile.host, profile.port)
                     }
                 } else {

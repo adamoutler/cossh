@@ -379,7 +379,10 @@ fun ConnectionListScreen(
         onSearchQueryChange = { viewModel.updateSearchQuery(it) },
         onAddConnection = onAddConnection,
         onEditConnection = onEditConnection,
-        onDeleteConnection = { viewModel.deleteProfile(it) },
+        onDeleteConnection = {
+            com.adamoutler.ssh.util.ShortcutManagerHelper.removeProfileShortcut(context, it)
+            viewModel.deleteProfile(it)
+        },
         onConnect = { profileId -> profileIdToConnect = profileId },
         onMoveProfile = { fromIndex, toIndex -> viewModel.moveProfileInFlatList(fromIndex, toIndex) },
         onMoveToFolder = { profileId, folderId -> viewModel.moveToFolder(profileId, folderId) },
@@ -389,6 +392,10 @@ fun ConnectionListScreen(
         onImportOpenSshRequested = { openSshLauncher.launch(arrayOf("*/*", "text/*", "application/octet-stream")) },
         onSettingsRequested = onSettingsRequested,
         onManageIdentitiesRequested = onManageIdentitiesRequested,
+        onAddToHomeScreen = { profile ->
+            com.adamoutler.ssh.util.ShortcutManagerHelper.pushProfileShortcut(context, profile)
+            Toast.makeText(context, "Added ${profile.nickname} shortcut to home screen", Toast.LENGTH_SHORT).show()
+        },
     )
 }
 

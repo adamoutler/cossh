@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Cobalt circle background -->
+    <path
+        android:fillColor="#0047AB"
+        android:pathData="M24,24m-22,0a22,22 0,1 1,44 0a22,22 0,1 1,-44 0" />
+    <!-- White shield outline -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M24,10 C16.5,12 11.5,14.5 11,19 C11,27.5 17.5,33.5 24,36.5 C30.5,33.5 37,27.5 37,19 C36.5,14.5 31.5,12 24,10 Z M24,34 C19,31.5 13.5,26.5 13.5,19.2 C13.8,16 17.5,13.8 24,12 C30.5,13.8 34.2,16 34.5,19.2 C34.5,26.5 29,31.5 24,34 Z" />
+    <!-- White terminal prompt chevron and underscore -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M17,18 L22.5,23.5 L17,29 L19,31 L26.5,23.5 L19,16 Z M24,29 L31,29 L31,26.5 L24,26.5 Z" />
+</vector>
