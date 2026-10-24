@@ -153,7 +153,7 @@ android {
                 if (!gradle.startParameter.taskNames.any { it.contains("Paparazzi", ignoreCase = true) }) {
                     it.exclude("**/*ScreenshotTest*")
                 }
-                it.maxParallelForks = 1
+                it.maxParallelForks = (Runtime.getRuntime().availableProcessors() / 4).coerceIn(1, 4)
                 if (!project.hasProperty("fullTestRun")) {
                     it.useJUnit {
                         excludeCategories("com.adamoutler.ssh.annotations.FullTest")
@@ -253,10 +253,10 @@ dependencies {
 }
 
 tasks.withType<Test> {
-    timeout.set(Duration.ofMinutes(60))
+    timeout.set(Duration.ofMinutes(30))
     maxHeapSize = "3072m"
-    maxParallelForks = 1
-    forkEvery = 25
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 4).coerceIn(1, 4)
+    forkEvery = 0
     systemProperty("java.security.egd", "file:/dev/./urandom")
     testLogging {
         events("passed", "skipped", "failed")

@@ -26,6 +26,7 @@ import org.apache.sshd.server.SshServer
 import org.apache.sshd.server.auth.password.PasswordAuthenticator
 import org.apache.sshd.server.forward.AcceptAllForwardingFilter
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider
+import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -33,6 +34,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -60,6 +62,16 @@ import javax.crypto.spec.SecretKeySpec
 class EmpiricalChallengerTest {
 
     private val masterPassphrase = "ChallengerAdversarialPassword!#2026".toCharArray()
+
+    @Before
+    fun setUp() {
+        BackupCryptoManager.setIterationsForTesting(1_000, 1_000)
+    }
+
+    @After
+    fun tearDown() {
+        BackupCryptoManager.resetIterationsForTesting()
+    }
 
     // -------------------------------------------------------------------------
     // 1. CRYPTOGRAPHIC TAMPER RESISTANCE & BACKWARD COMPATIBILITY
@@ -267,7 +279,7 @@ class EmpiricalChallengerTest {
             val salt = ByteArray(16).apply { rng.nextBytes(this) }
             val iv = ByteArray(12).apply { rng.nextBytes(this) }
 
-            val keySpec = PBEKeySpec(testPassword, salt, 65536, 256)
+            val keySpec = PBEKeySpec(testPassword, salt, BackupCryptoManager.defaultIterationsV2, 256)
             val secretKey = SecretKeySpec(SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(keySpec).encoded, "AES")
 
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
