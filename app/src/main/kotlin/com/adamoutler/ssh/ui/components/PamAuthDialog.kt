@@ -33,6 +33,8 @@ fun PamAuthDialog(
     onConfirm: (List<CharArray>) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    isPartialAuth: Boolean = false,
+    completedFactor: String? = null,
 ) {
     val context = LocalContext.current
     val window = (context as? ComponentActivity)?.window
@@ -87,12 +89,22 @@ fun PamAuthDialog(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(
-                    text = name.ifBlank { "Multi-Factor Authentication" },
+                    text = name.ifBlank {
+                        if (isPartialAuth) "Two-Factor Authentication" else "Multi-Factor Authentication"
+                    },
                     style = MaterialTheme.typography.titleLarge,
                 )
                 AssistChip(
                     onClick = {},
-                    label = { Text("Challenge Round $round") },
+                    label = {
+                        Text(
+                            if (isPartialAuth) {
+                                completedFactor?.let { "$it Verified • Step 2/2" } ?: "Step 2/2: Second Factor"
+                            } else {
+                                "Challenge Round $round"
+                            }
+                        )
+                    },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Filled.Lock,

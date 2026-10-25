@@ -38,7 +38,12 @@ open class SshHandshakeCoordinator(
         }
     }
 
-    private class CompositeAuthenticator(private val authenticators: List<SshAuthenticator>) : SshAuthenticator {
+    private class CompositeAuthenticator(
+        private val authenticators: List<SshAuthenticator>,
+        private val identity: IdentityProfile? = null,
+        private val sessionId: String? = null,
+        private val continuationEngine: MultiFactorContinuationEngine = MultiFactorContinuationEngine(),
+    ) : SshAuthenticator {
         override fun authenticate(client: SSHClient, profile: ConnectionProfile) {
             var lastException: Exception? = null
             for (authenticator in authenticators) {
@@ -49,11 +54,36 @@ open class SshHandshakeCoordinator(
                     }
                     authenticator.authenticate(client, profile)
                     if (client.isAuthenticated) {
+                        sessionId?.let {
+                            ConnectionLogRepository.log(
+                                sessionId = it,
+                                milestone = ConnectionMilestone.AUTH,
+                                message = "Authentication successful via ${authenticator::class.java.simpleName}",
+                            )
+                        }
                         return
                     }
                 } catch (e: Exception) {
                     lastException = e
-                    println(("CompositeAuthenticator").toString() + ": " + ("Authentication failed with ${authenticator::class.java.simpleName}, trying next").toString() + " " + (e).toString())
+                    println(("CompositeAuthenticator").toString() + ": " + ("Authentication failed with ${authenticator::class.java.simpleName}, checking MFA continuation").toString() + " " + (e).toString())
+
+                    // Check if server returned SSH_AUTH_PARTIAL (RFC 4252 §5.1)
+                    val userAuth = client.userAuth
+                    if (userAuth != null && userAuth.hadPartialSuccess()) {
+                        try {
+                            val continued = continuationEngine.continueIfPartialSuccess(
+                                client = client,
+                                profile = profile,
+                                identity = identity,
+                                sessionId = sessionId,
+                            )
+                            if (continued && client.isAuthenticated) {
+                                return
+                            }
+                        } catch (mfaEx: Exception) {
+                            lastException = mfaEx
+                        }
+                    }
                 }
             }
             throw UserAuthException("All authentication methods failed", lastException)
@@ -65,6 +95,7 @@ open class SshHandshakeCoordinator(
         profile: ConnectionProfile,
         keyPair: KeyPair?,
         identity: IdentityProfile? = null,
+        sessionId: String? = null,
     ): SshAuthenticator {
         if (identity != null) {
             val authenticators = mutableListOf<SshAuthenticator>()
@@ -94,7 +125,7 @@ open class SshHandshakeCoordinator(
             }
 
             if (authenticators.isNotEmpty()) {
-                return CompositeAuthenticator(authenticators)
+                return CompositeAuthenticator(authenticators, identity, sessionId)
             }
 
             throw UserAuthException("Selected Identity '${identity.name}' has neither a valid password nor an SSH private key")
@@ -102,12 +133,22 @@ open class SshHandshakeCoordinator(
 
         return when (profile.authType) {
             AuthType.PASSWORD -> CompositeAuthenticator(
-                listOf(PasswordAuthenticator(), KeyboardInteractiveAuthenticator()),
+                authenticators = listOf(PasswordAuthenticator(), KeyboardInteractiveAuthenticator()),
+                identity = null,
+                sessionId = sessionId,
             )
 
             AuthType.KEY -> {
                 if (keyPair?.public != null) {
-                    KeyAuthenticator(keyPair)
+                    if (sessionId != null) {
+                        CompositeAuthenticator(
+                            authenticators = listOf(KeyAuthenticator(keyPair)),
+                            identity = null,
+                            sessionId = sessionId,
+                        )
+                    } else {
+                        KeyAuthenticator(keyPair)
+                    }
                 } else {
                     throw UserAuthException(
                         "SSH Key authentication requires an Identity Profile. Please select or configure an Identity in the connection profile settings.",
@@ -178,7 +219,19 @@ open class SshHandshakeCoordinator(
         identity: IdentityProfile?,
         effectiveProfile: ConnectionProfile,
     ) {
-        getAuthenticator(profile, keyPair, identity).authenticate(client, effectiveProfile)
+        authenticateClient(client, profile, keyPair, identity, effectiveProfile, null)
+    }
+
+    @PublishedApi
+    internal open fun authenticateClient(
+        client: SSHClient,
+        profile: ConnectionProfile,
+        keyPair: KeyPair?,
+        identity: IdentityProfile?,
+        effectiveProfile: ConnectionProfile,
+        sessionId: String?,
+    ) {
+        getAuthenticator(profile, keyPair, identity, sessionId).authenticate(client, effectiveProfile)
     }
 
     /**
@@ -192,6 +245,7 @@ open class SshHandshakeCoordinator(
         keyPair: KeyPair? = null,
         skipSocketConnect: Boolean = false,
         isAutonomousReconnect: Boolean = false,
+        sessionId: String? = null,
         block: suspend (effectiveProfile: ConnectionProfile) -> T,
     ): T {
         client.connectTimeout = 10000
@@ -207,6 +261,13 @@ open class SshHandshakeCoordinator(
                 profile.wolConfig?.let { wol ->
                     if (WolManager.isValidMacAddress(wol.macAddress)) {
                         com.adamoutler.ssh.util.AppLog.i("SshHandshakeCoordinator", "[CoSSH: Sending Wake-on-LAN packet to ${wol.macAddress}...]")
+                        sessionId?.let {
+                            ConnectionLogRepository.log(
+                                sessionId = it,
+                                milestone = ConnectionMilestone.TCP,
+                                message = "Sending Wake-on-LAN packet to ${wol.macAddress}...",
+                            )
+                        }
                         try {
                             WolManager.sendMagicPacket(wol)
                         } catch (e: Exception) {
@@ -219,6 +280,13 @@ open class SshHandshakeCoordinator(
                 profile.portKnockingConfig?.let { knock ->
                     if (knock.steps.isNotEmpty()) {
                         com.adamoutler.ssh.util.AppLog.i("SshHandshakeCoordinator", "[CoSSH: Executing port knocking sequence (${knock.steps.size} steps)...]")
+                        sessionId?.let {
+                            ConnectionLogRepository.log(
+                                sessionId = it,
+                                milestone = ConnectionMilestone.TCP,
+                                message = "Executing port knocking sequence (${knock.steps.size} steps)...",
+                            )
+                        }
                         try {
                             PortKnockingManager.executePortKnockSequence(profile.host, knock)
                         } catch (e: Exception) {
@@ -227,18 +295,75 @@ open class SshHandshakeCoordinator(
                     }
                 }
 
+                sessionId?.let {
+                    ConnectionLogRepository.log(
+                        sessionId = it,
+                        milestone = ConnectionMilestone.DNS,
+                        message = "Resolving host '${profile.host}'...",
+                    )
+                }
+
                 if (profile.useLocalDns) {
                     val inetAddresses = resolveHostLocally(profile.host)
                     if (!inetAddresses.isNullOrEmpty()) {
                         val inetAddress = java.net.InetAddress.getByAddress(profile.host, inetAddresses[0].address)
                         com.adamoutler.ssh.util.AppLog.d("SshHandshakeCoordinator", "Resolved ${profile.host} via local network DNS: ${inetAddress.hostAddress}")
+                        sessionId?.let {
+                            ConnectionLogRepository.log(
+                                sessionId = it,
+                                milestone = ConnectionMilestone.DNS,
+                                message = "Resolved ${profile.host} to ${inetAddress.hostAddress} via local network DNS",
+                            )
+                            ConnectionLogRepository.log(
+                                sessionId = it,
+                                milestone = ConnectionMilestone.TCP,
+                                message = "Connecting TCP socket to ${inetAddress.hostAddress}:${profile.port}...",
+                            )
+                        }
                         connectClient(client, inetAddress, profile.port)
                     } else {
                         com.adamoutler.ssh.util.AppLog.d("SshHandshakeCoordinator", "Local DNS resolution returned empty for ${profile.host}, using system fallback")
+                        sessionId?.let {
+                            ConnectionLogRepository.log(
+                                sessionId = it,
+                                milestone = ConnectionMilestone.DNS,
+                                message = "Local DNS returned empty, falling back to system resolver",
+                            )
+                            ConnectionLogRepository.log(
+                                sessionId = it,
+                                milestone = ConnectionMilestone.TCP,
+                                message = "Connecting TCP socket to ${profile.host}:${profile.port}...",
+                            )
+                        }
                         connectClient(client, profile.host, profile.port)
                     }
                 } else {
+                    sessionId?.let {
+                        ConnectionLogRepository.log(
+                            sessionId = it,
+                            milestone = ConnectionMilestone.TCP,
+                            message = "Connecting TCP socket to ${profile.host}:${profile.port}...",
+                        )
+                    }
                     connectClient(client, profile.host, profile.port)
+                }
+
+                sessionId?.let {
+                    ConnectionLogRepository.log(
+                        sessionId = it,
+                        milestone = ConnectionMilestone.TCP,
+                        message = "TCP connection established to ${profile.host}:${profile.port}",
+                    )
+                    try {
+                        val banner = client.transport.serverVersion
+                        if (!banner.isNullOrEmpty()) {
+                            ConnectionLogRepository.log(
+                                sessionId = it,
+                                milestone = ConnectionMilestone.SSH,
+                                message = "Server banner: $banner",
+                            )
+                        }
+                    } catch (_: Exception) {}
                 }
             }
 
@@ -249,7 +374,19 @@ open class SshHandshakeCoordinator(
             }
 
             try {
-                authenticateClient(client, profile, keyPair, identity, effectiveProfile)
+                sessionId?.let {
+                    val authTypeDesc = if (identity != null) "Identity '${identity.name}'" else effectiveProfile.authType.name
+                    ConnectionLogRepository.log(
+                        sessionId = it,
+                        milestone = ConnectionMilestone.AUTH,
+                        message = "Authenticating user '${effectiveProfile.username}' ($authTypeDesc)...",
+                    )
+                }
+                if (sessionId != null) {
+                    authenticateClient(client, profile, keyPair, identity, effectiveProfile, sessionId)
+                } else {
+                    authenticateClient(client, profile, keyPair, identity, effectiveProfile)
+                }
                 try {
                     val auditManager = context?.let { com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstance(it) }
                         ?: com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstanceOrNull()
@@ -268,6 +405,14 @@ open class SshHandshakeCoordinator(
                     )
                 } catch (_: Exception) {}
             } catch (e: Exception) {
+                sessionId?.let {
+                    ConnectionLogRepository.log(
+                        sessionId = it,
+                        milestone = ConnectionMilestone.ERROR,
+                        message = "Connection / authentication error: ${e.message}",
+                        level = ConnectionLogLevel.ERROR,
+                    )
+                }
                 try {
                     val auditManager = context?.let { com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstance(it) }
                         ?: com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstanceOrNull()

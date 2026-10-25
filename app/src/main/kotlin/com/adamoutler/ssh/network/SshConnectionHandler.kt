@@ -32,6 +32,7 @@ class SshConnectionHandler(
         onOutput: suspend (ByteArray, Int) -> Unit,
         onConnect: (OutputStream, net.schmizz.sshj.connection.channel.direct.Session.Shell?) -> Unit,
         isAutonomousReconnect: Boolean,
+        sessionId: String?,
     ) = withContext(Dispatchers.IO) {
         val sshClient = SSHClient(SecureSshConfig())
         client = sshClient
@@ -50,6 +51,7 @@ class SshConnectionHandler(
                     jumpSshClient,
                     jumpProfile,
                     isAutonomousReconnect = isAutonomousReconnect,
+                    sessionId = sessionId?.let { "${it}_jump" },
                 ) { _ ->
                     // 2. Open direct-tcpip channel to target host:port via the Jump Host
                     val tunnel = jumpSshClient.newDirectConnection(profile.host, profile.port)
@@ -70,6 +72,7 @@ class SshConnectionHandler(
                 keyPair,
                 skipSocketConnect = !profile.jumpHostProfileId.isNullOrEmpty(),
                 isAutonomousReconnect = isAutonomousReconnect,
+                sessionId = sessionId,
             ) { effectiveProfile ->
                 portForwardingOrchestrator.startPortForwards(sshClient, effectiveProfile)
 
@@ -81,8 +84,23 @@ class SshConnectionHandler(
                             println(("SshConnectionHandler").toString() + ": " + ("Failed to set env var $key").toString() + " " + (e).toString())
                         }
                     }
+                    sessionId?.let {
+                        ConnectionLogRepository.log(
+                            sessionId = it,
+                            milestone = ConnectionMilestone.CHANNEL,
+                            message = "Allocating PTY (xterm-256color, 80x24)...",
+                        )
+                    }
                     session.allocatePTY("xterm-256color", 80, 24, 0, 0, emptyMap())
                     val shell = session.startShell()
+
+                    sessionId?.let {
+                        ConnectionLogRepository.log(
+                            sessionId = it,
+                            milestone = ConnectionMilestone.READY,
+                            message = "Interactive shell established. Session ready.",
+                        )
+                    }
 
                     if (!effectiveProfile.initialDirectory.isNullOrEmpty()) {
                         val escapedDir = effectiveProfile.initialDirectory.replace("'", "'\\''")

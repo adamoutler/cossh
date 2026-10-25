@@ -7,7 +7,11 @@ import net.schmizz.sshj.userauth.UserAuthException
 import net.schmizz.sshj.userauth.password.PasswordFinder
 import net.schmizz.sshj.userauth.password.Resource
 
-class PasswordAuthenticator(private val identityPassword: ByteArray? = null) : SshAuthenticator {
+class PasswordAuthenticator(
+    private val identityPassword: ByteArray? = null,
+    private val isMfa: Boolean = false,
+    private val stepDescription: String? = null,
+) : SshAuthenticator {
     override fun authenticate(client: SSHClient, profile: ConnectionProfile) {
         var currentUsername = profile.username
         val originalPasswordBytes = identityPassword ?: profile.password
@@ -16,7 +20,7 @@ class PasswordAuthenticator(private val identityPassword: ByteArray? = null) : S
 
         try {
             while (true) {
-                val requirePrompt = currentUsername.isBlank() || activePasswordBytes == null || isRetry
+                val requirePrompt = (!isMfa && currentUsername.isBlank()) || activePasswordBytes == null || isRetry
                 var passwordChars: CharArray? = null
 
                 try {
@@ -24,10 +28,16 @@ class PasswordAuthenticator(private val identityPassword: ByteArray? = null) : S
                         check(!ConnectionStateRepository.isHeadlessTest) { "Headless test: cannot prompt for credentials" }
                         // Wait indefinitely for user input
                         val credentials = runBlocking {
-                            ConnectionStateRepository.requestAuthPrompt(profile.id, currentUsername.isBlank(), isRetry)
-                        } ?: throw IllegalArgumentException("Authentication cancelled by user")
+                            ConnectionStateRepository.requestAuthPrompt(
+                                profileId = profile.id,
+                                requireUsername = if (isMfa) false else currentUsername.isBlank(),
+                                isRetry = isRetry,
+                                isPartialAuth = isMfa,
+                                completedFactor = stepDescription ?: if (isMfa) "Public Key" else null,
+                            )
+                        } ?: throw UserAuthException("Authentication cancelled by user")
 
-                        if (credentials.username.isNotBlank()) {
+                        if (!isMfa && credentials.username.isNotBlank()) {
                             currentUsername = credentials.username
                         }
                         passwordChars = credentials.password

@@ -162,6 +162,7 @@ class SshService : Service() {
                             manager.connectPty(
                                 profile = freshProfile,
                                 isAutonomousReconnect = isAutonomous,
+                                sessionId = sessionId,
                                 onConnect = { outStream, session ->
                                     val activeSession = ConnectionStateRepository.getOrCreateSession(profileId, sessionId)
                                     activeSession.ptyOutputStream = outStream

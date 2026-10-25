@@ -16,6 +16,8 @@ import java.util.Collections
  */
 class KeyboardInteractiveAuthenticator(
     private val maxRounds: Int = 5,
+    private val isMfa: Boolean = false,
+    private val stepDescription: String? = null,
 ) : SshAuthenticator {
 
     override fun authenticate(client: SSHClient, profile: ConnectionProfile) {
@@ -67,6 +69,8 @@ class KeyboardInteractiveAuthenticator(
                         instruction = currentInstruction,
                         prompts = listOf(pamPrompt),
                         round = roundCount,
+                        isPartialAuth = isMfa,
+                        completedFactor = stepDescription ?: if (isMfa) "Public Key" else null,
                     )
                 } ?: throw UserAuthException("Keyboard-interactive authentication cancelled by user")
 

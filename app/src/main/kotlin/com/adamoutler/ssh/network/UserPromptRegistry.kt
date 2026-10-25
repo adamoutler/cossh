@@ -30,7 +30,9 @@ data class AuthPromptRequest(
     val profileId: String,
     val requireUsername: Boolean,
     val isRetry: Boolean, // True if prompt is due to UserAuthException
-    val deferred: CompletableDeferred<AuthCredentials?>,
+    val deferred: CompletableDeferred<AuthCredentials?> = CompletableDeferred(),
+    val isPartialAuth: Boolean = false,
+    val completedFactor: String? = null,
 )
 
 data class PamPrompt(
@@ -57,7 +59,9 @@ data class KeyboardInteractivePromptRequest(
     val instruction: String,
     val prompts: List<PamPrompt>,
     val round: Int,
-    val deferred: CompletableDeferred<List<CharArray>?>,
+    val deferred: CompletableDeferred<List<CharArray>?> = CompletableDeferred(),
+    val isPartialAuth: Boolean = false,
+    val completedFactor: String? = null,
 )
 
 /**
@@ -91,6 +95,8 @@ object UserPromptRegistry {
         instruction: String,
         prompts: List<PamPrompt>,
         round: Int,
+        isPartialAuth: Boolean = false,
+        completedFactor: String? = null,
     ): List<CharArray>? {
         val sanitizedName = sanitizeServerPromptText(name)
         val sanitizedInstruction = sanitizeServerPromptText(instruction)
@@ -106,6 +112,8 @@ object UserPromptRegistry {
             prompts = sanitizedPrompts,
             round = round,
             deferred = deferred,
+            isPartialAuth = isPartialAuth,
+            completedFactor = completedFactor,
         )
         return deferred.await()
     }
@@ -115,9 +123,22 @@ object UserPromptRegistry {
         _keyboardInteractivePromptRequest.value = null
     }
 
-    suspend fun requestAuthPrompt(profileId: String, requireUsername: Boolean, isRetry: Boolean): AuthCredentials? {
+    suspend fun requestAuthPrompt(
+        profileId: String,
+        requireUsername: Boolean,
+        isRetry: Boolean,
+        isPartialAuth: Boolean = false,
+        completedFactor: String? = null,
+    ): AuthCredentials? {
         val deferred = CompletableDeferred<AuthCredentials?>()
-        _authPromptRequest.value = AuthPromptRequest(profileId, requireUsername, isRetry, deferred)
+        _authPromptRequest.value = AuthPromptRequest(
+            profileId = profileId,
+            requireUsername = requireUsername,
+            isRetry = isRetry,
+            deferred = deferred,
+            isPartialAuth = isPartialAuth,
+            completedFactor = completedFactor,
+        )
         return deferred.await()
     }
 

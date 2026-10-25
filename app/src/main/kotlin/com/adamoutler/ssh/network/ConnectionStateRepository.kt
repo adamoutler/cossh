@@ -97,11 +97,19 @@ object ConnectionStateRepository {
         instruction: String,
         prompts: List<PamPrompt>,
         round: Int,
-    ): List<CharArray>? = UserPromptRegistry.requestKeyboardInteractivePrompt(profileId, name, instruction, prompts, round)
+        isPartialAuth: Boolean = false,
+        completedFactor: String? = null,
+    ): List<CharArray>? = UserPromptRegistry.requestKeyboardInteractivePrompt(profileId, name, instruction, prompts, round, isPartialAuth, completedFactor)
 
     fun resolveKeyboardInteractivePrompt(responses: List<CharArray>?) = UserPromptRegistry.resolveKeyboardInteractivePrompt(responses)
 
-    suspend fun requestAuthPrompt(profileId: String, requireUsername: Boolean, isRetry: Boolean): AuthCredentials? = UserPromptRegistry.requestAuthPrompt(profileId, requireUsername, isRetry)
+    suspend fun requestAuthPrompt(
+        profileId: String,
+        requireUsername: Boolean,
+        isRetry: Boolean,
+        isPartialAuth: Boolean = false,
+        completedFactor: String? = null,
+    ): AuthCredentials? = UserPromptRegistry.requestAuthPrompt(profileId, requireUsername, isRetry, isPartialAuth, completedFactor)
 
     fun resolveAuthPrompt(credentials: AuthCredentials?) = UserPromptRegistry.resolveAuthPrompt(credentials)
 

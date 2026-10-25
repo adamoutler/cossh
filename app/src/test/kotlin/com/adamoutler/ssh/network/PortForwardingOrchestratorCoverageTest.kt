@@ -331,15 +331,23 @@ class PortForwardingOrchestratorCoverageTest {
             assertEquals(0x00, inp.readUnsignedByte())
 
             // Request with version 0x04
-            out.writeByte(0x04)
-            out.writeByte(0x01)
-            out.writeByte(0x00)
-            out.writeByte(0x01)
-            out.write(byteArrayOf(127, 0, 0, 1))
-            out.writeShort(echoPort)
-            out.flush()
+            val reqPayload = byteArrayOf(
+                0x04.toByte(), 0x01.toByte(), 0x00.toByte(), 0x01.toByte(),
+                127.toByte(), 0.toByte(), 0.toByte(), 1.toByte(),
+                (echoPort shr 8).toByte(), (echoPort and 0xFF).toByte()
+            )
+            try {
+                out.write(reqPayload)
+                out.flush()
+            } catch (ignored: java.net.SocketException) {
+                // Expected if server closed connection immediately upon reading version byte
+            }
 
-            val read = sock.getInputStream().read()
+            val read = try {
+                sock.getInputStream().read()
+            } catch (e: java.net.SocketException) {
+                -1
+            }
             assertEquals(-1, read)
         }
     }

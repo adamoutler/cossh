@@ -87,34 +87,43 @@ fun AuthPromptDialog(
     isRetry: Boolean,
     onConfirm: (com.adamoutler.ssh.network.AuthCredentials) -> Unit,
     onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+    isPartialAuth: Boolean = false,
+    completedFactor: String? = null,
 ) {
     val usernameState = remember { mutableStateOf("") }
     val passwordBuffer = remember { AtomicReference(CharArray(0)) }
+
+    val dialogTitle = when {
+        isPartialAuth -> "Two-Factor Authentication"
+        isRetry -> "Authentication Failed"
+        else -> "Credentials Required"
+    }
+
+    val headerText = when {
+        isPartialAuth -> completedFactor?.let { "🛡️ $it Verified — Second Factor Required" }
+            ?: "🛡️ Primary Factor Verified — Second Factor Required"
+        isRetry -> "Please try again."
+        else -> "Enter your credentials to connect."
+    }
 
     AlertDialog(
         onDismissRequest = {
             passwordBuffer.get().fill('\u0000')
             onDismiss()
         },
-        title = { Text(if (isRetry) "Authentication Failed" else "Credentials Required") },
+        modifier = modifier,
+        title = { Text(dialogTitle) },
         text = {
             Column {
-                if (isRetry) {
-                    Text(
-                        text = "Please try again.",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 8.dp),
-                    )
-                } else {
-                    Text(
-                        text = "Enter your credentials to connect.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 8.dp),
-                    )
-                }
+                Text(
+                    text = headerText,
+                    color = if (isRetry && !isPartialAuth) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
 
-                if (requireUsername) {
+                if (requireUsername && !isPartialAuth) {
                     OutlinedTextField(
                         value = usernameState.value,
                         onValueChange = { usernameState.value = it },
@@ -125,7 +134,7 @@ fun AuthPromptDialog(
                 }
 
                 SecurePasswordEditText(
-                    hint = "Password",
+                    hint = if (isPartialAuth) "Second-Factor Password / OTP" else "Password",
                     onPasswordChanged = {
                         passwordBuffer.get().fill('\u0000')
                         passwordBuffer.set(it)
@@ -141,7 +150,7 @@ fun AuthPromptDialog(
                     onConfirm(com.adamoutler.ssh.network.AuthCredentials(usernameState.value, pass.clone()))
                     pass.fill('\u0000')
                 },
-            ) { Text("Connect") }
+            ) { Text(if (isPartialAuth) "Verify & Connect" else "Connect") }
         },
         dismissButton = {
             TextButton(onClick = {

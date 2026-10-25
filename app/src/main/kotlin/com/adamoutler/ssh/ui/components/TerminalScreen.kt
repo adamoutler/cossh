@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.adamoutler.ssh.data.TerminalCursorStyle
+import com.adamoutler.ssh.network.ConnectionLogRepository
 import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.adamoutler.ssh.ui.screens.TerminalViewModel
 import com.adamoutler.ssh.ui.theme.TerminalFontChoice
@@ -109,9 +110,12 @@ fun TerminalScreen(
     val authPromptRequest by ConnectionStateRepository.authPromptRequest.collectAsState()
 
     if (authPromptRequest != null && authPromptRequest?.profileId == activeProfileId) {
+        val req = authPromptRequest!!
         AuthPromptDialog(
-            requireUsername = authPromptRequest!!.requireUsername,
-            isRetry = authPromptRequest!!.isRetry,
+            requireUsername = req.requireUsername,
+            isRetry = req.isRetry,
+            isPartialAuth = req.isPartialAuth,
+            completedFactor = req.completedFactor,
             onConfirm = { credentials -> ConnectionStateRepository.resolveAuthPrompt(credentials) },
             onDismiss = { ConnectionStateRepository.resolveAuthPrompt(null) },
         )
@@ -126,6 +130,8 @@ fun TerminalScreen(
             instruction = req.instruction,
             prompts = req.prompts,
             round = req.round,
+            isPartialAuth = req.isPartialAuth,
+            completedFactor = req.completedFactor,
             onConfirm = { responses -> ConnectionStateRepository.resolveKeyboardInteractivePrompt(responses) },
             onDismiss = { ConnectionStateRepository.resolveKeyboardInteractivePrompt(null) },
         )
@@ -868,6 +874,36 @@ fun TerminalScreenContent(
                         onNavigateBack()
                     },
                     profile = profile,
+                )
+            }
+
+            val logEntries by ConnectionLogRepository.getLogFlow(sessionId).collectAsState()
+            val connectionStates by ConnectionStateRepository.connectionStates.collectAsState()
+            val sessionStates by ConnectionStateRepository.sessionStates.collectAsState()
+            val isSessionConnecting = connectionStates[profileId] is com.adamoutler.ssh.network.ConnectionState.Connecting ||
+                sessionStates[sessionId] is com.adamoutler.ssh.network.ConnectionState.Connecting
+            val isSessionConnected = connectionStates[profileId] is com.adamoutler.ssh.network.ConnectionState.Connected ||
+                sessionStates[sessionId] is com.adamoutler.ssh.network.ConnectionState.Connected
+            val showLogOverlay = isSessionConnecting || (logEntries.isNotEmpty() && !isSessionConnected)
+
+            androidx.compose.animation.AnimatedVisibility(
+                visible = showLogOverlay,
+                enter = androidx.compose.animation.fadeIn(),
+                exit = androidx.compose.animation.fadeOut(),
+            ) {
+                ConnectingLogOverlay(
+                    profileNickname = profile?.nickname ?: "SSH Connection",
+                    host = profile?.host ?: "Connecting...",
+                    port = profile?.port ?: 22,
+                    logs = logEntries,
+                    onCopyDiagnostics = { transcript ->
+                        com.adamoutler.ssh.security.SecureClipboardManager.copyToClipboard(
+                            context = context,
+                            label = "CoSSH Connection Diagnostics",
+                            text = transcript,
+                        )
+                    },
+                    modifier = Modifier.fillMaxSize(),
                 )
             }
         }
