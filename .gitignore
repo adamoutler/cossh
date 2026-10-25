@@ -8,3 +8,4 @@ session_client_methods.txt
 .agents/mcp_config.json
 __pycache__/
 *.pyc
+sonar_debug.txt

@@ -25,8 +25,10 @@ class BackupManager(
         val outputStream = context.contentResolver.openOutputStream(uri)
             ?: throw IllegalStateException("Could not open output stream for URI: $uri. Check storage permissions.")
 
-        outputStream.use { stream ->
-            BackupCryptoManager.exportProfilesToZip(rawProfiles, rawIdentities, password, stream)
+        try {
+            BackupCryptoManager.exportProfilesToZip(rawProfiles, rawIdentities, password, outputStream)
+        } finally {
+            outputStream.close()
         }
         AppLog.i(TAG, "Backup export completed successfully.")
     }

@@ -53,7 +53,7 @@ object AppLog {
             }
         } catch (_: Throwable) {
             val suffix = throwable?.let { " - ${it.message}" } ?: ""
-            System.err.println("ERROR: [$tag] $message$suffix")
+            println("ERROR: [$tag] $message$suffix")
         }
     }
 }
