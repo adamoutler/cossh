@@ -1,6 +1,7 @@
 package com.adamoutler.ssh.network
 
 import net.schmizz.sshj.AndroidConfig
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -119,6 +120,13 @@ class SecureSshConfigTest {
         assertTrue(
             "Hardened config must retain HMAC-SHA2 algorithms: $macNames",
             macNames.any { it.contains("hmac-sha2-256") || it.contains("hmac-sha2-512") },
+        )
+
+        // Post-Quantum Hybrid KEX must be at the head of the suite
+        assertEquals(
+            "Post-Quantum hybrid KEX must be prioritized at the head of the suite",
+            "sntrup761x25519-sha512@openssh.com",
+            secureConfig.keyExchangeFactories.first().name,
         )
     }
 
