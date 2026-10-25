@@ -47,6 +47,9 @@ enum class Protocol {
 
     @SerialName("TELNET")
     TELNET,
+
+    @SerialName("LOCAL")
+    LOCAL,
 }
 
 @Serializable
@@ -233,6 +236,22 @@ data class ConnectionProfile(
             seconds < MIN_ACTIVE_KEEPALIVE_SECONDS -> MIN_ACTIVE_KEEPALIVE_SECONDS
             else -> seconds
         }
+
+        fun createLocalShellProfile(): ConnectionProfile = ConnectionProfile(
+            id = java.util.UUID.randomUUID().toString(),
+            nickname = "Local Shell",
+            host = "localhost",
+            port = 0,
+            protocol = Protocol.LOCAL,
+        )
+
+        fun createLocalVmProfile(port: Int = 2222): ConnectionProfile = ConnectionProfile(
+            id = java.util.UUID.randomUUID().toString(),
+            nickname = "Micro-VM (AVF)",
+            host = "127.0.0.1",
+            port = port,
+            protocol = Protocol.SSH,
+        )
     }
 }
 
