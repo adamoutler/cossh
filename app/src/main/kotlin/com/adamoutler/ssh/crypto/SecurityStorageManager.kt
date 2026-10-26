@@ -16,6 +16,7 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
 
     companion object {
         private const val TAG = "SecurityStorageManager"
+        const val KEY_AUTOMATION_SECRET = "key_automation_secret"
     }
 
     val encryptedPrefs: SharedPreferences by lazy {
@@ -270,5 +271,28 @@ class SecurityStorageManager(private val context: Context, injectedPrefs: Shared
             .remove("app_lock_ciphertext")
             .remove("app_lock_token_sha256")
             .apply()
+    }
+
+    fun getAutomationSecretKey(): ByteArray? {
+        val b64 = encryptedPrefs.getString(KEY_AUTOMATION_SECRET, null) ?: return null
+        return try {
+            java.util.Base64.getDecoder().decode(b64)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    fun generateOrGetAutomationSecretKey(): ByteArray {
+        val existing = getAutomationSecretKey()
+        if (existing != null) return existing
+        return rotateAutomationSecretKey()
+    }
+
+    fun rotateAutomationSecretKey(): ByteArray {
+        val newKey = ByteArray(32)
+        java.security.SecureRandom().nextBytes(newKey)
+        val b64 = java.util.Base64.getEncoder().encodeToString(newKey)
+        encryptedPrefs.edit().putString(KEY_AUTOMATION_SECRET, b64).apply()
+        return newKey
     }
 }
