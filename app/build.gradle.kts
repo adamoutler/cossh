@@ -282,6 +282,11 @@ tasks.withType<Test> {
     })
 }
 
+tasks.withType<org.gradle.api.tasks.bundling.AbstractArchiveTask>().configureEach {
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+}
+
 afterEvaluate {
     tasks.named("installDebug") {
         doFirst {

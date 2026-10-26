@@ -25,15 +25,24 @@ object PasswordCipher {
                 entry.secretKey
             } else {
                 val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE)
-                val spec = KeyGenParameterSpec.Builder(
+                val builder = KeyGenParameterSpec.Builder(
                     KEY_ALIAS,
                     KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT,
                 )
                     .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                     .setUserAuthenticationRequired(true)
-                    .setUserAuthenticationValidityDurationSeconds(300)
-                    .build()
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    builder.setUserAuthenticationParameters(
+                        300,
+                        KeyProperties.AUTH_BIOMETRIC_STRONG or KeyProperties.AUTH_DEVICE_CREDENTIAL,
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    builder.setUserAuthenticationValidityDurationSeconds(300)
+                }
+                val spec = builder.build()
                 keyGenerator.init(spec)
                 keyGenerator.generateKey()
             }

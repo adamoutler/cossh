@@ -1,0 +1,41 @@
+Categories:
+  - System
+  - Security
+  - Connectivity
+License: GPL-3.0-or-later
+AuthorName: Adam Outler
+AuthorEmail: adamoutler@users.noreply.github.com
+SourceCode: https://git.adamoutler.com/aoutler/CoSSH
+IssueTracker: https://git.adamoutler.com/aoutler/CoSSH/issues
+Changelog: https://git.adamoutler.com/aoutler/CoSSH/commits/branch/main
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 1.0.0
+CurrentVersionCode: 100
+
+AutoName: CoSSH
+
+Summary: Cobalt SSH - Hardened Android SSH client with StrongBox key isolation
+
+Description: |-
+  CoSSH (Cobalt SSH) is a native, highly secure Android SSH terminal client
+  engineered to replace legacy applications. It features hardware-backed StrongBox
+  and TEE key isolation, ASN.1 Key Attestation, post-quantum hybrid key exchange
+  (sntrup761x25519-sha512@openssh.com), DNSSEC SSHFP Zero-TOFU verification,
+  FIDO2/WebAuthn hardware key integration, and reproducible deterministic builds.
+
+RepoType: git
+Repo: https://git.adamoutler.com/aoutler/CoSSH.git
+
+Builds:
+  - versionName: '1.0'
+    versionCode: 1
+    commit: 'v1.0'
+    subdir: app
+    gradle:
+      - yes
+    prebuild:
+      - sed -i -e '/signingConfigs/,/}/d' build.gradle.kts
+    output: app/build/outputs/apk/release/app-release-unsigned.apk
+    reproducible: true
