@@ -3,6 +3,8 @@ package com.adamoutler.ssh.crypto
 import android.content.Context
 import android.content.SharedPreferences
 
+import com.adamoutler.ssh.ui.components.ExtraKeysPresetId
+
 /**
  * SettingsManager handles non-sensitive global application preferences.
  */
@@ -28,6 +30,8 @@ class SettingsManager(context: Context) {
         private const val DEFAULT_CURSOR_STYLE = "BLOCK"
         private const val KEY_GLOBAL_CURSOR_BLINK = "global_cursor_blink"
         private const val DEFAULT_CURSOR_BLINK = true
+        private const val KEY_GLOBAL_EXTRA_KEYS_PRESET = "global_extra_keys_preset"
+        private const val DEFAULT_EXTRA_KEYS_PRESET = "DEFAULT"
     }
 
     var globalCursorStyle: String
@@ -65,4 +69,18 @@ class SettingsManager(context: Context) {
     var appLockTimeoutSeconds: Int
         get() = prefs.getInt(KEY_APP_LOCK_TIMEOUT_SECONDS, DEFAULT_APP_LOCK_TIMEOUT_SECONDS)
         set(value) = prefs.edit().putInt(KEY_APP_LOCK_TIMEOUT_SECONDS, value).apply()
+
+    var globalExtraKeysPreset: String
+        get() = prefs.getString(KEY_GLOBAL_EXTRA_KEYS_PRESET, DEFAULT_EXTRA_KEYS_PRESET) ?: DEFAULT_EXTRA_KEYS_PRESET
+        set(value) = prefs.edit().putString(KEY_GLOBAL_EXTRA_KEYS_PRESET, value).apply()
+
+    var extraKeysPreset: ExtraKeysPresetId
+        get() = try {
+            ExtraKeysPresetId.valueOf(globalExtraKeysPreset)
+        } catch (_: IllegalArgumentException) {
+            ExtraKeysPresetId.DEFAULT
+        }
+        set(value) {
+            globalExtraKeysPreset = value.name
+        }
 }
