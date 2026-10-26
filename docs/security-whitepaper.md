@@ -207,3 +207,53 @@ CoSSH implements a hardened, defensive OpenSSH Agent protocol handler (`Biometri
 | **DNSSEC Host Validation** | None (Blind TOFU) | **RFC 4255 / RFC 8484 SSHFP with EDNS0 DO Bit (SSH-234)** |
 | **FIDO2 Hardware Keys** | None | **OpenSSH `PROTOCOL.u2f` (`sk-*`) Wire Parser (SSH-235)** |
 | **Agent Forwarding Guard** | Unrestricted socket exposure | **Biometric Prompt Per-Use + Whitelist + Hop Guard (SSH-235)** |
+| **Reproducible Builds** | Non-deterministic, unverified builds | **Deterministic Byte-for-Byte Reproducible APKs (`AbstractArchiveTask`, DOS epoch normalized timestamps, sorted entries) (SSH-241)** |
+| **Supply Chain Attestation** | None / Unsigned metadata | **SLSA v1.0 / in-toto Provenance Attestations with Cryptographic Digest Verification (SSH-241)** |
+| **F-Droid Compatibility** | Proprietary closed-source builds | **F-Droid Verification Manifest (`metadata/com.adamoutler.cobaltssh.yml`) (SSH-241)** |
+
+---
+
+## 10. Software Supply Chain Security & Reproducible Builds (SSH-241)
+
+### 10.1 Threat Model: Build Pipeline Compromise & Binary Tampering
+A secure cryptographic client is only as trustworthy as the pipeline that produces its distribution artifacts. Without end-to-end supply chain security, several attack vectors threaten integrity:
+1. **Malicious Build Infrastructure**: A compromised CI runner or dependency mirror can inject backdoors or exfiltration stubs into release binaries during compilation or packaging.
+2. **Non-Deterministic Compilation**: Conventional build outputs incorporate non-deterministic variables (unaligned timestamps, non-deterministic file system iteration order, environment paths), making it impossible for third parties to verify whether an APK corresponds bit-for-bit with public source code.
+3. **Unattested Release Binaries**: Distribution without cryptographic provenance leaves downstream users unable to verify which exact source commit, build workflow, and builder generated the published binary.
+
+### 10.2 SLSA v1.0 Level 3 Provenance & in-toto Statements
+CoSSH incorporates a native supply chain verification engine (`SupplyChainVerifier`):
+- **In-toto v1 Statement Standard**: Emits and validates statements conforming to `https://in-toto.io/Statement/v1` with predicate type `https://slsa.dev/provenance/v1`.
+- **Cryptographic Subject Binding**: Calculates SHA-256 digests across all target artifacts (APKs, AABs, tarballs), locking release artifacts to explicit 64-character lowercase hex hashes.
+- **Build Run Details & Parameter Tracking**: Records builder identity (e.g. `https://git.adamoutler.com/act_runner`), unique invocation IDs, RFC 3339 timestamps, external build parameters (branch, commit hash), and resolved dependency digests.
+- **Strict Provenance Gate**: `SupplyChainVerifier.validateProvenance` enforces:
+  - Valid `_type` and `predicateType` URIs.
+  - Non-empty subject list with verified SHA-256 checksum match.
+  - Builder ID validation preventing rogue CI runners from masquerading as trusted builders.
+  - Complete schema integrity and non-blank invocation metadata.
+
+### 10.3 Byte-for-Byte Reproducible Builds
+To achieve 100% deterministic, byte-for-byte reproducible APK generation across diverse build hosts:
+- **Archive Task Normalization**: Configured in `app/build.gradle.kts`:
+  ```kotlin
+  tasks.withType<org.gradle.api.tasks.bundling.AbstractArchiveTask>().configureEach {
+      isPreserveFileTimestamps = false
+      isReproducibleFileOrder = true
+  }
+  ```
+- **DOS Epoch Timestamp Normalization**: Strips dynamic file system modification times, normalizing all ZIP/APK entry timestamps to the constant DOS epoch (`1980-01-01 00:00:00 UTC` / `315532800000 ms`), eliminating timestamp jitter.
+- **Deterministic Lexicographical Ordering**: Forces archive entries to be serialized in strict lexicographical order regardless of host OS file system directory traversal ordering.
+- **Automated Reproducibility Inspection**: `SupplyChainVerifier.verifyZipReproducibility` analyzes compiled archives:
+  - Validates entries are in strict lexicographical order.
+  - Verifies that all entry timestamps are uniform within DOS 2-second resolution tolerance.
+  - Emits structured `ReproducibilityReport` detecting out-of-order files or deviant timestamps.
+
+### 10.4 F-Droid Verification & Decentralized Distribution
+CoSSH establishes an open, auditable build blueprint via `metadata/com.adamoutler.cobaltssh.yml`:
+- Fully declarative build recipe specifying source repository (`https://git.adamoutler.com/aoutler/CoSSH.git`), Gradle build targets, and unsigned release APK output paths.
+- Declares `reproducible: true` ensuring F-Droid verification builders can independently compile the application and verify that the resulting binary matches official releases bit-for-bit.
+
+### 10.5 Evidence & Verification
+- Unit Tests: `SupplyChainVerifierTest.kt` (SHA-256 byte/file hashing, SLSA v1.0 in-toto statement generation, JSON roundtrip, tamper detection, builder ID mismatch detection, zip reproducibility analysis, out-of-order detection, timestamp normalization validation)
+- F-Droid Manifest: `metadata/com.adamoutler.cobaltssh.yml`
+- QA Audit: `docs/qa/SSH-241.md`

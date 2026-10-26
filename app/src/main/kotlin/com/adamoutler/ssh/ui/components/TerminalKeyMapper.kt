@@ -136,8 +136,20 @@ class TerminalKeyMapper(
     }
 
     fun onExtraKeyPress(key: String) {
-        val bytes = mapExtraKey(key)
-        if (bytes != null) {
+        val bytes = mapExtraKey(key) ?: key.toByteArray(Charsets.UTF_8)
+        consumeStickyModifiers()
+        sendToTerminal(bytes)
+    }
+
+    fun onKeySpecPress(spec: ExtraKeySpec) {
+        if (spec.isModifier || spec.label in setOf("Ctrl", "Alt", "Super", "Menu", "Shift")) {
+            onExtraKeyToggle(spec.label)
+        } else {
+            val bytes = if (spec.payload.isNotEmpty()) {
+                spec.payload.toByteArray(Charsets.UTF_8)
+            } else {
+                mapExtraKey(spec.label) ?: spec.label.toByteArray(Charsets.UTF_8)
+            }
             consumeStickyModifiers()
             sendToTerminal(bytes)
         }

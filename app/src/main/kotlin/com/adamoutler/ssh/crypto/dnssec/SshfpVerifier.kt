@@ -123,7 +123,7 @@ object SshfpVerifier {
 
             require(offset + rdLength <= responseBytes.size) { "RDATA exceeds packet boundary" }
 
-            if (type == RR_TYPE_SSHFP && rdLength >= 2) {
+            if (type == RR_TYPE_SSHFP && rrClass == CLASS_IN && rdLength >= 2) {
                 val algorithm = responseBytes[offset].toInt() and 0xFF
                 val fpType = responseBytes[offset + 1].toInt() and 0xFF
                 val fingerprint = responseBytes.copyOfRange(offset + 2, offset + rdLength)
@@ -154,6 +154,7 @@ object SshfpVerifier {
         hostKeyWireBytes: ByteArray,
         dnsResponseBytes: ByteArray,
     ): SshfpValidationResult {
+        require(hostname.isNotBlank()) { "Hostname must not be blank" }
         val response = parseDnsResponse(dnsResponseBytes)
 
         if (!response.authenticatedData) {
