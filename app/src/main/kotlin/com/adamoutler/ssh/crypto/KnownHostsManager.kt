@@ -25,6 +25,7 @@ data class KnownHostRecord(
     val saltBase64: String? = null,
     val hashBase64: String? = null,
     val isCertAuthority: Boolean = false,
+    val isRevoked: Boolean = false,
     val comment: String? = null,
 )
 
@@ -89,13 +90,13 @@ open class KnownHostsManager(
 
         knownHostsFile.forEachLine { line ->
             val trimmed = line.trim()
-            if (trimmed.isEmpty() || trimmed.startsWith("#") || trimmed.startsWith("@cert-authority")) {
+            if (trimmed.isEmpty() || trimmed.startsWith("#") || trimmed.startsWith("@cert-authority") || trimmed.startsWith("@revoked")) {
                 newLines.add(line)
                 return@forEachLine
             }
 
             val record = parseLine(line)
-            if (record != null && !record.isHashed && !record.isCertAuthority) {
+            if (record != null && !record.isHashed && !record.isCertAuthority && !record.isRevoked) {
                 val hashedToken = hashHostPattern(record.rawHostPattern)
                 newLines.add("$hashedToken ${record.keyType} ${record.publicKeyBase64}")
                 convertedCount++
@@ -137,7 +138,7 @@ open class KnownHostsManager(
                     return@forEachLine
                 }
                 val record = parseLine(line)
-                val matches = if (record != null && !record.isCertAuthority) {
+                val matches = if (record != null && !record.isCertAuthority && !record.isRevoked) {
                     matchesHost(record, formattedHost, port)
                 } else {
                     false
@@ -195,7 +196,8 @@ open class KnownHostsManager(
         if (tokens.size < 3) return null
 
         val isCertAuthority = tokens[0] == "@cert-authority"
-        val startIndex = if (isCertAuthority) 1 else 0
+        val isRevoked = tokens[0] == "@revoked"
+        val startIndex = if (isCertAuthority || isRevoked) 1 else 0
         if (tokens.size < startIndex + 3) return null
 
         val hostToken = tokens[startIndex]
@@ -203,13 +205,15 @@ open class KnownHostsManager(
         val keyBlob = tokens[startIndex + 2]
         val comment = if (tokens.size > startIndex + 3) tokens.subList(startIndex + 3, tokens.size).joinToString(" ") else null
 
-        val isHashed = !isCertAuthority && hostToken.startsWith("|1|")
+        val isHashed = !isCertAuthority && !isRevoked && hostToken.startsWith("|1|")
         var saltB64: String? = null
         var hashB64: String? = null
         val displayHost: String
 
         if (isCertAuthority) {
             displayHost = "$hostToken (CA)"
+        } else if (isRevoked) {
+            displayHost = "$hostToken (Revoked)"
         } else if (isHashed) {
             val parts = hostToken.split("|")
             if (parts.size >= 4) {
@@ -245,6 +249,7 @@ open class KnownHostsManager(
             saltBase64 = saltB64,
             hashBase64 = hashB64,
             isCertAuthority = isCertAuthority,
+            isRevoked = isRevoked,
             comment = comment,
         )
     }
