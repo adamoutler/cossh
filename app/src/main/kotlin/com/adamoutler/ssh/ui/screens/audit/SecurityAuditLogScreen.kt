@@ -1,7 +1,5 @@
 package com.adamoutler.ssh.ui.screens.audit
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -62,6 +60,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.adamoutler.ssh.security.SecureClipboardManager
 import com.adamoutler.ssh.security.audit.AuditEventType
 import com.adamoutler.ssh.security.audit.AuditIntegrityResult
 import com.adamoutler.ssh.security.audit.AuditRecord
@@ -137,9 +136,12 @@ fun SecurityAuditLogScreen(
                         onClick = {
                             coroutineScope.launch {
                                 val jsonLd = manager.exportLogAsJsonLd()
-                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                val clip = ClipData.newPlainText("CoSSH Audit Log JSON-LD", jsonLd)
-                                clipboard.setPrimaryClip(clip)
+                                SecureClipboardManager.copyToClipboard(
+                                    context = context,
+                                    text = jsonLd,
+                                    label = "CoSSH Audit Log JSON-LD",
+                                    scope = coroutineScope,
+                                )
                                 snackbarHostState.showSnackbar("Audit Log exported to clipboard (JSON-LD)")
                             }
                         },
@@ -163,8 +165,12 @@ fun SecurityAuditLogScreen(
             onFilterChange = { selectedFilter = it },
             onRecordToggle = { seq -> expandedRecordSeq = if (expandedRecordSeq == seq) null else seq },
             onCopyHash = { hash ->
-                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                clipboard.setPrimaryClip(ClipData.newPlainText("Hash", hash))
+                SecureClipboardManager.copyToClipboard(
+                    context = context,
+                    text = hash,
+                    label = "Hash",
+                    scope = coroutineScope,
+                )
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar("Hash copied to clipboard")
                 }

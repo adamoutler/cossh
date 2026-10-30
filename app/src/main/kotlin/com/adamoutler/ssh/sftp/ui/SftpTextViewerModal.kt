@@ -12,16 +12,17 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.adamoutler.ssh.security.SecureClipboardManager
 
 @Composable
 fun SftpTextViewerModal(
@@ -32,7 +33,8 @@ fun SftpTextViewerModal(
     errorMessage: String? = null,
     onDismiss: () -> Unit,
 ) {
-    val clipboardManager = LocalClipboardManager.current
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val isOverLimit = fileSizeBytes > (2 * 1024 * 1024L)
 
     Dialog(
@@ -75,7 +77,14 @@ fun SftpTextViewerModal(
                     Row {
                         if (content != null && !isOverLimit) {
                             IconButton(
-                                onClick = { clipboardManager.setText(AnnotatedString(content)) },
+                                onClick = {
+                                    SecureClipboardManager.copyToClipboard(
+                                        context = context,
+                                        text = content,
+                                        label = "SFTP Content",
+                                        scope = coroutineScope,
+                                    )
+                                },
                                 modifier = Modifier.testTag("CopyPreviewContentButton"),
                             ) {
                                 Icon(Icons.Filled.ContentCopy, contentDescription = "Copy Content")

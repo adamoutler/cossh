@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
 import android.os.PersistableBundle
+import androidx.annotation.VisibleForTesting
 import com.adamoutler.ssh.util.AppLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +22,9 @@ object SecureClipboardManager {
         private set
 
     private var lastCopiedText: String? = null
+
+    @VisibleForTesting
+    internal fun getLastCopiedTextForTest(): String? = lastCopiedText
 
     @Synchronized
     fun copyToClipboard(
@@ -74,6 +78,7 @@ object SecureClipboardManager {
                 val currentText = clip.getItemAt(0)?.text?.toString()
                 if (currentText == expectedText) {
                     clear(clipboard)
+                    lastCopiedText = null
                     AppLog.i(TAG, "Sensitive clipboard contents auto-cleared successfully after timeout.")
                 }
             }

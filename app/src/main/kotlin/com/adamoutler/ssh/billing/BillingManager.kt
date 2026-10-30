@@ -2,6 +2,7 @@ package com.adamoutler.ssh.billing
 
 import android.app.Activity
 import android.content.Context
+import android.content.SharedPreferences
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -17,16 +18,56 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 
 class BillingManager(private val context: Context) : PurchasesUpdatedListener {
 
     companion object {
         var forceCloudSyncEnabledForTest = false
+        const val PREF_KEY_ENTITLED = "cloud_sync_entitled"
+        const val PREF_KEY_ENTITLED_HMAC = "cloud_sync_entitled_hmac"
+        private const val HMAC_ALGORITHM = "HmacSHA256"
+        private const val HMAC_KEY_SEED = "CoSSH_Billing_Entitlement_Key_Salt_2026"
+
+        fun computeEntitlementHmac(packageName: String): String {
+            val message = "cloud_sync_entitled:true:$packageName"
+            val mac = Mac.getInstance(HMAC_ALGORITHM)
+            val keySpec = SecretKeySpec(
+                HMAC_KEY_SEED.toByteArray(StandardCharsets.UTF_8),
+                HMAC_ALGORITHM,
+            )
+            mac.init(keySpec)
+            val hmacBytes = mac.doFinal(message.toByteArray(StandardCharsets.UTF_8))
+            return hmacBytes.joinToString("") { "%02x".format(it) }
+        }
     }
 
     private val prefs = context.getSharedPreferences("BillingPrefs", Context.MODE_PRIVATE)
-    private val _isCloudSyncEnabled = MutableStateFlow(forceCloudSyncEnabledForTest || prefs.getBoolean("cloud_sync_entitled", false))
+    private val _isCloudSyncEnabled = MutableStateFlow(forceCloudSyncEnabledForTest || prefs.getBoolean(PREF_KEY_ENTITLED, false))
     val isCloudSyncEnabled: StateFlow<Boolean> = _isCloudSyncEnabled.asStateFlow()
+
+    fun persistEntitlement(targetPrefs: SharedPreferences = prefs) {
+        val hmac = computeEntitlementHmac(context.packageName)
+        targetPrefs.edit()
+            .putBoolean(PREF_KEY_ENTITLED, true)
+            .putString(PREF_KEY_ENTITLED_HMAC, hmac)
+            .apply()
+    }
+
+    fun verifyEntitlementIntegrity(): Boolean {
+        if (forceCloudSyncEnabledForTest) return true
+        val isEntitled = prefs.getBoolean(PREF_KEY_ENTITLED, false)
+        if (!isEntitled) return false
+        val storedHmac = prefs.getString(PREF_KEY_ENTITLED_HMAC, null) ?: return false
+        val expectedHmac = computeEntitlementHmac(context.packageName)
+        return MessageDigest.isEqual(
+            storedHmac.toByteArray(StandardCharsets.UTF_8),
+            expectedHmac.toByteArray(StandardCharsets.UTF_8),
+        )
+    }
 
     private val billingClient = BillingClient.newBuilder(context)
         .setListener(this)
@@ -92,12 +133,12 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
                         billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
                             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                                 _isCloudSyncEnabled.value = true
-                                prefs.edit().putBoolean("cloud_sync_entitled", true).apply()
+                                persistEntitlement(prefs)
                             }
                         }
                     } else {
                         _isCloudSyncEnabled.value = true
-                        prefs.edit().putBoolean("cloud_sync_entitled", true).apply()
+                        persistEntitlement(prefs)
                     }
                 }
             }

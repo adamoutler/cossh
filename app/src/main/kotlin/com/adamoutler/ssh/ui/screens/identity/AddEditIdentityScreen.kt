@@ -207,6 +207,7 @@ fun AddEditIdentityScreenContent(
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Password (optional)") },
+                    keyboardOptions = KeyboardOptions(autoCorrect = false, keyboardType = KeyboardType.Password),
                     trailingIcon = {
                         IconButton(onClick = { onPasswordLockedChange(false) }) {
                             Icon(

@@ -15,6 +15,13 @@
         
         <!-- Exclude plaintext crash dumps -->
         <exclude domain="file" path="secure_crashes" />
+
+        <!-- Billing Preferences to prevent entitlement tampering/cloning across backups -->
+        <exclude domain="sharedpref" path="BillingPrefs.xml" />
+
+        <!-- Security Audit logs and integrity anchors -->
+        <exclude domain="sharedpref" path="security_audit_anchor_prefs.xml" />
+        <exclude domain="file" path="security_audit" />
     </cloud-backup>
     
     <device-transfer>
@@ -29,5 +36,12 @@
         
         <!-- Exclude plaintext crash dumps -->
         <exclude domain="file" path="secure_crashes" />
+
+        <!-- Exclude Billing Preferences to prevent entitlement tampering/cloning across backups -->
+        <exclude domain="sharedpref" path="BillingPrefs.xml" />
+
+        <!-- Security Audit logs and integrity anchors -->
+        <exclude domain="sharedpref" path="security_audit_anchor_prefs.xml" />
+        <exclude domain="file" path="security_audit" />
     </device-transfer>
 </data-extraction-rules>
