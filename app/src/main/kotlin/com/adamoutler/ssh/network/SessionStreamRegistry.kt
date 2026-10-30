@@ -23,6 +23,7 @@ data class ActiveSessionState(
     var onWindowResize: ((cols: Int, rows: Int, widthPx: Int, heightPx: Int) -> Unit)? = null,
     val outputBuffer: ConcurrentLinkedQueue<ByteArray> = ConcurrentLinkedQueue(),
     val bufferLock: Any = Any(),
+    var bufferedBytes: Int = 0,
 ) {
     fun sanitize() {
         synchronized(bufferLock) {
@@ -30,6 +31,7 @@ data class ActiveSessionState(
                 val bytes = outputBuffer.poll() ?: break
                 bytes.fill(0)
             }
+            bufferedBytes = 0
         }
         try {
             ptyOutputStream?.close()
@@ -46,6 +48,8 @@ data class ActiveSessionState(
  * and PTY output buffer queues.
  */
 object SessionStreamRegistry {
+    const val MAX_DETACHED_BUFFER_BYTES = 2 * 1024 * 1024
+
     val sessions = ConcurrentHashMap<String, ActiveSessionState>()
 
     var isHeadlessTest: Boolean = false
@@ -92,7 +96,24 @@ object SessionStreamRegistry {
             var emitToFlow = false
             synchronized(session.bufferLock) {
                 if (!session.isUiAttached) {
-                    session.outputBuffer.add(data)
+                    var chunkToAdd = data
+                    if (chunkToAdd.size > MAX_DETACHED_BUFFER_BYTES) {
+                        val excessCount = chunkToAdd.size - MAX_DETACHED_BUFFER_BYTES
+                        val discarded = chunkToAdd.copyOfRange(0, excessCount)
+                        discarded.fill(0)
+                        chunkToAdd = chunkToAdd.copyOfRange(excessCount, chunkToAdd.size)
+                    }
+
+                    while (session.bufferedBytes + chunkToAdd.size > MAX_DETACHED_BUFFER_BYTES && session.outputBuffer.isNotEmpty()) {
+                        val evicted = session.outputBuffer.poll()
+                        if (evicted != null) {
+                            session.bufferedBytes -= evicted.size
+                            evicted.fill(0)
+                        }
+                    }
+
+                    session.outputBuffer.add(chunkToAdd)
+                    session.bufferedBytes += chunkToAdd.size
                 } else {
                     emitToFlow = true
                 }
@@ -116,6 +137,7 @@ object SessionStreamRegistry {
                 val bytes = session.outputBuffer.poll() ?: break
                 buffer.add(bytes)
             }
+            session.bufferedBytes = 0
         }
         return buffer
     }

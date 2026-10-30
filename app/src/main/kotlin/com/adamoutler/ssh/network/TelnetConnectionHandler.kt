@@ -116,10 +116,13 @@ class TelnetConnectionHandler : ConnectionProtocol {
             }
 
             if (!profile.initialDirectory.isNullOrEmpty()) {
-                val escapedDir = profile.initialDirectory.replace("'", "'\\''")
-                val cdCmd = "cd '$escapedDir'\r\n"
-                autoFlushingStream.write(cdCmd.toByteArray(Charsets.UTF_8))
-                autoFlushingStream.flush()
+                val sanitized = profile.initialDirectory.filter { ch -> ch.code >= 0x20 && ch.code != 0x7F }
+                if (sanitized.isNotBlank()) {
+                    val escapedDir = sanitized.replace("'", "'\\''")
+                    val cdCmd = "cd '$escapedDir'\r\n"
+                    autoFlushingStream.write(cdCmd.toByteArray(Charsets.UTF_8))
+                    autoFlushingStream.flush()
+                }
             }
 
             onConnect(autoFlushingStream, null)

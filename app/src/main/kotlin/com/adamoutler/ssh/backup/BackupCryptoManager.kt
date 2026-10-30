@@ -49,8 +49,12 @@ object BackupCryptoManager {
     const val SALT_LENGTH_V2 = 16
     const val IV_LENGTH_V2 = 12
 
-    private const val KEY_LENGTH = 256
+    const val KEY_LENGTH = 256
     private const val TAG_LENGTH_BIT = 128
+
+    const val MIN_PBKDF2_ITERATIONS = 50_000
+    const val MAX_PBKDF2_ITERATIONS = 1_000_000
+    const val MAX_BACKUP_ENTRY_BYTES = 20 * 1024 * 1024
 
     @Volatile
     var defaultIterationsV3: Int = ITERATION_COUNT_V3
@@ -177,7 +181,19 @@ object BackupCryptoManager {
                 while (entry != null) {
                     AppLog.d(TAG, "Found ZIP entry: ${entry.name}")
                     if (entry.name == "backup.enc") {
-                        encryptedData = zipIn.readBytes()
+                        val buffer = ByteArrayOutputStream()
+                        val chunk = ByteArray(8192)
+                        var totalBytes = 0
+                        while (true) {
+                            val read = zipIn.read(chunk)
+                            if (read == -1) break
+                            totalBytes += read
+                            if (totalBytes > MAX_BACKUP_ENTRY_BYTES) {
+                                throw IllegalArgumentException("Backup entry exceeds maximum allowed size of 20 MB")
+                            }
+                            buffer.write(chunk, 0, read)
+                        }
+                        encryptedData = buffer.toByteArray()
                         break
                     }
                     entry = zipIn.nextEntry
@@ -236,6 +252,11 @@ object BackupCryptoManager {
                 salt = s
                 iv = i
                 val cipherText = data.copyOfRange(header.size, data.size)
+
+                val minAllowed = if (defaultIterationsV3 < MIN_PBKDF2_ITERATIONS) defaultIterationsV3 else MIN_PBKDF2_ITERATIONS
+                if (iterations !in minAllowed..MAX_PBKDF2_ITERATIONS) {
+                    throw IllegalArgumentException("Invalid PBKDF2 iteration count: $iterations")
+                }
 
                 AppLog.d(TAG, "Deriving AES-256 key via PBKDF2WithHmacSHA256 (iterations=$iterations, Format v3)...")
                 val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")

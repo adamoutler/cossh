@@ -73,7 +73,7 @@ class PortForwardingOrchestrator {
     }
 
     private fun startRemotePortForward(client: SSHClient, config: com.adamoutler.ssh.data.PortForwardConfig) {
-        val remoteForward = net.schmizz.sshj.connection.channel.forwarded.RemotePortForwarder.Forward(config.remotePort)
+        val remoteForward = net.schmizz.sshj.connection.channel.forwarded.RemotePortForwarder.Forward(LOCAL_HOST, config.remotePort)
         val host = if (config.remoteHost.isEmpty()) LOCAL_HOST else config.remoteHost
         val localTargetAddress = InetSocketAddress(host, config.localPort)
         val localListener = net.schmizz.sshj.connection.channel.forwarded.SocketForwardingConnectListener(localTargetAddress)
