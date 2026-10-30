@@ -23,13 +23,13 @@ val gitCommitCount = try {
 
 android {
     namespace = "com.adamoutler.ssh"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = "29.0.14206865"
 
     defaultConfig {
         applicationId = "com.adamoutler.cobaltssh"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = gitCommitCount + 1
         versionName = "1.${gitCommitCount + 1}"
 
