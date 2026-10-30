@@ -26,9 +26,6 @@ detekt = "1.23.6"
 guava = "33.6.0-jre"
 billing = "8.0.0"
 credentialManager = "1.2.1"
-googleApiServicesDrive = "v3-rev20230822-2.0.0"
-googleApiClientAndroid = "2.0.0"
-googleAuthLibraryOauth2Http = "1.46.0"
 workManager = "2.9.0"
 googleid = "1.1.1"
 playServicesAuth = "21.5.1"
@@ -78,9 +75,6 @@ billing-client = { group = "com.android.billingclient", name = "billing", versio
 credential-manager = { group = "androidx.credentials", name = "credentials", version.ref = "credentialManager" }
 credential-manager-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialManager" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
-google-api-services-drive = { group = "com.google.apis", name = "google-api-services-drive", version.ref = "googleApiServicesDrive" }
-google-api-client-android = { group = "com.google.api-client", name = "google-api-client-android", version.ref = "googleApiClientAndroid" }
-google-auth-library-oauth2-http = { group = "com.google.auth", name = "google-auth-library-oauth2-http", version.ref = "googleAuthLibraryOauth2Http" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
 androidx-work-testing = { group = "androidx.work", name = "work-testing", version.ref = "workManager" }
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
