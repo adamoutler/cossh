@@ -29,6 +29,36 @@ class SshService : Service() {
 
     private val sshManagers = ConcurrentHashMap<String, SshConnectionManager>()
     private val connectionJobs = ConcurrentHashMap<String, Job>()
+    private var wakeLock: android.os.PowerManager.WakeLock? = null
+
+    @Synchronized
+    private fun acquireWakeLockIfNeeded() {
+        if (wakeLock == null) {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
+            wakeLock = powerManager?.newWakeLock(
+                android.os.PowerManager.PARTIAL_WAKE_LOCK,
+                "CoSSH::SessionWakeLock",
+            )?.apply {
+                setReferenceCounted(false)
+            }
+        }
+        wakeLock?.let {
+            if (!it.isHeld) {
+                it.acquire(60 * 60 * 1000L)
+            }
+        }
+    }
+
+    @Synchronized
+    private fun releaseWakeLockIfNoActiveSessions() {
+        if (connectionJobs.isEmpty()) {
+            wakeLock?.let {
+                if (it.isHeld) {
+                    it.release()
+                }
+            }
+        }
+    }
 
     companion object {
         private const val CHANNEL_ID = "SshServiceChannel"
@@ -38,6 +68,10 @@ class SshService : Service() {
         const val ACTION_DISCONNECT = "com.adamoutler.ssh.DISCONNECT_SSH"
         const val EXTRA_PROFILE_ID = "profile_id"
         const val EXTRA_SESSION_ID = "session_id"
+
+        private val activeSshClients = ConcurrentHashMap<String, net.schmizz.sshj.SSHClient>()
+
+        fun getActiveSshClient(profileId: String): net.schmizz.sshj.SSHClient? = activeSshClients[profileId]
 
         fun isCircuitBreakerException(e: Throwable): Boolean {
             val isAuthFailure = e is net.schmizz.sshj.userauth.UserAuthException ||
@@ -109,6 +143,7 @@ class SshService : Service() {
     private fun getNotificationId(sessionId: String): Int = sessionId.hashCode()
 
     private fun startSshConnection(profileId: String, sessionId: String) {
+        acquireWakeLockIfNeeded()
         val notification = createSummaryNotification()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(
@@ -180,6 +215,7 @@ class SshService : Service() {
                                     }
                                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Connected)
                                     ConnectionStateRepository.updateSessionState(sessionId, ConnectionState.Connected)
+                                    manager.client?.let { activeSshClients[profileId] = it }
                                     updateSessionNotification(profileId, sessionId, freshProfile.nickname, "Connected")
                                     reconnectAttempt = 0
                                 },
@@ -279,8 +315,10 @@ class SshService : Service() {
                 val notificationManager = getSystemService(NotificationManager::class.java)
                 notificationManager.cancel(getNotificationId(sessionId))
 
+                activeSshClients.remove(profileId)
                 connectionJobs.remove(sessionId)
                 sshManagers.remove(sessionId)
+                releaseWakeLockIfNoActiveSessions()
 
                 if (connectionJobs.isEmpty()) {
                     stopForeground(STOP_FOREGROUND_REMOVE)
@@ -314,6 +352,7 @@ class SshService : Service() {
         .setContentTitle("CoSSH")
         .setContentText("${connectionJobs.size.coerceAtLeast(1)} Active Sessions")
         .setSmallIcon(R.drawable.ic_stat_ssh)
+        .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
         .setGroup(GROUP_KEY_SSH)
         .setGroupSummary(true)
         .setOngoing(true)
@@ -359,6 +398,7 @@ class SshService : Service() {
             .setContentTitle(profileName)
             .setContentText(contentText)
             .setSmallIcon(R.drawable.ic_stat_ssh)
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setContentIntent(pendingIntent)
             .setUsesChronometer(true)
             .setWhen(connectedAt)
@@ -381,6 +421,7 @@ class SshService : Service() {
             "SSH Service Channel",
             NotificationManager.IMPORTANCE_LOW,
         )
+        serviceChannel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
         val manager = getSystemService(NotificationManager::class.java)
         manager?.createNotificationChannel(serviceChannel)
     }
@@ -390,5 +431,12 @@ class SshService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         stopAllConnections()
+        synchronized(this) {
+            wakeLock?.let {
+                if (it.isHeld) {
+                    it.release()
+                }
+            }
+        }
     }
 }

@@ -28,6 +28,8 @@ data class ProfileFormState(
     val password: String = "",
     val keyReference: String = "",
     val identityId: String? = null,
+    val folderId: String? = null,
+    val sortOrder: Int = 0,
     val envVarsText: String = "",
     val portForwards: List<PortForwardConfig> = emptyList(),
     val commandSnippets: List<com.adamoutler.ssh.data.CommandSnippet> = emptyList(),
@@ -96,6 +98,14 @@ class AddEditProfileViewModel(
 
     fun updateState(updater: (ProfileFormState) -> ProfileFormState) {
         _uiState.update(updater)
+    }
+
+    fun updateFolderId(folderId: String?) {
+        _uiState.update { it.copy(folderId = folderId) }
+    }
+
+    fun updateSortOrder(sortOrder: Int) {
+        _uiState.update { it.copy(sortOrder = sortOrder) }
     }
 
     fun setProtocol(newProto: Protocol) {
@@ -228,6 +238,8 @@ class AddEditProfileViewModel(
             jumpHostProfileId = currentState.jumpHostProfileId,
             wolConfig = currentState.wolConfig,
             portKnockingConfig = currentState.portKnockingConfig,
+            folderId = currentState.folderId?.trim()?.ifEmpty { null },
+            sortOrder = currentState.sortOrder,
         )
         storageManager.saveProfile(profile)
         resetState()
@@ -264,6 +276,8 @@ class AddEditProfileViewModel(
                         jumpHostProfileId = profile.jumpHostProfileId,
                         wolConfig = profile.wolConfig,
                         portKnockingConfig = profile.portKnockingConfig,
+                        folderId = profile.folderId,
+                        sortOrder = profile.sortOrder,
                         isLoaded = true,
                         hostError = null,
                         portError = null,
@@ -309,6 +323,8 @@ class AddEditProfileViewModel(
         jumpHostProfileId: String? = null,
         wolConfig: com.adamoutler.ssh.data.WolConfig? = null,
         portKnockingConfig: com.adamoutler.ssh.data.PortKnockingConfig? = null,
+        folderId: String? = null,
+        sortOrder: Int = 0,
     ) {
         val portInt = if (validatePort(port)) {
             port.toInt()
@@ -340,6 +356,8 @@ class AddEditProfileViewModel(
             jumpHostProfileId = jumpHostProfileId,
             wolConfig = wolConfig,
             portKnockingConfig = portKnockingConfig,
+            folderId = folderId,
+            sortOrder = sortOrder,
         )
         storageManager.saveProfile(profile)
         resetState()

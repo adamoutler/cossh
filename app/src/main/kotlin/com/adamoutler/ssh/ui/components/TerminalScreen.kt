@@ -2,6 +2,8 @@ package com.adamoutler.ssh.ui.components
 
 import android.view.KeyEvent
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
 import android.widget.FrameLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -54,6 +56,11 @@ import com.termux.view.TerminalView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.Exception
+
+fun configureTerminalEditorInfo(editorInfo: EditorInfo): EditorInfo {
+    editorInfo.imeOptions = editorInfo.imeOptions or EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING
+    return editorInfo
+}
 
 @Composable
 fun TerminalScreen(
@@ -354,6 +361,7 @@ fun TerminalScreenContent(
     val menuState = remember { mutableStateOf(ModifierState.INACTIVE) }
 
     val context = androidx.compose.ui.platform.LocalContext.current
+    val settingsManager = remember(context) { com.adamoutler.ssh.crypto.SettingsManager(context) }
     val window = (context as? android.app.Activity)?.window
     val isProximityNear by rememberProximitySensorState()
     var isDataFlowing by remember { mutableStateOf(false) }
@@ -592,7 +600,13 @@ fun TerminalScreenContent(
                         }
                     },
                     factory = { ctx ->
-                        val terminalView = TerminalView(ctx, null)
+                        val terminalView = object : TerminalView(ctx, null) {
+                            override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? {
+                                val conn = super.onCreateInputConnection(outAttrs)
+                                configureTerminalEditorInfo(outAttrs)
+                                return conn
+                            }
+                        }
                         terminalView.attachSession(session)
                         val calculatedTextSize = (currentFontSize * density.density * density.fontScale).toInt().coerceAtLeast(10)
                         terminalView.setTextSize(calculatedTextSize)
@@ -1010,6 +1024,7 @@ fun TerminalScreenContent(
                 altState = altState.value,
                 superState = superState.value,
                 menuState = menuState.value,
+                presetId = settingsManager.extraKeysPreset,
                 onKeyToggle = { key -> terminalKeyMapper.onExtraKeyToggle(key) },
                 onKeyPress = { key -> terminalKeyMapper.onExtraKeyPress(key) },
             )

@@ -39,6 +39,9 @@ data class SettingsUiState(
     val globalFontChoice: String = "DEFAULT_MONOSPACE",
     val isAppLockEnabled: Boolean = false,
     val appLockTimeoutSeconds: Int = 0,
+    val globalFontSize: Int = 14,
+    val extraKeysPreset: com.adamoutler.ssh.ui.components.ExtraKeysPresetId = com.adamoutler.ssh.ui.components.ExtraKeysPresetId.DEFAULT,
+    val allowOsc52Clipboard: Boolean = false,
 )
 
 class SettingsViewModel(
@@ -68,6 +71,9 @@ class SettingsViewModel(
             globalFontChoice = settingsManager.globalFontChoice,
             isAppLockEnabled = settingsManager.isAppLockEnabled,
             appLockTimeoutSeconds = settingsManager.appLockTimeoutSeconds,
+            globalFontSize = settingsManager.globalFontSize,
+            extraKeysPreset = settingsManager.extraKeysPreset,
+            allowOsc52Clipboard = settingsManager.allowOsc52Clipboard,
         ),
     )
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
@@ -88,6 +94,21 @@ class SettingsViewModel(
     fun updateFontChoice(font: TerminalFontChoice) {
         settingsManager.globalFontChoice = font.id
         _uiState.update { it.copy(globalFontChoice = font.id) }
+    }
+
+    fun updateFontSize(size: Int) {
+        settingsManager.globalFontSize = size
+        _uiState.update { it.copy(globalFontSize = size) }
+    }
+
+    fun updateExtraKeysPreset(preset: com.adamoutler.ssh.ui.components.ExtraKeysPresetId) {
+        settingsManager.extraKeysPreset = preset
+        _uiState.update { it.copy(extraKeysPreset = preset) }
+    }
+
+    fun updateAllowOsc52Clipboard(allow: Boolean) {
+        settingsManager.allowOsc52Clipboard = allow
+        _uiState.update { it.copy(allowOsc52Clipboard = allow) }
     }
 
     fun updateDefaultGroupName(name: String) {
