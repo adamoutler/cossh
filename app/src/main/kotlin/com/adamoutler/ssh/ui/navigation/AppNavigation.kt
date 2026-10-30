@@ -252,9 +252,20 @@ fun AppNavigation(
             val profileId = backStackEntry.arguments?.getString("profileId") ?: ""
             val profile = remember(profileId) { securityStorageManager.getProfile(profileId) }
             val nickname = profile?.nickname ?: profile?.host ?: "SFTP"
-            val fakeAdapter = remember { com.adamoutler.ssh.sftp.FakeSftpClientAdapter() }
-            val sftpManager = remember { com.adamoutler.ssh.sftp.SftpClientManager(fakeAdapter) }
-            val sftpViewModel = remember { com.adamoutler.ssh.sftp.ui.SftpBrowserViewModel(sftpManager) }
+            val activeSshClient = com.adamoutler.ssh.network.SshService.getActiveSshClient(profileId)
+            val adapter: com.adamoutler.ssh.sftp.SftpClientAdapter = remember(activeSshClient) {
+                if (activeSshClient != null && activeSshClient.isConnected && activeSshClient.isAuthenticated) {
+                    try {
+                        com.adamoutler.ssh.sftp.SshjSftpClientAdapter(activeSshClient.newSFTPClient())
+                    } catch (_: Exception) {
+                        com.adamoutler.ssh.sftp.FakeSftpClientAdapter()
+                    }
+                } else {
+                    com.adamoutler.ssh.sftp.FakeSftpClientAdapter()
+                }
+            }
+            val sftpManager = remember(adapter) { com.adamoutler.ssh.sftp.SftpClientManager(adapter) }
+            val sftpViewModel = remember(sftpManager) { com.adamoutler.ssh.sftp.ui.SftpBrowserViewModel(sftpManager) }
 
             com.adamoutler.ssh.sftp.ui.SftpBrowserScreen(
                 profileNickname = nickname,

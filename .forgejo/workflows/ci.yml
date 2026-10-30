@@ -31,7 +31,7 @@ jobs:
       - name: Run Tests and Coverage
         run: |
           set -o pipefail
-          ./gradlew testDebugUnitTest jacocoTestReport jacocoTestCoverageVerification --console=plain 2>&1 | tee build-test.log
+          ./gradlew detekt testDebugUnitTest jacocoTestReport jacocoTestCoverageVerification --console=plain 2>&1 | tee build-test.log
 
       - name: Build Debug
         run: |
@@ -42,6 +42,11 @@ jobs:
         run: |
           set -o pipefail
           ./gradlew lint --console=plain 2>&1 | tee -a build-test.log
+        
+      - name: Run Detekt Static Analysis
+        run: |
+          set -o pipefail
+          ./gradlew detekt --console=plain 2>&1 | tee -a build-test.log
         
       - name: Run MobSF Static Analysis
         continue-on-error: true

@@ -124,6 +124,12 @@ fun SettingsScreen(
         appLockTimeoutSeconds = uiState.appLockTimeoutSeconds,
         onAppLockEnabledChange = { viewModel.updateAppLockEnabled(it) },
         onAppLockTimeoutChange = { viewModel.updateAppLockTimeout(it) },
+        globalFontSize = uiState.globalFontSize,
+        onFontSizeChange = { viewModel.updateFontSize(it) },
+        extraKeysPreset = uiState.extraKeysPreset,
+        onExtraKeysPresetChange = { viewModel.updateExtraKeysPreset(it) },
+        allowOsc52Clipboard = uiState.allowOsc52Clipboard,
+        onAllowOsc52ClipboardChange = { viewModel.updateAllowOsc52Clipboard(it) },
         onNavigateToKnownHosts = onNavigateToKnownHosts,
         onNavigateToAuditLog = onNavigateToAuditLog,
     )
@@ -276,6 +282,12 @@ fun SettingsScreenContent(
     appLockTimeoutSeconds: Int = 0,
     onAppLockEnabledChange: (Boolean) -> Unit = {},
     onAppLockTimeoutChange: (Int) -> Unit = {},
+    globalFontSize: Int = 14,
+    onFontSizeChange: (Int) -> Unit = {},
+    extraKeysPreset: com.adamoutler.ssh.ui.components.ExtraKeysPresetId = com.adamoutler.ssh.ui.components.ExtraKeysPresetId.DEFAULT,
+    onExtraKeysPresetChange: (com.adamoutler.ssh.ui.components.ExtraKeysPresetId) -> Unit = {},
+    allowOsc52Clipboard: Boolean = false,
+    onAllowOsc52ClipboardChange: (Boolean) -> Unit = {},
     onNavigateToKnownHosts: () -> Unit = {},
     onNavigateToAuditLog: () -> Unit = {},
     scrollState: androidx.compose.foundation.ScrollState = rememberScrollState(),
@@ -387,6 +399,64 @@ fun SettingsScreenContent(
                                         onFontChoiceChange(fontOption)
                                         isFontExpanded = false
                                     },
+                                )
+                            }
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text("Terminal Font Size: ${globalFontSize}sp", style = MaterialTheme.typography.bodyLarge)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(
+                                onClick = { if (globalFontSize > 8) onFontSizeChange(globalFontSize - 1) },
+                                modifier = Modifier.testTag("DecreaseFontSizeButton"),
+                            ) {
+                                Text("-", style = MaterialTheme.typography.titleLarge)
+                            }
+                            Text(
+                                "$globalFontSize",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.testTag("FontSizeLabel"),
+                            )
+                            IconButton(
+                                onClick = { if (globalFontSize < 36) onFontSizeChange(globalFontSize + 1) },
+                                modifier = Modifier.testTag("IncreaseFontSizeButton"),
+                            ) {
+                                Text("+", style = MaterialTheme.typography.titleLarge)
+                            }
+                        }
+                    }
+
+                    var isPresetExpanded by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = isPresetExpanded,
+                        onExpandedChange = { isPresetExpanded = !isPresetExpanded },
+                    ) {
+                        OutlinedTextField(
+                            value = extraKeysPreset.name,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Extra Keys Row Preset") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isPresetExpanded) },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                            modifier = Modifier.fillMaxWidth().menuAnchor().testTag("ExtraKeysPresetDropdown"),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = isPresetExpanded,
+                            onDismissRequest = { isPresetExpanded = false },
+                        ) {
+                            com.adamoutler.ssh.ui.components.ExtraKeysPresetId.entries.forEach { presetOption ->
+                                DropdownMenuItem(
+                                    text = { Text(presetOption.name) },
+                                    onClick = {
+                                        onExtraKeysPresetChange(presetOption)
+                                        isPresetExpanded = false
+                                    },
+                                    modifier = Modifier.testTag("ExtraKeysPresetItem_${presetOption.name}"),
                                 )
                             }
                         }
@@ -564,6 +634,28 @@ fun SettingsScreenContent(
                                 }
                             }
                         }
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Allow OSC 52 Clipboard Access", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "Allows remote shell sessions to copy text directly to your Android system clipboard.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = allowOsc52Clipboard,
+                            onCheckedChange = onAllowOsc52ClipboardChange,
+                            modifier = Modifier.testTag("Osc52ClipboardSwitch"),
+                        )
                     }
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))

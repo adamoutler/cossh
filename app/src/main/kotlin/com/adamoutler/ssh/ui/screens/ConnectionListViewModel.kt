@@ -93,7 +93,8 @@ class ConnectionListViewModel(
             } else {
                 all.filter {
                     it.nickname.contains(query, ignoreCase = true) ||
-                        it.host.contains(query, ignoreCase = true)
+                        it.host.contains(query, ignoreCase = true) ||
+                        it.folderId?.contains(query, ignoreCase = true) == true
                 }
             }
             _profiles.value = filtered

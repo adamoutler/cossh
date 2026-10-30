@@ -1,19 +1,15 @@
 package com.adamoutler.ssh.ui.screens
 
 import android.app.Application
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.adamoutler.ssh.crypto.KnownHostRecord
 import com.adamoutler.ssh.crypto.KnownHostsManager
-import kotlinx.coroutines.delay
+import com.adamoutler.ssh.security.SecureClipboardManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 enum class KeyAlgorithmFilter {
     ALL,
@@ -188,20 +184,13 @@ open class KnownHostsViewModel(
 
     fun copyFingerprintToClipboard(fingerprint: String) {
         val context = getApplication<Application>()
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-        val clip = ClipData.newPlainText("SSH Fingerprint", fingerprint)
-        clipboard?.setPrimaryClip(clip)
+        SecureClipboardManager.copyToClipboard(
+            context = context,
+            text = fingerprint,
+            label = "SSH Fingerprint",
+            scope = viewModelScope,
+        )
         _uiState.update { it.copy(statusMessage = "Fingerprint copied. Auto-clearing in 30s.") }
-
-        // Threat Mitigation: Auto-clear sensitive clipboard after 30 seconds
-        viewModelScope.launch {
-            delay(30_000)
-            try {
-                if (clipboard?.primaryClip?.getItemAt(0)?.text == fingerprint) {
-                    clipboard.setPrimaryClip(ClipData.newPlainText("", ""))
-                }
-            } catch (_: Exception) {}
-        }
     }
 
     fun clearStatusMessage() {

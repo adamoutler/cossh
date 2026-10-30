@@ -76,7 +76,7 @@ fun TerminalSessionTabBar(
     modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
-        visible = sessions.size > 1,
+        visible = sessions.isNotEmpty(),
         enter = expandVertically() + fadeIn(),
         exit = shrinkVertically() + fadeOut(),
         modifier = modifier,

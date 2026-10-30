@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Scope TrustAllX509TrustManager ignore strictly to upstream BouncyCastle PKIX and Apache Commons Net JAR bytecode so CoSSH first-party source code remains strictly audited -->
+    <issue id="TrustAllX509TrustManager">
+        <ignore regexp=".*bcpkix-jdk18on.*" />
+        <ignore regexp=".*commons-net.*" />
+    </issue>
+</lint>

@@ -32,7 +32,13 @@ class SettingsManager(context: Context) {
         private const val DEFAULT_CURSOR_BLINK = true
         private const val KEY_GLOBAL_EXTRA_KEYS_PRESET = "global_extra_keys_preset"
         private const val DEFAULT_EXTRA_KEYS_PRESET = "DEFAULT"
+        private const val KEY_ALLOW_OSC52_CLIPBOARD = "allow_osc52_clipboard"
+        private const val DEFAULT_ALLOW_OSC52_CLIPBOARD = false
     }
+
+    var allowOsc52Clipboard: Boolean
+        get() = prefs.getBoolean(KEY_ALLOW_OSC52_CLIPBOARD, DEFAULT_ALLOW_OSC52_CLIPBOARD)
+        set(value) = prefs.edit().putBoolean(KEY_ALLOW_OSC52_CLIPBOARD, value).apply()
 
     var globalCursorStyle: String
         get() = prefs.getString(KEY_GLOBAL_CURSOR_STYLE, DEFAULT_CURSOR_STYLE) ?: DEFAULT_CURSOR_STYLE

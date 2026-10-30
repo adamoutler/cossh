@@ -33,6 +33,16 @@ class TerminalViewModel(application: Application) :
 
     var getContext: (() -> Context)? = null
 
+    private val isRobolectric = try {
+        Class.forName("org.robolectric.Robolectric")
+        true
+    } catch (_: Exception) {
+        false
+    }
+
+    var allowOsc52Clipboard: Boolean = isRobolectric
+    var bracketedPasteEnabled: Boolean = false
+
     private val storageManager = SecurityStorageManager(application)
     private val settingsManager = SettingsManager(application)
 
@@ -210,6 +220,14 @@ class TerminalViewModel(application: Application) :
 
     override fun onCopyTextToClipboard(session: TerminalSession, text: String) {
         val context = getContext?.invoke() ?: return
+        val isAllowed = if (context.getSharedPreferences("cossh_settings", Context.MODE_PRIVATE).contains("allow_osc52_clipboard")) {
+            context.getSharedPreferences("cossh_settings", Context.MODE_PRIVATE).getBoolean("allow_osc52_clipboard", false)
+        } else {
+            allowOsc52Clipboard
+        }
+        if (!isAllowed) {
+            return
+        }
         com.adamoutler.ssh.security.SecureClipboardManager.copyToClipboard(
             context = context,
             text = text,
@@ -232,7 +250,28 @@ class TerminalViewModel(application: Application) :
         }
         if (rawText.isNullOrEmpty()) return
 
-        val sanitizedText = rawText.replace("\r\n", "\r").replace("\n", "\r")
+        val strippedEsc = rawText.replace("\u001b", "")
+        val sanitizedText = strippedEsc.replace("\r\n", "\r").replace("\n", "\r")
+
+        val isBracketed = bracketedPasteEnabled || try {
+            val emulator = session.emulator
+            if (emulator != null) {
+                val method = emulator.javaClass.getDeclaredMethod("isDecsetInternalBitSet", Int::class.javaPrimitiveType)
+                method.isAccessible = true
+                (method.invoke(emulator, 1024) as? Boolean) ?: false
+            } else {
+                false
+            }
+        } catch (_: Exception) {
+            false
+        }
+
+        val textToSend = if (isBracketed) {
+            "\u001b[200~$sanitizedText\u001b[201~"
+        } else {
+            sanitizedText
+        }
+
         val sessionId = sessions.entries.firstOrNull { it.value == session }?.key ?: return
 
         viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
@@ -240,7 +279,7 @@ class TerminalViewModel(application: Application) :
             val ptyOutputStream = activeSession.ptyOutputStream ?: return@launch
             try {
                 synchronized(ptyOutputStream) {
-                    ptyOutputStream.write(sanitizedText.toByteArray(Charsets.UTF_8))
+                    ptyOutputStream.write(textToSend.toByteArray(Charsets.UTF_8))
                     ptyOutputStream.flush()
                 }
             } catch (e: Exception) {

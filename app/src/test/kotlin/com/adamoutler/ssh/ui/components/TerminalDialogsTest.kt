@@ -38,10 +38,9 @@ class TerminalDialogsTest {
         var onKeepAliveClicked = false
         var onTerminateClicked = false
 
-        var onDismissClicked = false
         composeTestRule.setContent {
             KeepAliveDialog(
-                onDismiss = { onDismissClicked = true },
+                onDismiss = {},
                 onKeepAlive = { onKeepAliveClicked = true },
                 onTerminate = { onTerminateClicked = true },
             )

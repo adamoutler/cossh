@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
@@ -32,6 +33,7 @@ fun ConnectionItem(
     dragHandleModifier: Modifier = Modifier,
     onClick: () -> Unit,
     onEdit: () -> Unit,
+    onOpenSftp: (() -> Unit)? = null,
     onAddToHomeScreen: () -> Unit = {},
     initialMenuExpanded: Boolean = false,
     elevation: Dp = 2.dp,
@@ -125,6 +127,19 @@ fun ConnectionItem(
                                 onEdit()
                             },
                         )
+                        if (onOpenSftp != null && profile.protocol == Protocol.SSH) {
+                            DropdownMenuItem(
+                                text = { Text("SFTP Browser") },
+                                leadingIcon = {
+                                    Icon(Icons.Filled.Folder, contentDescription = null)
+                                },
+                                onClick = {
+                                    menuExpanded = false
+                                    onOpenSftp()
+                                },
+                                modifier = Modifier.testTag("ConnectionMenuSftp_${profile.id}"),
+                            )
+                        }
                     }
                 }
             }

@@ -103,10 +103,13 @@ class SshConnectionHandler(
                     }
 
                     if (!effectiveProfile.initialDirectory.isNullOrEmpty()) {
-                        val escapedDir = effectiveProfile.initialDirectory.replace("'", "'\\''")
-                        val cdCmd = "cd '$escapedDir'\r\n"
-                        shell.outputStream.write(cdCmd.toByteArray(Charsets.UTF_8))
-                        shell.outputStream.flush()
+                        val sanitized = effectiveProfile.initialDirectory.filter { ch -> ch.code >= 0x20 && ch.code != 0x7F }
+                        if (sanitized.isNotBlank()) {
+                            val escapedDir = sanitized.replace("'", "'\\''")
+                            val cdCmd = "cd '$escapedDir'\r\n"
+                            shell.outputStream.write(cdCmd.toByteArray(Charsets.UTF_8))
+                            shell.outputStream.flush()
+                        }
                     }
 
                     onConnect(shell.outputStream, shell)
@@ -121,6 +124,9 @@ class SshConnectionHandler(
     }
 
     override fun disconnect() {
+        try {
+            portForwardingOrchestrator.stopAll()
+        } catch (_: Exception) {}
         try {
             client?.disconnect()
         } catch (e: Exception) {

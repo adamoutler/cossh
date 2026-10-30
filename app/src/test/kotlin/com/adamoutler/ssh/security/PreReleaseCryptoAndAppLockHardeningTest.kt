@@ -30,8 +30,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -90,7 +88,6 @@ class PreReleaseCryptoAndAppLockHardeningTest {
         assertTrue("AppLockManager must be locked initially", manager.isLocked.value)
 
         // Simulate catch block logic from MainActivity.promptBiometricUnlock()
-        val exception = RuntimeException("Biometric prompt service unavailable")
         if (manager.allowHeadlessTestFallback) {
             val decryptCipher = PasswordCipher.initDecryptCipher(securityStorageManager.getAppLockIv()!!)
             manager.unlockWithCipher(decryptCipher)
@@ -306,10 +303,18 @@ class PreReleaseCryptoAndAppLockHardeningTest {
         assertEquals("CompositeAuthenticator", authenticator.javaClass.simpleName)
 
         // Verify HardwareKeyAuthenticator execution
-        val mockClient = mock(SSHClient::class.java)
+        var capturedUser: String? = null
+        var capturedProvider: Any? = null
+        val fakeClient = object : SSHClient() {
+            override fun authPublickey(username: String?, vararg kProviders: net.schmizz.sshj.userauth.keyprovider.KeyProvider?) {
+                capturedUser = username
+                capturedProvider = kProviders.firstOrNull()
+            }
+        }
         val auth = HardwareKeyAuthenticator(hardwareProvider)
-        auth.authenticate(mockClient, profile)
-        verify(mockClient).authPublickey("admin", hardwareProvider)
+        auth.authenticate(fakeClient, profile)
+        assertEquals("admin", capturedUser)
+        assertEquals(hardwareProvider, capturedProvider)
     }
 
     @Test
@@ -334,8 +339,12 @@ class PreReleaseCryptoAndAppLockHardeningTest {
         val app = ApplicationProvider.getApplicationContext<Application>()
         val viewModel = IdentityViewModel(app, identityStorageManager)
 
-        // 1. Generate StrongBox key pair
+        // 1. Generate StrongBox key pair (runs asynchronously on Dispatchers.Default)
         viewModel.generateStrongBoxKeyPair()
+        val genDeadline = System.currentTimeMillis() + 5_000L
+        while (viewModel.uiState.value.keystoreAlias == null && System.currentTimeMillis() < genDeadline) {
+            Thread.sleep(25)
+        }
         val stateAfterGen = viewModel.uiState.value
         assertNotNull("StrongBox generation must populate keystoreAlias in UI state", stateAfterGen.keystoreAlias)
         assertTrue(
@@ -343,7 +352,7 @@ class PreReleaseCryptoAndAppLockHardeningTest {
             stateAfterGen.keystoreAlias?.startsWith("strongbox_ssh_") == true,
         )
 
-        // 2. Save identity constructed from state
+        // 2. Save identity constructed from state (runs asynchronously on Dispatchers.IO)
         val identity = IdentityProfile(
             id = "vm-hw-identity",
             name = "StrongBox Cloud Key",
@@ -355,6 +364,10 @@ class PreReleaseCryptoAndAppLockHardeningTest {
         )
 
         viewModel.saveIdentity(identity)
+        val saveDeadline = System.currentTimeMillis() + 5_000L
+        while (identityStorageManager.getIdentity("vm-hw-identity") == null && System.currentTimeMillis() < saveDeadline) {
+            Thread.sleep(25)
+        }
 
         // Verify persisted identity has keystoreAlias preserved from viewModel state
         val loaded = identityStorageManager.getIdentity("vm-hw-identity")

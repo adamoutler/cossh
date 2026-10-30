@@ -14,4 +14,11 @@
 
     <!-- Exclude plaintext crash dumps -->
     <exclude domain="file" path="secure_crashes" />
+
+    <!-- Billing Preferences to prevent entitlement tampering/cloning across backups -->
+    <exclude domain="sharedpref" path="BillingPrefs.xml" />
+
+    <!-- Security Audit logs and integrity anchors -->
+    <exclude domain="sharedpref" path="security_audit_anchor_prefs.xml" />
+    <exclude domain="file" path="security_audit" />
 </full-backup-content>

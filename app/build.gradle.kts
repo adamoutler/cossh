@@ -68,7 +68,7 @@ android {
     lint {
         warningsAsErrors = true
         abortOnError = true
-        disable += listOf("AndroidGradlePluginVersion", "GradleDependency", "TrustAllX509TrustManager", "CredentialManagerSignInWithGoogle", "OldTargetApi")
+        disable += listOf("AndroidGradlePluginVersion", "GradleDependency", "CredentialManagerSignInWithGoogle", "OldTargetApi")
     }
 
     // Link the termux native C code. Re-compiling locally is mandatory
@@ -113,7 +113,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            buildConfigField("boolean", "ENABLE_CLOUD_SYNC", "false")
+            buildConfigField("boolean", "ENABLE_CLOUD_SYNC", "true")
             ndk {
                 debugSymbolLevel = "FULL"
             }
@@ -153,7 +153,8 @@ android {
                 if (!gradle.startParameter.taskNames.any { it.contains("Paparazzi", ignoreCase = true) }) {
                     it.exclude("**/*ScreenshotTest*")
                 }
-                it.maxParallelForks = (Runtime.getRuntime().availableProcessors() / 4).coerceIn(1, 4)
+                it.maxParallelForks = 1
+                it.forkEvery = 25
                 if (!project.hasProperty("fullTestRun")) {
                     it.useJUnit {
                         excludeCategories("com.adamoutler.ssh.annotations.FullTest")
@@ -217,11 +218,6 @@ dependencies {
     implementation(libs.credential.manager)
     implementation(libs.credential.manager.play.services.auth)
     implementation(libs.play.services.auth)
-    implementation(libs.google.api.services.drive) {
-        exclude(group = "org.apache.httpcomponents")
-    }
-    implementation(libs.google.api.client.android)
-    implementation(libs.google.auth.library.oauth2.http)
     implementation(libs.androidx.work.runtime.ktx)
     testImplementation(libs.androidx.work.testing)
     implementation(libs.googleid)
@@ -255,8 +251,8 @@ dependencies {
 tasks.withType<Test> {
     timeout.set(Duration.ofMinutes(30))
     maxHeapSize = "3072m"
-    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 4).coerceIn(1, 4)
-    forkEvery = 0
+    maxParallelForks = 1
+    forkEvery = 25
     systemProperty("java.security.egd", "file:/dev/./urandom")
     testLogging {
         events("passed", "skipped", "failed")

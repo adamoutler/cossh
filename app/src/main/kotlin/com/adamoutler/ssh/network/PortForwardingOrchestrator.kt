@@ -19,7 +19,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
-class PortForwardingOrchestrator {
+open class PortForwardingOrchestrator {
     companion object {
         private const val TAG = "PortForwardingOrchestrator"
         private const val LOCAL_HOST = "127.0.0.1"
@@ -73,7 +73,7 @@ class PortForwardingOrchestrator {
     }
 
     private fun startRemotePortForward(client: SSHClient, config: com.adamoutler.ssh.data.PortForwardConfig) {
-        val remoteForward = net.schmizz.sshj.connection.channel.forwarded.RemotePortForwarder.Forward(config.remotePort)
+        val remoteForward = net.schmizz.sshj.connection.channel.forwarded.RemotePortForwarder.Forward(LOCAL_HOST, config.remotePort)
         val host = if (config.remoteHost.isEmpty()) LOCAL_HOST else config.remoteHost
         val localTargetAddress = InetSocketAddress(host, config.localPort)
         val localListener = net.schmizz.sshj.connection.channel.forwarded.SocketForwardingConnectListener(localTargetAddress)
@@ -223,7 +223,7 @@ class PortForwardingOrchestrator {
         }
     }
 
-    fun stopAll() {
+    open fun stopAll() {
         try {
             localServerSockets.forEach {
                 try {

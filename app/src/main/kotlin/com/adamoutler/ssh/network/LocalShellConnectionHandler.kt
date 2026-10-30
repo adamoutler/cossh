@@ -32,16 +32,23 @@ class LocalShellConnectionHandler(
         processBuilder.redirectErrorStream(true)
 
         val env = processBuilder.environment()
-        env.remove("LD_PRELOAD")
         env["TERM"] = "xterm-256color"
         for ((key, value) in profile.envVars) {
+            if (key.equals("LD_PRELOAD", ignoreCase = true) || key.equals("LD_LIBRARY_PATH", ignoreCase = true)) {
+                continue
+            }
             env[key] = value
         }
+        env.remove("LD_PRELOAD")
+        env.remove("LD_LIBRARY_PATH")
 
         if (!profile.initialDirectory.isNullOrEmpty()) {
-            val initialDir = File(profile.initialDirectory)
-            if (initialDir.exists() && initialDir.isDirectory) {
-                processBuilder.directory(initialDir)
+            val sanitized = profile.initialDirectory.filter { ch -> ch.code >= 0x20 && ch.code != 0x7F }
+            if (sanitized.isNotBlank()) {
+                val initialDir = File(sanitized)
+                if (initialDir.exists() && initialDir.isDirectory) {
+                    processBuilder.directory(initialDir)
+                }
             }
         }
 

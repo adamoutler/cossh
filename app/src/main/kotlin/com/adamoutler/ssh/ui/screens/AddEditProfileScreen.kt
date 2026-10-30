@@ -152,6 +152,8 @@ fun AddEditProfileScreen(
         onWolConfigChange = { wol -> viewModel.updateState { it.copy(wolConfig = wol) } },
         portKnockingConfig = uiState.portKnockingConfig,
         onPortKnockingConfigChange = { knock -> viewModel.updateState { it.copy(portKnockingConfig = knock) } },
+        folderId = uiState.folderId,
+        onFolderIdChange = { newFolder -> viewModel.updateFolderId(newFolder) },
         availableProfiles = availableProfiles,
         onSave = {
             if (viewModel.saveProfile(profileId)) {
@@ -229,6 +231,8 @@ fun AddEditProfileScreenContent(
     onWolConfigChange: (com.adamoutler.ssh.data.WolConfig?) -> Unit = {},
     portKnockingConfig: com.adamoutler.ssh.data.PortKnockingConfig? = null,
     onPortKnockingConfigChange: (com.adamoutler.ssh.data.PortKnockingConfig?) -> Unit = {},
+    folderId: String? = null,
+    onFolderIdChange: (String?) -> Unit = {},
 ) {
     var isIdentityDropdownExpanded by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(defaultPasswordVisible) }
@@ -302,6 +306,13 @@ fun AddEditProfileScreenContent(
                 onValueChange = onNicknameChange,
                 label = { Text("Nickname") },
                 modifier = Modifier.fillMaxWidth().testTag("NicknameInput"),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = folderId ?: "",
+                onValueChange = { onFolderIdChange(it.ifBlank { null }) },
+                label = { Text("Folder / Group (Optional)") },
+                modifier = Modifier.fillMaxWidth().testTag("FolderInput"),
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(

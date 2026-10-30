@@ -244,6 +244,7 @@ fun QuickConnectContent(
                             contentDescription = "Password input field"
                         },
                     keyboardOptions = KeyboardOptions(
+                        autoCorrect = false,
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done,
                     ),

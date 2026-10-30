@@ -2,6 +2,7 @@ package com.adamoutler.ssh.ui.screens.connectionlist.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,6 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,8 +40,26 @@ fun GroupedConnectionList(
     onDeleteConnection: (String) -> Unit,
     onMoveToFolder: (String) -> Unit,
     onAddToHomeScreen: (ConnectionProfile) -> Unit = {},
+    onOpenSftp: ((String) -> Unit)? = null,
 ) {
     var profileToDelete by remember { mutableStateOf<ConnectionProfile?>(null) }
+    val collapsedFolders = remember { mutableStateMapOf<String, Boolean>() }
+
+    val visibleItems = remember(flatItems, collapsedFolders.toMap(), isReordering) {
+        if (isReordering) {
+            flatItems
+        } else {
+            flatItems.filter { item ->
+                when (item) {
+                    is ConnectionListItem.Header -> true
+                    is ConnectionListItem.Profile -> {
+                        val key = item.profile.folderId ?: "default"
+                        collapsedFolders[key] != true
+                    }
+                }
+            }
+        }
+    }
 
     val listState = rememberLazyListState()
     var draggedItemId by remember { mutableStateOf<Any?>(null) }
@@ -50,19 +71,21 @@ fun GroupedConnectionList(
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         items(
-            count = flatItems.size,
+            count = visibleItems.size,
             key = { index ->
-                when (val item = flatItems[index]) {
+                when (val item = visibleItems[index]) {
                     is ConnectionListItem.Header -> "header_${item.folderId ?: "default"}"
                     is ConnectionListItem.Profile -> item.profile.id
                 }
             },
         ) { index ->
-            when (val item = flatItems[index]) {
+            when (val item = visibleItems[index]) {
                 is ConnectionListItem.Header -> {
                     val headerId = "header_${item.folderId ?: "default"}"
                     val isDragging = headerId == draggedItemId
                     val translationY = if (isDragging) dragOffset else 0f
+                    val folderKey = item.folderId ?: "default"
+                    val isCollapsed = collapsedFolders[folderKey] == true
 
                     val dragModifier = Modifier.pointerInput(isReordering) {
                         if (!isReordering) return@pointerInput
@@ -105,6 +128,9 @@ fun GroupedConnectionList(
                             .zIndex(if (isDragging) 1f else 0f)
                             .graphicsLayer { this.translationY = translationY }
                             .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable(enabled = !isReordering) {
+                                collapsedFolders[folderKey] = !isCollapsed
+                            }
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                     ) {
                         Row(
@@ -112,11 +138,19 @@ fun GroupedConnectionList(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
-                            Text(
-                                text = item.title,
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = if (isCollapsed) Icons.Filled.ExpandMore else Icons.Filled.ExpandLess,
+                                    contentDescription = if (isCollapsed) "Expand group" else "Collapse group",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(20.dp).padding(end = 4.dp),
+                                )
+                                Text(
+                                    text = item.title,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                             if (isReordering) {
                                 Icon(
                                     imageVector = Icons.Default.DragHandle,
@@ -185,6 +219,7 @@ fun GroupedConnectionList(
                                 elevation = if (isDragging) 8.dp else 2.dp,
                                 onClick = { onConnect(profile.id) },
                                 onEdit = { onEditConnection(profile.id) },
+                                onOpenSftp = onOpenSftp?.let { { it(profile.id) } },
                                 onAddToHomeScreen = { onAddToHomeScreen(profile) },
                             )
                         } else {
@@ -251,6 +286,7 @@ fun GroupedConnectionList(
                                             elevation = 2.dp,
                                             onClick = { onConnect(profile.id) },
                                             onEdit = { onEditConnection(profile.id) },
+                                            onOpenSftp = onOpenSftp?.let { { it(profile.id) } },
                                             onAddToHomeScreen = { onAddToHomeScreen(profile) },
                                         )
                                     },

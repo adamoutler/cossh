@@ -2,6 +2,7 @@ package com.adamoutler.ssh.backup
 
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
+import com.adamoutler.ssh.network.HostValidator
 import com.adamoutler.ssh.util.AppLog
 import java.util.UUID
 
@@ -81,7 +82,7 @@ object BackupSanitizer {
             val cleanUsername = profile.username.trim()
             val cleanPort = if (profile.port in 1..65535) profile.port else 22
             val cleanFolderId = profile.folderId?.trim()?.ifBlank { null }
-            val cleanInitialDir = profile.initialDirectory?.trim()?.ifBlank { null }
+            val cleanInitialDir = profile.initialDirectory?.let { HostValidator.stripControlChars(it).ifBlank { null } }
             val cleanFontSize = if (profile.fontSize != null && profile.fontSize in 6..48) profile.fontSize else null
 
             val cleanIdentityId = if (!profile.identityId.isNullOrBlank()) {
