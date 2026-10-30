@@ -3,16 +3,29 @@ package com.adamoutler.ssh.network
 import android.content.Context
 import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.crypto.PemUtils
+import com.adamoutler.ssh.crypto.hardware.HardwareKeyProvider
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.HostKeyVerifier
 import net.schmizz.sshj.userauth.UserAuthException
+import net.schmizz.sshj.userauth.keyprovider.KeyProvider
 import java.io.File
 import java.io.IOException
 import java.security.KeyPair
+import java.security.PrivateKey
 import java.security.PublicKey
+import java.util.concurrent.ConcurrentHashMap
+
+/**
+ * Authenticates SSH sessions using non-exportable hardware-backed keys (StrongBox/TEE).
+ */
+class HardwareKeyAuthenticator(private val keyProvider: KeyProvider) : SshAuthenticator {
+    override fun authenticate(client: SSHClient, profile: ConnectionProfile) {
+        client.authPublickey(profile.username, keyProvider)
+    }
+}
 
 /**
  * Isolates the SSH handshake and connection logic from the main SshConnectionManager.
@@ -100,6 +113,18 @@ open class SshHandshakeCoordinator(
         if (identity != null) {
             val authenticators = mutableListOf<SshAuthenticator>()
 
+            // Try hardware keystore key auth if an alias exists
+            if (identity.keystoreAlias != null) {
+                try {
+                    val hardwareProvider = resolveHardwareKeyProvider(identity.keystoreAlias, identity.publicKey)
+                    if (hardwareProvider != null) {
+                        authenticators.add(HardwareKeyAuthenticator(hardwareProvider))
+                    }
+                } catch (e: Exception) {
+                    println("SshHandshakeCoordinator: Failed to initialize hardware key: $e")
+                }
+            }
+
             // Try key auth if a private key exists
             if (identity.privateKey != null || keyPair != null) {
                 try {
@@ -159,28 +184,52 @@ open class SshHandshakeCoordinator(
     }
 
     @PublishedApi
-    internal fun loadKeyPairFromIdentity(identity: IdentityProfile): KeyPair {
-        val privateKeyBytes = identity.privateKey ?: throw IllegalArgumentException("Identity has no private key")
+    internal open fun resolveHardwareKeyProvider(alias: String, publicKeyStr: String?): HardwareKeyProvider? {
+        testHardwareKeyProviders[alias]?.let { return it }
+        return try {
+            val keyStore = java.security.KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+            val privKey = keyStore.getKey(alias, null) as? PrivateKey ?: return null
+            val certPubKey = keyStore.getCertificate(alias)?.publicKey
+            val pubKey = certPubKey ?: parsePublicKeyFromOpenSsh(publicKeyStr) ?: return null
+            HardwareKeyProvider(pubKey, privKey)
+        } catch (_: Throwable) {
+            null
+        }
+    }
 
-        var publicKey: PublicKey? = null
-        try {
-            val pubKeyStr = identity.publicKey
-            if (!pubKeyStr.isNullOrEmpty()) {
-                val parts = pubKeyStr.split(" ")
-                if (parts.size >= 2) {
-                    val type = parts[0]
-                    val base64 = parts[1]
-                    val decoded = java.util.Base64.getDecoder().decode(base64)
-                    val buffer = net.schmizz.sshj.common.Buffer.PlainBuffer(decoded)
-                    buffer.readString() // Read algorithm name
-                    publicKey = net.schmizz.sshj.common.KeyType.fromString(type).readPubKeyFromBuffer(buffer)
-                }
+    @PublishedApi
+    internal fun parsePublicKeyFromOpenSsh(pubKeyStr: String?): PublicKey? {
+        if (pubKeyStr.isNullOrEmpty()) return null
+        return try {
+            val parts = pubKeyStr.split(" ")
+            if (parts.size >= 2) {
+                val type = parts[0]
+                val base64 = parts[1]
+                val decoded = java.util.Base64.getDecoder().decode(base64)
+                val buffer = net.schmizz.sshj.common.Buffer.PlainBuffer(decoded)
+                buffer.readString() // Read algorithm name
+                net.schmizz.sshj.common.KeyType.fromString(type).readPubKeyFromBuffer(buffer)
+            } else {
+                null
             }
         } catch (e: Exception) {
-            println(("SshHandshakeCoordinator").toString() + ": " + ("Failed to parse public key from identity").toString() + " " + (e).toString())
+            println("SshHandshakeCoordinator: Failed to parse public key from identity: $e")
+            null
         }
+    }
 
+    @PublishedApi
+    internal fun loadKeyPairFromIdentity(identity: IdentityProfile): KeyPair {
+        val privateKeyBytes = identity.privateKey ?: throw IllegalArgumentException("Identity has no private key")
+        val publicKey = parsePublicKeyFromOpenSsh(identity.publicKey)
         return PemUtils.parsePemToKeyPair(privateKeyBytes, publicKey)
+    }
+
+    companion object {
+        private const val TAG = "SshHandshakeCoordinator"
+
+        @androidx.annotation.VisibleForTesting
+        val testHardwareKeyProviders = ConcurrentHashMap<String, HardwareKeyProvider>()
     }
 
     @PublishedApi

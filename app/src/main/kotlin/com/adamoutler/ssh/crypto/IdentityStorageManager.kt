@@ -97,6 +97,12 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
                 editor.remove("${identity.id}_key")
             }
 
+            if (identity.keystoreAlias != null) {
+                editor.putString("${identity.id}_keystore_alias", identity.keystoreAlias)
+            } else {
+                editor.remove("${identity.id}_keystore_alias")
+            }
+
             editor.apply()
             try {
                 val auditManager = com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstance(context)
@@ -117,7 +123,10 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
     fun getIdentity(id: String): IdentityProfile? {
         try {
             val jsonString = encryptedPrefs.getString(id, null) ?: return null
-            val identity = Json.decodeFromString<IdentityProfile>(jsonString)
+            val decoded = Json.decodeFromString<IdentityProfile>(jsonString)
+            val storedAlias = encryptedPrefs.getString("${id}_keystore_alias", null)
+            val alias = decoded.keystoreAlias ?: storedAlias
+            val identity = if (alias != decoded.keystoreAlias) decoded.copy(keystoreAlias = alias) else decoded
             identity.password = decryptSensitive(encryptedPrefs.getString("${id}_pwd", null))
             identity.privateKey = decryptSensitive(encryptedPrefs.getString("${id}_key", null))
             return identity
@@ -135,10 +144,13 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
         val identities = mutableListOf<IdentityProfile>()
         try {
             for ((key, value) in encryptedPrefs.all) {
-                // Main entries are identified by UUID strings (not ending in _pwd or _key)
-                if (value is String && !key.endsWith("_pwd") && !key.endsWith("_key")) {
+                // Main entries are identified by UUID strings (not ending in _pwd, _key, or _keystore_alias)
+                if (value is String && !key.endsWith("_pwd") && !key.endsWith("_key") && !key.endsWith("_keystore_alias")) {
                     try {
-                        val identity = Json.decodeFromString<IdentityProfile>(value)
+                        val decoded = Json.decodeFromString<IdentityProfile>(value)
+                        val storedAlias = encryptedPrefs.getString("${key}_keystore_alias", null)
+                        val alias = decoded.keystoreAlias ?: storedAlias
+                        val identity = if (alias != decoded.keystoreAlias) decoded.copy(keystoreAlias = alias) else decoded
                         // Metadata-only loading: DO NOT hydrate the password or private key here. (SSH-138)
                         identities.add(identity)
                     } catch (e: kotlinx.serialization.SerializationException) {
@@ -161,6 +173,7 @@ class IdentityStorageManager(private val context: Context, injectedPrefs: Shared
                 .remove(id)
                 .remove("${id}_pwd")
                 .remove("${id}_key")
+                .remove("${id}_keystore_alias")
                 .apply()
             try {
                 val auditManager = com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstance(context)

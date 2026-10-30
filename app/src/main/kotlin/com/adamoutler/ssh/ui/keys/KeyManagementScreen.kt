@@ -24,12 +24,15 @@ fun KeyManagementScreen(initialKeys: List<SshKeyDisplay> = emptyList()) {
     val context = LocalContext.current
     DisposableEffect(Unit) {
         val window = (context as? ComponentActivity)?.window
+        val wasAlreadySecure = ((window?.attributes?.flags ?: 0) and WindowManager.LayoutParams.FLAG_SECURE) != 0
         window?.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE,
         )
         onDispose {
-            window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            if (!wasAlreadySecure) {
+                window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
         }
     }
 

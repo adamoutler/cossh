@@ -35,6 +35,7 @@ data class IdentityFormState(
     val passphraseError: String? = null,
     val securityTier: String? = null,
     val attestationRecord: com.adamoutler.ssh.crypto.strongbox.KeyAttestationRecord? = null,
+    val keystoreAlias: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -73,6 +74,7 @@ data class IdentityFormState(
         if (passphraseError != other.passphraseError) return false
         if (securityTier != other.securityTier) return false
         if (attestationRecord != other.attestationRecord) return false
+        if (keystoreAlias != other.keystoreAlias) return false
 
         return true
     }
@@ -94,6 +96,7 @@ data class IdentityFormState(
         result = 31 * result + (passphraseError?.hashCode() ?: 0)
         result = 31 * result + (securityTier?.hashCode() ?: 0)
         result = 31 * result + (attestationRecord?.hashCode() ?: 0)
+        result = 31 * result + (keystoreAlias?.hashCode() ?: 0)
         return result
     }
 }
@@ -137,6 +140,7 @@ class IdentityViewModel(
                         publicKey = identity.publicKey ?: "",
                         privateKey = identity.privateKey,
                         securityTier = identity.securityTier,
+                        keystoreAlias = identity.keystoreAlias,
                         isLoaded = true,
                     )
                 }
@@ -167,7 +171,12 @@ class IdentityViewModel(
 
     fun saveIdentity(identity: IdentityProfile) {
         launchWithHandler {
-            storageManager.saveIdentity(identity)
+            val identityToSave = if (identity.keystoreAlias == null && _uiState.value.keystoreAlias != null) {
+                identity.copy(keystoreAlias = _uiState.value.keystoreAlias)
+            } else {
+                identity
+            }
+            storageManager.saveIdentity(identityToSave)
             loadIdentities()
         }
     }
@@ -240,6 +249,7 @@ class IdentityViewModel(
                     authType = AuthType.KEY,
                     securityTier = if (result.isStrongBoxBacked) "STRONGBOX" else "TEE",
                     attestationRecord = result.attestationRecord,
+                    keystoreAlias = result.alias,
                 )
             }
         }

@@ -23,6 +23,12 @@ class AppLockManager(
 
     val pendingResumeIntent: MutableStateFlow<Intent?> = MutableStateFlow(null)
 
+    /**
+     * Test-only override flag allowing headless test environments to unlock on mock biometric failures.
+     * Strictly false in production to prevent biometric authentication bypass on exception.
+     */
+    var allowHeadlessTestFallback: Boolean = false
+
     private var backgroundedTimestampMs: Long = 0L
 
     private fun shouldBeLockedInitially(): Boolean = settingsManager.isAppLockEnabled && securityStorageManager.isAppLockConfigured()

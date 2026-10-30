@@ -175,8 +175,10 @@ class MainActivity : ComponentActivity() {
                     },
                 )
             } catch (e: Exception) {
-                // In headless or test environments where BiometricPrompt service is unavailable
-                appLockManager.unlockWithCipher(cipher)
+                com.adamoutler.ssh.util.AppLog.e("MainActivity", "Biometric authentication failed to start", e)
+                if (::appLockManager.isInitialized && appLockManager.allowHeadlessTestFallback) {
+                    appLockManager.unlockWithCipher(cipher)
+                }
             }
         }
     }

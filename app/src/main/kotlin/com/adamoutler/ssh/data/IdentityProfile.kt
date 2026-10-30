@@ -18,6 +18,7 @@ data class IdentityProfile(
     val publicKey: String? = null,
     val authType: AuthType = AuthType.PASSWORD,
     val securityTier: String? = null,
+    val keystoreAlias: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -43,6 +44,7 @@ data class IdentityProfile(
         if (publicKey != other.publicKey) return false
         if (authType != other.authType) return false
         if (securityTier != other.securityTier) return false
+        if (keystoreAlias != other.keystoreAlias) return false
 
         return true
     }
@@ -56,6 +58,7 @@ data class IdentityProfile(
         result = 31 * result + (publicKey?.hashCode() ?: 0)
         result = 31 * result + authType.hashCode()
         result = 31 * result + (securityTier?.hashCode() ?: 0)
+        result = 31 * result + (keystoreAlias?.hashCode() ?: 0)
         return result
     }
 
