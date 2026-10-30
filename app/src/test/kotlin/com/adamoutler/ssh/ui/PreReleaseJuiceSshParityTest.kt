@@ -272,4 +272,20 @@ class PreReleaseJuiceSshParityTest {
         // In TerminalSessionTabBar: visible = sessions.isNotEmpty()
         assertTrue("Session tab bar should be visible for a single active session to permit new tab creation", sessions.isNotEmpty())
     }
+
+    @Test
+    fun `ssh connection handler disconnect stops all port forwards`() {
+        var stopAllCalled = false
+        val orchestrator = object : com.adamoutler.ssh.network.PortForwardingOrchestrator() {
+            override fun stopAll() {
+                stopAllCalled = true
+                super.stopAll()
+            }
+        }
+        val handler = com.adamoutler.ssh.network.SshConnectionHandler(
+            portForwardingOrchestrator = orchestrator,
+        )
+        handler.disconnect()
+        assertTrue("SshConnectionHandler.disconnect() must invoke portForwardingOrchestrator.stopAll()", stopAllCalled)
+    }
 }

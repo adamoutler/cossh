@@ -39,6 +39,7 @@ fun ConnectionListContent(
     onSettingsRequested: () -> Unit = {},
     onManageIdentitiesRequested: () -> Unit = {},
     onAddToHomeScreen: (ConnectionProfile) -> Unit = {},
+    onOpenSftp: ((String) -> Unit)? = null,
     initialMenuExpanded: Boolean = false,
     isReorderingPreview: Boolean = false,
 ) {
@@ -95,6 +96,7 @@ fun ConnectionListContent(
                 onDeleteConnection = onDeleteConnection,
                 onMoveToFolder = { profileId -> profileIdMovingToFolder = profileId },
                 onAddToHomeScreen = onAddToHomeScreen,
+                onOpenSftp = onOpenSftp,
             )
         }
     }

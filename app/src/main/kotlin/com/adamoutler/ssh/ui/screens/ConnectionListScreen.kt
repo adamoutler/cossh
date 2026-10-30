@@ -43,6 +43,7 @@ fun ConnectionListScreen(
     onConnect: (String, String?) -> Unit,
     onSettingsRequested: () -> Unit,
     onManageIdentitiesRequested: () -> Unit,
+    onOpenSftp: ((String) -> Unit)? = null,
 ) {
     val groupedProfiles by viewModel.groupedProfiles.collectAsState()
     val flatItems by viewModel.flatItems.collectAsState()
@@ -396,6 +397,7 @@ fun ConnectionListScreen(
             com.adamoutler.ssh.util.ShortcutManagerHelper.pushProfileShortcut(context, profile)
             Toast.makeText(context, "Added ${profile.nickname} shortcut to home screen", Toast.LENGTH_SHORT).show()
         },
+        onOpenSftp = onOpenSftp,
     )
 }
 

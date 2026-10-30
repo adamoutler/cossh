@@ -145,6 +145,7 @@ fun AppNavigation(
                 },
                 onSettingsRequested = { navController.navigate("settings") },
                 onManageIdentitiesRequested = { navController.navigate("identityList") },
+                onOpenSftp = { profileId -> navController.navigate("sftpBrowser?profileId=$profileId") },
             )
         }
         composable("settings") {

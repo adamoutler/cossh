@@ -383,7 +383,8 @@ class PreReleaseProtocolAndInputHardeningTest {
 
     @Test
     fun testLocalShellConnectionHandler_stripsLdPreloadAndLdLibraryPathFromEnvVars() {
-        assertNotNull(LocalShellConnectionHandler())
+        val handler = LocalShellConnectionHandler()
+        assertNotNull(handler)
         val hostileProfile = ConnectionProfile(
             id = "local-shell-hostile",
             nickname = "Local Shell Test",
@@ -397,21 +398,32 @@ class PreReleaseProtocolAndInputHardeningTest {
             ),
         )
 
-        val processBuilder = ProcessBuilder("sh")
-        val env = processBuilder.environment()
-        env["TERM"] = "xterm-256color"
-        for ((key, value) in hostileProfile.envVars) {
-            if (key.equals("LD_PRELOAD", ignoreCase = true) || key.equals("LD_LIBRARY_PATH", ignoreCase = true)) {
-                continue
-            }
-            env[key] = value
-        }
-        env.remove("LD_PRELOAD")
-        env.remove("LD_LIBRARY_PATH")
+        val env = mutableMapOf(
+            "LD_PRELOAD" to "/system/lib64/preload.so",
+            "LD_LIBRARY_PATH" to "/system/lib64",
+        )
+        LocalShellConnectionHandler.sanitizeEnvironment(env, hostileProfile.envVars)
 
         assertFalse("LD_PRELOAD must not be present in environment", env.containsKey("LD_PRELOAD"))
         assertFalse("ld_preload must not be present in environment", env.containsKey("ld_preload"))
         assertFalse("LD_LIBRARY_PATH must not be present in environment", env.containsKey("LD_LIBRARY_PATH"))
         assertEquals("safe_value", env["SAFE_VAR"])
+        assertEquals("xterm-256color", env["TERM"])
+    }
+
+    @Test
+    fun testPortForwardingOrchestrator_remotePortForwardBindsLoopback127001() {
+        assertEquals("127.0.0.1", PortForwardingOrchestrator.LOCAL_HOST)
+        val orchestrator = PortForwardingOrchestrator()
+        val config = com.adamoutler.ssh.data.PortForwardConfig(
+            type = com.adamoutler.ssh.data.PortForwardType.REMOTE,
+            localPort = 8080,
+            remoteHost = "0.0.0.0",
+            remotePort = 9090,
+        )
+        val forward = orchestrator.createRemoteForward(config)
+        assertNotNull("RemotePortForwarder.Forward must be created", forward)
+        assertEquals("127.0.0.1", forward.address)
+        assertEquals(9090, forward.port)
     }
 }

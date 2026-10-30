@@ -15,6 +15,21 @@ class LocalShellConnectionHandler(
 
     companion object {
         private const val TAG = "LocalShellConnectionHandler"
+
+        internal fun sanitizeEnvironment(
+            env: MutableMap<String, String>,
+            profileEnvVars: Map<String, String>,
+        ) {
+            env["TERM"] = "xterm-256color"
+            for ((key, value) in profileEnvVars) {
+                if (key.equals("LD_PRELOAD", ignoreCase = true) || key.equals("LD_LIBRARY_PATH", ignoreCase = true)) {
+                    continue
+                }
+                env[key] = value
+            }
+            env.remove("LD_PRELOAD")
+            env.remove("LD_LIBRARY_PATH")
+        }
     }
 
     internal var process: Process? = null
@@ -31,16 +46,7 @@ class LocalShellConnectionHandler(
         val processBuilder = ProcessBuilder(shellPath)
         processBuilder.redirectErrorStream(true)
 
-        val env = processBuilder.environment()
-        env["TERM"] = "xterm-256color"
-        for ((key, value) in profile.envVars) {
-            if (key.equals("LD_PRELOAD", ignoreCase = true) || key.equals("LD_LIBRARY_PATH", ignoreCase = true)) {
-                continue
-            }
-            env[key] = value
-        }
-        env.remove("LD_PRELOAD")
-        env.remove("LD_LIBRARY_PATH")
+        sanitizeEnvironment(processBuilder.environment(), profile.envVars)
 
         if (!profile.initialDirectory.isNullOrEmpty()) {
             val sanitized = profile.initialDirectory.filter { ch -> ch.code >= 0x20 && ch.code != 0x7F }
