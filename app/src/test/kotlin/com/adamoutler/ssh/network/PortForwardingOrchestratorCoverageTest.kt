@@ -440,6 +440,16 @@ class PortForwardingOrchestratorCoverageTest {
             out.writeByte(0x09) // Bad ATYP
             out.flush()
 
+            val ver = inp.readUnsignedByte()
+            val rep = inp.readUnsignedByte()
+            inp.readUnsignedByte() // RSV
+            inp.readUnsignedByte() // ATYP
+            val bndAddr = ByteArray(4)
+            inp.readFully(bndAddr)
+            inp.readUnsignedShort() // BND.PORT
+            assertEquals(0x05, ver)
+            assertEquals(0x08, rep) // Address type not supported
+            // Then connection is closed
             val read = sock.getInputStream().read()
             assertEquals(-1, read)
         }

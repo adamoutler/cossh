@@ -28,9 +28,9 @@ open class PortForwardingOrchestrator {
         const val SOCKS5_HANDSHAKE_TIMEOUT_MS = 15_000
     }
 
-    private val localServerSockets = CopyOnWriteArrayList<ServerSocket>()
+    internal val localServerSockets = CopyOnWriteArrayList<ServerSocket>()
     val activeClientSockets = ConcurrentHashMap.newKeySet<Socket>()
-    private val socksExecutor = Executors.newFixedThreadPool(16) { runnable ->
+    private val socksExecutor = Executors.newFixedThreadPool(MAX_CONCURRENT_FORWARD_CONNECTIONS) { runnable ->
         Thread(runnable, "SOCKS5_Worker").apply { isDaemon = true }
     }
 
@@ -142,6 +142,7 @@ open class PortForwardingOrchestrator {
             val version = input.readUnsignedByte()
             if (version != 0x05) throw IOException("Unsupported SOCKS version: $version")
             val numMethods = input.readUnsignedByte()
+            if (numMethods == 0) throw IOException("No authentication methods specified")
             val methods = ByteArray(numMethods)
             input.readFully(methods)
 
@@ -177,7 +178,18 @@ open class PortForwardingOrchestrator {
                     val len = input.readUnsignedByte()
                     val domain = ByteArray(len)
                     input.readFully(domain)
-                    targetHost = String(domain, Charsets.UTF_8)
+                    val rawDomain = String(domain, Charsets.UTF_8)
+                    if (rawDomain.any { it <= '\u001F' || it == '\u007F' }) {
+                        output.writeByte(0x05)
+                        output.writeByte(0x01) // General failure
+                        output.writeByte(0x00) // RSV
+                        output.writeByte(0x01) // IPv4
+                        output.write(byteArrayOf(0x00, 0x00, 0x00, 0x00))
+                        output.writeShort(0)
+                        output.flush()
+                        throw IOException("Hostile domain name rejected: contains control character")
+                    }
+                    targetHost = rawDomain
                 }
 
                 0x04 -> { // IPv6
@@ -186,12 +198,36 @@ open class PortForwardingOrchestrator {
                     targetHost = InetAddress.getByAddress(ipv6).hostAddress ?: ""
                 }
 
-                else -> throw IOException("Unsupported SOCKS address type: $addressType")
+                else -> {
+                    output.writeByte(0x05)
+                    output.writeByte(0x08) // Address type not supported
+                    output.writeByte(0x00) // RSV
+                    output.writeByte(0x01) // IPv4
+                    output.write(byteArrayOf(0x00, 0x00, 0x00, 0x00))
+                    output.writeShort(0)
+                    output.flush()
+                    throw IOException("Unsupported SOCKS address type: $addressType")
+                }
             }
             val targetPort = input.readUnsignedShort()
 
             // Open SSH tunnel
-            val channel = net.schmizz.sshj.connection.channel.direct.ChannelFactory.createDirectTCPIPChannel(client.connection, LOCAL_HOST, socket.port, targetHost, targetPort)
+            val channel = try {
+                net.schmizz.sshj.connection.channel.direct.ChannelFactory.createDirectTCPIPChannel(
+                    client.connection, LOCAL_HOST, socket.port, targetHost, targetPort
+                )
+            } catch (e: Exception) {
+                try {
+                    output.writeByte(0x05)
+                    output.writeByte(0x01) // General failure
+                    output.writeByte(0x00) // RSV
+                    output.writeByte(0x01) // IPv4
+                    output.write(byteArrayOf(0x00, 0x00, 0x00, 0x00))
+                    output.writeShort(0)
+                    output.flush()
+                } catch (ignored: Exception) {}
+                throw e
+            }
 
             // Reset socket to streaming mode once tunnel opens
             socket.soTimeout = 0
