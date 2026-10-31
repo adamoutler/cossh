@@ -119,6 +119,7 @@ class SshConnectionHandler(
                 }
             }
         } finally {
+            profile.clearSensitiveData()
             disconnect()
         }
     }
