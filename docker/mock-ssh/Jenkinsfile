@@ -1,0 +1,50 @@
+pipeline {
+    agent {
+        label 'shark-wrangler'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build & Deploy Container') {
+            steps {
+                sh 'docker buildx build -t mock-ssh:latest .'
+                sh 'docker compose up -d --force-recreate'
+            }
+        }
+
+        stage('Fuzz & Integration Test') {
+            steps {
+                sh '''
+                echo "Waiting for container to boot..."
+                sleep 5
+                
+                # Check status HTTP ping
+                curl -s http://127.0.0.1:32223 || echo "Status HTTP failed"
+                
+                # Run the fuzz tester locally using the built docker image to bypass host venv/pip issues
+                docker run --network host --rm -v $(pwd)/test_fuzz.py:/app/test_fuzz.py mock-ssh:latest python /app/test_fuzz.py
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            sh '''
+            echo 'Deployment complete. Server remains up at mock.hackedyour.info:32222'
+            '''
+        }
+        failure {
+            sh '''
+            echo 'Tests failed! Taking the container offline to prevent exposure of broken builds.'
+            docker compose logs --tail=100
+            docker compose down
+            '''
+        }
+    }
+}

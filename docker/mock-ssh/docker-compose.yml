@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  mock-ssh:
+    build: .
+    image: mock-ssh:latest
+    restart: always
+    ports:
+      - "32222:2222"
+      - "32223:32223"
+      - "32224:2323"
+    environment:
+      - PYTHONUNBUFFERED=1
