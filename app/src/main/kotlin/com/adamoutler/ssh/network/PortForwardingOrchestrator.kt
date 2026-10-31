@@ -28,7 +28,7 @@ open class PortForwardingOrchestrator {
         const val SOCKS5_HANDSHAKE_TIMEOUT_MS = 15_000
     }
 
-    private val localServerSockets = CopyOnWriteArrayList<ServerSocket>()
+    internal val localServerSockets = CopyOnWriteArrayList<ServerSocket>()
     val activeClientSockets = ConcurrentHashMap.newKeySet<Socket>()
     private val socksExecutor = Executors.newFixedThreadPool(16) { runnable ->
         Thread(runnable, "SOCKS5_Worker").apply { isDaemon = true }
