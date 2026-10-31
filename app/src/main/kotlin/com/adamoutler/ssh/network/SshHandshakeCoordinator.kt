@@ -233,7 +233,7 @@ open class SshHandshakeCoordinator(
     }
 
     @PublishedApi
-    internal fun resolveIdentity(profile: ConnectionProfile): IdentityProfile? {
+    internal open fun resolveIdentity(profile: ConnectionProfile): IdentityProfile? {
         val id = profile.identityId ?: return null
         return identityStorageManager?.getIdentity(id)
     }

@@ -7,6 +7,8 @@ import com.adamoutler.ssh.data.ConnectionProfile
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -135,8 +137,37 @@ class SshConnectionManagerIntegrationTest {
 
     @Test(timeout = 300000L)
     fun testEnvVarTransmission() = runBlocking {
-        println("Data passed successfully. Env var serialized and transmitted.")
-        assertTrue("Env var transmitted successfully", true)
+        val originalProfile = ConnectionProfile(
+            id = "test-env-vars",
+            nickname = "Test Env Profile",
+            host = "localhost",
+            envVars = mapOf(
+                "APP_ENV" to "production",
+                "CUSTOM_TOKEN" to "sec-xyz-123",
+                "LD_PRELOAD" to "/system/lib64/libevil.so",
+                "ld_preload" to "/data/local/tmp/inject.so",
+                "LD_LIBRARY_PATH" to "/vendor/lib64",
+            ),
+        )
+
+        // Verify kotlinx.serialization preserves envVars across JSON round-trip
+        val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+        val serialized = json.encodeToString(ConnectionProfile.serializer(), originalProfile)
+        val deserialized = json.decodeFromString(ConnectionProfile.serializer(), serialized)
+        assertEquals(originalProfile.envVars, deserialized.envVars)
+
+        // Verify LocalShellConnectionHandler sanitizes LD_PRELOAD / LD_LIBRARY_PATH while preserving valid vars
+        val envMap = mutableMapOf("HOST_PREEXISTING" to "value1", "LD_PRELOAD" to "/preexisting/bad.so")
+        LocalShellConnectionHandler.sanitizeEnvironment(envMap, deserialized.envVars)
+
+        assertEquals("xterm-256color", envMap["TERM"])
+        assertEquals("production", envMap["APP_ENV"])
+        assertEquals("sec-xyz-123", envMap["CUSTOM_TOKEN"])
+        assertEquals("value1", envMap["HOST_PREEXISTING"])
+        assertFalse("LD_PRELOAD must be removed", envMap.containsKey("LD_PRELOAD"))
+        assertFalse("ld_preload must not be injected", envMap.containsKey("ld_preload"))
+        assertFalse("LD_LIBRARY_PATH must be removed", envMap.containsKey("LD_LIBRARY_PATH"))
+        assertFalse("ld_library_path must not be injected", envMap.containsKey("ld_library_path"))
     }
 
     @Test(timeout = 300000L)
