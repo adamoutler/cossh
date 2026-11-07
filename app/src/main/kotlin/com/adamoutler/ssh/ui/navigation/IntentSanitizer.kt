@@ -8,6 +8,8 @@ import androidx.navigation.NavController
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.adamoutler.ssh.network.SshService
+import com.adamoutler.ssh.security.automation.AutomationIntentGuard
+import com.adamoutler.ssh.security.automation.AutomationValidationResult
 
 /**
  * Validates, sanitizes, and safely handles external intents and deep-links intended to resume
@@ -27,6 +29,7 @@ object IntentSanitizer {
     const val ACTION_LAUNCH_PROFILE = "com.adamoutler.ssh.LAUNCH_PROFILE"
     const val EXTRA_PROFILE_ID = "com.adamoutler.ssh.EXTRA_PROFILE_ID"
     val IDENTIFIER_REGEX = Regex("^[a-zA-Z0-9_-]{1,64}$")
+    val PROFILE_ID_REGEX = IDENTIFIER_REGEX
 
     /**
      * Checks if the intent represents an attempt to resume or navigate to a terminal session or launch a profile shortcut.
@@ -34,7 +37,7 @@ object IntentSanitizer {
     fun isResumeIntent(intent: Intent?): Boolean {
         if (intent == null) return false
         val action = intent.action
-        return (action != null && (action.startsWith(RESUME_ACTION_PREFIX) || action == ACTION_LAUNCH_PROFILE)) ||
+        return (action != null && (action.startsWith(RESUME_ACTION_PREFIX) || action == ACTION_LAUNCH_PROFILE || action == AutomationIntentGuard.ACTION_EXECUTE_AUTOMATION)) ||
             intent.hasExtra(SshService.EXTRA_PROFILE_ID) ||
             intent.hasExtra(EXTRA_PROFILE_ID) ||
             intent.hasExtra(SshService.EXTRA_SESSION_ID)
@@ -46,6 +49,7 @@ object IntentSanitizer {
     fun isLaunchProfileIntent(intent: Intent?): Boolean {
         if (intent == null) return false
         return intent.action == ACTION_LAUNCH_PROFILE ||
+            intent.action == AutomationIntentGuard.ACTION_EXECUTE_AUTOMATION ||
             (intent.hasExtra(EXTRA_PROFILE_ID) && !intent.hasExtra(SshService.EXTRA_SESSION_ID))
     }
 
@@ -117,8 +121,32 @@ object IntentSanitizer {
         profileLookup: (String) -> Boolean = { profileId ->
             securityStorageManager?.getProfile(profileId) != null
         },
+        automationIntentGuard: AutomationIntentGuard? = null,
     ): SanitizedResumeTarget? {
         if (intent == null) return null
+
+        if (intent.action == AutomationIntentGuard.ACTION_EXECUTE_AUTOMATION) {
+            if (automationIntentGuard == null) {
+                Log.w(TAG, "Rejected automation intent: automationIntentGuard is null")
+                return null
+            }
+            return when (val result = automationIntentGuard.validateIntent(intent)) {
+                is AutomationValidationResult.Authenticated -> {
+                    if (profileLookup(result.profileId) && PROFILE_ID_REGEX.matches(result.profileId)) {
+                        val route = "terminal?profileId=${Uri.encode(result.profileId)}"
+                        SanitizedResumeTarget(profileId = result.profileId, sessionId = "", route = route)
+                    } else {
+                        Log.w(TAG, "Rejected automation intent: profile '${result.profileId}' failed existence or regex bounds")
+                        null
+                    }
+                }
+
+                is AutomationValidationResult.Rejected -> {
+                    Log.w(TAG, "Rejected automation intent: ${result.reason}")
+                    null
+                }
+            }
+        }
 
         val profileId = intent.getStringExtra(EXTRA_PROFILE_ID)
             ?: intent.getStringExtra(SshService.EXTRA_PROFILE_ID)
@@ -152,6 +180,20 @@ object IntentSanitizer {
     }
 
     /**
+     * Overload supporting profile lookup predicate and optional [AutomationIntentGuard].
+     */
+    fun validateLaunchIntent(
+        intent: Intent?,
+        profileExists: (String) -> Boolean,
+        automationIntentGuard: AutomationIntentGuard? = null,
+    ): SanitizedResumeTarget? = validateLaunchIntent(
+        intent = intent,
+        securityStorageManager = null,
+        profileLookup = profileExists,
+        automationIntentGuard = automationIntentGuard,
+    )
+
+    /**
      * Inspects, clears, validates, and safely navigates for an incoming resume or launch intent.
      *
      * @param intent The incoming intent to process.
@@ -160,6 +202,7 @@ object IntentSanitizer {
      * @param securityStorageManager Storage manager to check profile existence.
      * @param sessionLookup Active session lookup predicate.
      * @param profileLookup Stored profile lookup predicate.
+     * @param automationIntentGuard Cryptographic automation intent guard.
      * @return true if the intent was valid, verified, and navigation succeeded; false otherwise.
      */
     fun sanitizeAndNavigate(
@@ -171,6 +214,7 @@ object IntentSanitizer {
         profileLookup: (String) -> Boolean = { profileId ->
             securityStorageManager?.getProfile(profileId) != null
         },
+        automationIntentGuard: AutomationIntentGuard? = null,
     ): Boolean {
         if (intent == null || !isResumeIntent(intent)) {
             return false
@@ -184,6 +228,7 @@ object IntentSanitizer {
                 intent = intent,
                 securityStorageManager = securityStorageManager,
                 profileLookup = profileLookup,
+                automationIntentGuard = automationIntentGuard,
             )
         } else {
             validateResumeIntent(
@@ -205,6 +250,25 @@ object IntentSanitizer {
             false
         }
     }
+
+    /**
+     * Overload supporting profile lookup predicate and optional [AutomationIntentGuard].
+     */
+    fun sanitizeAndNavigate(
+        intent: Intent?,
+        navController: NavController,
+        activity: Activity? = null,
+        profileExists: (String) -> Boolean,
+        automationIntentGuard: AutomationIntentGuard? = null,
+    ): Boolean = sanitizeAndNavigate(
+        intent = intent,
+        navController = navController,
+        activity = activity,
+        securityStorageManager = null,
+        sessionLookup = { ConnectionStateRepository.sessions.containsKey(it) },
+        profileLookup = profileExists,
+        automationIntentGuard = automationIntentGuard,
+    )
 
     /**
      * Verified data holder for sanitized navigation target parameters.

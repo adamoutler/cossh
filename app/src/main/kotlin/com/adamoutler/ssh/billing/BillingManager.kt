@@ -41,14 +41,11 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
             }
         }
 
-        fun isTestOverrideAllowed(isDebugBuild: Boolean, isRobolectricEnv: Boolean): Boolean =
-            (isDebugBuild || isRobolectricEnv) && forceCloudSyncEnabledForTest
+        fun isTestOverrideAllowed(isDebugBuild: Boolean, isRobolectricEnv: Boolean): Boolean = (isDebugBuild || isRobolectricEnv) && forceCloudSyncEnabledForTest
 
-        fun isTestEnvironment(): Boolean =
-            com.adamoutler.ssh.BuildConfig.DEBUG || isRobolectric
+        fun isTestEnvironment(): Boolean = com.adamoutler.ssh.BuildConfig.DEBUG || isRobolectric
 
-        fun isForceCloudSyncActive(): Boolean =
-            isTestOverrideAllowed(com.adamoutler.ssh.BuildConfig.DEBUG, isRobolectric)
+        fun isForceCloudSyncActive(): Boolean = isTestOverrideAllowed(com.adamoutler.ssh.BuildConfig.DEBUG, isRobolectric)
 
         fun computeEntitlementHmac(packageName: String): String {
             val message = "cloud_sync_entitled:true:$packageName"

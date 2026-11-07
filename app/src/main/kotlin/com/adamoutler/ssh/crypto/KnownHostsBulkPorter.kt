@@ -95,9 +95,7 @@ object KnownHostsBulkPorter {
     /**
      * Strips control characters (\u0000..\u001F, \u007F, ESC) from comments.
      */
-    fun sanitizeComment(comment: String): String {
-        return comment.filter { it >= ' ' && it != '\u007F' && it != '\u001B' }.trim()
-    }
+    fun sanitizeComment(comment: String): String = comment.filter { it >= ' ' && it != '\u007F' && it != '\u001B' }.trim()
 
     /**
      * Checks if a line contains forbidden control characters.
@@ -348,10 +346,12 @@ object KnownHostsBulkPorter {
                         KnownHostsMergeStrategy.STRICT_REJECT_CONFLICTS -> {
                             conflicts.add(conflict)
                         }
+
                         KnownHostsMergeStrategy.SKIP_EXISTING -> {
                             skipped++
                             batchProcessed.add(sameKeyType)
                         }
+
                         KnownHostsMergeStrategy.OVERWRITE_CHANGED -> {
                             toReplace[sameKeyType.id] = candidate
                             overwritten++

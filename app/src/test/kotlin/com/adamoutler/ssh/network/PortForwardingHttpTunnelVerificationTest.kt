@@ -86,6 +86,7 @@ class PortForwardingHttpTunnelVerificationTest {
                             exchange.sendResponseHeaders(200, response.size.toLong())
                             exchange.responseBody.use { it.write(response) }
                         }
+
                         method.equals("POST", ignoreCase = true) && path == "/echo" -> {
                             val bodyBytes = exchange.requestBody.readBytes()
                             val sha256Hex = computeSha256Hex(bodyBytes)
@@ -94,6 +95,7 @@ class PortForwardingHttpTunnelVerificationTest {
                             exchange.sendResponseHeaders(200, bodyBytes.size.toLong())
                             exchange.responseBody.use { it.write(bodyBytes) }
                         }
+
                         else -> {
                             exchange.sendResponseHeaders(404, -1)
                         }
@@ -126,11 +128,9 @@ class PortForwardingHttpTunnelVerificationTest {
 
                 override fun canForwardX11(session: Session, requestType: String): Boolean = false
 
-                override fun canListen(address: SshdSocketAddress, session: Session): Boolean =
-                    address.hostName in listOf("127.0.0.1", "localhost")
+                override fun canListen(address: SshdSocketAddress, session: Session): Boolean = address.hostName in listOf("127.0.0.1", "localhost")
 
-                override fun canConnect(type: TcpForwardingFilter.Type, address: SshdSocketAddress, session: Session): Boolean =
-                    address.hostName in listOf("127.0.0.1", "localhost") && address.port == mockHttpServerPort
+                override fun canConnect(type: TcpForwardingFilter.Type, address: SshdSocketAddress, session: Session): Boolean = address.hostName in listOf("127.0.0.1", "localhost") && address.port == mockHttpServerPort
             }
 
             // Shell factory for interactive multiplexing test
@@ -141,10 +141,16 @@ class PortForwardingHttpTunnelVerificationTest {
                     private var exitCallback: ExitCallback? = null
                     private var shellWorker: Thread? = null
 
-                    override fun setInputStream(`in`: InputStream) { inStream = `in` }
-                    override fun setOutputStream(out: OutputStream) { outStream = out }
+                    override fun setInputStream(`in`: InputStream) {
+                        inStream = `in`
+                    }
+                    override fun setOutputStream(out: OutputStream) {
+                        outStream = out
+                    }
                     override fun setErrorStream(err: OutputStream) {}
-                    override fun setExitCallback(callback: ExitCallback) { exitCallback = callback }
+                    override fun setExitCallback(callback: ExitCallback) {
+                        exitCallback = callback
+                    }
 
                     override fun start(channel: ChannelSession, env: Environment) {
                         shellWorker = thread(name = "MockSshShell") {
@@ -179,9 +185,13 @@ class PortForwardingHttpTunnelVerificationTest {
                     private var exitCallback: ExitCallback? = null
 
                     override fun setInputStream(`in`: InputStream) {}
-                    override fun setOutputStream(out: OutputStream) { outStream = out }
+                    override fun setOutputStream(out: OutputStream) {
+                        outStream = out
+                    }
                     override fun setErrorStream(err: OutputStream) {}
-                    override fun setExitCallback(callback: ExitCallback) { exitCallback = callback }
+                    override fun setExitCallback(callback: ExitCallback) {
+                        exitCallback = callback
+                    }
 
                     override fun start(channel: ChannelSession, env: Environment) {
                         thread(name = "MockSshExec") {
@@ -288,11 +298,13 @@ class PortForwardingHttpTunnelVerificationTest {
         // 2. RFC 1928 SOCKS5 with IPv4 (ATYP 0x01) -> POST /echo (8KB payload)
         val payload8K = ByteArray(8192) { index -> ('1'.code + (index % 10)).toByte() }
         val sha256Expected8K = computeSha256Hex(payload8K)
-        val postIpv4Headers = ("POST /echo HTTP/1.1\r\n" +
-            "Host: 127.0.0.1\r\n" +
-            "Content-Type: application/octet-stream\r\n" +
-            "Content-Length: ${payload8K.size}\r\n" +
-            "Connection: close\r\n\r\n").toByteArray(Charsets.UTF_8)
+        val postIpv4Headers = (
+            "POST /echo HTTP/1.1\r\n" +
+                "Host: 127.0.0.1\r\n" +
+                "Content-Type: application/octet-stream\r\n" +
+                "Content-Length: ${payload8K.size}\r\n" +
+                "Connection: close\r\n\r\n"
+            ).toByteArray(Charsets.UTF_8)
         val ipv4PostResp = executeSocks5TunnelRequest(socksPort, "127.0.0.1", mockHttpServerPort, isDomain = false, postIpv4Headers + payload8K)
         val hEndIpv4 = findHttpHeaderEnd(ipv4PostResp)
         assertTrue("SOCKS5 IPv4 POST response must contain valid HTTP header delimiter", hEndIpv4 > 0)
@@ -312,11 +324,13 @@ class PortForwardingHttpTunnelVerificationTest {
         // 4. RFC 1928 SOCKS5 with Domain Name (ATYP 0x03) -> POST /echo (16KB payload)
         val payload16K = ByteArray(16384) { index -> ('a'.code + (index % 26)).toByte() }
         val sha256Expected16K = computeSha256Hex(payload16K)
-        val postReqHeaders = ("POST /echo HTTP/1.1\r\n" +
-            "Host: localhost\r\n" +
-            "Content-Type: application/octet-stream\r\n" +
-            "Content-Length: ${payload16K.size}\r\n" +
-            "Connection: close\r\n\r\n").toByteArray(Charsets.UTF_8)
+        val postReqHeaders = (
+            "POST /echo HTTP/1.1\r\n" +
+                "Host: localhost\r\n" +
+                "Content-Type: application/octet-stream\r\n" +
+                "Content-Length: ${payload16K.size}\r\n" +
+                "Connection: close\r\n\r\n"
+            ).toByteArray(Charsets.UTF_8)
         val domainPostResp = executeSocks5TunnelRequest(socksPort, "localhost", mockHttpServerPort, isDomain = true, postReqHeaders + payload16K)
 
         val headerEnd = findHttpHeaderEnd(domainPostResp)
@@ -424,10 +438,12 @@ class PortForwardingHttpTunnelVerificationTest {
         val socksPostShas = mutableListOf<String>()
         futures.add(
             pool.submit<Unit> {
-                val reqHeaders = ("POST /echo HTTP/1.1\r\n" +
-                    "Host: 127.0.0.1\r\n" +
-                    "Content-Length: ${socksPayload.size}\r\n" +
-                    "Connection: close\r\n\r\n").toByteArray(Charsets.UTF_8)
+                val reqHeaders = (
+                    "POST /echo HTTP/1.1\r\n" +
+                        "Host: 127.0.0.1\r\n" +
+                        "Content-Length: ${socksPayload.size}\r\n" +
+                        "Connection: close\r\n\r\n"
+                    ).toByteArray(Charsets.UTF_8)
                 val rawResp = executeSocks5TunnelRequest(socksPort, "127.0.0.1", mockHttpServerPort, false, reqHeaders + socksPayload)
                 val hEnd = findHttpHeaderEnd(rawResp)
                 val hStr = String(rawResp.copyOfRange(0, hEnd), Charsets.UTF_8)
@@ -552,31 +568,25 @@ class PortForwardingHttpTunnelVerificationTest {
         return port
     }
 
-    private fun computeSha256Hex(bytes: ByteArray): String {
-        return MessageDigest.getInstance("SHA-256")
-            .digest(bytes)
-            .joinToString("") { "%02x".format(it) }
-    }
+    private fun computeSha256Hex(bytes: ByteArray): String = MessageDigest.getInstance("SHA-256")
+        .digest(bytes)
+        .joinToString("") { "%02x".format(it) }
 
-    private fun extractHeader(headersBlock: String, headerName: String): String? {
-        return headersBlock.lines()
-            .firstOrNull { it.startsWith("$headerName:", ignoreCase = true) }
-            ?.substringAfter(":")
-            ?.trim()
-    }
+    private fun extractHeader(headersBlock: String, headerName: String): String? = headersBlock.lines()
+        .firstOrNull { it.startsWith("$headerName:", ignoreCase = true) }
+        ?.substringAfter(":")
+        ?.trim()
 
-    private fun createProfile(configs: List<PortForwardConfig>): ConnectionProfile {
-        return ConnectionProfile(
-            id = "test-tunnel-profile",
-            nickname = "Test Tunnel Profile",
-            host = "127.0.0.1",
-            port = sshdPort,
-            username = "cossh_test",
-            authType = AuthType.PASSWORD,
-            protocol = Protocol.SSH,
-            portForwards = configs,
-        )
-    }
+    private fun createProfile(configs: List<PortForwardConfig>): ConnectionProfile = ConnectionProfile(
+        id = "test-tunnel-profile",
+        nickname = "Test Tunnel Profile",
+        host = "127.0.0.1",
+        port = sshdPort,
+        username = "cossh_test",
+        authType = AuthType.PASSWORD,
+        protocol = Protocol.SSH,
+        portForwards = configs,
+    )
 
     private fun fetchHttpGetWithRetry(url: URL, maxWaitMs: Long = 3000L): Pair<Int, String> {
         val deadline = System.currentTimeMillis() + maxWaitMs

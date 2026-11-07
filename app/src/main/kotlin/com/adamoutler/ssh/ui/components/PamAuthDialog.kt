@@ -105,7 +105,7 @@ fun PamAuthDialog(
                                 completedFactor?.let { "$it Verified • Step 2/2" } ?: "Step 2/2: Second Factor"
                             } else {
                                 "Challenge Round $round"
-                            }
+                            },
                         )
                     },
                     leadingIcon = {

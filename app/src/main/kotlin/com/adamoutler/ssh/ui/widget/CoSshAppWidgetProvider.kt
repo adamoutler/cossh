@@ -58,10 +58,8 @@ class CoSshAppWidgetProvider : AppWidgetProvider() {
         /**
          * Retrieves the assigned profileId for a specific widget instance.
          */
-        fun getWidgetProfile(context: Context, appWidgetId: Int): String? {
-            return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getString(PREF_PREFIX_KEY + appWidgetId, null)
-        }
+        fun getWidgetProfile(context: Context, appWidgetId: Int): String? = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(PREF_PREFIX_KEY + appWidgetId, null)
 
         /**
          * Deletes preference storage for a specific widget instance.

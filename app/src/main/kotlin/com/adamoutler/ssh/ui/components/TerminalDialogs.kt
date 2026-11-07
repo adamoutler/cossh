@@ -103,7 +103,9 @@ fun AuthPromptDialog(
     val headerText = when {
         isPartialAuth -> completedFactor?.let { "🛡️ $it Verified — Second Factor Required" }
             ?: "🛡️ Primary Factor Verified — Second Factor Required"
+
         isRetry -> "Please try again."
+
         else -> "Enter your credentials to connect."
     }
 

@@ -242,6 +242,7 @@ class PreReleaseJuiceSshParityTest {
         val visibleItems = flatItems.filter { item ->
             when (item) {
                 is ConnectionListItem.Header -> true
+
                 is ConnectionListItem.Profile -> {
                     val key = item.profile.folderId ?: "default"
                     collapsedFolders[key] != true

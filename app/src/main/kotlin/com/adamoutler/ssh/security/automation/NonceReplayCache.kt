@@ -18,9 +18,7 @@ class NonceReplayCache(
 
     private val lock = Any()
     private val cache = object : LinkedHashMap<String, Long>(maxCapacity, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Long>?): Boolean {
-            return size > maxCapacity
-        }
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Long>?): Boolean = size > maxCapacity
     }
 
     /**
@@ -72,9 +70,7 @@ class NonceReplayCache(
      *
      * @return `true` if replayed; `false` if freshly recorded.
      */
-    fun isReplayed(nonce: String, nowMs: Long = System.currentTimeMillis()): Boolean {
-        return !recordNonce(nonce, nowMs)
-    }
+    fun isReplayed(nonce: String, nowMs: Long = System.currentTimeMillis()): Boolean = !recordNonce(nonce, nowMs)
 
     /**
      * Returns the current number of active cached nonces.

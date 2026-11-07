@@ -334,7 +334,7 @@ class PortForwardingOrchestratorCoverageTest {
             val reqPayload = byteArrayOf(
                 0x04.toByte(), 0x01.toByte(), 0x00.toByte(), 0x01.toByte(),
                 127.toByte(), 0.toByte(), 0.toByte(), 1.toByte(),
-                (echoPort shr 8).toByte(), (echoPort and 0xFF).toByte()
+                (echoPort shr 8).toByte(), (echoPort and 0xFF).toByte(),
             )
             try {
                 out.write(reqPayload)

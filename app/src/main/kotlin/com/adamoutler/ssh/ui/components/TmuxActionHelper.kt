@@ -88,7 +88,7 @@ enum class TmuxCommand(
         description = "Terminates the active tmux pane",
         keySequenceHint = "x",
         suffixBytes = byteArrayOf('x'.code.toByte()),
-    );
+    ),
 }
 
 /**
@@ -109,21 +109,15 @@ object TmuxActionHelper {
     /**
      * Constructs the command sequence as a string payload suitable for terminal injection.
      */
-    fun buildCommandPayload(command: TmuxCommand, prefix: TmuxPrefix = TmuxPrefix.CTRL_B): String {
-        return String(buildCommandBytes(command, prefix), Charsets.ISO_8859_1)
-    }
+    fun buildCommandPayload(command: TmuxCommand, prefix: TmuxPrefix = TmuxPrefix.CTRL_B): String = String(buildCommandBytes(command, prefix), Charsets.ISO_8859_1)
 
     /**
      * Finds a command matching the given identifier name or returns null if not recognized.
      */
-    fun findCommand(name: String): TmuxCommand? {
-        return TmuxCommand.values().firstOrNull { it.name.equals(name, ignoreCase = true) }
-    }
+    fun findCommand(name: String): TmuxCommand? = TmuxCommand.values().firstOrNull { it.name.equals(name, ignoreCase = true) }
 }
 
 /**
  * Top-level function for constructing tmux command bytes.
  */
-fun buildCommandBytes(command: TmuxCommand, prefix: TmuxPrefix = TmuxPrefix.CTRL_B): ByteArray {
-    return TmuxActionHelper.buildCommandBytes(command, prefix)
-}
+fun buildCommandBytes(command: TmuxCommand, prefix: TmuxPrefix = TmuxPrefix.CTRL_B): ByteArray = TmuxActionHelper.buildCommandBytes(command, prefix)

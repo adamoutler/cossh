@@ -155,9 +155,7 @@ class MultiFactorAuthenticationTest {
         }
 
         val failingPrimaryAuthenticator = object : SshAuthenticator {
-            override fun authenticate(client: SSHClient, profile: ConnectionProfile) {
-                throw UserAuthException("Mock partial auth failure")
-            }
+            override fun authenticate(client: SSHClient, profile: ConnectionProfile): Unit = throw UserAuthException("Mock partial auth failure")
         }
 
         val constructor = Class.forName("com.adamoutler.ssh.network.SshHandshakeCoordinator\$CompositeAuthenticator")

@@ -72,9 +72,7 @@ open class PortForwardingOrchestrator {
         }
     }
 
-    internal fun createRemoteForward(config: com.adamoutler.ssh.data.PortForwardConfig): net.schmizz.sshj.connection.channel.forwarded.RemotePortForwarder.Forward {
-        return net.schmizz.sshj.connection.channel.forwarded.RemotePortForwarder.Forward(LOCAL_HOST, config.remotePort)
-    }
+    internal fun createRemoteForward(config: com.adamoutler.ssh.data.PortForwardConfig): net.schmizz.sshj.connection.channel.forwarded.RemotePortForwarder.Forward = net.schmizz.sshj.connection.channel.forwarded.RemotePortForwarder.Forward(LOCAL_HOST, config.remotePort)
 
     private fun startRemotePortForward(client: SSHClient, config: com.adamoutler.ssh.data.PortForwardConfig) {
         val remoteForward = createRemoteForward(config)
@@ -214,7 +212,11 @@ open class PortForwardingOrchestrator {
             // Open SSH tunnel
             val channel = try {
                 net.schmizz.sshj.connection.channel.direct.ChannelFactory.createDirectTCPIPChannel(
-                    client.connection, LOCAL_HOST, socket.port, targetHost, targetPort
+                    client.connection,
+                    LOCAL_HOST,
+                    socket.port,
+                    targetHost,
+                    targetPort,
                 )
             } catch (e: Exception) {
                 try {

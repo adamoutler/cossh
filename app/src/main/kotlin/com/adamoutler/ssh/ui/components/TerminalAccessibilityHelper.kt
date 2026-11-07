@@ -10,10 +10,13 @@ object TerminalAccessibilityHelper {
     // Regular expressions for terminal escape code sanitization
     // 1. Control Sequence Introducer (CSI): ESC [ ...
     private val CSI_REGEX = Regex("""\u001B\[[0-9:;<=>?]*[ -/]*[@-~]""")
+
     // 2. Operating System Command (OSC): ESC ] ... BEL or ESC \
     private val OSC_REGEX = Regex("""\u001B\].*?(?:\u0007|\u001B\\)""")
+
     // 3. Two-character escape sequences: ESC followed by ASCII 0x40-0x5F
     private val ESC_2CHAR_REGEX = Regex("""\u001B[@-Z\\-_]""")
+
     // 4. Non-printable control characters except newline and tab
     private val NON_PRINTABLE_REGEX = Regex("""[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]""")
 
@@ -79,27 +82,19 @@ object TerminalAccessibilityHelper {
 /**
  * Top-level delegator for [TerminalAccessibilityHelper.extractAccessibleLines].
  */
-fun extractAccessibleLines(rawTranscript: String, maxLines: Int = 50): List<String> {
-    return TerminalAccessibilityHelper.extractAccessibleLines(rawTranscript, maxLines)
-}
+fun extractAccessibleLines(rawTranscript: String, maxLines: Int = 50): List<String> = TerminalAccessibilityHelper.extractAccessibleLines(rawTranscript, maxLines)
 
 /**
  * Top-level delegator for [TerminalAccessibilityHelper.stripAnsiControlCodes].
  */
-fun stripAnsiControlCodes(raw: String): String {
-    return TerminalAccessibilityHelper.stripAnsiControlCodes(raw)
-}
+fun stripAnsiControlCodes(raw: String): String = TerminalAccessibilityHelper.stripAnsiControlCodes(raw)
 
 /**
  * Top-level delegator for [TerminalAccessibilityHelper.buildModifierAnnouncement].
  */
-fun buildModifierAnnouncement(modifierName: String, state: ModifierState): String {
-    return TerminalAccessibilityHelper.buildModifierAnnouncement(modifierName, state)
-}
+fun buildModifierAnnouncement(modifierName: String, state: ModifierState): String = TerminalAccessibilityHelper.buildModifierAnnouncement(modifierName, state)
 
 /**
  * Top-level delegator for [TerminalAccessibilityHelper.buildOutputAnnouncement].
  */
-fun buildOutputAnnouncement(newOutput: String, maxChars: Int = 200): String {
-    return TerminalAccessibilityHelper.buildOutputAnnouncement(newOutput, maxChars)
-}
+fun buildOutputAnnouncement(newOutput: String, maxChars: Int = 200): String = TerminalAccessibilityHelper.buildOutputAnnouncement(newOutput, maxChars)

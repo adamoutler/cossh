@@ -1,10 +1,10 @@
 package com.adamoutler.ssh.crypto.pqc
 
+import net.schmizz.sshj.common.Buffer
 import net.schmizz.sshj.common.DisconnectReason
 import net.schmizz.sshj.common.Factory
 import net.schmizz.sshj.common.Message
 import net.schmizz.sshj.common.SSHPacket
-import net.schmizz.sshj.common.Buffer
 import net.schmizz.sshj.transport.Transport
 import net.schmizz.sshj.transport.TransportException
 import net.schmizz.sshj.transport.digest.SHA512

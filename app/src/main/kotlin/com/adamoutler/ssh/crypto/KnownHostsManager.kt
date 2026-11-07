@@ -7,6 +7,7 @@ import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
+import java.security.PublicKey
 import java.security.SecureRandom
 import java.util.Base64
 import java.util.UUID
@@ -152,6 +153,24 @@ open class KnownHostsManager(
         linesToKeep.add(newEntryLine)
         atomicWriteLines(linesToKeep)
         return true
+    }
+
+    /**
+     * Saves or updates a host key from a raw [PublicKey].
+     */
+    open fun saveHostKey(
+        hostname: String,
+        port: Int,
+        key: PublicKey,
+    ): Boolean {
+        val formattedHost = if (port != 22 && !hostname.startsWith("[")) "[$hostname]:$port" else hostname
+        val keyType = net.schmizz.sshj.common.KeyType.fromKey(key).toString()
+        val buffer = net.schmizz.sshj.common.Buffer.PlainBuffer().putPublicKey(key)
+        val keyBlobBase64 = Base64.getEncoder().encodeToString(buffer.compactData)
+        val existingEntries = getEntries()
+        val oldMatching = existingEntries.find { matchesHost(it, formattedHost, port) }
+        val shouldHash = oldMatching?.isHashed ?: (existingEntries.isNotEmpty() && existingEntries.all { it.isHashed })
+        return saveOrUpdateHostKey(formattedHost, port, keyType, keyBlobBase64, hashHost = shouldHash)
     }
 
     /**

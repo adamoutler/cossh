@@ -14,6 +14,8 @@ import net.schmizz.sshj.AndroidConfig
  *   at the head of the suite.
  * - **Ciphers**: Strips 64-bit block ciphers such as Triple-DES (`3des-cbc`, `3des-ctr`) and
  *   Blowfish (`blowfish-cbc`, `blowfish-ctr`) to eliminate vulnerability to the Sweet32 attack.
+ *   Also strictly purges all legacy cipher block chaining (`-cbc`) ciphers to mitigate
+ *   padding oracle and plaintext recovery attacks on the hostile wire.
  * - **MACs**: Strips MD5 and SHA-1 based message authentication codes (e.g., `hmac-md5`, `hmac-sha1`)
  *   to mitigate collision and hash downgrade vulnerabilities.
  *
@@ -30,7 +32,7 @@ class SecureSshConfig : AndroidConfig() {
 
         cipherFactories = cipherFactories.filterNot { factory ->
             val name = factory.name.lowercase()
-            name.contains("3des") || name.contains("blowfish")
+            name.contains("3des") || name.contains("blowfish") || name.contains("cbc")
         }
 
         macFactories = macFactories.filterNot { factory ->

@@ -9,11 +9,9 @@ import java.util.concurrent.TimeUnit
 
 class MockSshContainerSecurityTest {
 
-    private fun findProjectRoot(): File {
-        return generateSequence(File(".").canonicalFile) { it.parentFile }
-            .firstOrNull { File(it, "settings.gradle.kts").exists() }
-            ?: File(".")
-    }
+    private fun findProjectRoot(): File = generateSequence(File(".").canonicalFile) { it.parentFile }
+        .firstOrNull { File(it, "settings.gradle.kts").exists() }
+        ?: File(".")
 
     @Test
     fun testMockSshDirectoryStructureAndFilesExist() {
@@ -152,7 +150,7 @@ class MockSshContainerSecurityTest {
 
             assertTrue(
                 "Mock SSH server failed to start listening within 10 seconds",
-                listeningLatch.await(10, TimeUnit.SECONDS)
+                listeningLatch.await(10, TimeUnit.SECONDS),
             )
 
             val testPb = ProcessBuilder("python3", testFuzzPy.absolutePath)
@@ -180,11 +178,11 @@ class MockSshContainerSecurityTest {
             val exitCode = testProcess.exitValue()
             assertTrue(
                 "test_fuzz.py failed with exit code $exitCode. Output:\n$testOutput",
-                exitCode == 0
+                exitCode == 0,
             )
             assertTrue(
                 "test_fuzz.py must report all tests completed successfully",
-                testOutput.contains("All mock SSH tests completed successfully.")
+                testOutput.contains("All mock SSH tests completed successfully."),
             )
         } finally {
             serverProcess?.destroyForcibly()

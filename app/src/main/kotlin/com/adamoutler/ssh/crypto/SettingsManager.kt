@@ -2,7 +2,6 @@ package com.adamoutler.ssh.crypto
 
 import android.content.Context
 import android.content.SharedPreferences
-
 import com.adamoutler.ssh.ui.components.ExtraKeysPresetId
 
 /**

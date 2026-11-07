@@ -6,6 +6,10 @@ import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.userauth.UserAuthException
 import net.schmizz.sshj.userauth.password.PasswordFinder
 import net.schmizz.sshj.userauth.password.Resource
+import java.nio.ByteBuffer
+import java.nio.CharBuffer
+import java.nio.charset.CodingErrorAction
+import java.nio.charset.StandardCharsets
 
 class PasswordAuthenticator(
     private val identityPassword: ByteArray? = null,
@@ -42,7 +46,7 @@ class PasswordAuthenticator(
                         }
                         passwordChars = credentials.password
                     } else {
-                        passwordChars = activePasswordBytes?.map { it.toInt().toChar() }?.toCharArray()
+                        passwordChars = activePasswordBytes?.let { decodeUtf8BytesToChars(it) }
                     }
 
                     requireNotNull(passwordChars) { "Password required for auth" }
@@ -67,6 +71,25 @@ class PasswordAuthenticator(
             }
         } finally {
             originalPasswordBytes?.fill(0)
+        }
+    }
+
+    companion object {
+        fun decodeUtf8BytesToChars(bytes: ByteArray): CharArray {
+            val decoder = StandardCharsets.UTF_8.newDecoder()
+                .onMalformedInput(CodingErrorAction.REPLACE)
+                .onUnmappableCharacter(CodingErrorAction.REPLACE)
+            val byteBuffer = ByteBuffer.wrap(bytes)
+            val charBuffer = decoder.decode(byteBuffer)
+            try {
+                val chars = CharArray(charBuffer.remaining())
+                charBuffer.get(chars)
+                return chars
+            } finally {
+                if (charBuffer.hasArray()) {
+                    charBuffer.array().fill('\u0000')
+                }
+            }
         }
     }
 }

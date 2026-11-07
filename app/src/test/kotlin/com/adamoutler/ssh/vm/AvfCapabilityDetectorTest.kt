@@ -43,9 +43,7 @@ class AvfCapabilityDetectorTest {
     @Test
     fun testServiceThrowsReturnsHypervisorUnsupported() {
         val context = object : ContextWrapper(baseContext) {
-            override fun getSystemService(name: String): Any? {
-                throw SecurityException("Access denied to virtual_machine")
-            }
+            override fun getSystemService(name: String): Any? = throw SecurityException("Access denied to virtual_machine")
         }
         val status = AvfCapabilityDetector.getAvfStatus(context, sdkInt = 34)
         assertEquals(AvfStatus.HYPERVISOR_UNSUPPORTED, status)
@@ -55,14 +53,11 @@ class AvfCapabilityDetectorTest {
     fun testServicePresentPermissionDeniedReturnsPermissionRequired() {
         val fakeVmService = Any()
         val context = object : ContextWrapper(baseContext) {
-            override fun getSystemService(name: String): Any? =
-                if (name == AvfCapabilityDetector.VIRTUAL_MACHINE_SERVICE) fakeVmService else super.getSystemService(name)
+            override fun getSystemService(name: String): Any? = if (name == AvfCapabilityDetector.VIRTUAL_MACHINE_SERVICE) fakeVmService else super.getSystemService(name)
 
-            override fun checkPermission(permission: String, pid: Int, uid: Int): Int =
-                PackageManager.PERMISSION_DENIED
+            override fun checkPermission(permission: String, pid: Int, uid: Int): Int = PackageManager.PERMISSION_DENIED
 
-            override fun checkSelfPermission(permission: String): Int =
-                PackageManager.PERMISSION_DENIED
+            override fun checkSelfPermission(permission: String): Int = PackageManager.PERMISSION_DENIED
         }
 
         val status = AvfCapabilityDetector.getAvfStatus(context, sdkInt = 34)
@@ -73,12 +68,9 @@ class AvfCapabilityDetectorTest {
     fun testPermissionCheckThrowsReturnsPermissionRequired() {
         val fakeVmService = Any()
         val context = object : ContextWrapper(baseContext) {
-            override fun getSystemService(name: String): Any? =
-                if (name == AvfCapabilityDetector.VIRTUAL_MACHINE_SERVICE) fakeVmService else super.getSystemService(name)
+            override fun getSystemService(name: String): Any? = if (name == AvfCapabilityDetector.VIRTUAL_MACHINE_SERVICE) fakeVmService else super.getSystemService(name)
 
-            override fun checkSelfPermission(permission: String): Int {
-                throw SecurityException("Security check failed")
-            }
+            override fun checkSelfPermission(permission: String): Int = throw SecurityException("Security check failed")
         }
 
         val status = AvfCapabilityDetector.getAvfStatus(context, sdkInt = 34)
@@ -89,15 +81,13 @@ class AvfCapabilityDetectorTest {
     fun testServicePresentPermissionGrantedReturnsAvailableAndPermitted() {
         val fakeVmService = Any()
         val context = object : ContextWrapper(baseContext) {
-            override fun getSystemService(name: String): Any? =
-                if (name == AvfCapabilityDetector.VIRTUAL_MACHINE_SERVICE) fakeVmService else super.getSystemService(name)
+            override fun getSystemService(name: String): Any? = if (name == AvfCapabilityDetector.VIRTUAL_MACHINE_SERVICE) fakeVmService else super.getSystemService(name)
 
-            override fun checkSelfPermission(permission: String): Int =
-                if (permission == AvfCapabilityDetector.MANAGE_VM_PERMISSION) {
-                    PackageManager.PERMISSION_GRANTED
-                } else {
-                    PackageManager.PERMISSION_DENIED
-                }
+            override fun checkSelfPermission(permission: String): Int = if (permission == AvfCapabilityDetector.MANAGE_VM_PERMISSION) {
+                PackageManager.PERMISSION_GRANTED
+            } else {
+                PackageManager.PERMISSION_DENIED
+            }
         }
 
         val status = AvfCapabilityDetector.getAvfStatus(context, sdkInt = 34)

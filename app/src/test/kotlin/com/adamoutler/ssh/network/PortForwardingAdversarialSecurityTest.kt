@@ -136,15 +136,13 @@ class PortForwardingAdversarialSecurityTest {
             override fun canConnect(
                 type: TcpForwardingFilter.Type,
                 address: SshdSocketAddress,
-                session: Session
+                session: Session,
             ): Boolean {
                 // Strictly allow ONLY 127.0.0.1 or localhost to httpServerPort
                 return address.hostName in setOf("127.0.0.1", "localhost") && address.port == httpServerPort
             }
 
-            override fun canListen(address: SshdSocketAddress, session: Session): Boolean {
-                return true
-            }
+            override fun canListen(address: SshdSocketAddress, session: Session): Boolean = true
         }
         sshd.start()
         sshdPort = sshd.port
@@ -169,8 +167,8 @@ class PortForwardingAdversarialSecurityTest {
             authType = AuthType.PASSWORD,
             protocol = Protocol.SSH,
             portForwards = listOf(
-                PortForwardConfig(PortForwardType.DYNAMIC, dynamicSocksPort, "", 0)
-            )
+                PortForwardConfig(PortForwardType.DYNAMIC, dynamicSocksPort, "", 0),
+            ),
         )
         orchestrator.startPortForwards(client, dynamicProfile)
         Thread.sleep(200)
@@ -235,10 +233,12 @@ class PortForwardingAdversarialSecurityTest {
             val atyp = inp.readUnsignedByte()
             when (atyp) {
                 0x01 -> inp.readFully(ByteArray(4))
+
                 0x03 -> {
                     val len = inp.readUnsignedByte()
                     inp.readFully(ByteArray(len))
                 }
+
                 0x04 -> inp.readFully(ByteArray(16))
             }
             inp.readUnsignedShort() // BND.PORT
@@ -272,7 +272,7 @@ class PortForwardingAdversarialSecurityTest {
             "0.0.0.0" to httpServerPort,
             "127.0.0.1" to sshdPort,
             "127.0.0.1" to 2323,
-            "192.168.1.1" to 80
+            "192.168.1.1" to 80,
         )
 
         for ((targetHost, targetPort) in prohibitedTargets) {
@@ -281,7 +281,7 @@ class PortForwardingAdversarialSecurityTest {
             assertEquals(
                 "SOCKS5 attempt to prohibited target $targetHost:$targetPort must fail with 0x01",
                 0x01,
-                repCode
+                repCode,
             )
 
             // B. Test Local (-L) rejection
@@ -298,8 +298,8 @@ class PortForwardingAdversarialSecurityTest {
                 authType = AuthType.PASSWORD,
                 protocol = Protocol.SSH,
                 portForwards = listOf(
-                    PortForwardConfig(PortForwardType.LOCAL, localPort, targetHost, targetPort)
-                )
+                    PortForwardConfig(PortForwardType.LOCAL, localPort, targetHost, targetPort),
+                ),
             )
             orchestrator.startPortForwards(client, localProfile)
             Thread.sleep(150)
@@ -538,7 +538,7 @@ class PortForwardingAdversarialSecurityTest {
     fun socks5HostileDomainInjection_rejectsNullBytesAndControlCharactersInDomain() {
         val hostileDomains = listOf(
             "127.0.0.1\u0000evil.com",
-            "localhost\r\nX-Injected: true"
+            "localhost\r\nX-Injected: true",
         )
 
         for (domain in hostileDomains) {
@@ -627,7 +627,7 @@ class PortForwardingAdversarialSecurityTest {
             assertEquals(
                 "Must hold exactly 32 active connections",
                 PortForwardingOrchestrator.MAX_CONCURRENT_FORWARD_CONNECTIONS,
-                orchestrator.activeClientSockets.size
+                orchestrator.activeClientSockets.size,
             )
 
             // Attempt connection #33, #34, #35 — all must be immediately rejected with EOF

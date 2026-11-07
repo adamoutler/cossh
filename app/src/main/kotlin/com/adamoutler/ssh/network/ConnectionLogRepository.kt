@@ -13,7 +13,7 @@ enum class ConnectionLogLevel {
     DEBUG,
     INFO,
     WARN,
-    ERROR
+    ERROR,
 }
 
 enum class ConnectionMilestone(val tag: String) {
@@ -26,7 +26,8 @@ enum class ConnectionMilestone(val tag: String) {
     MFA("MFA"),
     CHANNEL("CHANNEL"),
     READY("READY"),
-    ERROR("ERROR");
+    ERROR("ERROR"),
+    ;
 
     override fun toString(): String = tag
 }
@@ -43,8 +44,7 @@ data class ConnectionLogEntry(
         return sdf.format(Date(timestampMs))
     }
 
-    fun toFormattedLine(): String =
-        "${formattedTimestamp()} [${milestone.tag}] $message"
+    fun toFormattedLine(): String = "${formattedTimestamp()} [${milestone.tag}] $message"
 }
 
 object ConnectionLogRepository {
@@ -53,10 +53,9 @@ object ConnectionLogRepository {
     private val sessionBuffers = ConcurrentHashMap<String, ConcurrentLinkedDeque<ConnectionLogEntry>>()
     private val sessionFlows = ConcurrentHashMap<String, MutableStateFlow<List<ConnectionLogEntry>>>()
 
-    fun getLogFlow(sessionId: String): StateFlow<List<ConnectionLogEntry>> =
-        sessionFlows.computeIfAbsent(sessionId) {
-            MutableStateFlow(emptyList())
-        }.asStateFlow()
+    fun getLogFlow(sessionId: String): StateFlow<List<ConnectionLogEntry>> = sessionFlows.computeIfAbsent(sessionId) {
+        MutableStateFlow(emptyList())
+    }.asStateFlow()
 
     fun log(
         sessionId: String,

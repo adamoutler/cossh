@@ -75,16 +75,15 @@ class AdvancedSshWheelhouseAdversarialTest {
         ConnectionStateRepository.isHeadlessTest = false
     }
 
-    private fun createJumpProfile(id: String, jumpHostId: String? = null): ConnectionProfile =
-        ConnectionProfile(
-            id = id,
-            nickname = "Node-$id",
-            host = "$id.internal",
-            port = 22,
-            protocol = Protocol.SSH,
-            username = "user-$id",
-            jumpHostProfileId = jumpHostId,
-        )
+    private fun createJumpProfile(id: String, jumpHostId: String? = null): ConnectionProfile = ConnectionProfile(
+        id = id,
+        nickname = "Node-$id",
+        host = "$id.internal",
+        port = 22,
+        protocol = Protocol.SSH,
+        username = "user-$id",
+        jumpHostProfileId = jumpHostId,
+    )
 
     private fun generateRsaPublicKey(): PublicKey {
         val kpg = KeyPairGenerator.getInstance("RSA")
@@ -310,9 +309,7 @@ class AdvancedSshWheelhouseAdversarialTest {
                 identity: IdentityProfile?,
                 effectiveProfile: ConnectionProfile,
                 sessionId: String?,
-            ) {
-                throw UserAuthException("Target host rejected supplied credentials (simulated failure)")
-            }
+            ): Unit = throw UserAuthException("Target host rejected supplied credentials (simulated failure)")
         }
 
         val dummyClient = SSHClient()
@@ -979,9 +976,7 @@ class AdvancedSshWheelhouseAdversarialTest {
         val testClient = object : SSHClient() {
             override fun getUserAuth(): UserAuth = mockUserAuth
             override fun isAuthenticated(): Boolean = false
-            override fun authPassword(username: String?, pfinder: PasswordFinder?) {
-                throw UserAuthException("Rejected credentials in fallback authentication")
-            }
+            override fun authPassword(username: String?, pfinder: PasswordFinder?): Unit = throw UserAuthException("Rejected credentials in fallback authentication")
         }
 
         val engine = MultiFactorContinuationEngine()
@@ -1029,9 +1024,7 @@ class AdvancedSshWheelhouseAdversarialTest {
         val testClient = object : SSHClient() {
             override fun getUserAuth(): UserAuth = mockUserAuth
             override fun isAuthenticated(): Boolean = false
-            override fun authPassword(username: String?, pfinder: PasswordFinder?) {
-                throw UserAuthException("Invalid TOTP OTP or secondary password")
-            }
+            override fun authPassword(username: String?, pfinder: PasswordFinder?): Unit = throw UserAuthException("Invalid TOTP OTP or secondary password")
         }
 
         val engine = MultiFactorContinuationEngine()

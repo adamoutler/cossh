@@ -216,13 +216,21 @@ class Sntrup761X25519KeyExchangeTest {
                     writtenPackets.add(args[0] as SSHPacket)
                     0L
                 }
+
                 "getHostKeyAlgorithm" -> keyAlgorithm
+
                 "getConfig" -> net.schmizz.sshj.DefaultConfig()
+
                 "getClientVersion" -> "SSH-2.0-CoSSH"
+
                 "getServerVersion" -> "SSH-2.0-OpenSSH"
+
                 "toString" -> "MockTransport"
+
                 "hashCode" -> 1
+
                 "equals" -> false
+
                 else -> null
             }
         }

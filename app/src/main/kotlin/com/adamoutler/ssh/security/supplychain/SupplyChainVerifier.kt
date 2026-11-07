@@ -112,9 +112,7 @@ object SupplyChainVerifier {
     /**
      * Serializes an in-toto Statement to JSON string.
      */
-    fun generateProvenanceJson(statement: InTotoStatement): String {
-        return json.encodeToString(statement)
-    }
+    fun generateProvenanceJson(statement: InTotoStatement): String = json.encodeToString(statement)
 
     /**
      * Generates and serializes an in-toto Statement with SLSA v1.0 Provenance to JSON string.
@@ -152,13 +150,11 @@ object SupplyChainVerifier {
         jsonString: String,
         expectedArtifactSha256: String? = null,
         expectedBuilderId: String? = null,
-    ): ProvenanceValidationResult {
-        return try {
-            val statement = json.decodeFromString<InTotoStatement>(jsonString)
-            validateProvenance(statement, expectedArtifactSha256, expectedBuilderId)
-        } catch (e: Exception) {
-            ProvenanceValidationResult.Invalid("Malformed JSON or schema: ${e.message}")
-        }
+    ): ProvenanceValidationResult = try {
+        val statement = json.decodeFromString<InTotoStatement>(jsonString)
+        validateProvenance(statement, expectedArtifactSha256, expectedBuilderId)
+    } catch (e: Exception) {
+        ProvenanceValidationResult.Invalid("Malformed JSON or schema: ${e.message}")
     }
 
     /**

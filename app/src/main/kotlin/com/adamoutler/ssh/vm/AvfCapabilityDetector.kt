@@ -44,5 +44,4 @@ object AvfCapabilityDetector {
     }
 }
 
-fun getAvfStatus(context: Context, sdkInt: Int = Build.VERSION.SDK_INT): AvfStatus =
-    AvfCapabilityDetector.getAvfStatus(context, sdkInt)
+fun getAvfStatus(context: Context, sdkInt: Int = Build.VERSION.SDK_INT): AvfStatus = AvfCapabilityDetector.getAvfStatus(context, sdkInt)

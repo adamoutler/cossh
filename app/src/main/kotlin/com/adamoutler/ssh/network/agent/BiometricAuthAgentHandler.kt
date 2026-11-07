@@ -178,9 +178,7 @@ class BiometricAuthAgentHandler(
         return frameMessage(out.toByteArray())
     }
 
-    private fun buildFailure(): ByteArray {
-        return frameMessage(byteArrayOf(SSH_AGENT_FAILURE))
-    }
+    private fun buildFailure(): ByteArray = frameMessage(byteArrayOf(SSH_AGENT_FAILURE))
 
     private fun frameMessage(payload: ByteArray): ByteArray {
         val framed = ByteArray(4 + payload.size)

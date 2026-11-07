@@ -28,7 +28,7 @@ open class MultiFactorContinuationEngine(
         val allowedMethods = userAuth.allowedMethods ?: emptyList()
         AppLog.i(
             "MultiFactorContinuationEngine",
-            "[CoSSH MFA: SSH_AUTH_PARTIAL detected. Allowed secondary factors: $allowedMethods]"
+            "[CoSSH MFA: SSH_AUTH_PARTIAL detected. Allowed secondary factors: $allowedMethods]",
         )
 
         sessionId?.let {
@@ -49,7 +49,7 @@ open class MultiFactorContinuationEngine(
                     maxRounds = maxRounds,
                     isMfa = true,
                     stepDescription = "[Step 2/2: Second Factor Required]",
-                )
+                ),
             )
         }
 
@@ -61,7 +61,7 @@ open class MultiFactorContinuationEngine(
                     identityPassword = candidatePassword,
                     isMfa = true,
                     stepDescription = "[Step 2/2: Second Factor Required]",
-                )
+                ),
             )
         }
 
@@ -72,14 +72,14 @@ open class MultiFactorContinuationEngine(
                     identityPassword = identity?.password ?: profile.password,
                     isMfa = true,
                     stepDescription = "[Step 2/2: Second Factor Required]",
-                )
+                ),
             )
             secondaryAuthenticators.add(
                 KeyboardInteractiveAuthenticator(
                     maxRounds = maxRounds,
                     isMfa = true,
                     stepDescription = "[Step 2/2: Second Factor Required]",
-                )
+                ),
             )
         }
 

@@ -22,11 +22,9 @@ class ReverseEngineeringHardeningTest {
         BillingManager.forceCloudSyncEnabledForTest = false
     }
 
-    private fun getProjectRoot(): File {
-        return generateSequence(File(".").canonicalFile) { it.parentFile }
-            .firstOrNull { File(it, "settings.gradle.kts").exists() }
-            ?: File(".")
-    }
+    private fun getProjectRoot(): File = generateSequence(File(".").canonicalFile) { it.parentFile }
+        .firstOrNull { File(it, "settings.gradle.kts").exists() }
+        ?: File(".")
 
     private fun getProguardRulesFile(): File {
         val root = getProjectRoot()
@@ -54,15 +52,15 @@ class ReverseEngineeringHardeningTest {
         val content = getProguardRulesFile().readText()
         assertTrue(
             "ProGuard rules must include assumenosideeffects for AppLog",
-            content.contains("-assumenosideeffects class com.adamoutler.ssh.util.AppLog")
+            content.contains("-assumenosideeffects class com.adamoutler.ssh.util.AppLog"),
         )
         assertTrue(
             "ProGuard rules must strip public static void v(...)",
-            content.contains("public static void v(...);")
+            content.contains("public static void v(...);"),
         )
         assertTrue(
             "ProGuard rules must strip public static void d(...)",
-            content.contains("public static void d(...);")
+            content.contains("public static void d(...);"),
         )
     }
 
@@ -71,23 +69,23 @@ class ReverseEngineeringHardeningTest {
         val content = getProguardRulesFile().readText()
         assertFalse(
             "ProGuard rules must not blanket-keep com.adamoutler.ssh.data.** { *; }",
-            content.contains("-keep class com.adamoutler.ssh.data.** { *; }")
+            content.contains("-keep class com.adamoutler.ssh.data.** { *; }"),
         )
         assertFalse(
             "ProGuard rules must not blanket-keep com.adamoutler.ssh.network.** { *; }",
-            content.contains("-keep class com.adamoutler.ssh.network.** { *; }")
+            content.contains("-keep class com.adamoutler.ssh.network.** { *; }"),
         )
         assertFalse(
             "ProGuard rules must not blanket-keep com.adamoutler.ssh.ui.** { *; }",
-            content.contains("-keep class com.adamoutler.ssh.ui.** { *; }")
+            content.contains("-keep class com.adamoutler.ssh.ui.** { *; }"),
         )
         assertFalse(
             "ProGuard rules must not blanket-keep com.adamoutler.ssh.security.** { *; }",
-            content.contains("-keep class com.adamoutler.ssh.security.** { *; }")
+            content.contains("-keep class com.adamoutler.ssh.security.** { *; }"),
         )
         assertFalse(
             "ProGuard rules must not blanket-keep com.adamoutler.ssh.backup.** { *; }",
-            content.contains("-keep class com.adamoutler.ssh.backup.** { *; }")
+            content.contains("-keep class com.adamoutler.ssh.backup.** { *; }"),
         )
     }
 
@@ -96,11 +94,11 @@ class ReverseEngineeringHardeningTest {
         val content = getGradlePropertiesFile().readText()
         assertTrue(
             "gradle.properties must enable R8 full mode",
-            content.contains("android.enableR8.fullMode=true")
+            content.contains("android.enableR8.fullMode=true"),
         )
         assertFalse(
             "gradle.properties must not disable R8 full mode",
-            content.contains("android.enableR8.fullMode=false")
+            content.contains("android.enableR8.fullMode=false"),
         )
     }
 
@@ -109,11 +107,11 @@ class ReverseEngineeringHardeningTest {
         val content = getBuildGradleFile().readText()
         assertTrue(
             "app/build.gradle.kts must set debugSymbolLevel = \"SYMBOL_TABLE\"",
-            content.contains("debugSymbolLevel = \"SYMBOL_TABLE\"")
+            content.contains("debugSymbolLevel = \"SYMBOL_TABLE\""),
         )
         assertFalse(
             "app/build.gradle.kts release build must not expose FULL debug symbols",
-            content.contains("debugSymbolLevel = \"FULL\"")
+            content.contains("debugSymbolLevel = \"FULL\""),
         )
     }
 
@@ -139,7 +137,7 @@ class ReverseEngineeringHardeningTest {
                 val trimmed = line.trim()
                 assertFalse(
                     "File $fileName line ${index + 1} contains raw println: '$trimmed'",
-                    trimmed.contains("println(")
+                    trimmed.contains("println("),
                 )
             }
         }
