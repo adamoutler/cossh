@@ -19,10 +19,17 @@ import java.security.MessageDigest
 import java.security.PublicKey
 import java.util.Base64
 
+enum class HostKeyStatus {
+    KNOWN,
+    UNKNOWN,
+    CHANGED,
+}
+
 class TofuHostKeyVerifier(
     private val knownHostsFile: File,
     private val isAutonomousReconnect: Boolean = false,
     private val context: android.content.Context? = null,
+    private val sshfpVerifier: com.adamoutler.ssh.crypto.dnssec.SshfpVerifier? = null,
 ) : OpenSSHKnownHosts(knownHostsFile) {
     override fun verify(hostname: String, port: Int, key: PublicKey): Boolean {
         // Zero-TOFU Host Certificate Verification via Trusted Host-CA
@@ -156,6 +163,73 @@ class TofuHostKeyVerifier(
             com.adamoutler.ssh.crypto.randomart.OpenSshRandomartGenerator.generateFromPublicKeyBytes(buffer.compactData, keyType)
         } catch (e: Exception) {
             null
+        }
+
+        val status = if (hostExists) HostKeyStatus.CHANGED else HostKeyStatus.UNKNOWN
+
+        // DNSSEC-validated SSHFP auto-trust verification before user prompt
+        if (status == HostKeyStatus.UNKNOWN && sshfpVerifier != null) {
+            val verificationResult = sshfpVerifier.verifyHostKey(hostname, key.algorithm, key.encoded ?: buffer.compactData)
+            when (verificationResult) {
+                is com.adamoutler.ssh.crypto.dnssec.SshfpVerificationResult.Verified -> {
+                    EphemeralHostKeyRegistry.record(formattedHost, key)
+                    val hostsManager = com.adamoutler.ssh.crypto.KnownHostsManager(knownHostsFile)
+                    hostsManager.saveHostKey(formattedHost, port, key)
+                    try {
+                        entries.clear()
+                        entries.addAll(OpenSSHKnownHosts(knownHostsFile).entries())
+                    } catch (_: Exception) {
+                        // In-memory sync fallback
+                    }
+
+                    kotlinx.coroutines.runBlocking {
+                        try {
+                            val auditManager = context?.let { com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstance(it) }
+                                ?: com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstanceOrNull()
+                            auditManager?.logHostKeyVerification(
+                                host = formattedHost,
+                                port = port,
+                                keyType = keyType,
+                                fingerprint = receivedFingerprint,
+                                accepted = true,
+                                isKeyChanged = false,
+                            )
+                        } catch (_: Exception) {
+                            // Audit logging failure should not abort connection
+                        }
+                    }
+                    println("TofuHostKeyVerifier: Host $hostname key verified via DNSSEC SSHFP. Auto-accepted.")
+                    return true
+                }
+
+                is com.adamoutler.ssh.crypto.dnssec.SshfpVerificationResult.FingerprintMismatchAlert -> {
+                    kotlinx.coroutines.runBlocking {
+                        try {
+                            val auditManager = context?.let { com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstance(it) }
+                                ?: com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstanceOrNull()
+                            auditManager?.logHostKeyVerification(
+                                host = formattedHost,
+                                port = port,
+                                keyType = keyType,
+                                fingerprint = receivedFingerprint,
+                                accepted = false,
+                                isKeyChanged = false,
+                            )
+                        } catch (_: Exception) {
+                            // Audit logging failure should not abort connection
+                        }
+                    }
+                    println("TofuHostKeyVerifier: Host key for $hostname rejected: DNSSEC SSHFP fingerprint mismatch.")
+                    return false
+                }
+
+                com.adamoutler.ssh.crypto.dnssec.SshfpVerificationResult.NoRecordsFound,
+                com.adamoutler.ssh.crypto.dnssec.SshfpVerificationResult.DnssecNotAuthenticated,
+                is com.adamoutler.ssh.crypto.dnssec.SshfpVerificationResult.NetworkError,
+                -> {
+                    // Fall through cleanly to normal interactive TOFU prompt
+                }
+            }
         }
 
         // Prompt user (runBlocking because verify is synchronous but we need to await the user's UI action)

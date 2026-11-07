@@ -50,6 +50,13 @@ fun AppNavigation(
     val billingManager = remember { BillingManager(context) }
     val driveSyncManager = remember { DriveSyncManager(context) }
     val securityStorageManager = remember { SecurityStorageManager(context) }
+    val automationIntentGuard = remember {
+        val auditManager = com.adamoutler.ssh.security.audit.SecurityAuditLogManager.getInstance(context.applicationContext)
+        com.adamoutler.ssh.security.automation.AutomationIntentGuard(
+            securityStorageManager = securityStorageManager,
+            auditLogManager = auditManager,
+        )
+    }
     val lockManager = remember(appLockManager) {
         appLockManager ?: com.adamoutler.ssh.security.AppLockManager.getInstance(context.applicationContext)
     }
@@ -67,6 +74,7 @@ fun AppNavigation(
                     navController = navController,
                     activity = activity,
                     securityStorageManager = securityStorageManager,
+                    automationIntentGuard = automationIntentGuard,
                 )
             }
         }
@@ -86,6 +94,7 @@ fun AppNavigation(
                     navController = navController,
                     activity = activity,
                     securityStorageManager = securityStorageManager,
+                    automationIntentGuard = automationIntentGuard,
                 )
             }
         }
@@ -102,6 +111,7 @@ fun AppNavigation(
                 navController = navController,
                 activity = activity,
                 securityStorageManager = securityStorageManager,
+                automationIntentGuard = automationIntentGuard,
             )
         }
 

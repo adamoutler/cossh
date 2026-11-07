@@ -279,6 +279,11 @@ class AutomationIntentGuard(
     }
 
     /**
+     * Alias for [validate] verifying an incoming automation intent.
+     */
+    fun validateIntent(intent: Intent?): AutomationValidationResult = validate(intent)
+
+    /**
      * Checks whether an incoming intent is valid.
      */
     fun isValid(intent: Intent?): Boolean = validate(intent) is AutomationValidationResult.Authenticated
