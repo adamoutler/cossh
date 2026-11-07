@@ -7,6 +7,7 @@ import com.adamoutler.ssh.crypto.hardware.HardwareKeyProvider
 import com.adamoutler.ssh.data.AuthType
 import com.adamoutler.ssh.data.ConnectionProfile
 import com.adamoutler.ssh.data.IdentityProfile
+import com.adamoutler.ssh.util.AppLog
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.HostKeyVerifier
 import net.schmizz.sshj.userauth.UserAuthException
@@ -78,7 +79,7 @@ open class SshHandshakeCoordinator(
                     }
                 } catch (e: Exception) {
                     lastException = e
-                    println(("CompositeAuthenticator").toString() + ": " + ("Authentication failed with ${authenticator::class.java.simpleName}, checking MFA continuation").toString() + " " + (e).toString())
+                    AppLog.d("CompositeAuthenticator", "Authentication failed with ${authenticator::class.java.simpleName}, checking MFA continuation: ${e.message}")
 
                     // Check if server returned SSH_AUTH_PARTIAL (RFC 4252 §5.1)
                     val userAuth = client.userAuth
@@ -121,7 +122,7 @@ open class SshHandshakeCoordinator(
                         authenticators.add(HardwareKeyAuthenticator(hardwareProvider))
                     }
                 } catch (e: Exception) {
-                    println("SshHandshakeCoordinator: Failed to initialize hardware key: $e")
+                    AppLog.d(TAG, "Failed to initialize hardware key: $e")
                 }
             }
 
@@ -136,10 +137,10 @@ open class SshHandshakeCoordinator(
                     if (resolvedKeyPair?.public != null) {
                         authenticators.add(KeyAuthenticator(resolvedKeyPair))
                     } else {
-                        println(("SshHandshakeCoordinator").toString() + ": " + ("Public key is null, skipping KeyAuthenticator").toString())
+                        AppLog.d(TAG, "Public key is null, skipping KeyAuthenticator")
                     }
                 } catch (e: Exception) {
-                    println(("SshHandshakeCoordinator").toString() + ": " + ("Failed to initialize keypair").toString() + " " + (e).toString())
+                    AppLog.d(TAG, "Failed to initialize keypair: ${e.message}")
                 }
             }
 
@@ -213,7 +214,7 @@ open class SshHandshakeCoordinator(
                 null
             }
         } catch (e: Exception) {
-            println("SshHandshakeCoordinator: Failed to parse public key from identity: $e")
+            AppLog.d(TAG, "Failed to parse public key from identity: $e")
             null
         }
     }

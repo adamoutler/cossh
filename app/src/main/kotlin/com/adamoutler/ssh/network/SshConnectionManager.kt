@@ -2,6 +2,7 @@ package com.adamoutler.ssh.network
 
 import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.util.AppLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
@@ -62,7 +63,7 @@ class TofuHostKeyVerifier(
                     trustedCaKeys = trustedCas,
                 )
                 if (result is com.adamoutler.ssh.crypto.certificate.CertValidationResult.Valid) {
-                    println("TofuHostKeyVerifier: Valid Host Certificate for $hostname verified via trusted CA. Zero-TOFU auto-accepted.")
+                    AppLog.d("TofuHostKeyVerifier", "Valid Host Certificate for $hostname verified via trusted CA. Zero-TOFU auto-accepted.")
                     return true
                 }
             }
@@ -201,18 +202,10 @@ class TofuHostKeyVerifier(
             } catch (e: Exception) {
                 // In-memory sync fallback
             }
-            try {
-                println(("TofuHostKeyVerifier").toString() + ": " + ("Host $hostname key accepted and saved.").toString())
-            } catch (e: Throwable) {
-                println("Host $hostname key accepted and saved.")
-            }
+            AppLog.d("TofuHostKeyVerifier", "Host $hostname key accepted and saved.")
             return true
         } else {
-            try {
-                println(("TofuHostKeyVerifier").toString() + ": " + ("Host key for $hostname rejected by user. Connection aborted.").toString())
-            } catch (e: Throwable) {
-                println("Host key rejected by user.")
-            }
+            AppLog.d("TofuHostKeyVerifier", "Host key for $hostname rejected by user. Connection aborted.")
             return false
         }
     }
@@ -243,12 +236,12 @@ class SshConnectionManager(
         try {
             activeProtocol?.disconnect()
         } catch (e: Exception) {
-            println(("SshConnectionManager").toString() + ": " + ("Error during manual disconnect").toString() + " " + (e).toString())
+            AppLog.d("SshConnectionManager", "Error during manual disconnect: ${e.message}")
         }
         try {
             portForwardingOrchestrator.stopAll()
         } catch (e: Exception) {
-            println(("SshConnectionManager").toString() + ": " + ("Error closing local port forwarders").toString() + " " + (e).toString())
+            AppLog.d("SshConnectionManager", "Error closing local port forwarders: ${e.message}")
         }
     }
 
@@ -274,7 +267,7 @@ class SshConnectionManager(
             try {
                 sshClient.disconnect()
             } catch (e: Exception) {
-                println(("SshConnectionManager").toString() + ": " + ("Error during disconnect").toString() + " " + (e).toString())
+                AppLog.d("SshConnectionManager", "Error during disconnect: ${e.message}")
             }
         }
     }
@@ -302,7 +295,7 @@ class SshConnectionManager(
         // Validate public key to prevent shell injection
         val regex = Regex("^[a-zA-Z0-9+/= \\-_@]+$")
         if (!regex.matches(publicKey)) {
-            println(("SshConnectionManager").toString() + ": " + ("Invalid public key format for injection").toString())
+            AppLog.d("SshConnectionManager", "Invalid public key format for injection")
             return@withContext false
         }
 
@@ -312,7 +305,7 @@ class SshConnectionManager(
             connectAndExecute(profile, injectionCommand)
             true
         } catch (e: Exception) {
-            println(("SshConnectionManager").toString() + ": " + ("Failed to inject public key").toString() + " " + (e).toString())
+            AppLog.d("SshConnectionManager", "Failed to inject public key: ${e.message}")
             false
         }
     }

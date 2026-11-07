@@ -115,7 +115,7 @@ android {
             isShrinkResources = true
             buildConfigField("boolean", "ENABLE_CLOUD_SYNC", "true")
             ndk {
-                debugSymbolLevel = "FULL"
+                debugSymbolLevel = "SYMBOL_TABLE"
             }
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(

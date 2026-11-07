@@ -7,6 +7,7 @@ package com.adamoutler.ssh.util
 object AppLog {
     private const val DEFAULT_TAG = "CoSSH"
 
+    @JvmStatic
     fun v(tag: String = DEFAULT_TAG, message: String) {
         try {
             android.util.Log.v(tag, message)
@@ -15,6 +16,7 @@ object AppLog {
         }
     }
 
+    @JvmStatic
     fun d(tag: String = DEFAULT_TAG, message: String) {
         try {
             android.util.Log.d(tag, message)
@@ -23,6 +25,7 @@ object AppLog {
         }
     }
 
+    @JvmStatic
     fun i(tag: String = DEFAULT_TAG, message: String) {
         try {
             android.util.Log.i(tag, message)
@@ -31,6 +34,7 @@ object AppLog {
         }
     }
 
+    @JvmStatic
     fun w(tag: String = DEFAULT_TAG, message: String, throwable: Throwable? = null) {
         try {
             if (throwable != null) {
@@ -44,6 +48,7 @@ object AppLog {
         }
     }
 
+    @JvmStatic
     fun e(tag: String = DEFAULT_TAG, message: String, throwable: Throwable? = null) {
         try {
             if (throwable != null) {

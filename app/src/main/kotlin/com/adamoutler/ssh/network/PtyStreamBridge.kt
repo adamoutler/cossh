@@ -1,5 +1,6 @@
 package com.adamoutler.ssh.network
 
+import com.adamoutler.ssh.util.AppLog
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import java.io.InputStream
@@ -20,7 +21,7 @@ class PtyStreamBridge(
             }
         } catch (e: Exception) {
             // Stream closed or coroutine cancelled
-            println("PtyStreamBridge: Bridge terminated: ${e.message}")
+            AppLog.d("PtyStreamBridge", "Bridge terminated: ${e.message}")
         } finally {
             buffer.fill(0)
         }

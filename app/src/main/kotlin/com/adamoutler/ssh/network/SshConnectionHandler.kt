@@ -3,6 +3,7 @@ package com.adamoutler.ssh.network
 import android.content.Context
 import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.util.AppLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.schmizz.sshj.SSHClient
@@ -81,7 +82,7 @@ class SshConnectionHandler(
                         try {
                             session.setEnvVar(key, value)
                         } catch (e: Exception) {
-                            println(("SshConnectionHandler").toString() + ": " + ("Failed to set env var $key").toString() + " " + (e).toString())
+                            AppLog.d("SshConnectionHandler", "Failed to set env var $key: ${e.message}")
                         }
                     }
                     sessionId?.let {
@@ -131,17 +132,17 @@ class SshConnectionHandler(
         try {
             client?.disconnect()
         } catch (e: Exception) {
-            println(("SshConnectionHandler").toString() + ": " + ("Error during disconnect").toString() + " " + (e).toString())
+            AppLog.d("SshConnectionHandler", "Error during disconnect: ${e.message}")
         }
         try {
             jumpTunnel?.close()
         } catch (e: Exception) {
-            println(("SshConnectionHandler").toString() + ": " + ("Error closing jump tunnel").toString() + " " + (e).toString())
+            AppLog.d("SshConnectionHandler", "Error closing jump tunnel: ${e.message}")
         }
         try {
             jumpClient?.disconnect()
         } catch (e: Exception) {
-            println(("SshConnectionHandler").toString() + ": " + ("Error during jump client disconnect").toString() + " " + (e).toString())
+            AppLog.d("SshConnectionHandler", "Error during jump client disconnect: ${e.message}")
         }
     }
 }

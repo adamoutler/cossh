@@ -8,6 +8,11 @@
     public static int d(...);
 }
 
+-assumenosideeffects class com.adamoutler.ssh.util.AppLog {
+    public static void v(...);
+    public static void d(...);
+}
+
 # Protect JNI and Native Bindings (libtermux.so)
 -keepclasseswithmembernames class * {
     native <methods>;
@@ -59,9 +64,4 @@
 -keep @kotlinx.serialization.Serializable class com.adamoutler.ssh.data.** { *; }
 -keep @kotlinx.serialization.Serializable class com.adamoutler.ssh.backup.** { *; }
 
-# Preserve domain, backup, security, network, and UI classes
--keep class com.adamoutler.ssh.data.** { *; }
--keep class com.adamoutler.ssh.backup.** { *; }
--keep class com.adamoutler.ssh.security.** { *; }
--keep class com.adamoutler.ssh.network.** { *; }
--keep class com.adamoutler.ssh.ui.** { *; }
+

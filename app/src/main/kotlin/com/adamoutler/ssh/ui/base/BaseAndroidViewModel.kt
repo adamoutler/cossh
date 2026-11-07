@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.adamoutler.ssh.crypto.KeyInvalidatedException
 import com.adamoutler.ssh.ui.events.UiEvent
 import com.adamoutler.ssh.ui.events.UiEventBus
+import com.adamoutler.ssh.util.AppLog
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -15,7 +16,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 abstract class BaseAndroidViewModel(application: Application) : AndroidViewModel(application) {
 
     protected val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-        println(("BaseAndroidViewModel").toString() + ": " + ("Unhandled Coroutine Exception").toString() + " " + (exception).toString())
+        AppLog.e("BaseAndroidViewModel", "Unhandled Coroutine Exception", exception)
         if (exception is KeyInvalidatedException) {
             UiEventBus.publish(UiEvent.ShowKeystoreInvalidatedDialog)
         } else {

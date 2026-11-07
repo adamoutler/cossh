@@ -15,6 +15,7 @@ import com.adamoutler.ssh.R
 import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.data.ConnectionProfile
+import com.adamoutler.ssh.util.AppLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -279,7 +280,7 @@ class SshService : Service() {
                         }
                     }
                 } else {
-                    println(("SshService").toString() + ": " + ("Profile not found: $profileId").toString())
+                    AppLog.d("SshService", "Profile not found: $profileId")
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error("Profile not found"))
                     ConnectionStateRepository.updateSessionState(sessionId, ConnectionState.Error("Profile not found"))
                 }
@@ -290,13 +291,13 @@ class SshService : Service() {
                     e.message?.contains("EOF", ignoreCase = true) == true
 
                 if (!isNormalClosure) {
-                    println(("SshService").toString() + ": " + ("SSH Connection failed for $profileId (Session: $sessionId)").toString() + " " + (e).toString())
+                    AppLog.d("SshService", "SSH Connection failed for $profileId (Session: $sessionId): ${e.message}")
                     updateSessionNotification(profileId, sessionId, "Connection", "Connection failed")
                     val userMessage = mapExceptionMessage(e)
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Error(userMessage))
                     ConnectionStateRepository.updateSessionState(sessionId, ConnectionState.Error(userMessage))
                 } else {
-                    println(("SshService").toString() + ": " + ("SSH Session disconnected normally for $profileId (Session: $sessionId)").toString())
+                    AppLog.d("SshService", "SSH Session disconnected normally for $profileId (Session: $sessionId)")
                     ConnectionStateRepository.updateConnectionState(profileId, ConnectionState.Disconnected)
                     ConnectionStateRepository.updateSessionState(sessionId, ConnectionState.Disconnected)
                 }

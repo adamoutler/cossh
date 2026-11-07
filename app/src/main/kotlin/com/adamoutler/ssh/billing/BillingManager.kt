@@ -32,6 +32,24 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
         private const val HMAC_ALGORITHM = "HmacSHA256"
         private const val HMAC_KEY_SEED = "CoSSH_Billing_Entitlement_Key_Salt_2026"
 
+        val isRobolectric: Boolean by lazy {
+            try {
+                Class.forName("org.robolectric.Robolectric")
+                true
+            } catch (_: Throwable) {
+                false
+            }
+        }
+
+        fun isTestOverrideAllowed(isDebugBuild: Boolean, isRobolectricEnv: Boolean): Boolean =
+            (isDebugBuild || isRobolectricEnv) && forceCloudSyncEnabledForTest
+
+        fun isTestEnvironment(): Boolean =
+            com.adamoutler.ssh.BuildConfig.DEBUG || isRobolectric
+
+        fun isForceCloudSyncActive(): Boolean =
+            isTestOverrideAllowed(com.adamoutler.ssh.BuildConfig.DEBUG, isRobolectric)
+
         fun computeEntitlementHmac(packageName: String): String {
             val message = "cloud_sync_entitled:true:$packageName"
             val mac = Mac.getInstance(HMAC_ALGORITHM)
@@ -46,7 +64,7 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
     }
 
     private val prefs = context.getSharedPreferences("BillingPrefs", Context.MODE_PRIVATE)
-    private val _isCloudSyncEnabled = MutableStateFlow(forceCloudSyncEnabledForTest || prefs.getBoolean(PREF_KEY_ENTITLED, false))
+    private val _isCloudSyncEnabled = MutableStateFlow(isForceCloudSyncActive() || prefs.getBoolean(PREF_KEY_ENTITLED, false))
     val isCloudSyncEnabled: StateFlow<Boolean> = _isCloudSyncEnabled.asStateFlow()
 
     fun persistEntitlement(targetPrefs: SharedPreferences = prefs) {
@@ -58,7 +76,7 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
     }
 
     fun verifyEntitlementIntegrity(): Boolean {
-        if (forceCloudSyncEnabledForTest) return true
+        if (isForceCloudSyncActive()) return true
         val isEntitled = prefs.getBoolean(PREF_KEY_ENTITLED, false)
         if (!isEntitled) return false
         val storedHmac = prefs.getString(PREF_KEY_ENTITLED_HMAC, null) ?: return false
@@ -93,13 +111,7 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
     }
 
     suspend fun awaitCloudSyncEntitlement(timeoutMs: Long = 3000L): Boolean {
-        if (forceCloudSyncEnabledForTest || _isCloudSyncEnabled.value) return true
-        val isRobolectric = try {
-            Class.forName("org.robolectric.Robolectric")
-            true
-        } catch (_: ClassNotFoundException) {
-            false
-        }
+        if (isForceCloudSyncActive() || _isCloudSyncEnabled.value) return true
         if (isRobolectric) return _isCloudSyncEnabled.value
         return try {
             withTimeoutOrNull(timeoutMs) {
