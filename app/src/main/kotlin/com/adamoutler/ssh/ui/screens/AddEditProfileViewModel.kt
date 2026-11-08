@@ -241,9 +241,13 @@ class AddEditProfileViewModel(
             folderId = currentState.folderId?.trim()?.ifEmpty { null },
             sortOrder = currentState.sortOrder,
         )
-        storageManager.saveProfile(profile)
-        resetState()
-        return true
+        try {
+            storageManager.saveProfile(profile)
+            return true
+        } finally {
+            profile.clearSensitiveData()
+            resetState()
+        }
     }
 
     fun loadProfileIfNeeded(profileId: String?) {
@@ -359,8 +363,12 @@ class AddEditProfileViewModel(
             folderId = folderId,
             sortOrder = sortOrder,
         )
-        storageManager.saveProfile(profile)
-        resetState()
+        try {
+            storageManager.saveProfile(profile)
+        } finally {
+            profile.clearSensitiveData()
+            resetState()
+        }
     }
 
     fun getProfile(id: String): ConnectionProfile? = storageManager.getProfile(id)

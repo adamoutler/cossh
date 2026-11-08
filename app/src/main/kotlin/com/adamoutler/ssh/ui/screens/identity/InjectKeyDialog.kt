@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import com.adamoutler.ssh.data.ConnectionProfile
 
 @OptIn(ExperimentalMaterial3Api::class)
-@com.adamoutler.ssh.ui.screens.Generated
 @Composable
 fun InjectKeyDialog(
     onDismiss: () -> Unit,

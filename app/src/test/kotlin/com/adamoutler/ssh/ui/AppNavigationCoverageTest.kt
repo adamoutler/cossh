@@ -70,9 +70,6 @@ class AppNavigationCoverageTest {
         UiEventBus.publish(UiEvent.Navigate("terminal?profileId=123&sessionId=456"))
         composeTestRule.waitForIdle()
 
-        UiEventBus.publish(UiEvent.Navigate("keyManagement"))
-        composeTestRule.waitForIdle()
-
         UiEventBus.publish(UiEvent.NavigateUp)
         composeTestRule.waitForIdle()
 

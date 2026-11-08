@@ -176,8 +176,13 @@ class IdentityViewModel(
             } else {
                 identity
             }
-            storageManager.saveIdentity(identityToSave)
-            loadIdentities()
+            try {
+                storageManager.saveIdentity(identityToSave)
+                loadIdentities()
+            } finally {
+                identityToSave.clearSensitiveData()
+                identity.clearSensitiveData()
+            }
         }
     }
 

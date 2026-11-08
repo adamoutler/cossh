@@ -328,35 +328,41 @@ object BackupCryptoManager {
 
             AppLog.i(TAG, "Decoded payload: ${payload.profiles.size} profiles, ${payload.identities.size} identities.")
 
-            for (profile in payload.profiles) {
-                payload.profilePasswords[profile.id]?.let { pwdStr ->
-                    try {
-                        profile.password = Base64.getDecoder().decode(pwdStr)
-                    } catch (e: Exception) {
-                        AppLog.w(TAG, "Failed to decode password for profile ${profile.id}: ${e.message}")
+            try {
+                for (profile in payload.profiles) {
+                    payload.profilePasswords[profile.id]?.let { pwdStr ->
+                        try {
+                            profile.password = Base64.getDecoder().decode(pwdStr)
+                        } catch (e: Exception) {
+                            AppLog.w(TAG, "Failed to decode password for profile ${profile.id}: ${e.message}")
+                        }
                     }
                 }
-            }
-            for (identity in payload.identities) {
-                payload.identityPasswords[identity.id]?.let { pwdStr ->
-                    try {
-                        identity.password = Base64.getDecoder().decode(pwdStr)
-                    } catch (e: Exception) {
-                        AppLog.w(TAG, "Failed to decode password for identity ${identity.id}: ${e.message}")
+                for (identity in payload.identities) {
+                    payload.identityPasswords[identity.id]?.let { pwdStr ->
+                        try {
+                            identity.password = Base64.getDecoder().decode(pwdStr)
+                        } catch (e: Exception) {
+                            AppLog.w(TAG, "Failed to decode password for identity ${identity.id}: ${e.message}")
+                        }
+                    }
+                    payload.identityPrivateKeys[identity.id]?.let { pkStr ->
+                        try {
+                            identity.privateKey = Base64.getDecoder().decode(pkStr)
+                        } catch (e: Exception) {
+                            AppLog.w(TAG, "Failed to decode private key for identity ${identity.id}: ${e.message}")
+                        }
                     }
                 }
-                payload.identityPrivateKeys[identity.id]?.let { pkStr ->
-                    try {
-                        identity.privateKey = Base64.getDecoder().decode(pkStr)
-                    } catch (e: Exception) {
-                        AppLog.w(TAG, "Failed to decode private key for identity ${identity.id}: ${e.message}")
-                    }
-                }
-            }
 
-            AppLog.d(TAG, "Sanitizing unpacked profiles and identities...")
-            val (sanitizedProfiles, sanitizedIdentities) = BackupSanitizer.sanitize(payload.profiles, payload.identities)
-            return Pair(sanitizedProfiles, sanitizedIdentities)
+                AppLog.d(TAG, "Sanitizing unpacked profiles and identities...")
+                val (sanitizedProfiles, sanitizedIdentities) = BackupSanitizer.sanitize(payload.profiles, payload.identities)
+                return Pair(sanitizedProfiles, sanitizedIdentities)
+            } catch (e: Throwable) {
+                payload.profiles.forEach { it.clearSensitiveData() }
+                payload.identities.forEach { it.clearSensitiveData() }
+                throw e
+            }
         } finally {
             keySpec?.clearPassword()
             plainTextBytes?.fill(0)
