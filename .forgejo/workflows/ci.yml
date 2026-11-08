@@ -62,7 +62,7 @@ jobs:
           export KEYSTORE_PASSWORD=android
           export KEY_ALIAS=cossh_release
           export KEY_PASSWORD=android
-          ./gradlew assembleRelease --console=plain 2>&1 | tee -a build-test.log
+          ./gradlew assembleRelease bundleRelease --console=plain 2>&1 | tee -a build-test.log
 
       - name: Upload Test Reports
         if: always()

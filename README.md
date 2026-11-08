@@ -70,5 +70,11 @@ CoSSH adheres to strict "Zero-Tolerance Quality" standards.
 - All UI components are verified via Robolectric/Paparazzi snapshot tests.
 - Commits are automatically analyzed by SonarCloud for bugs and vulnerabilities.
 
-## 🔒 Security Policy
+## 🔒 Security & Privacy
 Security is the paramount invariant of this project. If you discover a vulnerability, please report it immediately. The app intentionally refuses to fall back to insecure storage mechanisms.
+
+* Detailed cryptographic architecture & threat modeling: [Security Whitepaper](docs/security-whitepaper.md)
+* Privacy commitments & permission disclosures: [Privacy Policy](docs/privacy-policy.md)
+
+## 📄 License
+This project is licensed under the terms of the GNU General Public License v3.0 — see the [LICENSE](LICENSE) file for details.

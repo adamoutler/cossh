@@ -401,7 +401,6 @@ fun ConnectionListScreen(
     )
 }
 
-@com.adamoutler.ssh.ui.screens.Generated
 @Composable
 fun ExportBackupDialog(
     onDismiss: () -> Unit,
@@ -488,7 +487,6 @@ fun ExportBackupDialog(
     )
 }
 
-@com.adamoutler.ssh.ui.screens.Generated
 @Composable
 fun ImportBackupDialog(
     onDismiss: () -> Unit,
@@ -539,7 +537,6 @@ fun ImportBackupDialog(
     )
 }
 
-@com.adamoutler.ssh.ui.screens.Generated
 @Composable
 fun ActiveSessionsDialog(
     profileName: String,

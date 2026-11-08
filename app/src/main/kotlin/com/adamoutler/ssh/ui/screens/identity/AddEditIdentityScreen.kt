@@ -116,9 +116,9 @@ fun AddEditIdentityScreen(
                 id = identityId ?: java.util.UUID.randomUUID().toString(),
                 name = uiState.name,
                 username = uiState.username,
-                password = passBytes,
+                password = passBytes?.copyOf(),
                 publicKey = if (uiState.publicKey.isNotEmpty()) uiState.publicKey else null,
-                privateKey = uiState.privateKey,
+                privateKey = uiState.privateKey?.copyOf(),
                 authType = uiState.authType,
                 securityTier = uiState.securityTier,
             )
@@ -134,7 +134,6 @@ fun AddEditIdentityScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@com.adamoutler.ssh.ui.screens.Generated
 @Composable
 fun AddEditIdentityScreenContent(
     identityId: String?,
