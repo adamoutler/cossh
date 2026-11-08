@@ -18,7 +18,6 @@ import org.robolectric.annotation.Config
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
-import java.lang.reflect.Method
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
@@ -67,7 +66,6 @@ class DriveSyncMultipartTest {
 
     @Before
     fun setUp() {
-        DriveSyncManager.setIterationsForTesting(1_000)
         context = ApplicationProvider.getApplicationContext()
         driveSyncManager = DriveSyncManager(context)
         driveSyncManager.setOAuthToken("test_bearer_token")
@@ -75,7 +73,6 @@ class DriveSyncMultipartTest {
 
     @After
     fun tearDown() {
-        DriveSyncManager.resetIterationsForTesting()
         MockURLStreamHandlerFactory.connectionProvider = null
         MockURLStreamHandlerFactory.mockConnection = null
         DriveSyncManager.cachedOAuthToken = null
@@ -224,34 +221,6 @@ class DriveSyncMultipartTest {
         val downloaded = driveSyncManager.downloadBackup("anyPass".toCharArray())
         assertNotNull(downloaded)
         assertArrayEquals(zipHeader, downloaded)
-    }
-
-    @Test
-    fun testDownloadBackup_LegacyEncryptedPayload_InvokesDecryptFallback() = runBlocking {
-        val encryptMethod: Method = DriveSyncManager::class.java.getDeclaredMethod("encrypt", ByteArray::class.java, CharArray::class.java)
-        encryptMethod.isAccessible = true
-
-        val plaintextZip = byteArrayOf(0x50.toByte(), 0x4B.toByte(), 0x03.toByte(), 0x04.toByte(), 0x99.toByte())
-        val pass = "legacySecret123".toCharArray()
-        val legacyEncrypted = encryptMethod.invoke(driveSyncManager, plaintextZip, pass) as ByteArray
-
-        MockURLStreamHandlerFactory.connectionProvider = { url ->
-            val conn = DetailedMockConnection(url)
-            val urlStr = url.toString()
-            if (urlStr.contains("spaces=appDataFolder")) {
-                val files = org.json.JSONArray().put(JSONObject().put("id", "legacyBackupId"))
-                conn.mockResponseCode = 200
-                conn.responseBody = JSONObject().put("files", files).toString().toByteArray(StandardCharsets.UTF_8)
-            } else {
-                conn.mockResponseCode = 200
-                conn.responseBody = legacyEncrypted
-            }
-            conn
-        }
-
-        val decrypted = driveSyncManager.downloadBackup("legacySecret123".toCharArray())
-        assertNotNull(decrypted)
-        assertArrayEquals(plaintextZip, decrypted)
     }
 
     @Test

@@ -99,35 +99,31 @@ class ReleaseBuildHardeningVerificationTest {
     }
 
     @Test
-    fun testProguardRules_protectsKotlinxSerializationAcrossDomains() {
+    fun testProguardRules_scopesKotlinxSerializationRules() {
         val content = getProguardRulesFile().readText()
         assertTrue(
-            "ProGuard must keep @Serializable annotated classes",
-            content.contains("-keep @kotlinx.serialization.Serializable class * { *; }"),
+            "ProGuard must scope @Serializable rules using -if directive",
+            content.contains("-if @kotlinx.serialization.Serializable class **"),
         )
         assertTrue(
             "ProGuard must preserve serializable fields",
             content.contains("@kotlinx.serialization.Serializable <fields>;"),
         )
         assertTrue(
-            "ProGuard must protect com.adamoutler.ssh.security.** serializable classes",
-            content.contains("com.adamoutler.ssh.security.**"),
+            "ProGuard must protect \$Companion serializer",
+            content.contains("<1>\$Companion"),
         )
         assertTrue(
-            "ProGuard must protect com.adamoutler.ssh.network.** serializable classes",
-            content.contains("com.adamoutler.ssh.network.**"),
+            "ProGuard must protect \$\$serializer class",
+            content.contains("<1>\$\$serializer"),
         )
-        assertTrue(
-            "ProGuard must protect com.adamoutler.ssh.ui.** serializable classes",
-            content.contains("com.adamoutler.ssh.ui.**"),
+        assertFalse(
+            "ProGuard must not use blanket package keeps for security",
+            content.contains("-keep @kotlinx.serialization.Serializable class com.adamoutler.ssh.security.** { *; }"),
         )
-        assertTrue(
-            "ProGuard must protect com.adamoutler.ssh.data.** serializable classes",
-            content.contains("com.adamoutler.ssh.data.**"),
-        )
-        assertTrue(
-            "ProGuard must protect com.adamoutler.ssh.backup.** serializable classes",
-            content.contains("com.adamoutler.ssh.backup.**"),
+        assertFalse(
+            "ProGuard must not blanket-keep all methods of @Serializable classes",
+            content.contains("-keep @kotlinx.serialization.Serializable class * { *; }"),
         )
     }
 

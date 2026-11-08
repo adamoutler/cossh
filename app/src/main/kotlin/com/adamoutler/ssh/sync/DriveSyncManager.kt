@@ -21,13 +21,6 @@ import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.security.SecureRandom
-import javax.crypto.AEADBadTagException
-import javax.crypto.Cipher
-import javax.crypto.SecretKeyFactory
-import javax.crypto.spec.GCMParameterSpec
-import javax.crypto.spec.PBEKeySpec
-import javax.crypto.spec.SecretKeySpec
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -41,19 +34,6 @@ open class DriveSyncManager(context: Context) {
 
     companion object {
         private const val TAG = "DriveSyncManager"
-        const val DEFAULT_PBKDF2_ITERATIONS = 65536
-
-        @Volatile
-        var pbkdf2Iterations: Int = DEFAULT_PBKDF2_ITERATIONS
-            private set
-
-        fun setIterationsForTesting(iterations: Int) {
-            pbkdf2Iterations = iterations
-        }
-
-        fun resetIterationsForTesting() {
-            pbkdf2Iterations = DEFAULT_PBKDF2_ITERATIONS
-        }
 
         var authorizationContinuation: kotlin.coroutines.Continuation<Unit>? = null
         var currentInstance: DriveSyncManager? = null
@@ -338,15 +318,7 @@ open class DriveSyncManager(context: Context) {
                 if (connection.responseCode in 200..299) {
                     val downloadedPayload = readFully(connection.inputStream)
                     AppLog.i(TAG, "Backup downloaded successfully: HTTP ${connection.responseCode}")
-                    if (downloadedPayload.size >= 4 &&
-                        downloadedPayload[0] == 0x50.toByte() &&
-                        downloadedPayload[1] == 0x4B.toByte() &&
-                        downloadedPayload[2] == 0x03.toByte() &&
-                        downloadedPayload[3] == 0x04.toByte()
-                    ) {
-                        return@withContext downloadedPayload
-                    }
-                    return@withContext decrypt(downloadedPayload, pass)
+                    return@withContext downloadedPayload
                 } else {
                     throw IOException("Failed to download: ${connection.responseCode}")
                 }
@@ -367,50 +339,5 @@ open class DriveSyncManager(context: Context) {
             baos.write(buffer, 0, length)
         }
         return baos.toByteArray()
-    }
-
-    private fun encrypt(payload: ByteArray, pass: CharArray): ByteArray {
-        val salt = ByteArray(16)
-        SecureRandom().nextBytes(salt)
-
-        val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        val spec = PBEKeySpec(pass, salt, pbkdf2Iterations, 256)
-        val tmp = factory.generateSecret(spec)
-        val secretKey = SecretKeySpec(tmp.encoded, "AES")
-
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        val iv = ByteArray(12)
-        SecureRandom().nextBytes(iv)
-        val gcmSpec = GCMParameterSpec(128, iv)
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey, gcmSpec)
-
-        val encrypted = cipher.doFinal(payload)
-
-        // Prepend salt and iv for decryption: [salt(16)] [iv(12)] [encrypted payload]
-        val result = ByteArray(salt.size + iv.size + encrypted.size)
-        System.arraycopy(salt, 0, result, 0, salt.size)
-        System.arraycopy(iv, 0, result, salt.size, iv.size)
-        System.arraycopy(encrypted, 0, result, salt.size + iv.size, encrypted.size)
-
-        return result
-    }
-
-    private fun decrypt(encryptedPayload: ByteArray, pass: CharArray): ByteArray {
-        if (encryptedPayload.size < 28) throw AEADBadTagException("Invalid payload size")
-
-        val salt = encryptedPayload.copyOfRange(0, 16)
-        val iv = encryptedPayload.copyOfRange(16, 28)
-        val encrypted = encryptedPayload.copyOfRange(28, encryptedPayload.size)
-
-        val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        val spec = PBEKeySpec(pass, salt, pbkdf2Iterations, 256)
-        val tmp = factory.generateSecret(spec)
-        val secretKey = SecretKeySpec(tmp.encoded, "AES")
-
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        val gcmSpec = GCMParameterSpec(128, iv)
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmSpec)
-
-        return cipher.doFinal(encrypted)
     }
 }

@@ -90,6 +90,27 @@ class ReverseEngineeringHardeningTest {
     }
 
     @Test
+    fun testProguardRules_scopesKotlinxSerializationRules() {
+        val content = getProguardRulesFile().readText()
+        assertTrue(
+            "ProGuard rules must scope @Serializable via -if rule",
+            content.contains("-if @kotlinx.serialization.Serializable class **"),
+        )
+        assertTrue(
+            "ProGuard rules must preserve \$Companion serializer",
+            content.contains("<1>\$Companion"),
+        )
+        assertTrue(
+            "ProGuard rules must preserve \$\$serializer class",
+            content.contains("<1>\$\$serializer"),
+        )
+        assertFalse(
+            "ProGuard rules must not blanket-keep all methods of @Serializable classes",
+            content.contains("-keep @kotlinx.serialization.Serializable class * { *; }"),
+        )
+    }
+
+    @Test
     fun testGradleProperties_enablesR8FullMode() {
         val content = getGradlePropertiesFile().readText()
         assertTrue(

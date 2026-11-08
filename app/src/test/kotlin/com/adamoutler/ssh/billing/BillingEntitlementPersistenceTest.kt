@@ -10,6 +10,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -60,9 +61,11 @@ class BillingEntitlementPersistenceTest {
 
     @Test
     fun testSubsequentBillingManagerReadsPersistedEntitlement() = runBlocking {
+        val hmac = BillingManager.computeEntitlementHmac(context.packageName)
         context.getSharedPreferences("BillingPrefs", Context.MODE_PRIVATE)
             .edit()
             .putBoolean("cloud_sync_entitled", true)
+            .putString("cloud_sync_entitled_hmac", hmac)
             .commit()
 
         val newBillingManager = BillingManager(context)
@@ -71,14 +74,44 @@ class BillingEntitlementPersistenceTest {
 
     @Test
     fun testAwaitCloudSyncEntitlement_ReturnsTrueWhenCached() = runBlocking {
+        val hmac = BillingManager.computeEntitlementHmac(context.packageName)
         context.getSharedPreferences("BillingPrefs", Context.MODE_PRIVATE)
             .edit()
             .putBoolean("cloud_sync_entitled", true)
+            .putString("cloud_sync_entitled_hmac", hmac)
             .commit()
 
         val billingManager = BillingManager(context)
         val entitled = billingManager.awaitCloudSyncEntitlement()
         assertTrue("awaitCloudSyncEntitlement should return true when cached", entitled)
+    }
+
+    @Test
+    fun testStartupRejectsTamperedEntitlementAndPurgesPrefs() = runBlocking {
+        val prefs = context.getSharedPreferences("BillingPrefs", Context.MODE_PRIVATE)
+        prefs.edit()
+            .putBoolean(BillingManager.PREF_KEY_ENTITLED, true)
+            .putString(BillingManager.PREF_KEY_ENTITLED_HMAC, "invalid_hmac_signature")
+            .commit()
+
+        val billingManager = BillingManager(context)
+        assertFalse("Tampered entitlement must not enable cloud sync on startup", billingManager.isCloudSyncEnabled.value)
+        assertFalse("Tampered entitlement flag must be purged from prefs", prefs.getBoolean(BillingManager.PREF_KEY_ENTITLED, false))
+        assertNull("Tampered HMAC must be removed from prefs", prefs.getString(BillingManager.PREF_KEY_ENTITLED_HMAC, null))
+    }
+
+    @Test
+    fun testStartupRejectsMissingHmacAndPurgesPrefs() = runBlocking {
+        val prefs = context.getSharedPreferences("BillingPrefs", Context.MODE_PRIVATE)
+        prefs.edit()
+            .putBoolean(BillingManager.PREF_KEY_ENTITLED, true)
+            .remove(BillingManager.PREF_KEY_ENTITLED_HMAC)
+            .commit()
+
+        val billingManager = BillingManager(context)
+        assertFalse("Missing HMAC must not enable cloud sync on startup", billingManager.isCloudSyncEnabled.value)
+        assertFalse("Entitlement flag must be purged from prefs", prefs.getBoolean(BillingManager.PREF_KEY_ENTITLED, false))
+        assertNull("HMAC must be null in prefs", prefs.getString(BillingManager.PREF_KEY_ENTITLED_HMAC, null))
     }
 
     @Test

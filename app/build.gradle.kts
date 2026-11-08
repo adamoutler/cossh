@@ -97,10 +97,7 @@ android {
                 println("🔒 Using Release Keystore for signing.")
             } else {
                 println("⚠️  Release keystore not found or not configured. Falling back to default debug keystore.")
-                storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")
-                storePassword = "android"
-                keyAlias = "androiddebugkey"
-                keyPassword = "android"
+                initWith(signingConfigs.getByName("debug"))
             }
         }
     }
@@ -117,7 +114,7 @@ android {
             ndk {
                 debugSymbolLevel = "SYMBOL_TABLE"
             }
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.findByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -245,7 +242,6 @@ dependencies {
     androidTestImplementation(libs.sshd.core)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    releaseImplementation(libs.androidx.ui.test.manifest)
 }
 
 tasks.withType<Test> {

@@ -80,7 +80,6 @@ class DriveSyncManagerTest {
 
     @Before
     fun setUp() {
-        DriveSyncManager.setIterationsForTesting(1_000)
         context = ApplicationProvider.getApplicationContext()
         driveSyncManager = DriveSyncManager(context)
         DriveSyncManager.authorizationContinuation = null
@@ -91,26 +90,6 @@ class DriveSyncManagerTest {
 
     @After
     fun tearDown() {
-        DriveSyncManager.resetIterationsForTesting()
-    }
-
-    @Test
-    fun testEncryptDecrypt() {
-        val encryptMethod: Method = DriveSyncManager::class.java.getDeclaredMethod("encrypt", ByteArray::class.java, CharArray::class.java)
-        encryptMethod.isAccessible = true
-
-        val decryptMethod: Method = DriveSyncManager::class.java.getDeclaredMethod("decrypt", ByteArray::class.java, CharArray::class.java)
-        decryptMethod.isAccessible = true
-
-        val payload = "SuperSecretData".toByteArray()
-        val pass = "myPassword123".toCharArray()
-
-        val encrypted = encryptMethod.invoke(driveSyncManager, payload, pass) as ByteArray
-        assertNotNull(encrypted)
-        assertTrue(encrypted.size > payload.size)
-
-        val decrypted = decryptMethod.invoke(driveSyncManager, encrypted, pass) as ByteArray
-        assertArrayEquals(payload, decrypted)
     }
 
     @Test
@@ -200,18 +179,13 @@ class DriveSyncManagerTest {
     fun testDownloadBackupSuccess() = runBlocking {
         driveSyncManager.setOAuthToken("valid_token")
 
-        // Pre-encrypt some payload so download parsing passes
-        val encryptMethod = DriveSyncManager::class.java.getDeclaredMethod("encrypt", ByteArray::class.java, CharArray::class.java)
-        encryptMethod.isAccessible = true
-        val encryptedData = encryptMethod.invoke(driveSyncManager, "payload".toByteArray(), "password".toCharArray()) as ByteArray
+        val payloadData = "payload".toByteArray()
 
         // Mock finding file ID and downloading
         val filesArray = org.json.JSONArray().put(JSONObject().put("id", "existingFileId"))
         mockConnection.mockResponseString = JSONObject().put("files", filesArray).toString()
 
-        // For the second request (the download itself), we need to return the encrypted bytes
-        // But our mock connection just returns mockResponseString. We can convert bytes to string.
-        mockConnection.mockResponseString = String(encryptedData, Charsets.ISO_8859_1)
+        mockConnection.mockResponseString = String(payloadData, Charsets.ISO_8859_1)
 
         MockURLStreamHandlerFactory.mockConnection = object : MockHttpURLConnection(URL("https://dummy")) {
             var callCount = 0
@@ -220,7 +194,7 @@ class DriveSyncManagerTest {
                 if (callCount == 1) {
                     return ByteArrayInputStream(JSONObject().put("files", filesArray).toString().toByteArray())
                 }
-                return ByteArrayInputStream(encryptedData)
+                return ByteArrayInputStream(payloadData)
             }
         }
 

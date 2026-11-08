@@ -3,6 +3,8 @@ package com.adamoutler.ssh.billing
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -19,8 +21,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 import java.nio.charset.StandardCharsets
+import java.security.Key
+import java.security.KeyStore
 import java.security.MessageDigest
+import javax.crypto.KeyGenerator
 import javax.crypto.Mac
+import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
 
 class BillingManager(private val context: Context) : PurchasesUpdatedListener {
@@ -30,7 +36,14 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
         const val PREF_KEY_ENTITLED = "cloud_sync_entitled"
         const val PREF_KEY_ENTITLED_HMAC = "cloud_sync_entitled_hmac"
         private const val HMAC_ALGORITHM = "HmacSHA256"
-        private const val HMAC_KEY_SEED = "CoSSH_Billing_Entitlement_Key_Salt_2026"
+        private const val HMAC_KEY_ALIAS = "cossh_billing_entitlement_hmac_key"
+        private const val ANDROID_KEYSTORE = "AndroidKeyStore"
+
+        private val FALLBACK_TEST_KEY: SecretKey = SecretKeySpec(
+            MessageDigest.getInstance("SHA-256")
+                .digest("cossh_billing_deterministic_test_seed_2026".toByteArray(StandardCharsets.UTF_8)),
+            HMAC_ALGORITHM,
+        )
 
         val isRobolectric: Boolean by lazy {
             try {
@@ -41,27 +54,54 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
             }
         }
 
-        fun isTestOverrideAllowed(isDebugBuild: Boolean, isRobolectricEnv: Boolean): Boolean = (isDebugBuild || isRobolectricEnv) && forceCloudSyncEnabledForTest
+        fun isRobolectricEnvironment(): Boolean = isRobolectric
+
+        @JvmOverloads
+        fun isTestOverrideAllowed(
+            isDebugBuild: Boolean = com.adamoutler.ssh.BuildConfig.DEBUG,
+            isRobolectricEnv: Boolean = isRobolectricEnvironment(),
+        ): Boolean = (isDebugBuild || isRobolectricEnv) && forceCloudSyncEnabledForTest
 
         fun isTestEnvironment(): Boolean = com.adamoutler.ssh.BuildConfig.DEBUG || isRobolectric
 
-        fun isForceCloudSyncActive(): Boolean = isTestOverrideAllowed(com.adamoutler.ssh.BuildConfig.DEBUG, isRobolectric)
+        fun isForceCloudSyncActive(): Boolean = isTestOverrideAllowed()
+
+        @Synchronized
+        fun getEntitlementKey(): Key {
+            if (isRobolectric) {
+                return FALLBACK_TEST_KEY
+            }
+            return try {
+                val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
+                if (!keyStore.containsAlias(HMAC_KEY_ALIAS)) {
+                    val keyGenerator = KeyGenerator.getInstance(
+                        KeyProperties.KEY_ALGORITHM_HMAC_SHA256,
+                        ANDROID_KEYSTORE,
+                    )
+                    val spec = KeyGenParameterSpec.Builder(
+                        HMAC_KEY_ALIAS,
+                        KeyProperties.PURPOSE_SIGN,
+                    ).build()
+                    keyGenerator.init(spec)
+                    keyGenerator.generateKey()
+                }
+                keyStore.getKey(HMAC_KEY_ALIAS, null) ?: FALLBACK_TEST_KEY
+            } catch (_: Throwable) {
+                FALLBACK_TEST_KEY
+            }
+        }
 
         fun computeEntitlementHmac(packageName: String): String {
             val message = "cloud_sync_entitled:true:$packageName"
             val mac = Mac.getInstance(HMAC_ALGORITHM)
-            val keySpec = SecretKeySpec(
-                HMAC_KEY_SEED.toByteArray(StandardCharsets.UTF_8),
-                HMAC_ALGORITHM,
-            )
-            mac.init(keySpec)
+            mac.init(getEntitlementKey())
             val hmacBytes = mac.doFinal(message.toByteArray(StandardCharsets.UTF_8))
             return hmacBytes.joinToString("") { "%02x".format(it) }
         }
     }
 
     private val prefs = context.getSharedPreferences("BillingPrefs", Context.MODE_PRIVATE)
-    private val _isCloudSyncEnabled = MutableStateFlow(isForceCloudSyncActive() || prefs.getBoolean(PREF_KEY_ENTITLED, false))
+    private val _isCloudSyncEnabled = MutableStateFlow(isTestOverrideAllowed() || verifyEntitlementIntegrity())
     val isCloudSyncEnabled: StateFlow<Boolean> = _isCloudSyncEnabled.asStateFlow()
 
     fun persistEntitlement(targetPrefs: SharedPreferences = prefs) {
@@ -73,15 +113,23 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
     }
 
     fun verifyEntitlementIntegrity(): Boolean {
-        if (isForceCloudSyncActive()) return true
+        if (isTestOverrideAllowed()) return true
         val isEntitled = prefs.getBoolean(PREF_KEY_ENTITLED, false)
         if (!isEntitled) return false
-        val storedHmac = prefs.getString(PREF_KEY_ENTITLED_HMAC, null) ?: return false
+        val storedHmac = prefs.getString(PREF_KEY_ENTITLED_HMAC, null)
         val expectedHmac = computeEntitlementHmac(context.packageName)
-        return MessageDigest.isEqual(
+        val isValid = storedHmac != null && MessageDigest.isEqual(
             storedHmac.toByteArray(StandardCharsets.UTF_8),
             expectedHmac.toByteArray(StandardCharsets.UTF_8),
         )
+        if (!isValid) {
+            prefs.edit()
+                .putBoolean(PREF_KEY_ENTITLED, false)
+                .remove(PREF_KEY_ENTITLED_HMAC)
+                .apply()
+            return false
+        }
+        return true
     }
 
     private val billingClient = BillingClient.newBuilder(context)

@@ -53,15 +53,23 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 
-# Preserve kotlinx.serialization serializable classes and fields across security, network, ui, data, and backup
--keep @kotlinx.serialization.Serializable class * { *; }
--keepclassmembers class * {
+# Preserve kotlinx.serialization serializable classes and fields with scoped rules
+-if @kotlinx.serialization.Serializable class **
+-keepclassmembers class <1> {
+    public static *** Companion;
+    public static *** serializer(...);
     @kotlinx.serialization.Serializable <fields>;
 }
--keep @kotlinx.serialization.Serializable class com.adamoutler.ssh.security.** { *; }
--keep @kotlinx.serialization.Serializable class com.adamoutler.ssh.network.** { *; }
--keep @kotlinx.serialization.Serializable class com.adamoutler.ssh.ui.** { *; }
--keep @kotlinx.serialization.Serializable class com.adamoutler.ssh.data.** { *; }
--keep @kotlinx.serialization.Serializable class com.adamoutler.ssh.backup.** { *; }
+
+-if @kotlinx.serialization.Serializable class **
+-keepclassmembers class <1>$Companion {
+    public *** serializer(...);
+}
+
+-if @kotlinx.serialization.Serializable class **
+-keep class <1>$$serializer {
+    public static *** INSTANCE;
+    public *** serializer(...);
+}
 
 

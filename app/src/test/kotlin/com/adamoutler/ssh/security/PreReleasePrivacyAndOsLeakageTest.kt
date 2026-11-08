@@ -223,6 +223,9 @@ class PreReleasePrivacyAndOsLeakageTest {
 
         val billingManager = BillingManager(context)
         assertFalse("Tampered entitlement flag without HMAC tag must fail integrity verification", billingManager.verifyEntitlementIntegrity())
+        assertFalse("Tampered entitlement must not enable isCloudSyncEnabled on startup", billingManager.isCloudSyncEnabled.value)
+        assertFalse("Tampered flag must be immediately reset in prefs", prefs.getBoolean(BillingManager.PREF_KEY_ENTITLED, false))
+        assertNull("HMAC key must remain null in prefs", prefs.getString(BillingManager.PREF_KEY_ENTITLED_HMAC, null))
     }
 
     @Test
@@ -235,6 +238,9 @@ class PreReleasePrivacyAndOsLeakageTest {
 
         val billingManager = BillingManager(context)
         assertFalse("Tampered entitlement HMAC must fail verification", billingManager.verifyEntitlementIntegrity())
+        assertFalse("Tampered entitlement must not enable isCloudSyncEnabled on startup", billingManager.isCloudSyncEnabled.value)
+        assertFalse("Tampered flag must be immediately reset in prefs", prefs.getBoolean(BillingManager.PREF_KEY_ENTITLED, false))
+        assertNull("Tampered HMAC must be purged from prefs", prefs.getString(BillingManager.PREF_KEY_ENTITLED_HMAC, null))
     }
 
     @Test
