@@ -33,7 +33,6 @@ import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.sync.DriveSyncManager
 import com.adamoutler.ssh.ui.components.KeystoreInvalidatedDialog
 import com.adamoutler.ssh.ui.components.TerminalScreen
-import com.adamoutler.ssh.ui.keys.KeyManagementScreen
 import com.adamoutler.ssh.ui.screens.AddEditProfileScreen
 import com.adamoutler.ssh.ui.screens.ConnectionListScreen
 import com.adamoutler.ssh.ui.screens.SettingsScreen
@@ -247,9 +246,6 @@ fun AppNavigation(
                 onBack = { navController.popBackStack() },
             )
         }
-        composable("keyManagement") {
-            KeyManagementScreen()
-        }
         composable(
             route = "sftpBrowser?profileId={profileId}",
             arguments = listOf(
@@ -269,10 +265,10 @@ fun AppNavigation(
                     try {
                         com.adamoutler.ssh.sftp.SshjSftpClientAdapter(activeSshClient.newSFTPClient())
                     } catch (_: Exception) {
-                        com.adamoutler.ssh.sftp.FakeSftpClientAdapter()
+                        com.adamoutler.ssh.sftp.DisconnectedSftpClientAdapter()
                     }
                 } else {
-                    com.adamoutler.ssh.sftp.FakeSftpClientAdapter()
+                    com.adamoutler.ssh.sftp.DisconnectedSftpClientAdapter()
                 }
             }
             val sftpManager = remember(adapter) { com.adamoutler.ssh.sftp.SftpClientManager(adapter) }
