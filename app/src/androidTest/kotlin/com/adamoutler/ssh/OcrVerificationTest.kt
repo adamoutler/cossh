@@ -55,7 +55,7 @@ class OcrVerificationTest {
             val device = UiDevice.getInstance(instrumentation)
             val context = ApplicationProvider.getApplicationContext<Context>()
             val storageManager = SecurityStorageManager(context)
-            storageManager.getAllProfiles().forEach { storageManager.deleteProfile(it.id) }
+            storageManager.deleteProfile("mock-id-ui-ocr-test")
 
             // WE WANT A VISUAL TEST. No headless override!
             com.adamoutler.ssh.network.SshSessionProvider.isHeadlessTest = false

@@ -40,7 +40,7 @@ class ConnectionResumeE2ETest {
         val device = UiDevice.getInstance(instrumentation)
         val context = ApplicationProvider.getApplicationContext<Context>()
         val storageManager = SecurityStorageManager(context)
-        storageManager.getAllProfiles().forEach { storageManager.deleteProfile(it.id) }
+        storageManager.deleteProfile("mock-id-resume-e2e")
 
         SshSessionProvider.isHeadlessTest = false
         SshSessionProvider.mockTestTranscript = null

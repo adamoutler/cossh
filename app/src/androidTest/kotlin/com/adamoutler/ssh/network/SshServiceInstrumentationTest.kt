@@ -42,7 +42,7 @@ class SshServiceInstrumentationTest {
     fun testForegroundServiceSurvivesActivityBackgrounding() = kotlinx.coroutines.runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val storageManager = com.adamoutler.ssh.crypto.SecurityStorageManager(context)
-        storageManager.getAllProfiles().forEach { storageManager.deleteProfile(it.id) }
+        storageManager.deleteProfile("mock-profile")
         com.adamoutler.ssh.network.ConnectionStateRepository.sessions.clear()
         val mockProfile = com.adamoutler.ssh.data.ConnectionProfile(
             id = "mock-profile",

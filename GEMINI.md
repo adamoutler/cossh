@@ -13,6 +13,17 @@
 
 ## Operational Rules & Tool Governance
 
+### 0. Physical & Wi-Fi Device Protection (CRITICAL — ZERO DATA LOSS)
+- **Respect Physical & Wi-Fi Devices:** Treat all connected physical devices—and especially Wi-Fi ADB devices (`<IP>:<PORT>`, wireless debugging)—as live production user hardware containing irreplaceable SSH connections, identities, and keys.
+- **NEVER Perform Destructive Overwrites on `CoSSHd` (`com.adamoutler.cobaltssh.debug`):**
+  - You are **STRICTLY FORBIDDEN** from executing `adb uninstall`, `adb shell pm clear`, wiping app storage/SharedPreferences/Keystore entries, or performing any destructive overwrite on `CoSSHd` (`com.adamoutler.cobaltssh.debug`).
+  - Never uninstall and reinstall `CoSSHd` to resolve signature mismatches (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`). Always sign debug builds with `~/.android/debug.keystore` and only perform non-destructive in-place updates (`adb install -r`) when explicitly instructed.
+  - Never run `connectedAndroidTest` / `connectedDebugAndroidTest` or any test/macro that clears app state against a physical or Wi-Fi device, because instrumented tests execute inside `com.adamoutler.cobaltssh.debug` (`CoSSHd`) and will destroy the user's saved connections.
+- **Mandatory Explicit Permission for `CoSSH` (`com.adamoutler.cobaltssh`):**
+  - You **MUST ask explicit permission from the user** before installing, updating, overwriting, clearing, or interacting with `CoSSH` (`com.adamoutler.cobaltssh`) on any device.
+- **ADB Target Discipline:**
+  - Always inspect `adb devices -l` before executing any ADB or Gradle device task. Never run unscoped `adb` or `./gradlew connected*` commands while a physical or Wi-Fi device is connected.
+
 ### 1. The .gemini/ Fortress
 The `.gemini/` directory (containing hooks, agents, and settings) is **STRICTLY LOCKED**. 
 - **DO NOT** attempt to modify, disable, or bypass these files if the Kanban API, Dash Relay, or CI pipeline experiences an outage or delay.

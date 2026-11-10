@@ -7,6 +7,12 @@ description: Compiles and installs the Android app to a specified IP and port ov
 
 This skill provides instructions for compiling the Android application and installing it to a specific device over Wi-Fi, ensuring standard keys are used to avoid signature and authentication mismatches.
 
+> [!CAUTION]
+> **Physical & Wi-Fi Device Protection Rules:**
+> - **NEVER perform a destructive overwrite on `CoSSHd` (`com.adamoutler.cobaltssh.debug`)**: Never run `adb uninstall`, `adb shell pm clear`, or wipe app data/SharedPreferences/Keystore on any physical or Wi-Fi device. If `adb install -r` fails due to a signature or downgrade error, **STOP IMMEDIATELY** and report the error to the user—never uninstall the app to force installation.
+> - **ALWAYS ask permission for `CoSSH` (`com.adamoutler.cobaltssh`)**: You must ask and receive explicit permission from the user before installing, updating, or modifying `CoSSH` (`com.adamoutler.cobaltssh`).
+> - **NEVER run instrumented tests (`connectedAndroidTest`) against physical or Wi-Fi devices**, as tests clear app preferences and will wipe the user's saved SSH connections.
+
 ## Workflow
 
 When the user asks to compile and install the app to a specific IP and port, follow these exact steps:
@@ -14,7 +20,7 @@ When the user asks to compile and install the app to a specific IP and port, fol
 1. **Compile the App with Standard Signing Key:**
    Run the Gradle assemble command to build the debug APK. Explicitly pass the path to the standard debug keystore in the user's home folder (`~/.android/debug.keystore`) so it doesn't generate or use a random one.
    ```bash
-   ./gradlew assembleDebug \
+   JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64 QEMU_LD_PREFIX=/home/adamoutler/Android/x86_64-rootfs ./gradlew assembleDebug \
      -Pandroid.injected.signing.store.file=$HOME/.android/debug.keystore \
      -Pandroid.injected.signing.store.password=android \
      -Pandroid.injected.signing.key.alias=androiddebugkey \
