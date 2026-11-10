@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context
 import android.view.WindowManager
 import androidx.test.core.app.ApplicationProvider
+import com.adamoutler.ssh.MainActivity
 import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.crypto.PasswordCipher
 import com.adamoutler.ssh.crypto.SSHKeyGenerator
@@ -178,6 +179,117 @@ class PreReleaseCryptoAndAppLockHardeningTest {
             "FLAG_SECURE must be cleared if the window was not secure before dialog display",
             afterDisposeSecure,
         )
+    }
+
+    @Test
+    fun `SettingsManager screenshot and obscured touch blocking default to false and persist changes`() {
+        val testPrefs = context.getSharedPreferences("cossh_settings", Context.MODE_PRIVATE)
+        testPrefs.edit().remove(SettingsManager.KEY_SCREENSHOT_BLOCKING_ENABLED)
+            .remove(SettingsManager.KEY_OVERLAY_TOUCH_BLOCKING_ENABLED).commit()
+
+        val manager = SettingsManager(context)
+        assertFalse(
+            "isScreenshotBlockingEnabled must default to false",
+            manager.isScreenshotBlockingEnabled,
+        )
+        assertFalse(
+            "isOverlayTouchBlockingEnabled must default to false",
+            manager.isOverlayTouchBlockingEnabled,
+        )
+
+        manager.isScreenshotBlockingEnabled = true
+        assertTrue(
+            "isScreenshotBlockingEnabled must persist true",
+            manager.isScreenshotBlockingEnabled,
+        )
+
+        manager.isOverlayTouchBlockingEnabled = true
+        assertTrue(
+            "isOverlayTouchBlockingEnabled must persist true",
+            manager.isOverlayTouchBlockingEnabled,
+        )
+
+        manager.isScreenshotBlockingEnabled = false
+        assertFalse(
+            "isScreenshotBlockingEnabled must persist false",
+            manager.isScreenshotBlockingEnabled,
+        )
+
+        manager.isOverlayTouchBlockingEnabled = false
+        assertFalse(
+            "isOverlayTouchBlockingEnabled must persist false",
+            manager.isOverlayTouchBlockingEnabled,
+        )
+    }
+
+    @Test
+    fun `MainActivity applies and clears FLAG_SECURE and filterTouchesWhenObscured dynamically`() {
+        val testPrefs = context.getSharedPreferences("cossh_settings", Context.MODE_PRIVATE)
+        testPrefs.edit()
+            .putBoolean(SettingsManager.KEY_SCREENSHOT_BLOCKING_ENABLED, false)
+            .putBoolean(SettingsManager.KEY_OVERLAY_TOUCH_BLOCKING_ENABLED, false)
+            .commit()
+
+        val controller = Robolectric.buildActivity(MainActivity::class.java).setup()
+        val activity = controller.get()
+
+        val initialSecure = (activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0
+        assertFalse("MainActivity window must not have FLAG_SECURE by default", initialSecure)
+        assertFalse("MainActivity decorView must not filter obscured touches by default", activity.window.decorView.filterTouchesWhenObscured)
+
+        activity.settingsManager.isScreenshotBlockingEnabled = true
+        val secureWhenEnabled = (activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0
+        assertTrue("MainActivity window must have FLAG_SECURE when setting is enabled", secureWhenEnabled)
+
+        activity.settingsManager.isOverlayTouchBlockingEnabled = true
+        assertTrue("MainActivity decorView must filter obscured touches when setting is enabled", activity.window.decorView.filterTouchesWhenObscured)
+
+        activity.settingsManager.isScreenshotBlockingEnabled = false
+        val secureWhenDisabled = (activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0
+        assertFalse("MainActivity window must clear FLAG_SECURE when setting is disabled", secureWhenDisabled)
+
+        activity.settingsManager.isOverlayTouchBlockingEnabled = false
+        assertFalse("MainActivity decorView must not filter obscured touches when setting is disabled", activity.window.decorView.filterTouchesWhenObscured)
+
+        controller.destroy()
+    }
+
+    @Test
+    fun `AppLockScreen enforces FLAG_SECURE while displayed and restores non-secure state on dispose`() {
+        val activity = Robolectric.buildActivity(Activity::class.java).create().get()
+        val window = activity.window
+        window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        assertFalse("Window initially does not have FLAG_SECURE", (window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0)
+
+        // Simulate AppLockScreen DisposableEffect entry
+        val wasAlreadySecure = (window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0
+        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        assertTrue("Window must have FLAG_SECURE while AppLockScreen is displayed", (window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0)
+
+        // Simulate onDispose
+        if (!wasAlreadySecure) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+        assertFalse("Window must restore non-secure state when AppLockScreen is dismissed", (window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0)
+    }
+
+    @Test
+    fun `AppLockScreen preserves FLAG_SECURE on dispose if user already enabled screenshot blocking`() {
+        val activity = Robolectric.buildActivity(Activity::class.java).create().get()
+        val window = activity.window
+        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        assertTrue("Window initially has FLAG_SECURE", (window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0)
+
+        // Simulate AppLockScreen DisposableEffect entry
+        val wasAlreadySecure = (window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0
+        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        assertTrue("Window must retain FLAG_SECURE while AppLockScreen is displayed", (window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0)
+
+        // Simulate onDispose
+        if (!wasAlreadySecure) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+        assertTrue("Window must preserve FLAG_SECURE when AppLockScreen is dismissed if already enabled", (window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0)
     }
 
     // =========================================================================

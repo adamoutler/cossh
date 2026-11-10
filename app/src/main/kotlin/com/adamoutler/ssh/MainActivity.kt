@@ -1,8 +1,10 @@
 package com.adamoutler.ssh
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
+import com.adamoutler.ssh.crypto.SettingsManager
 import com.adamoutler.ssh.sync.DriveSyncManager
 import com.adamoutler.ssh.ui.events.UiEvent
 import com.adamoutler.ssh.ui.events.UiEventBus
@@ -35,6 +38,20 @@ import kotlinx.coroutines.flow.collectLatest
 
 class MainActivity : ComponentActivity() {
     private lateinit var appLockManager: com.adamoutler.ssh.security.AppLockManager
+    internal lateinit var settingsManager: SettingsManager
+    private val preferenceChangeListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            when (key) {
+                SettingsManager.KEY_SCREENSHOT_BLOCKING_ENABLED -> {
+                    updateScreenshotBlocking(settingsManager.isScreenshotBlockingEnabled)
+                }
+
+                SettingsManager.KEY_OVERLAY_TOUCH_BLOCKING_ENABLED -> {
+                    updateOverlayTouchBlocking(settingsManager.isOverlayTouchBlockingEnabled)
+                }
+            }
+        }
+
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { _ ->
@@ -57,8 +74,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.decorView.filterTouchesWhenObscured = true
-        window.setFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE, android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        settingsManager = SettingsManager(applicationContext)
+        updateScreenshotBlocking(settingsManager.isScreenshotBlockingEnabled)
+        updateOverlayTouchBlocking(settingsManager.isOverlayTouchBlockingEnabled)
+        settingsManager.registerOnSharedPreferenceChangeListener(preferenceChangeListener)
 
         // Security mitigations: Implement root detection to protect sensitive SSH keys
         val buildTags = android.os.Build.TAGS
@@ -137,6 +156,28 @@ class MainActivity : ComponentActivity() {
         if (::appLockManager.isInitialized) {
             appLockManager.onAppBackgrounded()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::settingsManager.isInitialized) {
+            settingsManager.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
+        }
+    }
+
+    internal fun updateScreenshotBlocking(enabled: Boolean) {
+        if (enabled) {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_SECURE,
+                WindowManager.LayoutParams.FLAG_SECURE,
+            )
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
+
+    internal fun updateOverlayTouchBlocking(enabled: Boolean) {
+        window.decorView.filterTouchesWhenObscured = enabled
     }
 
     fun promptBiometricUnlock() {
