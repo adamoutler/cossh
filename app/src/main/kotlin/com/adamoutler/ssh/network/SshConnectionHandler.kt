@@ -35,7 +35,7 @@ class SshConnectionHandler(
         isAutonomousReconnect: Boolean,
         sessionId: String?,
     ) = withContext(Dispatchers.IO) {
-        val sshClient = SSHClient(SecureSshConfig())
+        val sshClient = SSHClient(SecureSshConfig(allowLegacyAlgorithms = profile.allowLegacyAlgorithms))
         client = sshClient
         val handshakeCoordinator = injectedHandshakeCoordinator ?: SshHandshakeCoordinator(hostKeyVerifier, identityStorageManager, context)
 
@@ -44,7 +44,7 @@ class SshConnectionHandler(
                 val jumpProfile = securityStorageManager?.getProfile(profile.jumpHostProfileId)
                     ?: throw java.io.IOException("Jump host profile ${profile.jumpHostProfileId} not found")
 
-                val jumpSshClient = SSHClient(SecureSshConfig())
+                val jumpSshClient = SSHClient(SecureSshConfig(allowLegacyAlgorithms = jumpProfile.allowLegacyAlgorithms))
                 jumpClient = jumpSshClient
 
                 // 1. Connect and authenticate to Jump Host with independent TOFU verification

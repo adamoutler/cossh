@@ -405,4 +405,51 @@ class AddEditProfileViewModelTest {
         assertEquals("Port must be between 1 and 65535", viewModel.uiState.value.portError)
         assertNull(storageManager.getProfile("dual-fail"))
     }
+
+    @Test
+    fun `test preserves styling and legacy crypto algorithms when loading and saving existing profile`() {
+        val (viewModel, storageManager, _) = createViewModel()
+
+        val existingProfile = ConnectionProfile(
+            id = "profile-styling-test",
+            nickname = "Styled Host",
+            host = "192.168.1.50",
+            port = 22,
+            protocol = Protocol.SSH,
+            username = "admin",
+            authType = AuthType.PASSWORD,
+            fontSize = 18,
+            colorTheme = "solarized_dark",
+            fontChoice = "jetbrains_mono",
+            cursorStyle = "underline",
+            cursorBlink = true,
+            allowLegacyAlgorithms = true,
+        )
+        storageManager.saveProfile(existingProfile)
+
+        // Load profile into ViewModel
+        viewModel.loadProfileIfNeeded("profile-styling-test")
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isLoaded)
+        assertEquals(18, state.fontSize)
+        assertEquals("solarized_dark", state.colorTheme)
+        assertEquals("jetbrains_mono", state.fontChoice)
+        assertEquals("underline", state.cursorStyle)
+        assertEquals(true, state.cursorBlink)
+        assertEquals(true, state.allowLegacyAlgorithms)
+
+        // Save profile without altering styling
+        val success = viewModel.saveProfile("profile-styling-test")
+        assertTrue(success)
+
+        val updatedProfile = storageManager.getProfile("profile-styling-test")
+        assertNotNull(updatedProfile)
+        assertEquals(18, updatedProfile?.fontSize)
+        assertEquals("solarized_dark", updatedProfile?.colorTheme)
+        assertEquals("jetbrains_mono", updatedProfile?.fontChoice)
+        assertEquals("underline", updatedProfile?.cursorStyle)
+        assertEquals(true, updatedProfile?.cursorBlink)
+        assertEquals(true, updatedProfile?.allowLegacyAlgorithms)
+    }
 }

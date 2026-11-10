@@ -617,6 +617,29 @@ fun TerminalScreenContent(
                         terminalView.isFocusable = true
                         terminalView.isFocusableInTouchMode = true
 
+                        fun handleDetectedUrl(candidate: SanitizedUrl) {
+                            val mode = com.adamoutler.ssh.crypto.SettingsManager(context).terminalUrlConfirmationMode
+                            val shouldConfirm = when (mode) {
+                                com.adamoutler.ssh.data.TerminalUrlConfirmationMode.ALWAYS -> true
+                                com.adamoutler.ssh.data.TerminalUrlConfirmationMode.NEVER -> false
+                                com.adamoutler.ssh.data.TerminalUrlConfirmationMode.SUSPICIOUS_ONLY ->
+                                    !candidate.isSecure || candidate.isDirectIp || candidate.isPunycode
+                            }
+                            if (shouldConfirm) {
+                                detectedUrlForConfirmation = candidate
+                            } else {
+                                try {
+                                    val browserIntent = android.content.Intent(android.content.Intent.ACTION_VIEW, candidate.uri).apply {
+                                        addCategory(android.content.Intent.CATEGORY_BROWSABLE)
+                                        flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
+                                    context.startActivity(android.content.Intent.createChooser(browserIntent, "Open with"))
+                                } catch (e: Exception) {
+                                    AppLog.w("TerminalScreen", "No browser app found: ${e.message}")
+                                }
+                            }
+                        }
+
                         terminalView.setTerminalViewClient(object : com.termux.view.TerminalViewClient {
                             override fun onScale(scale: Float): Float = TerminalScaleHandler.onScale(
                                 scale = scale,
@@ -633,7 +656,7 @@ fun TerminalScreenContent(
                                         if (!word.isNullOrBlank()) {
                                             val candidate = TerminalUrlSanitizer.extractFirstUrl(word)
                                             if (candidate != null) {
-                                                detectedUrlForConfirmation = candidate
+                                                handleDetectedUrl(candidate)
                                                 return
                                             }
                                         }
@@ -697,7 +720,7 @@ fun TerminalScreenContent(
                                         if (!word.isNullOrBlank()) {
                                             val candidate = TerminalUrlSanitizer.extractFirstUrl(word)
                                             if (candidate != null) {
-                                                detectedUrlForConfirmation = candidate
+                                                handleDetectedUrl(candidate)
                                                 return true
                                             }
                                         }

@@ -154,6 +154,8 @@ fun AddEditProfileScreen(
         onPortKnockingConfigChange = { knock -> viewModel.updateState { it.copy(portKnockingConfig = knock) } },
         folderId = uiState.folderId,
         onFolderIdChange = { newFolder -> viewModel.updateFolderId(newFolder) },
+        allowLegacyAlgorithms = uiState.allowLegacyAlgorithms,
+        onAllowLegacyAlgorithmsChange = { allowed -> viewModel.updateState { it.copy(allowLegacyAlgorithms = allowed) } },
         availableProfiles = availableProfiles,
         onSave = {
             if (viewModel.saveProfile(profileId)) {
@@ -233,6 +235,8 @@ fun AddEditProfileScreenContent(
     onPortKnockingConfigChange: (com.adamoutler.ssh.data.PortKnockingConfig?) -> Unit = {},
     folderId: String? = null,
     onFolderIdChange: (String?) -> Unit = {},
+    allowLegacyAlgorithms: Boolean = false,
+    onAllowLegacyAlgorithmsChange: (Boolean) -> Unit = {},
 ) {
     var isIdentityDropdownExpanded by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(defaultPasswordVisible) }
@@ -659,6 +663,27 @@ fun AddEditProfileScreenContent(
                             }
                         }
                     }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Column(modifier = Modifier.weight(1f).padding(end = 16.dp)) {
+                        Text("Allow Legacy SSH Algorithms (SHA-1, CBC, 3DES)", style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            "Enables compatibility with older, deprecated SSH servers. Lowers security on hostile networks.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Switch(
+                        checked = allowLegacyAlgorithms,
+                        onCheckedChange = onAllowLegacyAlgorithmsChange,
+                        modifier = Modifier.testTag("AllowLegacyAlgorithmsSwitch"),
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
