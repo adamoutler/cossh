@@ -12,6 +12,10 @@ import com.adamoutler.ssh.billing.BillingManager
 import com.adamoutler.ssh.crypto.IdentityStorageManager
 import com.adamoutler.ssh.crypto.SecurityStorageManager
 import com.adamoutler.ssh.crypto.SettingsManager
+import com.adamoutler.ssh.data.TerminalBackButtonBehavior
+import com.adamoutler.ssh.data.TerminalCursorStyle
+import com.adamoutler.ssh.data.TerminalUrlConfirmationMode
+import com.adamoutler.ssh.data.TerminalVolumeKeysAction
 import com.adamoutler.ssh.sync.DriveSyncManager
 import com.adamoutler.ssh.sync.SyncWorker
 import com.adamoutler.ssh.ui.theme.TerminalFontChoice
@@ -38,10 +42,25 @@ data class SettingsUiState(
     val globalColorTheme: String = "COBALT_BLUE",
     val globalFontChoice: String = "DEFAULT_MONOSPACE",
     val isAppLockEnabled: Boolean = false,
-    val appLockTimeoutSeconds: Int = 0,
+    val appLockTimeoutSeconds: Int = SettingsManager.DEFAULT_APP_LOCK_TIMEOUT_SECONDS,
     val globalFontSize: Int = 14,
     val extraKeysPreset: com.adamoutler.ssh.ui.components.ExtraKeysPresetId = com.adamoutler.ssh.ui.components.ExtraKeysPresetId.DEFAULT,
     val allowOsc52Clipboard: Boolean = false,
+    val globalCursorStyle: TerminalCursorStyle = TerminalCursorStyle.BLOCK,
+    val globalCursorBlink: Boolean = true,
+    val isScreenshotBlockingEnabled: Boolean = false,
+    val isOverlayTouchBlockingEnabled: Boolean = false,
+    val clipboardAutoClearSeconds: Int = 0,
+    val isClipboardSensitiveTaggingEnabled: Boolean = true,
+    val enableSecurityAuditLog: Boolean = true,
+    val isHoldToConfirmHostKeyEnabled: Boolean = true,
+    val terminalUrlConfirmationMode: TerminalUrlConfirmationMode = TerminalUrlConfirmationMode.SUSPICIOUS_ONLY,
+    val volumeKeysAction: TerminalVolumeKeysAction = TerminalVolumeKeysAction.SYSTEM_VOLUME,
+    val isPinchToZoomEnabled: Boolean = true,
+    val isTerminalBellHapticEnabled: Boolean = true,
+    val backButtonBehavior: TerminalBackButtonBehavior = TerminalBackButtonBehavior.PROMPT_DIALOG,
+    val enforceCharBasedInput: Boolean = false,
+    val isPocketDetectionEnabled: Boolean = true,
 )
 
 class SettingsViewModel(
@@ -74,6 +93,21 @@ class SettingsViewModel(
             globalFontSize = settingsManager.globalFontSize,
             extraKeysPreset = settingsManager.extraKeysPreset,
             allowOsc52Clipboard = settingsManager.allowOsc52Clipboard,
+            globalCursorStyle = settingsManager.cursorStyle,
+            globalCursorBlink = settingsManager.globalCursorBlink,
+            isScreenshotBlockingEnabled = settingsManager.isScreenshotBlockingEnabled,
+            isOverlayTouchBlockingEnabled = settingsManager.isOverlayTouchBlockingEnabled,
+            clipboardAutoClearSeconds = settingsManager.clipboardAutoClearSeconds,
+            isClipboardSensitiveTaggingEnabled = settingsManager.isClipboardSensitiveTaggingEnabled,
+            enableSecurityAuditLog = settingsManager.enableSecurityAuditLog,
+            isHoldToConfirmHostKeyEnabled = settingsManager.isHoldToConfirmHostKeyEnabled,
+            terminalUrlConfirmationMode = settingsManager.terminalUrlConfirmationMode,
+            volumeKeysAction = settingsManager.volumeKeysAction,
+            isPinchToZoomEnabled = settingsManager.isPinchToZoomEnabled,
+            isTerminalBellHapticEnabled = settingsManager.isTerminalBellHapticEnabled,
+            backButtonBehavior = settingsManager.backButtonBehavior,
+            enforceCharBasedInput = settingsManager.enforceCharBasedInput,
+            isPocketDetectionEnabled = settingsManager.isPocketDetectionEnabled,
         ),
     )
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
@@ -109,6 +143,81 @@ class SettingsViewModel(
     fun updateAllowOsc52Clipboard(allow: Boolean) {
         settingsManager.allowOsc52Clipboard = allow
         _uiState.update { it.copy(allowOsc52Clipboard = allow) }
+    }
+
+    fun updateCursorStyle(style: TerminalCursorStyle) {
+        settingsManager.cursorStyle = style
+        _uiState.update { it.copy(globalCursorStyle = style) }
+    }
+
+    fun updateCursorBlink(blink: Boolean) {
+        settingsManager.globalCursorBlink = blink
+        _uiState.update { it.copy(globalCursorBlink = blink) }
+    }
+
+    fun updateScreenshotBlockingEnabled(enabled: Boolean) {
+        settingsManager.isScreenshotBlockingEnabled = enabled
+        _uiState.update { it.copy(isScreenshotBlockingEnabled = enabled) }
+    }
+
+    fun updateOverlayTouchBlockingEnabled(enabled: Boolean) {
+        settingsManager.isOverlayTouchBlockingEnabled = enabled
+        _uiState.update { it.copy(isOverlayTouchBlockingEnabled = enabled) }
+    }
+
+    fun updateClipboardAutoClearSeconds(seconds: Int) {
+        settingsManager.clipboardAutoClearSeconds = seconds
+        _uiState.update { it.copy(clipboardAutoClearSeconds = seconds) }
+    }
+
+    fun updateClipboardSensitiveTaggingEnabled(enabled: Boolean) {
+        settingsManager.isClipboardSensitiveTaggingEnabled = enabled
+        _uiState.update { it.copy(isClipboardSensitiveTaggingEnabled = enabled) }
+    }
+
+    fun updateEnableSecurityAuditLog(enabled: Boolean) {
+        settingsManager.enableSecurityAuditLog = enabled
+        _uiState.update { it.copy(enableSecurityAuditLog = enabled) }
+    }
+
+    fun updateHoldToConfirmHostKeyEnabled(enabled: Boolean) {
+        settingsManager.isHoldToConfirmHostKeyEnabled = enabled
+        _uiState.update { it.copy(isHoldToConfirmHostKeyEnabled = enabled) }
+    }
+
+    fun updateTerminalUrlConfirmationMode(mode: TerminalUrlConfirmationMode) {
+        settingsManager.terminalUrlConfirmationMode = mode
+        _uiState.update { it.copy(terminalUrlConfirmationMode = mode) }
+    }
+
+    fun updateVolumeKeysAction(action: TerminalVolumeKeysAction) {
+        settingsManager.volumeKeysAction = action
+        _uiState.update { it.copy(volumeKeysAction = action) }
+    }
+
+    fun updatePinchToZoomEnabled(enabled: Boolean) {
+        settingsManager.isPinchToZoomEnabled = enabled
+        _uiState.update { it.copy(isPinchToZoomEnabled = enabled) }
+    }
+
+    fun updateTerminalBellHapticEnabled(enabled: Boolean) {
+        settingsManager.isTerminalBellHapticEnabled = enabled
+        _uiState.update { it.copy(isTerminalBellHapticEnabled = enabled) }
+    }
+
+    fun updateBackButtonBehavior(behavior: TerminalBackButtonBehavior) {
+        settingsManager.backButtonBehavior = behavior
+        _uiState.update { it.copy(backButtonBehavior = behavior) }
+    }
+
+    fun updateEnforceCharBasedInput(enforce: Boolean) {
+        settingsManager.enforceCharBasedInput = enforce
+        _uiState.update { it.copy(enforceCharBasedInput = enforce) }
+    }
+
+    fun updatePocketDetectionEnabled(enabled: Boolean) {
+        settingsManager.isPocketDetectionEnabled = enabled
+        _uiState.update { it.copy(isPocketDetectionEnabled = enabled) }
     }
 
     fun updateDefaultGroupName(name: String) {

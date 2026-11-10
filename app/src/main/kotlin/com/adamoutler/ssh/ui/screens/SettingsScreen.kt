@@ -2,6 +2,7 @@ package com.adamoutler.ssh.ui.screens
 
 import android.app.Activity
 import android.app.Application
+import android.view.WindowManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,17 +18,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.adamoutler.ssh.BuildConfig
 import com.adamoutler.ssh.billing.BillingManager
+import com.adamoutler.ssh.crypto.SettingsManager
+import com.adamoutler.ssh.data.TerminalBackButtonBehavior
+import com.adamoutler.ssh.data.TerminalCursorStyle
+import com.adamoutler.ssh.data.TerminalUrlConfirmationMode
+import com.adamoutler.ssh.data.TerminalVolumeKeysAction
 import com.adamoutler.ssh.sync.DriveSyncManager
 import com.adamoutler.ssh.ui.components.GatedFeatureWrapper
 import com.adamoutler.ssh.ui.theme.TerminalFontChoice
@@ -130,6 +135,36 @@ fun SettingsScreen(
         onExtraKeysPresetChange = { viewModel.updateExtraKeysPreset(it) },
         allowOsc52Clipboard = uiState.allowOsc52Clipboard,
         onAllowOsc52ClipboardChange = { viewModel.updateAllowOsc52Clipboard(it) },
+        selectedCursorStyle = uiState.globalCursorStyle,
+        onCursorStyleChange = { viewModel.updateCursorStyle(it) },
+        cursorBlink = uiState.globalCursorBlink,
+        onCursorBlinkChange = { viewModel.updateCursorBlink(it) },
+        isScreenshotBlockingEnabled = uiState.isScreenshotBlockingEnabled,
+        onScreenshotBlockingChange = { viewModel.updateScreenshotBlockingEnabled(it) },
+        isOverlayTouchBlockingEnabled = uiState.isOverlayTouchBlockingEnabled,
+        onOverlayTouchBlockingChange = { viewModel.updateOverlayTouchBlockingEnabled(it) },
+        clipboardAutoClearSeconds = uiState.clipboardAutoClearSeconds,
+        onClipboardAutoClearSecondsChange = { viewModel.updateClipboardAutoClearSeconds(it) },
+        isClipboardSensitiveTaggingEnabled = uiState.isClipboardSensitiveTaggingEnabled,
+        onClipboardSensitiveTaggingChange = { viewModel.updateClipboardSensitiveTaggingEnabled(it) },
+        enableSecurityAuditLog = uiState.enableSecurityAuditLog,
+        onEnableSecurityAuditLogChange = { viewModel.updateEnableSecurityAuditLog(it) },
+        isHoldToConfirmHostKeyEnabled = uiState.isHoldToConfirmHostKeyEnabled,
+        onHoldToConfirmHostKeyChange = { viewModel.updateHoldToConfirmHostKeyEnabled(it) },
+        terminalUrlConfirmationMode = uiState.terminalUrlConfirmationMode,
+        onTerminalUrlConfirmationModeChange = { viewModel.updateTerminalUrlConfirmationMode(it) },
+        volumeKeysAction = uiState.volumeKeysAction,
+        onVolumeKeysActionChange = { viewModel.updateVolumeKeysAction(it) },
+        isPinchToZoomEnabled = uiState.isPinchToZoomEnabled,
+        onPinchToZoomChange = { viewModel.updatePinchToZoomEnabled(it) },
+        isTerminalBellHapticEnabled = uiState.isTerminalBellHapticEnabled,
+        onTerminalBellHapticChange = { viewModel.updateTerminalBellHapticEnabled(it) },
+        backButtonBehavior = uiState.backButtonBehavior,
+        onBackButtonBehaviorChange = { viewModel.updateBackButtonBehavior(it) },
+        enforceCharBasedInput = uiState.enforceCharBasedInput,
+        onEnforceCharBasedInputChange = { viewModel.updateEnforceCharBasedInput(it) },
+        isPocketDetectionEnabled = uiState.isPocketDetectionEnabled,
+        onPocketDetectionChange = { viewModel.updatePocketDetectionEnabled(it) },
         onNavigateToKnownHosts = onNavigateToKnownHosts,
         onNavigateToAuditLog = onNavigateToAuditLog,
     )
@@ -142,6 +177,18 @@ fun SyncPassphraseDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
+    val view = LocalView.current
+    DisposableEffect(view) {
+        val window = (view.context as? Activity)?.window
+        val wasAlreadySecure = ((window?.attributes?.flags ?: 0) and WindowManager.LayoutParams.FLAG_SECURE) != 0
+        window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        onDispose {
+            if (!wasAlreadySecure) {
+                window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
+        }
+    }
+
     AlertDialog(
         modifier = Modifier.widthIn(max = 320.dp),
         onDismissRequest = onDismiss,
@@ -182,6 +229,18 @@ fun RestorePassphraseDialog(
     onDismiss: () -> Unit,
     onConfirm: (CharArray) -> Unit,
 ) {
+    val view = LocalView.current
+    DisposableEffect(view) {
+        val window = (view.context as? Activity)?.window
+        val wasAlreadySecure = ((window?.attributes?.flags ?: 0) and WindowManager.LayoutParams.FLAG_SECURE) != 0
+        window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        onDispose {
+            if (!wasAlreadySecure) {
+                window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
+        }
+    }
+
     var passphrase by remember { mutableStateOf("") }
     AlertDialog(
         modifier = Modifier.widthIn(max = 320.dp),
@@ -279,7 +338,7 @@ fun SettingsScreenContent(
     onColorThemeChange: (TerminalTheme) -> Unit = {},
     onFontChoiceChange: (TerminalFontChoice) -> Unit = {},
     isAppLockEnabled: Boolean = false,
-    appLockTimeoutSeconds: Int = 0,
+    appLockTimeoutSeconds: Int = SettingsManager.DEFAULT_APP_LOCK_TIMEOUT_SECONDS,
     onAppLockEnabledChange: (Boolean) -> Unit = {},
     onAppLockTimeoutChange: (Int) -> Unit = {},
     globalFontSize: Int = 14,
@@ -288,6 +347,36 @@ fun SettingsScreenContent(
     onExtraKeysPresetChange: (com.adamoutler.ssh.ui.components.ExtraKeysPresetId) -> Unit = {},
     allowOsc52Clipboard: Boolean = false,
     onAllowOsc52ClipboardChange: (Boolean) -> Unit = {},
+    selectedCursorStyle: TerminalCursorStyle = TerminalCursorStyle.BLOCK,
+    onCursorStyleChange: (TerminalCursorStyle) -> Unit = {},
+    cursorBlink: Boolean = true,
+    onCursorBlinkChange: (Boolean) -> Unit = {},
+    isScreenshotBlockingEnabled: Boolean = false,
+    onScreenshotBlockingChange: (Boolean) -> Unit = {},
+    isOverlayTouchBlockingEnabled: Boolean = false,
+    onOverlayTouchBlockingChange: (Boolean) -> Unit = {},
+    clipboardAutoClearSeconds: Int = 0,
+    onClipboardAutoClearSecondsChange: (Int) -> Unit = {},
+    isClipboardSensitiveTaggingEnabled: Boolean = true,
+    onClipboardSensitiveTaggingChange: (Boolean) -> Unit = {},
+    enableSecurityAuditLog: Boolean = true,
+    onEnableSecurityAuditLogChange: (Boolean) -> Unit = {},
+    isHoldToConfirmHostKeyEnabled: Boolean = true,
+    onHoldToConfirmHostKeyChange: (Boolean) -> Unit = {},
+    terminalUrlConfirmationMode: TerminalUrlConfirmationMode = TerminalUrlConfirmationMode.SUSPICIOUS_ONLY,
+    onTerminalUrlConfirmationModeChange: (TerminalUrlConfirmationMode) -> Unit = {},
+    volumeKeysAction: TerminalVolumeKeysAction = TerminalVolumeKeysAction.SYSTEM_VOLUME,
+    onVolumeKeysActionChange: (TerminalVolumeKeysAction) -> Unit = {},
+    isPinchToZoomEnabled: Boolean = true,
+    onPinchToZoomChange: (Boolean) -> Unit = {},
+    isTerminalBellHapticEnabled: Boolean = true,
+    onTerminalBellHapticChange: (Boolean) -> Unit = {},
+    backButtonBehavior: TerminalBackButtonBehavior = TerminalBackButtonBehavior.PROMPT_DIALOG,
+    onBackButtonBehaviorChange: (TerminalBackButtonBehavior) -> Unit = {},
+    enforceCharBasedInput: Boolean = false,
+    onEnforceCharBasedInputChange: (Boolean) -> Unit = {},
+    isPocketDetectionEnabled: Boolean = true,
+    onPocketDetectionChange: (Boolean) -> Unit = {},
     onNavigateToKnownHosts: () -> Unit = {},
     onNavigateToAuditLog: () -> Unit = {},
     scrollState: androidx.compose.foundation.ScrollState = rememberScrollState(),
@@ -431,6 +520,57 @@ fun SettingsScreenContent(
                         }
                     }
 
+                    var isCursorStyleExpanded by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = isCursorStyleExpanded,
+                        onExpandedChange = { isCursorStyleExpanded = !isCursorStyleExpanded },
+                    ) {
+                        OutlinedTextField(
+                            value = selectedCursorStyle.displayName,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Cursor Style") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isCursorStyleExpanded) },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                            modifier = Modifier.fillMaxWidth().menuAnchor().testTag("CursorStyleDropdown"),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = isCursorStyleExpanded,
+                            onDismissRequest = { isCursorStyleExpanded = false },
+                        ) {
+                            TerminalCursorStyle.entries.forEach { styleOption ->
+                                DropdownMenuItem(
+                                    text = { Text(styleOption.displayName) },
+                                    onClick = {
+                                        onCursorStyleChange(styleOption)
+                                        isCursorStyleExpanded = false
+                                    },
+                                    modifier = Modifier.testTag("CursorStyleItem_${styleOption.id}"),
+                                )
+                            }
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Blinking Cursor", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "Animate terminal cursor at 1.0 Hz",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = cursorBlink,
+                            onCheckedChange = onCursorBlinkChange,
+                            modifier = Modifier.testTag("CursorBlinkSwitch"),
+                        )
+                    }
+
                     var isPresetExpanded by remember { mutableStateOf(false) }
                     ExposedDropdownMenuBox(
                         expanded = isPresetExpanded,
@@ -467,7 +607,194 @@ fun SettingsScreenContent(
             TerminalPreviewCard(
                 theme = selectedColorTheme,
                 fontChoice = selectedFontChoice,
+                cursorStyle = selectedCursorStyle,
+                cursorBlink = cursorBlink,
             )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Text(text = "Terminal Interaction & Hardware Controls", style = MaterialTheme.typography.titleMedium)
+
+                    var isVolumeActionExpanded by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = isVolumeActionExpanded,
+                        onExpandedChange = { isVolumeActionExpanded = !isVolumeActionExpanded },
+                    ) {
+                        OutlinedTextField(
+                            value = volumeKeysAction.displayName,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Hardware Volume Keys") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isVolumeActionExpanded) },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                            modifier = Modifier.fillMaxWidth().menuAnchor().testTag("VolumeKeysActionDropdown"),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = isVolumeActionExpanded,
+                            onDismissRequest = { isVolumeActionExpanded = false },
+                        ) {
+                            TerminalVolumeKeysAction.entries.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(option.displayName) },
+                                    onClick = {
+                                        onVolumeKeysActionChange(option)
+                                        isVolumeActionExpanded = false
+                                    },
+                                    modifier = Modifier.testTag("VolumeKeysActionItem_${option.id}"),
+                                )
+                            }
+                        }
+                    }
+
+                    var isBackBehaviorExpanded by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = isBackBehaviorExpanded,
+                        onExpandedChange = { isBackBehaviorExpanded = !isBackBehaviorExpanded },
+                    ) {
+                        OutlinedTextField(
+                            value = backButtonBehavior.displayName,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Back Button Action") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isBackBehaviorExpanded) },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                            modifier = Modifier.fillMaxWidth().menuAnchor().testTag("BackButtonBehaviorDropdown"),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = isBackBehaviorExpanded,
+                            onDismissRequest = { isBackBehaviorExpanded = false },
+                        ) {
+                            TerminalBackButtonBehavior.entries.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(option.displayName) },
+                                    onClick = {
+                                        onBackButtonBehaviorChange(option)
+                                        isBackBehaviorExpanded = false
+                                    },
+                                    modifier = Modifier.testTag("BackButtonBehaviorItem_${option.id}"),
+                                )
+                            }
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Pinch to Zoom", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "Scale terminal font size using two-finger pinch gestures",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = isPinchToZoomEnabled,
+                            onCheckedChange = onPinchToZoomChange,
+                            modifier = Modifier.testTag("PinchToZoomSwitch"),
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Terminal Bell Haptics", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "Vibrate device when remote shell emits a bell character (\\a)",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = isTerminalBellHapticEnabled,
+                            onCheckedChange = onTerminalBellHapticChange,
+                            modifier = Modifier.testTag("BellHapticSwitch"),
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Character-by-Character Input", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "Disable IME word composition for direct keystroke delivery in Vim/Tmux",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = enforceCharBasedInput,
+                            onCheckedChange = onEnforceCharBasedInputChange,
+                            modifier = Modifier.testTag("EnforceCharInputSwitch"),
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Pocket Detection (Proximity Sensor)", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "Allow screen to sleep in Smart Awake mode when proximity sensor is covered",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = isPocketDetectionEnabled,
+                            onCheckedChange = onPocketDetectionChange,
+                            modifier = Modifier.testTag("PocketDetectionSwitch"),
+                        )
+                    }
+
+                    var isUrlModeExpanded by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = isUrlModeExpanded,
+                        onExpandedChange = { isUrlModeExpanded = !isUrlModeExpanded },
+                    ) {
+                        OutlinedTextField(
+                            value = terminalUrlConfirmationMode.displayName,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Terminal Link Confirmation") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isUrlModeExpanded) },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                            modifier = Modifier.fillMaxWidth().menuAnchor().testTag("UrlConfirmationModeDropdown"),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = isUrlModeExpanded,
+                            onDismissRequest = { isUrlModeExpanded = false },
+                        ) {
+                            TerminalUrlConfirmationMode.entries.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(option.displayName) },
+                                    onClick = {
+                                        onTerminalUrlConfirmationModeChange(option)
+                                        isUrlModeExpanded = false
+                                    },
+                                    modifier = Modifier.testTag("UrlConfirmationModeItem_${option.id}"),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
 
             GatedFeatureWrapper(
                 isEnabled = BuildConfig.ENABLE_CLOUD_SYNC,
@@ -604,7 +931,7 @@ fun SettingsScreenContent(
                             300 to "After 5 minutes",
                         )
                         var isTimeoutExpanded by remember { mutableStateOf(false) }
-                        val currentTimeoutLabel = timeoutOptions.firstOrNull { it.first == appLockTimeoutSeconds }?.second ?: "Immediately"
+                        val currentTimeoutLabel = timeoutOptions.firstOrNull { it.first == appLockTimeoutSeconds }?.second ?: "After 1 minute"
 
                         ExposedDropdownMenuBox(
                             expanded = isTimeoutExpanded,
@@ -636,7 +963,108 @@ fun SettingsScreenContent(
                         }
                     }
 
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Block Screenshots (FLAG_SECURE)", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "Prevent screenshots, screen recording, and task-switcher previews across the app",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = isScreenshotBlockingEnabled,
+                            onCheckedChange = onScreenshotBlockingChange,
+                            modifier = Modifier.testTag("ScreenshotBlockingSwitch"),
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Block Touches When Overlay Active", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "Reject touch input when floating windows or screen filters obscure CoSSH",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = isOverlayTouchBlockingEnabled,
+                            onCheckedChange = onOverlayTouchBlockingChange,
+                            modifier = Modifier.testTag("OverlayTouchBlockingSwitch"),
+                        )
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                    val clipboardTimeoutOptions = listOf(
+                        0 to "Off (Never Auto-Clear)",
+                        30 to "After 30 seconds",
+                        60 to "After 1 minute",
+                        300 to "After 5 minutes",
+                    )
+                    var isClipboardTimeoutExpanded by remember { mutableStateOf(false) }
+                    val currentClipboardLabel = clipboardTimeoutOptions.firstOrNull { it.first == clipboardAutoClearSeconds }?.second ?: "Off (Never Auto-Clear)"
+
+                    ExposedDropdownMenuBox(
+                        expanded = isClipboardTimeoutExpanded,
+                        onExpandedChange = { isClipboardTimeoutExpanded = !isClipboardTimeoutExpanded },
+                    ) {
+                        OutlinedTextField(
+                            value = currentClipboardLabel,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Clipboard Auto-Clear Timeout") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isClipboardTimeoutExpanded) },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                            modifier = Modifier.fillMaxWidth().menuAnchor().testTag("ClipboardAutoClearDropdown"),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = isClipboardTimeoutExpanded,
+                            onDismissRequest = { isClipboardTimeoutExpanded = false },
+                        ) {
+                            clipboardTimeoutOptions.forEach { (seconds, label) ->
+                                DropdownMenuItem(
+                                    text = { Text(label) },
+                                    onClick = {
+                                        onClipboardAutoClearSecondsChange(seconds)
+                                        isClipboardTimeoutExpanded = false
+                                    },
+                                    modifier = Modifier.testTag("ClipboardAutoClearItem_$seconds"),
+                                )
+                            }
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Mask Sensitive Clipboard Content", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "Hide copied text from Android 13+ keyboard preview chips",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = isClipboardSensitiveTaggingEnabled,
+                            onCheckedChange = onClipboardSensitiveTaggingChange,
+                            modifier = Modifier.testTag("ClipboardSensitiveSwitch"),
+                        )
+                    }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -658,7 +1086,27 @@ fun SettingsScreenContent(
                         )
                     }
 
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "2.5s Hold on Changed Host Keys", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "Require holding confirmation button for 2.5 seconds when overwriting a modified host key",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = isHoldToConfirmHostKeyEnabled,
+                            onCheckedChange = onHoldToConfirmHostKeyChange,
+                            modifier = Modifier.testTag("HoldToConfirmHostKeySwitch"),
+                        )
+                    }
 
                     Row(
                         modifier = Modifier
@@ -687,7 +1135,27 @@ fun SettingsScreenContent(
                         }
                     }
 
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Enable Security Audit Logging", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = "Record authentication and host verification events to the local hash-chained ledger",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = enableSecurityAuditLog,
+                            onCheckedChange = onEnableSecurityAuditLogChange,
+                            modifier = Modifier.testTag("EnableAuditLogSwitch"),
+                        )
+                    }
 
                     Row(
                         modifier = Modifier
@@ -726,6 +1194,8 @@ fun TerminalPreviewCard(
     theme: TerminalTheme,
     fontChoice: TerminalFontChoice,
     modifier: Modifier = Modifier,
+    cursorStyle: TerminalCursorStyle = TerminalCursorStyle.BLOCK,
+    cursorBlink: Boolean = true,
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -736,7 +1206,7 @@ fun TerminalPreviewCard(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
-                text = "Terminal Appearance Preview",
+                text = "Terminal Appearance Preview (${cursorStyle.displayName}, ${if (cursorBlink) "Blinking" else "Solid"})",
                 style = MaterialTheme.typography.titleMedium,
             )
             Box(
@@ -791,12 +1261,46 @@ fun TerminalPreviewCard(
                             fontFamily = fontChoice.composeFontFamily,
                             fontSize = 13.sp,
                         )
-                        Box(
-                            modifier = Modifier
-                                .width(8.dp)
-                                .height(14.dp)
-                                .background(Color(theme.cursor)),
-                        )
+                        when (cursorStyle) {
+                            TerminalCursorStyle.BLOCK -> {
+                                Box(
+                                    modifier = Modifier
+                                        .width(8.dp)
+                                        .height(14.dp)
+                                        .background(Color(theme.cursor)),
+                                )
+                            }
+                            TerminalCursorStyle.UNDERLINE -> {
+                                Box(
+                                    modifier = Modifier
+                                        .width(8.dp)
+                                        .height(14.dp),
+                                    contentAlignment = Alignment.BottomStart,
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(2.5.dp)
+                                            .background(Color(theme.cursor)),
+                                    )
+                                }
+                            }
+                            TerminalCursorStyle.VERTICAL_BAR -> {
+                                Box(
+                                    modifier = Modifier
+                                        .width(8.dp)
+                                        .height(14.dp),
+                                    contentAlignment = Alignment.CenterStart,
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .width(2.5.dp)
+                                            .fillMaxHeight()
+                                            .background(Color(theme.cursor)),
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
