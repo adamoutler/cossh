@@ -32,6 +32,7 @@ class SettingsViewModelTest {
     @Before
     fun setup() {
         application = ApplicationProvider.getApplicationContext()
+        application.getSharedPreferences("cossh_settings", android.content.Context.MODE_PRIVATE).edit().clear().commit()
         billingManager = BillingManager(application)
         driveSyncManager = DriveSyncManager(application)
         settingsManager = SettingsManager(application)
@@ -43,6 +44,13 @@ class SettingsViewModelTest {
         val state = viewModel.uiState.value
         assertFalse("Show passphrase dialog should be false initially", state.showPassphraseDialog)
         assertFalse("Is syncing should be false initially", state.isSyncing)
+        assertEquals("Volume keys should default to SYSTEM_VOLUME", TerminalVolumeKeysAction.SYSTEM_VOLUME, state.volumeKeysAction)
+        assertEquals("Back button should default to PROMPT_DIALOG", TerminalBackButtonBehavior.PROMPT_DIALOG, state.backButtonBehavior)
+        assertTrue("Pinch to zoom should default to true", state.isPinchToZoomEnabled)
+        assertTrue("Terminal bell haptics should default to true", state.isTerminalBellHapticEnabled)
+        assertFalse("Enforce char-based input should default to false", state.enforceCharBasedInput)
+        assertTrue("Pocket detection should default to true", state.isPocketDetectionEnabled)
+        assertEquals("URL confirmation mode should default to SUSPICIOUS_ONLY", TerminalUrlConfirmationMode.SUSPICIOUS_ONLY, state.terminalUrlConfirmationMode)
     }
 
     @Test

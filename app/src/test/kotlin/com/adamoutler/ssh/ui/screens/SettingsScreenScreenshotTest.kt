@@ -206,6 +206,40 @@ class SettingsScreenScreenshotTest {
     }
 
     @Test
+    fun screenWithTerminalInteractionSettings() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    SettingsScreenContent(
+                        isCloudSyncEnabled = false,
+                        isSyncing = false,
+                        defaultGroupName = "Uncategorized",
+                        isPassphraseSet = false,
+                        selectedCursorStyle = com.adamoutler.ssh.data.TerminalCursorStyle.UNDERLINE,
+                        cursorBlink = false,
+                        volumeKeysAction = com.adamoutler.ssh.data.TerminalVolumeKeysAction.SYSTEM_VOLUME,
+                        backButtonBehavior = com.adamoutler.ssh.data.TerminalBackButtonBehavior.SEND_ESC,
+                        isPinchToZoomEnabled = true,
+                        isTerminalBellHapticEnabled = false,
+                        enforceCharBasedInput = true,
+                        isPocketDetectionEnabled = true,
+                        terminalUrlConfirmationMode = com.adamoutler.ssh.data.TerminalUrlConfirmationMode.SUSPICIOUS_ONLY,
+                        onDefaultGroupNameChange = {},
+                        onPurchaseCloudSync = {},
+                        onAuthenticateGoogle = {},
+                        onResetPassphrase = {},
+                        onNavigateBack = {},
+                        scrollState = androidx.compose.foundation.rememberScrollState(1250),
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
     fun screenWithConfigurableSecurityControls() {
         paparazzi.snapshot {
             CoSSHTheme {
