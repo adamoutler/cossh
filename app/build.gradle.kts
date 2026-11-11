@@ -250,6 +250,7 @@ tasks.withType<Test> {
     maxParallelForks = 1
     forkEvery = 25
     systemProperty("java.security.egd", "file:/dev/./urandom")
+    systemProperty("robolectric.dependency.repo.url", "https://maven-central.storage-download.googleapis.com/maven2/")
     testLogging {
         events("passed", "skipped", "failed")
     }
