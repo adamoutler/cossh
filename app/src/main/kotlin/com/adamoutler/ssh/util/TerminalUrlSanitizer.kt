@@ -19,7 +19,9 @@ data class SanitizedUrl(
     val isPunycode: Boolean,
     val punycodeHost: String,
     val unicodeHost: String,
-)
+) {
+    val cleanUrl: String get() = rawUrl
+}
 
 /**
  * Security-hardened utility for extracting, sanitizing, and validating URLs from untrusted terminal buffers.

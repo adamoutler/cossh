@@ -13,11 +13,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
-fun rememberProximitySensorState(): State<Boolean> {
+fun rememberProximitySensorState(enabled: Boolean = true): State<Boolean> {
     val context = LocalContext.current
     val isNear = remember { mutableStateOf(false) }
 
-    DisposableEffect(context) {
+    DisposableEffect(context, enabled) {
+        if (!enabled) {
+            isNear.value = false
+            return@DisposableEffect onDispose {}
+        }
+
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
         val proximitySensor = sensorManager?.getDefaultSensor(Sensor.TYPE_PROXIMITY)
 

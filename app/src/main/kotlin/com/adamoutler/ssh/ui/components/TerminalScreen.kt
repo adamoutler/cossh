@@ -41,7 +41,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.adamoutler.ssh.data.TerminalBackButtonBehavior
 import com.adamoutler.ssh.data.TerminalCursorStyle
+import com.adamoutler.ssh.data.TerminalUrlConfirmationMode
+import com.adamoutler.ssh.data.TerminalVolumeKeysAction
 import com.adamoutler.ssh.network.ConnectionLogRepository
 import com.adamoutler.ssh.network.ConnectionStateRepository
 import com.adamoutler.ssh.ui.screens.TerminalViewModel
@@ -279,14 +282,21 @@ fun TerminalScreenContent(
             currentFont
         }
     }
+
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val settingsManager = remember(context) { com.adamoutler.ssh.crypto.SettingsManager(context) }
+    val window = (context as? android.app.Activity)?.window
+
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
     var detectedUrlForConfirmation by remember { mutableStateOf<SanitizedUrl?>(null) }
     val density = androidx.compose.ui.platform.LocalDensity.current
     var lastDataTime by remember { androidx.compose.runtime.mutableLongStateOf(System.currentTimeMillis()) }
 
-    androidx.compose.runtime.LaunchedEffect(terminalViewModel, terminalViewRef) {
+    androidx.compose.runtime.LaunchedEffect(terminalViewModel, terminalViewRef, settingsManager.isTerminalBellHapticEnabled) {
         terminalViewModel?.bellEvents?.collect {
-            terminalViewRef?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+            if (settingsManager.isTerminalBellHapticEnabled) {
+                terminalViewRef?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+            }
         }
     }
 
@@ -359,10 +369,7 @@ fun TerminalScreenContent(
     val superState = remember { mutableStateOf(ModifierState.INACTIVE) }
     val menuState = remember { mutableStateOf(ModifierState.INACTIVE) }
 
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val settingsManager = remember(context) { com.adamoutler.ssh.crypto.SettingsManager(context) }
-    val window = (context as? android.app.Activity)?.window
-    val isProximityNear by rememberProximitySensorState()
+    val isProximityNear by rememberProximitySensorState(enabled = settingsManager.isPocketDetectionEnabled)
     var isDataFlowing by remember { mutableStateOf(false) }
 
     androidx.compose.runtime.LaunchedEffect(lastDataTime) {
@@ -402,6 +409,82 @@ fun TerminalScreenContent(
     var wasActive by remember { mutableStateOf(false) }
     var showDisconnectedOverlay by remember { mutableStateOf(false) }
 
+    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
+    val connectionStartTime = androidx.compose.runtime.remember { android.os.SystemClock.uptimeMillis() }
+
+    val writeChannel = androidx.compose.runtime.remember { kotlinx.coroutines.channels.Channel<ByteArray>(kotlinx.coroutines.channels.Channel.UNLIMITED) }
+
+    androidx.compose.runtime.LaunchedEffect(activeSession) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            TerminalWriteBatcher.processChannel(
+                channel = writeChannel,
+                getOutputStream = { activeSession.ptyOutputStream },
+            )
+        }
+    }
+
+    val currentFontSizeState = androidx.compose.runtime.rememberUpdatedState(currentFontSize)
+    val onUpdateFontSizeState = androidx.compose.runtime.rememberUpdatedState(onUpdateFontSize)
+
+    val terminalKeyMapper = remember(sessionId, settingsManager.volumeKeysAction) {
+        TerminalKeyMapper(
+            getCtrlState = { ctrlState.value },
+            setCtrlState = { ctrlState.value = it },
+            getAltState = { altState.value },
+            setAltState = { altState.value = it },
+            getSuperState = { superState.value },
+            setSuperState = { superState.value = it },
+            getMenuState = { menuState.value },
+            setMenuState = { menuState.value = it },
+            sendRawBytes = { bytes -> writeChannel.trySend(bytes) },
+            isInputLocked = { showDisconnectedOverlay },
+            getConnectionStartTime = { connectionStartTime },
+            onVolumeUp = { onUpdateFontSizeState.value(currentFontSizeState.value + 1) },
+            onVolumeDown = { onUpdateFontSizeState.value(currentFontSizeState.value - 1) },
+            interceptVolumeKeys = (settingsManager.volumeKeysAction == TerminalVolumeKeysAction.ZOOM_FONT),
+        )
+    }
+
+    androidx.compose.runtime.DisposableEffect(terminalKeyMapper) {
+        onDispose {
+            terminalKeyMapper.resetModifiers()
+        }
+    }
+
+    val sendToTerminal: (ByteArray) -> Unit = { bytes ->
+        terminalKeyMapper.sendToTerminal(bytes)
+    }
+
+    val openUrlDirectly: (SanitizedUrl) -> Unit = { candidate ->
+        try {
+            val browserIntent = android.content.Intent(android.content.Intent.ACTION_VIEW, candidate.uri).apply {
+                addCategory(android.content.Intent.CATEGORY_BROWSABLE)
+                flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            context.startActivity(android.content.Intent.createChooser(browserIntent, "Open with"))
+        } catch (e: Exception) {
+            AppLog.w("TerminalScreen", "No browser app found: ${e.message}")
+        }
+    }
+
+    val handleUrlCandidate: (SanitizedUrl) -> Unit = { candidate ->
+        when (settingsManager.terminalUrlConfirmationMode) {
+            TerminalUrlConfirmationMode.ALWAYS -> {
+                detectedUrlForConfirmation = candidate
+            }
+            TerminalUrlConfirmationMode.SUSPICIOUS_ONLY -> {
+                if (candidate.isSecure && !candidate.isDirectIp && !candidate.isPunycode) {
+                    openUrlDirectly(candidate)
+                } else {
+                    detectedUrlForConfirmation = candidate
+                }
+            }
+            TerminalUrlConfirmationMode.NEVER -> {
+                openUrlDirectly(candidate)
+            }
+        }
+    }
+
     if (errorMessage != null) {
         ConnectionFailedDialog(
             errorMessage = errorMessage,
@@ -428,17 +511,28 @@ fun TerminalScreenContent(
     }
 
     androidx.activity.compose.BackHandler(enabled = true) {
-        if (isConnectionActive) {
-            val currentTime = System.currentTimeMillis()
-            if (currentTime - lastBackPressTime < 500) { // Double tap within 500ms
-                showKeepAliveDialog = false
-                onNavigateBack() // Background immediately
-            } else {
-                lastBackPressTime = currentTime
-                showKeepAliveDialog = true
-            }
-        } else {
+        if (!isConnectionActive) {
             onNavigateBack()
+            return@BackHandler
+        }
+        when (settingsManager.backButtonBehavior) {
+            TerminalBackButtonBehavior.SEND_ESC -> {
+                sendToTerminal(byteArrayOf(0x1B))
+            }
+            TerminalBackButtonBehavior.BACKGROUND_SESSION -> {
+                showKeepAliveDialog = false
+                onNavigateBack()
+            }
+            TerminalBackButtonBehavior.PROMPT_DIALOG -> {
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - lastBackPressTime < 500) { // Double tap within 500ms
+                    showKeepAliveDialog = false
+                    onNavigateBack() // Background immediately
+                } else {
+                    lastBackPressTime = currentTime
+                    showKeepAliveDialog = true
+                }
+            }
         }
     }
     if (showKeepAliveDialog) {
@@ -491,51 +585,6 @@ fun TerminalScreenContent(
         )
     }
 
-    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
-    val connectionStartTime = androidx.compose.runtime.remember { android.os.SystemClock.uptimeMillis() }
-
-    val writeChannel = androidx.compose.runtime.remember { kotlinx.coroutines.channels.Channel<ByteArray>(kotlinx.coroutines.channels.Channel.UNLIMITED) }
-
-    androidx.compose.runtime.LaunchedEffect(activeSession) {
-        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            TerminalWriteBatcher.processChannel(
-                channel = writeChannel,
-                getOutputStream = { activeSession.ptyOutputStream },
-            )
-        }
-    }
-
-    val currentFontSizeState = androidx.compose.runtime.rememberUpdatedState(currentFontSize)
-    val onUpdateFontSizeState = androidx.compose.runtime.rememberUpdatedState(onUpdateFontSize)
-
-    val terminalKeyMapper = remember(sessionId) {
-        TerminalKeyMapper(
-            getCtrlState = { ctrlState.value },
-            setCtrlState = { ctrlState.value = it },
-            getAltState = { altState.value },
-            setAltState = { altState.value = it },
-            getSuperState = { superState.value },
-            setSuperState = { superState.value = it },
-            getMenuState = { menuState.value },
-            setMenuState = { menuState.value = it },
-            sendRawBytes = { bytes -> writeChannel.trySend(bytes) },
-            isInputLocked = { showDisconnectedOverlay },
-            getConnectionStartTime = { connectionStartTime },
-            onVolumeUp = { onUpdateFontSizeState.value(currentFontSizeState.value + 1) },
-            onVolumeDown = { onUpdateFontSizeState.value(currentFontSizeState.value - 1) },
-        )
-    }
-
-    androidx.compose.runtime.DisposableEffect(terminalKeyMapper) {
-        onDispose {
-            terminalKeyMapper.resetModifiers()
-        }
-    }
-
-    val sendToTerminal: (ByteArray) -> Unit = { bytes ->
-        terminalKeyMapper.sendToTerminal(bytes)
-    }
-
     androidx.compose.foundation.layout.Column(
         modifier = modifier
             .fillMaxSize(),
@@ -581,18 +630,22 @@ fun TerminalScreenContent(
                 AndroidView(
                     modifier = Modifier.fillMaxSize().testTag("TerminalAndroidView").onKeyEvent { keyEvent ->
                         if (keyEvent.type == KeyEventType.KeyDown) {
-                            when (keyEvent.key) {
-                                Key.VolumeUp -> {
-                                    onUpdateFontSize(currentFontSize + 1)
-                                    true
-                                }
+                            if (settingsManager.volumeKeysAction == TerminalVolumeKeysAction.ZOOM_FONT) {
+                                when (keyEvent.key) {
+                                    Key.VolumeUp -> {
+                                        onUpdateFontSize(currentFontSize + 1)
+                                        true
+                                    }
 
-                                Key.VolumeDown -> {
-                                    onUpdateFontSize(currentFontSize - 1)
-                                    true
-                                }
+                                    Key.VolumeDown -> {
+                                        onUpdateFontSize(currentFontSize - 1)
+                                        true
+                                    }
 
-                                else -> false
+                                    else -> false
+                                }
+                            } else {
+                                false
                             }
                         } else {
                             false
@@ -618,11 +671,16 @@ fun TerminalScreenContent(
                         terminalView.isFocusableInTouchMode = true
 
                         terminalView.setTerminalViewClient(object : com.termux.view.TerminalViewClient {
-                            override fun onScale(scale: Float): Float = TerminalScaleHandler.onScale(
-                                scale = scale,
-                                currentFontSize = currentFontSizeState.value,
-                                onUpdateFontSize = onUpdateFontSizeState.value,
-                            )
+                            override fun onScale(scale: Float): Float =
+                                if (settingsManager.isPinchToZoomEnabled) {
+                                    TerminalScaleHandler.onScale(
+                                        scale = scale,
+                                        currentFontSize = currentFontSizeState.value,
+                                        onUpdateFontSize = onUpdateFontSizeState.value,
+                                    )
+                                } else {
+                                    1.0f
+                                }
 
                             override fun onSingleTapUp(e: android.view.MotionEvent?) {
                                 if (e != null) {
@@ -633,7 +691,7 @@ fun TerminalScreenContent(
                                         if (!word.isNullOrBlank()) {
                                             val candidate = TerminalUrlSanitizer.extractFirstUrl(word)
                                             if (candidate != null) {
-                                                detectedUrlForConfirmation = candidate
+                                                handleUrlCandidate(candidate)
                                                 return
                                             }
                                         }
@@ -675,14 +733,30 @@ fun TerminalScreenContent(
                                 }
                             }
 
-                            override fun shouldBackButtonBeMappedToEscape(): Boolean = false
-                            override fun shouldEnforceCharBasedInput(): Boolean = false
+                            override fun shouldBackButtonBeMappedToEscape(): Boolean =
+                                settingsManager.backButtonBehavior == TerminalBackButtonBehavior.SEND_ESC
+
+                            override fun shouldEnforceCharBasedInput(): Boolean =
+                                settingsManager.enforceCharBasedInput
+
                             override fun shouldUseCtrlSpaceWorkaround(): Boolean = false
                             override fun isTerminalViewSelected(): Boolean = true
                             override fun copyModeChanged(b: Boolean) {}
 
-                            override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, s: TerminalSession?): Boolean = terminalKeyMapper.onKeyDown(keyCode, e)
-                            override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean = terminalKeyMapper.onKeyUp(keyCode, e)
+                            override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, s: TerminalSession?): Boolean =
+                                terminalKeyMapper.onKeyDown(
+                                    keyCode,
+                                    e,
+                                    interceptVolumeKeys = (settingsManager.volumeKeysAction == TerminalVolumeKeysAction.ZOOM_FONT),
+                                )
+
+                            override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean =
+                                terminalKeyMapper.onKeyUp(
+                                    keyCode,
+                                    e,
+                                    interceptVolumeKeys = (settingsManager.volumeKeysAction == TerminalVolumeKeysAction.ZOOM_FONT),
+                                )
+
                             override fun readControlKey(): Boolean = terminalKeyMapper.readControlKey()
                             override fun readAltKey(): Boolean = terminalKeyMapper.readAltKey()
                             override fun readShiftKey(): Boolean = terminalKeyMapper.readShiftKey()
@@ -697,7 +771,7 @@ fun TerminalScreenContent(
                                         if (!word.isNullOrBlank()) {
                                             val candidate = TerminalUrlSanitizer.extractFirstUrl(word)
                                             if (candidate != null) {
-                                                detectedUrlForConfirmation = candidate
+                                                handleUrlCandidate(candidate)
                                                 return true
                                             }
                                         }
