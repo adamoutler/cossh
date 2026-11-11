@@ -18,6 +18,9 @@ class TerminalKeyMapper(
     private val getConnectionStartTime: () -> Long = { 0L },
     private val onVolumeUp: () -> Unit = {},
     private val onVolumeDown: () -> Unit = {},
+    var interceptVolumeKeys: Boolean = true,
+    private val onZoom: (() -> Unit)? = null,
+    private val onZoomAction: ((Boolean) -> Unit)? = null,
 ) {
     private var shiftState = ModifierState.INACTIVE
     private var hardwareShiftPressed = false
@@ -45,7 +48,11 @@ class TerminalKeyMapper(
         if (getMenuState() == ModifierState.STICKY) setMenuState(ModifierState.INACTIVE)
     }
 
-    fun onKeyDown(keyCode: Int, e: KeyEvent? = null): Boolean {
+    fun onKeyDown(
+        keyCode: Int,
+        e: KeyEvent? = null,
+        interceptVolumeKeys: Boolean = this.interceptVolumeKeys,
+    ): Boolean {
         if (e != null && e.action != KeyEvent.ACTION_DOWN) return false
         if (keyCode == KeyEvent.KEYCODE_BACK) return false
 
@@ -65,11 +72,17 @@ class TerminalKeyMapper(
         }
 
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            if (!interceptVolumeKeys) return false
             onVolumeUp()
+            onZoom?.invoke()
+            onZoomAction?.invoke(true)
             return true
         }
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            if (!interceptVolumeKeys) return false
             onVolumeDown()
+            onZoom?.invoke()
+            onZoomAction?.invoke(false)
             return true
         }
 
@@ -86,8 +99,16 @@ class TerminalKeyMapper(
         return true
     }
 
-    fun onKeyUp(keyCode: Int, e: KeyEvent? = null): Boolean {
+    fun onKeyUp(
+        keyCode: Int,
+        e: KeyEvent? = null,
+        interceptVolumeKeys: Boolean = this.interceptVolumeKeys,
+    ): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) return false
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            if (!interceptVolumeKeys) return false
+            return true
+        }
         if (keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT || e?.isShiftPressed == false) {
             hardwareShiftPressed = false
         }
@@ -99,6 +120,18 @@ class TerminalKeyMapper(
         }
         return true
     }
+
+    fun handleKeyDown(
+        keyCode: Int,
+        e: KeyEvent? = null,
+        interceptVolumeKeys: Boolean = this.interceptVolumeKeys,
+    ): Boolean = onKeyDown(keyCode, e, interceptVolumeKeys)
+
+    fun handleKeyUp(
+        keyCode: Int,
+        e: KeyEvent? = null,
+        interceptVolumeKeys: Boolean = this.interceptVolumeKeys,
+    ): Boolean = onKeyUp(keyCode, e, interceptVolumeKeys)
 
     fun readControlKey(): Boolean = getCtrlState().isActive || hardwareCtrlPressed
     fun readAltKey(): Boolean = getAltState().isActive || hardwareAltPressed

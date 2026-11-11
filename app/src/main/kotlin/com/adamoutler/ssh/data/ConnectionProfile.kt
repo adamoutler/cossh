@@ -139,6 +139,7 @@ data class ConnectionProfile(
     val cursorBlink: Boolean? = null,
     val wolConfig: WolConfig? = null,
     val portKnockingConfig: PortKnockingConfig? = null,
+    val allowLegacyAlgorithms: Boolean = false,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -182,6 +183,7 @@ data class ConnectionProfile(
         if (cursorBlink != other.cursorBlink) return false
         if (wolConfig != other.wolConfig) return false
         if (portKnockingConfig != other.portKnockingConfig) return false
+        if (allowLegacyAlgorithms != other.allowLegacyAlgorithms) return false
 
         return true
     }
@@ -218,6 +220,7 @@ data class ConnectionProfile(
         result = 31 * result + (cursorBlink?.hashCode() ?: 0)
         result = 31 * result + (wolConfig?.hashCode() ?: 0)
         result = 31 * result + (portKnockingConfig?.hashCode() ?: 0)
+        result = 31 * result + allowLegacyAlgorithms.hashCode()
         return result
     }
 

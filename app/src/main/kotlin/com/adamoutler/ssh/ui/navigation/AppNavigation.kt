@@ -420,13 +420,28 @@ fun HostKeyPromptDialog() {
                 }
             },
             confirmButton = {
+                val context = LocalContext.current
+                val isHoldToConfirm = com.adamoutler.ssh.crypto.SettingsManager(context).isHoldToConfirmHostKeyEnabled
                 if (request.isKeyChanged) {
-                    com.adamoutler.ssh.ui.components.HoldToConfirmButton(
-                        onConfirm = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) },
-                        durationMillis = 2500,
-                        text = "Hold 2.5s to Overwrite Host Key",
-                        modifier = androidx.compose.ui.Modifier.defaultMinSize(minHeight = 48.dp),
-                    )
+                    if (isHoldToConfirm) {
+                        com.adamoutler.ssh.ui.components.HoldToConfirmButton(
+                            onConfirm = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) },
+                            durationMillis = 2500,
+                            text = "Hold 2.5s to Overwrite Host Key",
+                            modifier = androidx.compose.ui.Modifier.defaultMinSize(minHeight = 48.dp),
+                        )
+                    } else {
+                        androidx.compose.material3.Button(
+                            onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) },
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                containerColor = androidx.compose.material3.MaterialTheme.colorScheme.error,
+                                contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onError,
+                            ),
+                            modifier = androidx.compose.ui.Modifier.defaultMinSize(minHeight = 48.dp),
+                        ) {
+                            androidx.compose.material3.Text("Overwrite Host Key")
+                        }
+                    }
                 } else {
                     androidx.compose.material3.TextButton(
                         onClick = { com.adamoutler.ssh.network.ConnectionStateRepository.resolvePrompt(true) },

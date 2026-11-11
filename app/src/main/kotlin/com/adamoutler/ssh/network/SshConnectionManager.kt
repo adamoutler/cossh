@@ -324,7 +324,7 @@ class SshConnectionManager(
     }
 
     suspend fun connectAndExecute(profile: ConnectionProfile, command: String, keyPair: KeyPair? = null): String = withContext(Dispatchers.IO) {
-        val sshClient = SSHClient(SecureSshConfig())
+        val sshClient = SSHClient(SecureSshConfig(allowLegacyAlgorithms = profile.allowLegacyAlgorithms))
         val handshakeCoordinator = SshHandshakeCoordinator(hostKeyVerifier, identityStorageManager, context)
 
         try {

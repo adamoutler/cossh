@@ -20,24 +20,32 @@ import net.schmizz.sshj.AndroidConfig
  *   to mitigate collision and hash downgrade vulnerabilities.
  *
  * Only modern, hardened cryptographic suites (such as Post-Quantum sntrup761x25519, Curve25519,
- * ECDH NIST curves, AES-GCM / AES-CTR, and HMAC-SHA2-256/512) are permitted.
+ * ECDH NIST curves, AES-GCM / AES-CTR, and HMAC-SHA2-256/512) are permitted by default.
+ * When [allowLegacyAlgorithms] is true, legacy algorithms are retained for compatibility
+ * with older legacy infrastructure, while still prioritizing [Sntrup761X25519KeyExchange] at index 0.
  */
-class SecureSshConfig : AndroidConfig() {
+class SecureSshConfig(val allowLegacyAlgorithms: Boolean = false) : AndroidConfig() {
     init {
-        keyExchangeFactories = listOf(Sntrup761X25519KeyExchange.Factory()) +
+        val baseKex = if (allowLegacyAlgorithms) {
+            keyExchangeFactories.filterNot { it.name == "sntrup761x25519-sha512@openssh.com" }
+        } else {
             keyExchangeFactories.filterNot { factory ->
                 val name = factory.name.lowercase()
-                name.contains("sha1") || name.contains("group1-")
+                name.contains("sha1") || name.contains("group1-") || name == "sntrup761x25519-sha512@openssh.com"
+            }
+        }
+        keyExchangeFactories = listOf(Sntrup761X25519KeyExchange.Factory()) + baseKex
+
+        if (!allowLegacyAlgorithms) {
+            cipherFactories = cipherFactories.filterNot { factory ->
+                val name = factory.name.lowercase()
+                name.contains("3des") || name.contains("blowfish") || name.contains("cbc")
             }
 
-        cipherFactories = cipherFactories.filterNot { factory ->
-            val name = factory.name.lowercase()
-            name.contains("3des") || name.contains("blowfish") || name.contains("cbc")
-        }
-
-        macFactories = macFactories.filterNot { factory ->
-            val name = factory.name.lowercase()
-            name.contains("sha1") || name.contains("md5")
+            macFactories = macFactories.filterNot { factory ->
+                val name = factory.name.lowercase()
+                name.contains("sha1") || name.contains("md5")
+            }
         }
 
         keepAliveProvider = net.schmizz.keepalive.KeepAliveProvider.KEEP_ALIVE

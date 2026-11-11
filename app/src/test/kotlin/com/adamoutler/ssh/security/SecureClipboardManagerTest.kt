@@ -5,12 +5,14 @@ import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import com.adamoutler.ssh.crypto.SettingsManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -35,6 +37,13 @@ class SecureClipboardManagerTest {
         context = ApplicationProvider.getApplicationContext()
         clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboardManager.clearPrimaryClip()
+        context.getSharedPreferences("cossh_settings", Context.MODE_PRIVATE).edit().clear().commit()
+    }
+
+    @After
+    fun tearDown() {
+        SecureClipboardManager.clearClipboard(context)
+        context.getSharedPreferences("cossh_settings", Context.MODE_PRIVATE).edit().clear().commit()
     }
 
     @Test
@@ -59,7 +68,99 @@ class SecureClipboardManagerTest {
     }
 
     @Test
-    fun testAutoClear_clearsClipboardAfterTimeout() = runTest {
+    fun testSensitiveTaggingDisabled_omitsExtraIsSensitive() {
+        val settings = SettingsManager(context)
+        settings.isClipboardSensitiveTaggingEnabled = false
+
+        SecureClipboardManager.copyToClipboard(
+            context = context,
+            text = "UntaggedCredential",
+            label = "Terminal text",
+        )
+
+        val clip = clipboardManager.primaryClip
+        assertNotNull("Clipboard must contain primary clip", clip)
+        val extras = clip!!.description.extras
+        val isSensitiveExtra = extras?.getBoolean(ClipDescription.EXTRA_IS_SENSITIVE, false) ?: false
+        assertFalse("EXTRA_IS_SENSITIVE must be false/omitted when tagging is disabled", isSensitiveExtra)
+    }
+
+    @Test
+    fun testExplicitIsSensitiveFalse_omitsExtraIsSensitive() {
+        val settings = SettingsManager(context)
+        settings.isClipboardSensitiveTaggingEnabled = true
+
+        SecureClipboardManager.copyToClipboard(
+            context = context,
+            text = "NonSensitiveText",
+            label = "Terminal text",
+            isSensitive = false,
+        )
+
+        val clip = clipboardManager.primaryClip
+        assertNotNull("Clipboard must contain primary clip", clip)
+        val extras = clip!!.description.extras
+        val isSensitiveExtra = extras?.getBoolean(ClipDescription.EXTRA_IS_SENSITIVE, false) ?: false
+        assertFalse("EXTRA_IS_SENSITIVE must be false/omitted when isSensitive parameter is false", isSensitiveExtra)
+    }
+
+    @Test
+    fun testDefaultClipboardAutoClearZero_doesNotClearAfter30Seconds() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testScope = TestScope(testDispatcher)
+
+        val settings = SettingsManager(context)
+        assertEquals("Default clipboard auto-clear must be 0s", 0, settings.clipboardAutoClearSeconds)
+
+        SecureClipboardManager.copyToClipboard(
+            context = context,
+            text = "persistent_clipboard_item",
+            scope = testScope,
+        )
+
+        assertNull("autoClearJob must be null when delay is 0s", SecureClipboardManager.autoClearJob)
+        assertEquals("persistent_clipboard_item", clipboardManager.primaryClip?.getItemAt(0)?.text?.toString())
+
+        // Fast-forward 30 seconds
+        testScope.advanceTimeBy(30_000L)
+        testScope.runCurrent()
+        assertEquals("persistent_clipboard_item", clipboardManager.primaryClip?.getItemAt(0)?.text?.toString())
+
+        // Fast-forward another 30 seconds (total 60s)
+        testScope.advanceTimeBy(30_000L)
+        testScope.runCurrent()
+        assertEquals("persistent_clipboard_item", clipboardManager.primaryClip?.getItemAt(0)?.text?.toString())
+    }
+
+    @Test
+    fun testConfiguredClipboardAutoClearSeconds_clearsClipboardAfterConfiguredDelay() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testScope = TestScope(testDispatcher)
+
+        val settings = SettingsManager(context)
+        settings.clipboardAutoClearSeconds = 30
+
+        SecureClipboardManager.copyToClipboard(
+            context = context,
+            text = "auto_clear_configured",
+            scope = testScope,
+        )
+
+        assertNotNull("autoClearJob must be scheduled when clipboardAutoClearSeconds = 30", SecureClipboardManager.autoClearJob)
+
+        testScope.advanceTimeBy(29_000L)
+        testScope.runCurrent()
+        assertEquals("auto_clear_configured", clipboardManager.primaryClip?.getItemAt(0)?.text?.toString())
+
+        testScope.advanceTimeBy(1_001L)
+        testScope.runCurrent()
+
+        val clipAfter = clipboardManager.primaryClip
+        assertTrue("Clipboard must be cleared after configured 30s timeout", clipAfter == null || clipAfter.itemCount == 0 || clipAfter.getItemAt(0).text.isNullOrEmpty())
+    }
+
+    @Test
+    fun testAutoClear_clearsClipboardAfterTimeoutWithExplicitDelay() = runTest {
         val testDispatcher = StandardTestDispatcher(testScheduler)
         val testScope = TestScope(testDispatcher)
 
@@ -173,5 +274,12 @@ class SecureClipboardManagerTest {
 
         // Clipboard should still contain external note
         assertEquals("important_external_note", clipboardManager.primaryClip?.getItemAt(0)?.text?.toString())
+    }
+
+    @Test
+    fun testAppLockTimeoutSeconds_defaultsTo60() {
+        val settings = SettingsManager(context)
+        assertEquals("appLockTimeoutSeconds must default to 60s", 60, settings.appLockTimeoutSeconds)
+        assertEquals("DEFAULT_APP_LOCK_TIMEOUT_SECONDS constant must be 60", 60, SettingsManager.DEFAULT_APP_LOCK_TIMEOUT_SECONDS)
     }
 }

@@ -157,4 +157,50 @@ class SecureSshConfigTest {
         println("STRIPPED MACS: $strippedMacs")
         println("RETAINED MACS: $secureMacs")
     }
+
+    @Test
+    fun allowLegacyAlgorithms_false_purgesLegacyAlgorithmsAndPrioritizesPqc() {
+        val secureConfig = SecureSshConfig(allowLegacyAlgorithms = false)
+        val kexNames = secureConfig.keyExchangeFactories.map { it.name.lowercase() }
+        val cipherNames = secureConfig.cipherFactories.map { it.name.lowercase() }
+        val macNames = secureConfig.macFactories.map { it.name.lowercase() }
+
+        // Hardened: No SHA-1 or group1- in KEX
+        assertFalse(kexNames.any { it.contains("sha1") || it.contains("group1-") })
+        // Hardened: No 3des, blowfish, or cbc in Ciphers
+        assertFalse(cipherNames.any { it.contains("3des") || it.contains("blowfish") || it.contains("cbc") })
+        // Hardened: No sha1 or md5 in MACs
+        assertFalse(macNames.any { it.contains("sha1") || it.contains("md5") })
+
+        // PQC Hybrid prioritized at index 0
+        assertEquals(
+            "sntrup761x25519-sha512@openssh.com",
+            secureConfig.keyExchangeFactories.first().name,
+        )
+    }
+
+    @Test
+    fun allowLegacyAlgorithms_true_retainsLegacyAlgorithmsAndPrioritizesPqc() {
+        val legacyConfig = SecureSshConfig(allowLegacyAlgorithms = true)
+        val kexNames = legacyConfig.keyExchangeFactories.map { it.name.lowercase() }
+        val cipherNames = legacyConfig.cipherFactories.map { it.name.lowercase() }
+        val macNames = legacyConfig.macFactories.map { it.name.lowercase() }
+
+        // Legacy compatibility: Retains SHA-1/group1 KEX
+        assertTrue(kexNames.any { it.contains("sha1") || it.contains("group1-") })
+        // Legacy compatibility: Retains 3DES and CBC ciphers
+        assertTrue(cipherNames.any { it.contains("3des") || it.contains("cbc") })
+        // Legacy compatibility: Retains SHA-1 and MD5 MACs
+        assertTrue(macNames.any { it.contains("sha1") || it.contains("md5") })
+
+        // Post-Quantum hybrid KEX must still be prioritized at index 0 without duplication
+        assertEquals(
+            "sntrup761x25519-sha512@openssh.com",
+            legacyConfig.keyExchangeFactories.first().name,
+        )
+        assertEquals(
+            1,
+            legacyConfig.keyExchangeFactories.count { it.name == "sntrup761x25519-sha512@openssh.com" },
+        )
+    }
 }
