@@ -230,8 +230,8 @@ class PreReleaseCryptoAndAppLockHardeningTest {
             .putBoolean(SettingsManager.KEY_OVERLAY_TOUCH_BLOCKING_ENABLED, false)
             .commit()
 
-        val controller = Robolectric.buildActivity(MainActivity::class.java).setup()
-        val activity = controller.get()
+        val activity = Robolectric.buildActivity(MainActivity::class.java).get()
+        activity.initWindowSecuritySettings(context)
 
         val initialSecure = (activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0
         assertFalse("MainActivity window must not have FLAG_SECURE by default", initialSecure)
@@ -251,7 +251,7 @@ class PreReleaseCryptoAndAppLockHardeningTest {
         activity.settingsManager.isOverlayTouchBlockingEnabled = false
         assertFalse("MainActivity decorView must not filter obscured touches when setting is disabled", activity.window.decorView.filterTouchesWhenObscured)
 
-        controller.destroy()
+        activity.cleanupWindowSecuritySettings()
     }
 
     @Test

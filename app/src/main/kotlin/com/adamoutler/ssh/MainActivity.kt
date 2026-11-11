@@ -74,10 +74,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        settingsManager = SettingsManager(applicationContext)
-        updateScreenshotBlocking(settingsManager.isScreenshotBlockingEnabled)
-        updateOverlayTouchBlocking(settingsManager.isOverlayTouchBlockingEnabled)
-        settingsManager.registerOnSharedPreferenceChangeListener(preferenceChangeListener)
+        initWindowSecuritySettings(applicationContext)
 
         // Security mitigations: Implement root detection to protect sensitive SSH keys
         val buildTags = android.os.Build.TAGS
@@ -160,6 +157,17 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        cleanupWindowSecuritySettings()
+    }
+
+    internal fun initWindowSecuritySettings(context: android.content.Context = applicationContext) {
+        settingsManager = SettingsManager(context)
+        updateScreenshotBlocking(settingsManager.isScreenshotBlockingEnabled)
+        updateOverlayTouchBlocking(settingsManager.isOverlayTouchBlockingEnabled)
+        settingsManager.registerOnSharedPreferenceChangeListener(preferenceChangeListener)
+    }
+
+    internal fun cleanupWindowSecuritySettings() {
         if (::settingsManager.isInitialized) {
             settingsManager.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
         }
