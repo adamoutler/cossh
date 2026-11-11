@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.adamoutler.ssh.crypto.SettingsManager
 import com.adamoutler.ssh.crypto.handleKeystoreExceptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,6 +27,7 @@ class SecurityAuditLogManager(
         File(context.applicationContext.filesDir, "security_audit/audit_chain.jsonl"),
     ),
     injectedPrefs: SharedPreferences? = null,
+    injectedSettings: SettingsManager? = null,
 ) {
     companion object {
         private const val PREFS_FILE = "security_audit_anchor_prefs"
@@ -81,6 +83,11 @@ class SecurityAuditLogManager(
     private val anchoredPrefs: SharedPreferences =
         injectedPrefs ?: createEncryptedPrefs(context.applicationContext)
 
+    private val settingsManager: SettingsManager =
+        injectedSettings ?: SettingsManager(context.applicationContext)
+
+    fun isAuditLogEnabled(): Boolean = settingsManager.enableSecurityAuditLog
+
     private fun persistHeadAnchor(record: AuditRecord) {
         try {
             anchoredPrefs.edit()
@@ -90,6 +97,26 @@ class SecurityAuditLogManager(
         } catch (_: Exception) {
             // Anchor persistence failure should not crash operation
         }
+    }
+
+    private fun createNoOpRecord(eventType: AuditEventType, payload: Map<String, String>): AuditRecord {
+        return AuditRecord(
+            sequenceNumber = 0L,
+            timestampMs = System.currentTimeMillis(),
+            eventType = eventType,
+            payload = payload,
+            previousHash = SecurityAuditLogger.GENESIS_HASH,
+            entryHash = SecurityAuditLogger.GENESIS_HASH,
+        )
+    }
+
+    private suspend fun recordEvent(eventType: AuditEventType, payload: Map<String, String>): AuditRecord {
+        if (!isAuditLogEnabled()) {
+            return createNoOpRecord(eventType, payload)
+        }
+        val record = logger.appendEvent(eventType, payload)
+        persistHeadAnchor(record)
+        return record
     }
 
     suspend fun logSessionStart(
@@ -104,9 +131,7 @@ class SecurityAuditLogManager(
             "port" to port.toString(),
             "username" to username,
         )
-        val record = logger.appendEvent(AuditEventType.SESSION_CONNECTED, payload)
-        persistHeadAnchor(record)
-        record
+        recordEvent(AuditEventType.SESSION_CONNECTED, payload)
     }
 
     suspend fun logSessionEnd(
@@ -119,9 +144,7 @@ class SecurityAuditLogManager(
             put("host", host)
             if (!reason.isNullOrEmpty()) put("reason", reason)
         }
-        val record = logger.appendEvent(AuditEventType.SESSION_TERMINATED, payload)
-        persistHeadAnchor(record)
-        record
+        recordEvent(AuditEventType.SESSION_TERMINATED, payload)
     }
 
     suspend fun logAuthResult(
@@ -141,9 +164,7 @@ class SecurityAuditLogManager(
             put("auth_success", success.toString())
             if (!failureReason.isNullOrEmpty()) put("failure_reason", failureReason)
         }
-        val record = logger.appendEvent(event, payload)
-        persistHeadAnchor(record)
-        record
+        recordEvent(event, payload)
     }
 
     suspend fun logHostKeyVerification(
@@ -163,9 +184,7 @@ class SecurityAuditLogManager(
             "is_key_changed" to isKeyChanged.toString(),
             "accepted" to accepted.toString(),
         )
-        val record = logger.appendEvent(event, payload)
-        persistHeadAnchor(record)
-        record
+        recordEvent(event, payload)
     }
 
     suspend fun logKeyOperation(
@@ -183,9 +202,7 @@ class SecurityAuditLogManager(
             put("key_alias", keyAlias)
             if (!keyType.isNullOrEmpty()) put("key_type", keyType)
         }
-        val record = logger.appendEvent(event, payload)
-        persistHeadAnchor(record)
-        record
+        recordEvent(event, payload)
     }
 
     suspend fun logAppLockEvent(
@@ -195,9 +212,14 @@ class SecurityAuditLogManager(
         val payload = buildMap {
             if (!detail.isNullOrEmpty()) put("detail", detail)
         }
-        val record = logger.appendEvent(eventType, payload)
-        persistHeadAnchor(record)
-        record
+        recordEvent(eventType, payload)
+    }
+
+    suspend fun logGenericEvent(
+        eventType: AuditEventType,
+        payload: Map<String, String> = emptyMap(),
+    ): AuditRecord = withContext(Dispatchers.IO) {
+        recordEvent(eventType, payload)
     }
 
     suspend fun verifyIntegrity(): AuditIntegrityResult = withContext(Dispatchers.IO) {

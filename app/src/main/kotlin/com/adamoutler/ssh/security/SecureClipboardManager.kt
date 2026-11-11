@@ -7,6 +7,7 @@ import android.content.Context
 import android.os.Build
 import android.os.PersistableBundle
 import androidx.annotation.VisibleForTesting
+import com.adamoutler.ssh.crypto.SettingsManager
 import com.adamoutler.ssh.util.AppLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +33,8 @@ object SecureClipboardManager {
         text: String,
         label: String = "Terminal text",
         scope: CoroutineScope = CoroutineScope(Dispatchers.Main),
-        autoClearDelayMs: Long = AUTO_CLEAR_DELAY_MS,
+        autoClearDelayMs: Long? = null,
+        isSensitive: Boolean = true,
     ) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
         if (clipboard == null) {
@@ -44,21 +46,29 @@ object SecureClipboardManager {
         lastCopiedText = trimmedText
 
         val clip = ClipData.newPlainText(label, trimmedText)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val sensitiveTaggingEnabled = SettingsManager(context).isClipboardSensitiveTaggingEnabled
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && isSensitive && sensitiveTaggingEnabled) {
             clip.description.extras = PersistableBundle().apply {
                 putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true)
             }
         }
         clipboard.setPrimaryClip(clip)
-        AppLog.d(TAG, "Copied text to clipboard (sensitive flag set=${Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU})")
+        AppLog.d(
+            TAG,
+            "Copied text to clipboard (sensitive flag set=${Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && isSensitive && sensitiveTaggingEnabled})",
+        )
 
         // Cancel any pending auto-clear timer
         autoClearJob?.cancel()
+        autoClearJob = null
 
-        // Schedule new auto-clear coroutine
-        autoClearJob = scope.launch {
-            delay(autoClearDelayMs)
-            clearIfMatching(clipboard, trimmedText)
+        val effectiveDelayMs = autoClearDelayMs ?: (SettingsManager(context).clipboardAutoClearSeconds * 1000L)
+        if (effectiveDelayMs > 0L) {
+            // Schedule new auto-clear coroutine
+            autoClearJob = scope.launch {
+                delay(effectiveDelayMs)
+                clearIfMatching(clipboard, trimmedText)
+            }
         }
     }
 

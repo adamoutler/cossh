@@ -369,7 +369,7 @@ class AutomationIntentGuard(
         val manager = auditLogManager ?: SecurityAuditLogManager.getInstanceOrNull() ?: return
         try {
             runBlocking {
-                manager.logger.appendEvent(eventType, payload)
+                manager.logGenericEvent(eventType, payload)
             }
         } catch (_: Exception) {
             // Audit logging failure should not crash intent validation

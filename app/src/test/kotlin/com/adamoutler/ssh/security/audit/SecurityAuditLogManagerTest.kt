@@ -3,8 +3,11 @@ package com.adamoutler.ssh.security.audit
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
+import com.adamoutler.ssh.crypto.SettingsManager
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -33,6 +36,7 @@ class SecurityAuditLogManagerTest {
         logger = SecurityAuditLogger(logFile)
         testPrefs = context.getSharedPreferences("test_audit_anchors", Context.MODE_PRIVATE)
         testPrefs.edit().clear().commit()
+        context.getSharedPreferences("cossh_settings", Context.MODE_PRIVATE).edit().clear().commit()
         manager = SecurityAuditLogManager(
             context = context,
             logger = logger,
@@ -147,5 +151,51 @@ class SecurityAuditLogManagerTest {
         assertTrue(jsonLd.contains("CoSSH Security Audit Log"))
         assertTrue(jsonLd.contains("SESSION_CONNECTED"))
         assertTrue(jsonLd.contains("APP_LOCK_UNLOCKED"))
+    }
+
+    @Test
+    fun testAuditLoggingDisabled_skipsPersistingRecords() = runBlocking {
+        val settings = SettingsManager(context)
+        settings.enableSecurityAuditLog = false
+
+        assertFalse("isAuditLogEnabled should return false", manager.isAuditLogEnabled())
+
+        val startRecord = manager.logSessionStart(
+            profileId = "prof-disabled",
+            host = "disabled.host.com",
+            port = 22,
+            username = "root",
+        )
+
+        assertEquals("No-op record should have sequenceNumber 0", 0L, startRecord.sequenceNumber)
+        assertEquals(SecurityAuditLogger.GENESIS_HASH, startRecord.entryHash)
+        assertEquals(SecurityAuditLogger.GENESIS_HASH, startRecord.previousHash)
+
+        val appLockRecord = manager.logAppLockEvent(
+            eventType = AuditEventType.APP_LOCK_UNLOCKED,
+            detail = "Unlocked while disabled",
+        )
+        assertEquals(0L, appLockRecord.sequenceNumber)
+
+        val records = manager.getRecords()
+        assertTrue("No records should be persisted when audit logging is disabled", records.isEmpty())
+        assertFalse("Log file should remain empty or nonexistent", logFile.exists() && logFile.length() > 0L)
+        assertEquals("Head sequence anchor must remain 0", 0L, testPrefs.getLong("audit_head_sequence", 0L))
+        assertNull("Head hash anchor must remain null", testPrefs.getString("audit_head_hash", null))
+
+        // When re-enabled, logging should resume and append to disk
+        settings.enableSecurityAuditLog = true
+        assertTrue("isAuditLogEnabled should return true after re-enabling", manager.isAuditLogEnabled())
+
+        val enabledRecord = manager.logSessionStart(
+            profileId = "prof-enabled",
+            host = "enabled.host.com",
+            port = 22,
+            username = "root",
+        )
+        assertEquals(1L, enabledRecord.sequenceNumber)
+        val activeRecords = manager.getRecords()
+        assertEquals(1, activeRecords.size)
+        assertEquals(1L, testPrefs.getLong("audit_head_sequence", 0L))
     }
 }
