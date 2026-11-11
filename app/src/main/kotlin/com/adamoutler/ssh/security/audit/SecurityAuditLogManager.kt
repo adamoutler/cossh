@@ -99,16 +99,14 @@ class SecurityAuditLogManager(
         }
     }
 
-    private fun createNoOpRecord(eventType: AuditEventType, payload: Map<String, String>): AuditRecord {
-        return AuditRecord(
-            sequenceNumber = 0L,
-            timestampMs = System.currentTimeMillis(),
-            eventType = eventType,
-            payload = payload,
-            previousHash = SecurityAuditLogger.GENESIS_HASH,
-            entryHash = SecurityAuditLogger.GENESIS_HASH,
-        )
-    }
+    private fun createNoOpRecord(eventType: AuditEventType, payload: Map<String, String>): AuditRecord = AuditRecord(
+        sequenceNumber = 0L,
+        timestampMs = System.currentTimeMillis(),
+        eventType = eventType,
+        payload = payload,
+        previousHash = SecurityAuditLogger.GENESIS_HASH,
+        entryHash = SecurityAuditLogger.GENESIS_HASH,
+    )
 
     private suspend fun recordEvent(eventType: AuditEventType, payload: Map<String, String>): AuditRecord {
         if (!isAuditLogEnabled()) {

@@ -453,4 +453,62 @@ class AddEditProfileScreenScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun allowLegacyAlgorithmsToggleScreen() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    AddEditProfileScreenContent(
+                        profileId = null,
+                        nickname = "Legacy Switch",
+                        onNicknameChange = {},
+                        host = "10.0.0.1",
+                        onHostChange = {},
+                        port = "22",
+                        onPortChange = {},
+                        protocol = com.adamoutler.ssh.data.Protocol.SSH,
+                        onProtocolChange = {},
+                        username = "netadmin",
+                        onUsernameChange = {},
+                        password = "",
+                        onPasswordChange = {},
+                        isPasswordLocked = false,
+                        onPasswordLockedChange = {},
+                        authType = AuthType.PASSWORD,
+                        onAuthTypeChange = {},
+                        availableKeys = emptyList(),
+                        keyReference = "",
+                        onKeyReferenceChange = {},
+                        identities = emptyList(),
+                        identityId = null,
+                        onIdentityChange = {},
+                        onManageIdentities = {},
+                        envVarsText = "",
+                        onEnvVarsTextChange = {},
+                        portForwards = emptyList(),
+                        onPortForwardsChange = {},
+                        commandSnippets = emptyList(),
+                        onCommandSnippetsChange = {},
+                        initialDirectory = "",
+                        onInitialDirectoryChange = {},
+                        terminalInputState = 0,
+                        onTerminalInputStateChange = {},
+                        keepScreenOnMode = com.adamoutler.ssh.data.KeepScreenOnMode.SYSTEM_DEFAULT,
+                        onKeepScreenOnModeChange = {},
+                        useLocalDns = false,
+                        onUseLocalDnsChange = {},
+                        allowLegacyAlgorithms = true,
+                        onAllowLegacyAlgorithmsChange = {},
+                        onSave = {},
+                        onNavigateBack = {},
+                        defaultPortForwardType = com.adamoutler.ssh.data.PortForwardType.LOCAL,
+                    )
+                }
+            }
+        }
+    }
 }

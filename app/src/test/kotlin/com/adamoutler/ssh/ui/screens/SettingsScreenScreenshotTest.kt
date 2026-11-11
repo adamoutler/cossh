@@ -170,4 +170,71 @@ class SettingsScreenScreenshotTest {
             }
         }
     }
+
+    @Test
+    fun screenWithCursorAndInteractionSettings() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    SettingsScreenContent(
+                        isCloudSyncEnabled = false,
+                        isSyncing = false,
+                        defaultGroupName = "Uncategorized",
+                        isPassphraseSet = false,
+                        selectedCursorStyle = com.adamoutler.ssh.data.TerminalCursorStyle.UNDERLINE,
+                        cursorBlink = false,
+                        volumeKeysAction = com.adamoutler.ssh.data.TerminalVolumeKeysAction.SYSTEM_VOLUME,
+                        backButtonBehavior = com.adamoutler.ssh.data.TerminalBackButtonBehavior.SEND_ESC,
+                        isPinchToZoomEnabled = true,
+                        isTerminalBellHapticEnabled = false,
+                        enforceCharBasedInput = true,
+                        isPocketDetectionEnabled = true,
+                        terminalUrlConfirmationMode = com.adamoutler.ssh.data.TerminalUrlConfirmationMode.SUSPICIOUS_ONLY,
+                        onDefaultGroupNameChange = {},
+                        onPurchaseCloudSync = {},
+                        onAuthenticateGoogle = {},
+                        onResetPassphrase = {},
+                        onNavigateBack = {},
+                        scrollState = androidx.compose.foundation.rememberScrollState(400),
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun screenWithConfigurableSecurityControls() {
+        paparazzi.snapshot {
+            CoSSHTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    SettingsScreenContent(
+                        isCloudSyncEnabled = true,
+                        isSyncing = false,
+                        defaultGroupName = "Uncategorized",
+                        isPassphraseSet = true,
+                        isAppLockEnabled = true,
+                        appLockTimeoutSeconds = 60,
+                        isScreenshotBlockingEnabled = false,
+                        isOverlayTouchBlockingEnabled = false,
+                        clipboardAutoClearSeconds = 0,
+                        isClipboardSensitiveTaggingEnabled = true,
+                        isHoldToConfirmHostKeyEnabled = true,
+                        enableSecurityAuditLog = true,
+                        onDefaultGroupNameChange = {},
+                        onPurchaseCloudSync = {},
+                        onAuthenticateGoogle = {},
+                        onResetPassphrase = {},
+                        onNavigateBack = {},
+                        scrollState = androidx.compose.foundation.rememberScrollState(Int.MAX_VALUE),
+                    )
+                }
+            }
+        }
+    }
 }

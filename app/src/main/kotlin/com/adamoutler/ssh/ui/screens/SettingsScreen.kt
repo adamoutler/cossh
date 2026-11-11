@@ -1270,6 +1270,7 @@ fun TerminalPreviewCard(
                                         .background(Color(theme.cursor)),
                                 )
                             }
+
                             TerminalCursorStyle.UNDERLINE -> {
                                 Box(
                                     modifier = Modifier
@@ -1285,6 +1286,7 @@ fun TerminalPreviewCard(
                                     )
                                 }
                             }
+
                             TerminalCursorStyle.VERTICAL_BAR -> {
                                 Box(
                                     modifier = Modifier

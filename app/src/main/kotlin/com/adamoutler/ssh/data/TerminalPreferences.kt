@@ -6,8 +6,7 @@ enum class TerminalVolumeKeysAction(val id: String, val displayName: String) {
     ;
 
     companion object {
-        fun fromId(id: String?): TerminalVolumeKeysAction =
-            entries.firstOrNull { it.id.equals(id, ignoreCase = true) } ?: SYSTEM_VOLUME
+        fun fromId(id: String?): TerminalVolumeKeysAction = entries.firstOrNull { it.id.equals(id, ignoreCase = true) } ?: SYSTEM_VOLUME
     }
 }
 
@@ -18,8 +17,7 @@ enum class TerminalBackButtonBehavior(val id: String, val displayName: String) {
     ;
 
     companion object {
-        fun fromId(id: String?): TerminalBackButtonBehavior =
-            entries.firstOrNull { it.id.equals(id, ignoreCase = true) } ?: PROMPT_DIALOG
+        fun fromId(id: String?): TerminalBackButtonBehavior = entries.firstOrNull { it.id.equals(id, ignoreCase = true) } ?: PROMPT_DIALOG
     }
 }
 
@@ -30,7 +28,6 @@ enum class TerminalUrlConfirmationMode(val id: String, val displayName: String) 
     ;
 
     companion object {
-        fun fromId(id: String?): TerminalUrlConfirmationMode =
-            entries.firstOrNull { it.id.equals(id, ignoreCase = true) } ?: SUSPICIOUS_ONLY
+        fun fromId(id: String?): TerminalUrlConfirmationMode = entries.firstOrNull { it.id.equals(id, ignoreCase = true) } ?: SUSPICIOUS_ONLY
     }
 }

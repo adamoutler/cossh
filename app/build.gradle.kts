@@ -23,7 +23,7 @@ val gitCommitCount = try {
 
 android {
     namespace = "com.adamoutler.ssh"
-    compileSdk = 36
+    compileSdk = if (gradle.startParameter.taskNames.any { it.contains("Paparazzi", ignoreCase = true) }) 35 else 36
     ndkVersion = "29.0.14206865"
 
     defaultConfig {

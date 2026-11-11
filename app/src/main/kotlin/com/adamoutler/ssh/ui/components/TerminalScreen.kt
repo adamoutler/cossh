@@ -472,6 +472,7 @@ fun TerminalScreenContent(
             TerminalUrlConfirmationMode.ALWAYS -> {
                 detectedUrlForConfirmation = candidate
             }
+
             TerminalUrlConfirmationMode.SUSPICIOUS_ONLY -> {
                 if (candidate.isSecure && !candidate.isDirectIp && !candidate.isPunycode) {
                     openUrlDirectly(candidate)
@@ -479,6 +480,7 @@ fun TerminalScreenContent(
                     detectedUrlForConfirmation = candidate
                 }
             }
+
             TerminalUrlConfirmationMode.NEVER -> {
                 openUrlDirectly(candidate)
             }
@@ -519,10 +521,12 @@ fun TerminalScreenContent(
             TerminalBackButtonBehavior.SEND_ESC -> {
                 sendToTerminal(byteArrayOf(0x1B))
             }
+
             TerminalBackButtonBehavior.BACKGROUND_SESSION -> {
                 showKeepAliveDialog = false
                 onNavigateBack()
             }
+
             TerminalBackButtonBehavior.PROMPT_DIALOG -> {
                 val currentTime = System.currentTimeMillis()
                 if (currentTime - lastBackPressTime < 500) { // Double tap within 500ms
@@ -671,16 +675,15 @@ fun TerminalScreenContent(
                         terminalView.isFocusableInTouchMode = true
 
                         terminalView.setTerminalViewClient(object : com.termux.view.TerminalViewClient {
-                            override fun onScale(scale: Float): Float =
-                                if (settingsManager.isPinchToZoomEnabled) {
-                                    TerminalScaleHandler.onScale(
-                                        scale = scale,
-                                        currentFontSize = currentFontSizeState.value,
-                                        onUpdateFontSize = onUpdateFontSizeState.value,
-                                    )
-                                } else {
-                                    1.0f
-                                }
+                            override fun onScale(scale: Float): Float = if (settingsManager.isPinchToZoomEnabled) {
+                                TerminalScaleHandler.onScale(
+                                    scale = scale,
+                                    currentFontSize = currentFontSizeState.value,
+                                    onUpdateFontSize = onUpdateFontSizeState.value,
+                                )
+                            } else {
+                                1.0f
+                            }
 
                             override fun onSingleTapUp(e: android.view.MotionEvent?) {
                                 if (e != null) {
@@ -733,29 +736,25 @@ fun TerminalScreenContent(
                                 }
                             }
 
-                            override fun shouldBackButtonBeMappedToEscape(): Boolean =
-                                settingsManager.backButtonBehavior == TerminalBackButtonBehavior.SEND_ESC
+                            override fun shouldBackButtonBeMappedToEscape(): Boolean = settingsManager.backButtonBehavior == TerminalBackButtonBehavior.SEND_ESC
 
-                            override fun shouldEnforceCharBasedInput(): Boolean =
-                                settingsManager.enforceCharBasedInput
+                            override fun shouldEnforceCharBasedInput(): Boolean = settingsManager.enforceCharBasedInput
 
                             override fun shouldUseCtrlSpaceWorkaround(): Boolean = false
                             override fun isTerminalViewSelected(): Boolean = true
                             override fun copyModeChanged(b: Boolean) {}
 
-                            override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, s: TerminalSession?): Boolean =
-                                terminalKeyMapper.onKeyDown(
-                                    keyCode,
-                                    e,
-                                    interceptVolumeKeys = (settingsManager.volumeKeysAction == TerminalVolumeKeysAction.ZOOM_FONT),
-                                )
+                            override fun onKeyDown(keyCode: Int, e: android.view.KeyEvent?, s: TerminalSession?): Boolean = terminalKeyMapper.onKeyDown(
+                                keyCode,
+                                e,
+                                interceptVolumeKeys = (settingsManager.volumeKeysAction == TerminalVolumeKeysAction.ZOOM_FONT),
+                            )
 
-                            override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean =
-                                terminalKeyMapper.onKeyUp(
-                                    keyCode,
-                                    e,
-                                    interceptVolumeKeys = (settingsManager.volumeKeysAction == TerminalVolumeKeysAction.ZOOM_FONT),
-                                )
+                            override fun onKeyUp(keyCode: Int, e: android.view.KeyEvent?): Boolean = terminalKeyMapper.onKeyUp(
+                                keyCode,
+                                e,
+                                interceptVolumeKeys = (settingsManager.volumeKeysAction == TerminalVolumeKeysAction.ZOOM_FONT),
+                            )
 
                             override fun readControlKey(): Boolean = terminalKeyMapper.readControlKey()
                             override fun readAltKey(): Boolean = terminalKeyMapper.readAltKey()
