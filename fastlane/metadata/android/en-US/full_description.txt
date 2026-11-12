@@ -1,0 +1,37 @@
+CoSSH (Cobalt SSH) is an uncompromising, enterprise-hardened SSH terminal and SFTP client designed for security professionals, sysadmins, and DevOps engineers who demand zero-trust infrastructure access from Android.
+
+ENGINEERED FOR ROOT-LEVEL SECURITY
+• Hardware Keystore Isolation: Private keys and saved credentials are encrypted via Android Keystore backed by hardware security modules (TEE / StrongBox Keymaster).
+• Zero-Cleartext Volatile Memory: Secrets exist only ephemerally in mutable memory and are actively wiped with cryptographic zeroization immediately upon completion and during Android lifecycle pauses.
+• Host Key Verification & TOFU: Trust-On-First-Use validation featuring OpenSSH visual Randomart and high-friction warnings for changed host keys to eliminate Man-in-the-Middle (MITM) attacks.
+• SSH Certificate Authority (CA): Native support for OpenSSH user and host certificates with expiration verification and identity principal validation.
+• Hardware Security Keys (FIDO2 / WebAuthn): Authenticate securely using external hardware tokens (YubiKey) over NFC and USB.
+• Tamper-Evident Audit Logs: Security events are recorded in an immutable, cryptographically hashed audit chain.
+• Biometric App Lock: Protect application launch and sensitive connection profiles using Android BiometricPrompt (fingerprint and facial recognition).
+
+POWERFUL TERMINAL EMULATION
+• Full PTY emulation supporting 256 colors, true color (16M colors), and standard ANSI escape sequences.
+• Multi-session tabs: Maintain simultaneous persistent terminal sessions and switch seamlessly.
+• Customizable Extra Keys: Quick-access row for Ctrl, Alt, Esc, Tab, arrow keys, Pipe, and Function keys (F1–F12).
+• Persistent Background Execution: Foreground Service with dedicated low-overhead WakeLocks keeps sessions alive during multitasking.
+• Auto-Reconnect: Exponential backoff reconnection banner with manual override and countdown timers.
+• Terminal Customization: Themes (Cobalt Blue, Dracula, Monokai, Solarized Dark) and monospace typography (JetBrains Mono, Fira Code).
+
+INTEGRATED SFTP FILE MANAGER
+• Seamless Remote Browsing: Explore directory trees, manage remote file permissions (chmod octal/symbolic), and inspect file metadata.
+• Background Transfers: Reliable file upload and download with live transfer progress indicators.
+• In-App Text Viewer: Quick-inspect and edit configuration files directly over secure SFTP.
+
+TUNNELING & NETWORKING
+• Port Forwarding: Configure Local, Remote, and Dynamic (SOCKS5 proxy) tunnels with one touch.
+• Multi-Hop Jump Hosts: Chain connections through Bastion servers with built-in recursive cycle detection.
+• Pre-Connect Automation: Send Wake-on-LAN (WoL) magic packets and multi-port knocking sequences prior to connection.
+• Reusable Snippets: Save frequently used shell commands and dispatch them with a single tap.
+
+ZERO-KNOWLEDGE CLOUD SYNC & BACKUP
+• Google Drive Cloud Sync: Synchronize connection profiles across devices using client-side AES-256-GCM encryption derived with 250,000 PBKDF2 iterations. Your master password never leaves your device.
+• Offline Encrypted Backups: Export and import encrypted password-protected backup archives.
+• Complete Data Sovereignty: Zero telemetry, zero analytics trackers, and zero third-party advertising. Remote cloud backups can be deleted at any time.
+
+TRANSPARENT & OPEN SOURCE
+CoSSH is free and open-source software licensed under the GNU General Public License v3 (GPLv3). Inspect the code, verify our security whitepaper, and build from source.

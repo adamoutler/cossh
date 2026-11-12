@@ -11,8 +11,8 @@ Changelog: https://git.adamoutler.com/aoutler/CoSSH/commits/branch/main
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 1.0.0
-CurrentVersionCode: 100
+CurrentVersion: 1.898
+CurrentVersionCode: 898
 
 AutoName: CoSSH
 
@@ -29,13 +29,17 @@ RepoType: git
 Repo: https://git.adamoutler.com/aoutler/CoSSH.git
 
 Builds:
-  - versionName: '1.0'
-    versionCode: 1
-    commit: 'v1.0'
-    subdir: app
+  - versionName: '1.898'
+    versionCode: 898
+    commit: 'v1.898'
+    ndk: r27b
     gradle:
       - yes
-    prebuild:
-      - sed -i -e '/signingConfigs/,/}/d' build.gradle.kts
+    gradleflags:
+      - -PbuildUnsigned=true
     output: app/build/outputs/apk/release/app-release-unsigned.apk
     reproducible: true
+
+AntiFeatures:
+  - NonFreeNet
+  - NonFreeDep

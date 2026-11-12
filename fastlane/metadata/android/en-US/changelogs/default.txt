@@ -1,0 +1,8 @@
+Initial General Availability (GA) Market Release:
+• Enterprise-grade SSH terminal with full PTY emulation and multi-session tabs
+• Hardware-backed Android Keystore (StrongBox/TEE) encryption
+• Integrated SFTP file manager with remote viewing and background transfers
+• Local, Remote, and Dynamic (SOCKS5) port forwarding
+• Multi-hop Bastion jump host support with cycle prevention
+• Zero-knowledge AES-256-GCM Google Drive Cloud Sync
+• Biometric App Lock and immutable SHA-256 security audit logging

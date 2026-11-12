@@ -4,8 +4,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.ByteBuffer
+import java.util.zip.InflaterOutputStream
+import kotlin.math.abs
 
 /**
  * Validates store assets, raster launcher icons across densities, CI bundleRelease commands,
@@ -205,5 +208,200 @@ class ReleaseBundleAndMetadataVerificationTest {
                 assertTrue("Manifest $path must contain section '$section'", content.contains(section))
             }
         }
+    }
+
+    private fun decodeRgbaPngPixels(file: File): Array<IntArray> {
+        val bytes = file.readBytes()
+        val buffer = ByteBuffer.wrap(bytes)
+        buffer.position(8) // Skip magic bytes
+
+        val idatBaos = ByteArrayOutputStream()
+        var width = 0
+        var height = 0
+        var colorType = 0
+
+        while (buffer.hasRemaining()) {
+            val length = buffer.int
+            val chunkType = ByteArray(4)
+            buffer.get(chunkType)
+            val typeStr = String(chunkType, Charsets.US_ASCII)
+
+            if (typeStr == "IHDR") {
+                width = buffer.int
+                height = buffer.int
+                buffer.get() // bitDepth
+                colorType = buffer.get().toInt() and 0xFF
+                buffer.position(buffer.position() + 3) // compression, filter, interlace
+            } else if (typeStr == "IDAT") {
+                val data = ByteArray(length)
+                buffer.get(data)
+                idatBaos.write(data)
+            } else {
+                buffer.position(buffer.position() + length)
+            }
+            buffer.int // Skip CRC
+        }
+
+        assertEquals("Color type must be RGBA (6)", 6, colorType)
+        val decompressedBaos = ByteArrayOutputStream()
+        val inflaterStream = InflaterOutputStream(decompressedBaos)
+        inflaterStream.write(idatBaos.toByteArray())
+        inflaterStream.close()
+
+        val raw = decompressedBaos.toByteArray()
+        val bpp = 4
+        val scanlineLength = 1 + width * bpp
+        assertEquals("Decompressed byte length must match height * scanlineLength", height * scanlineLength, raw.size)
+
+        var prev: IntArray? = null
+        val result = Array(height) { IntArray(width * bpp) }
+
+        for (y in 0 until height) {
+            val rowOffset = y * scanlineLength
+            val filterType = raw[rowOffset].toInt() and 0xFF
+            val current = IntArray(width * bpp)
+
+            for (i in 0 until width * bpp) {
+                val filtByte = raw[rowOffset + 1 + i].toInt() and 0xFF
+                val a = if (i >= bpp) current[i - bpp] else 0
+                val b = if (prev != null) prev[i] else 0
+                val c = if (prev != null && i >= bpp) prev[i - bpp] else 0
+
+                val v = when (filterType) {
+                    0 -> filtByte
+                    1 -> (filtByte + a) and 0xFF
+                    2 -> (filtByte + b) and 0xFF
+                    3 -> (filtByte + (a + b) / 2) and 0xFF
+                    4 -> {
+                        val p = a + b - c
+                        val pa = abs(p - a)
+                        val pb = abs(p - b)
+                        val pc = abs(p - c)
+                        val pr = if (pa <= pb && pa <= pc) a else if (pb <= pc) b else c
+                        (filtByte + pr) and 0xFF
+                    }
+                    else -> filtByte
+                }
+                current[i] = v
+            }
+            prev = current
+            result[y] = current
+        }
+        return result
+    }
+
+    @Test
+    fun testStoreIcon_hasCleanAlphaCorners_andNoBlackBoxArtifact() {
+        val root = getProjectRoot()
+        val iconFile = File(root, "docs/img/icon.png")
+        assertTrue("docs/img/icon.png must exist", iconFile.exists())
+
+        val pixels = decodeRgbaPngPixels(iconFile)
+        assertEquals("Icon height must be 512px", 512, pixels.size)
+
+        // 1. Assert clean transparency on 4 outer corners
+        val cornerCoords = listOf(
+            Pair(0, 0),
+            Pair(511, 0),
+            Pair(0, 511),
+            Pair(511, 511),
+        )
+        for ((x, y) in cornerCoords) {
+            val alpha = pixels[y][x * 4 + 3]
+            assertEquals("Outer corner ($x, $y) must have clean alpha == 0", 0, alpha)
+        }
+
+        // 2. Assert no unexpected black box in bounding box [x: 312..490, y: 385..424]
+        var blackPixelCount = 0
+        for (y in 385..424) {
+            for (x in 312..490) {
+                val r = pixels[y][x * 4]
+                val g = pixels[y][x * 4 + 1]
+                val b = pixels[y][x * 4 + 2]
+                val alpha = pixels[y][x * 4 + 3]
+
+                if (alpha >= 200 && r < 20 && g < 20 && b < 20) {
+                    blackPixelCount++
+                }
+            }
+        }
+
+        assertEquals(
+            "Region [312..490, 385..424] must NOT contain unexpected black box artifact (found $blackPixelCount black pixels)",
+            0,
+            blackPixelCount,
+        )
+    }
+
+    @Test
+    fun testFastlaneMetadata_compliesWithStoreSpecifications() {
+        val root = getProjectRoot()
+        val fastlaneDir = File(root, "fastlane/metadata/android/en-US")
+        assertTrue("fastlane/metadata/android/en-US must exist", fastlaneDir.exists())
+
+        val titleFile = File(fastlaneDir, "title.txt")
+        assertTrue("title.txt must exist", titleFile.exists())
+        val title = titleFile.readText().trim()
+        assertTrue("Title must not be empty", title.isNotEmpty())
+        assertTrue("Title must not exceed 30 characters (actual: ${title.length})", title.length <= 30)
+
+        val shortDescFile = File(fastlaneDir, "short_description.txt")
+        assertTrue("short_description.txt must exist", shortDescFile.exists())
+        val shortDesc = shortDescFile.readText().trim()
+        assertTrue("Short description must not be empty", shortDesc.isNotEmpty())
+        assertTrue("Short description must not exceed 80 characters (actual: ${shortDesc.length})", shortDesc.length <= 80)
+
+        val fullDescFile = File(fastlaneDir, "full_description.txt")
+        assertTrue("full_description.txt must exist", fullDescFile.exists())
+        val fullDesc = fullDescFile.readText().trim()
+        assertTrue("Full description must not be empty", fullDesc.isNotEmpty())
+        assertTrue("Full description must not exceed 4000 characters (actual: ${fullDesc.length})", fullDesc.length <= 4000)
+
+        val changelogFile = File(fastlaneDir, "changelogs/default.txt")
+        assertTrue("changelogs/default.txt must exist", changelogFile.exists())
+        val changelog = changelogFile.readText().trim()
+        assertTrue("Changelog must not be empty", changelog.isNotEmpty())
+        assertTrue("Changelog must not exceed 500 characters (actual: ${changelog.length})", changelog.length <= 500)
+
+        val imagesDir = File(fastlaneDir, "images")
+        assertTrue("images directory must exist", imagesDir.exists())
+
+        val storeIcon = File(imagesDir, "icon.png")
+        assertTrue("fastlane icon.png must exist", storeIcon.exists())
+        val storeIconMeta = readPngMetadata(storeIcon)
+        assertEquals("fastlane icon.png width must be 512px", 512, storeIconMeta.width)
+        assertEquals("fastlane icon.png height must be 512px", 512, storeIconMeta.height)
+
+        val featureGraphic = File(imagesDir, "featureGraphic.png")
+        assertTrue("fastlane featureGraphic.png must exist", featureGraphic.exists())
+        val featureMeta = readPngMetadata(featureGraphic)
+        assertEquals("fastlane featureGraphic.png width must be 1024px", 1024, featureMeta.width)
+        assertEquals("fastlane featureGraphic.png height must be 500px", 500, featureMeta.height)
+
+        val screenshotsDir = File(imagesDir, "phoneScreenshots")
+        assertTrue("phoneScreenshots directory must exist", screenshotsDir.exists())
+        val screenshots = screenshotsDir.listFiles { _, name -> name.endsWith(".png") } ?: emptyArray()
+        assertTrue("Must have at least 2 phone screenshots for Google Play", screenshots.size >= 2)
+
+        for (screenshot in screenshots) {
+            val meta = readPngMetadata(screenshot)
+            assertEquals("Screenshot ${screenshot.name} width must be 1080px", 1080, meta.width)
+            assertEquals("Screenshot ${screenshot.name} height must be 1920px", 1920, meta.height)
+        }
+    }
+
+    @Test
+    fun testFDroidRecipe_isValidAndSynchronized() {
+        val root = getProjectRoot()
+        val recipeFile = File(root, "metadata/com.adamoutler.cobaltssh.yml")
+        assertTrue("metadata/com.adamoutler.cobaltssh.yml must exist", recipeFile.exists())
+
+        val content = recipeFile.readText()
+        assertTrue("F-Droid recipe must define GPL-3.0-or-later", content.contains("GPL-3.0-or-later"))
+        assertTrue("F-Droid recipe must declare Summary", content.contains("Summary:"))
+        assertTrue("F-Droid recipe must declare Description", content.contains("Description:"))
+        assertTrue("F-Droid recipe must declare Builds", content.contains("Builds:"))
+        assertTrue("F-Droid recipe must declare AntiFeatures", content.contains("AntiFeatures:"))
+        assertFalse("F-Droid recipe must not contain broken subdir: app", content.contains("subdir: app"))
     }
 }
