@@ -153,7 +153,7 @@ class PreReleaseJuiceSshParityTest {
         val app = ApplicationProvider.getApplicationContext<Application>()
         val settingsManager = SettingsManager(app)
 
-        assertFalse("OSC 52 clipboard access must default to false", settingsManager.allowOsc52Clipboard)
+        assertTrue("OSC 52 clipboard access must default to true", settingsManager.allowOsc52Clipboard)
 
         settingsManager.allowOsc52Clipboard = true
         assertTrue("OSC 52 clipboard access should be true when set", settingsManager.allowOsc52Clipboard)

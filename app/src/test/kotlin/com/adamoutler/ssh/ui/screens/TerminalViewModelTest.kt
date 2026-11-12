@@ -322,6 +322,46 @@ class TerminalViewModelTest {
     }
 
     @Test
+    fun `test onPasteTextFromClipboard chunks large payloads to prevent buffer overrun`() {
+        viewModel.getContext = { application }
+        val sessionId = "chunked-paste-session"
+        val session = viewModel.getOrCreateSession(sessionId, application)
+
+        val totalLength = 700
+        val longString = "A".repeat(totalLength)
+        val flushCount = java.util.concurrent.atomic.AtomicInteger(0)
+        val latch = CountDownLatch(3)
+        val outputStream = object : ByteArrayOutputStream() {
+            override fun flush() {
+                super.flush()
+                flushCount.incrementAndGet()
+                latch.countDown()
+            }
+        }
+        val activeSession = ActiveSessionState(
+            sessionId = sessionId,
+            profileId = "profile-chunked",
+            ptyOutputStream = outputStream,
+        )
+        ConnectionStateRepository.sessions[sessionId] = activeSession
+
+        try {
+            val clipboard = application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            clipboard.setPrimaryClip(ClipData.newPlainText("large", longString))
+
+            viewModel.onPasteTextFromClipboard(session)
+
+            val completed = latch.await(5, TimeUnit.SECONDS)
+            assertTrue("Large paste should complete across chunk flushes", completed)
+            assertEquals(3, flushCount.get())
+            assertEquals(totalLength, outputStream.size())
+            assertEquals(longString, outputStream.toString("UTF-8"))
+        } finally {
+            ConnectionStateRepository.sessions.remove(sessionId)
+        }
+    }
+
+    @Test
     fun `test onCleared clears sessions`() {
         viewModel.getContext = { application }
         viewModel.getOrCreateSession("session-123", application)

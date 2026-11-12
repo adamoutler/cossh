@@ -345,7 +345,7 @@ fun SettingsScreenContent(
     onFontSizeChange: (Int) -> Unit = {},
     extraKeysPreset: com.adamoutler.ssh.ui.components.ExtraKeysPresetId = com.adamoutler.ssh.ui.components.ExtraKeysPresetId.DEFAULT,
     onExtraKeysPresetChange: (com.adamoutler.ssh.ui.components.ExtraKeysPresetId) -> Unit = {},
-    allowOsc52Clipboard: Boolean = false,
+    allowOsc52Clipboard: Boolean = true,
     onAllowOsc52ClipboardChange: (Boolean) -> Unit = {},
     selectedCursorStyle: TerminalCursorStyle = TerminalCursorStyle.BLOCK,
     onCursorStyleChange: (TerminalCursorStyle) -> Unit = {},

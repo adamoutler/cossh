@@ -40,7 +40,7 @@ class TerminalViewModel(application: Application) :
         false
     }
 
-    var allowOsc52Clipboard: Boolean = isRobolectric
+    var allowOsc52Clipboard: Boolean = true
     var bracketedPasteEnabled: Boolean = false
 
     private val storageManager = SecurityStorageManager(application)
@@ -221,7 +221,7 @@ class TerminalViewModel(application: Application) :
     override fun onCopyTextToClipboard(session: TerminalSession, text: String) {
         val context = getContext?.invoke() ?: return
         val isAllowed = if (context.getSharedPreferences("cossh_settings", Context.MODE_PRIVATE).contains("allow_osc52_clipboard")) {
-            context.getSharedPreferences("cossh_settings", Context.MODE_PRIVATE).getBoolean("allow_osc52_clipboard", false)
+            context.getSharedPreferences("cossh_settings", Context.MODE_PRIVATE).getBoolean("allow_osc52_clipboard", true)
         } else {
             allowOsc52Clipboard
         }
@@ -278,9 +278,19 @@ class TerminalViewModel(application: Application) :
             val activeSession = com.adamoutler.ssh.network.ConnectionStateRepository.sessions[sessionId] ?: return@launch
             val ptyOutputStream = activeSession.ptyOutputStream ?: return@launch
             try {
-                synchronized(ptyOutputStream) {
-                    ptyOutputStream.write(textToSend.toByteArray(Charsets.UTF_8))
-                    ptyOutputStream.flush()
+                val bytes = textToSend.toByteArray(Charsets.UTF_8)
+                val chunkSize = 256
+                var offset = 0
+                while (offset < bytes.size) {
+                    val length = minOf(chunkSize, bytes.size - offset)
+                    synchronized(ptyOutputStream) {
+                        ptyOutputStream.write(bytes, offset, length)
+                        ptyOutputStream.flush()
+                    }
+                    offset += length
+                    if (offset < bytes.size) {
+                        kotlinx.coroutines.delay(10L)
+                    }
                 }
             } catch (e: Exception) {
                 com.adamoutler.ssh.util.AppLog.e("TerminalViewModel", "Failed to paste text: ${e.message}", e)

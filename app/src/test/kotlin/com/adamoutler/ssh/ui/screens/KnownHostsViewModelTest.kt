@@ -169,4 +169,12 @@ class KnownHostsViewModelTest {
         assertEquals(fingerprint, clipboard.primaryClip?.getItemAt(0)?.text?.toString())
         assertTrue(viewModel.uiState.value.statusMessage!!.contains("Fingerprint copied"))
     }
+
+    @Test
+    fun testKnownHostsViewModel_reflectionInstantiationByAndroidViewModelFactory() {
+        val factory = androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.getInstance(app)
+        val vm = factory.create(KnownHostsViewModel::class.java)
+        assertNotNull("KnownHostsViewModel must instantiate cleanly via AndroidViewModelFactory", vm)
+        assertNotNull(vm.uiState.value)
+    }
 }

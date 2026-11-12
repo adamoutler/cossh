@@ -68,7 +68,7 @@ data class KnownHostsUiState(
         get() = entries.count { !it.isCertAuthority && it.keyType.contains("ecdsa", ignoreCase = true) }
 }
 
-open class KnownHostsViewModel(
+open class KnownHostsViewModel @JvmOverloads constructor(
     application: Application,
     private val knownHostsManager: KnownHostsManager = KnownHostsManager(application),
 ) : AndroidViewModel(application) {

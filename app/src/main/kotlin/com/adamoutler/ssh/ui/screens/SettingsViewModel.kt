@@ -45,7 +45,7 @@ data class SettingsUiState(
     val appLockTimeoutSeconds: Int = SettingsManager.DEFAULT_APP_LOCK_TIMEOUT_SECONDS,
     val globalFontSize: Int = 14,
     val extraKeysPreset: com.adamoutler.ssh.ui.components.ExtraKeysPresetId = com.adamoutler.ssh.ui.components.ExtraKeysPresetId.DEFAULT,
-    val allowOsc52Clipboard: Boolean = false,
+    val allowOsc52Clipboard: Boolean = true,
     val globalCursorStyle: TerminalCursorStyle = TerminalCursorStyle.BLOCK,
     val globalCursorBlink: Boolean = true,
     val isScreenshotBlockingEnabled: Boolean = false,
