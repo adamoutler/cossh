@@ -32,7 +32,7 @@ Builds:
   - versionName: '1.898'
     versionCode: 898
     commit: 'v1.898'
-    ndk: r27b
+    ndk: r29
     gradle:
       - yes
     gradleflags:

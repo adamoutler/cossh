@@ -402,6 +402,14 @@ class ReleaseBundleAndMetadataVerificationTest {
         assertTrue("F-Droid recipe must declare Description", content.contains("Description:"))
         assertTrue("F-Droid recipe must declare Builds", content.contains("Builds:"))
         assertTrue("F-Droid recipe must declare AntiFeatures", content.contains("AntiFeatures:"))
+        assertTrue("F-Droid recipe must specify ndk: r29", content.contains("ndk: r29"))
+        assertTrue("F-Droid recipe must pass -PbuildUnsigned=true", content.contains("-PbuildUnsigned=true"))
         assertFalse("F-Droid recipe must not contain broken subdir: app", content.contains("subdir: app"))
+
+        // Verify build.gradle.kts has matching NDK and supports buildUnsigned
+        val buildGradle = File(root, "app/build.gradle.kts").readText()
+        assertTrue("app/build.gradle.kts must pin NDK r29", buildGradle.contains("29.0.14206865"))
+        assertTrue("app/build.gradle.kts must support buildUnsigned property", buildGradle.contains("buildUnsigned"))
+        assertTrue("app/build.gradle.kts must set signingConfig = null when buildUnsigned=true", buildGradle.contains("signingConfig = null"))
     }
 }

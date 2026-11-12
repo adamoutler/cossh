@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Regenerates clean, centered, zero-artifact store icons and raster launcher mipmaps for CoSSH.
+Regenerates clean, centered, Deep-Cobalt squircle store icons and raster launcher mipmaps for CoSSH.
 """
 import io
 import os
@@ -26,7 +26,9 @@ SVG_TEMPLATE = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" 
     <path fill="#D0D6DC" d="M 54,38 L 86,54 L 54,70 Z" />
 </svg>"""
 
-def render_standard_icon(size: int) -> Image.Image:
+COBALT_BG = (0, 28, 61, 255) # Deep Cobalt #001C3D matching ic_launcher_background
+
+def render_svg_foreground(size: int) -> Image.Image:
     svg_code = SVG_TEMPLATE.format(size=size)
     p = subprocess.Popen(
         ["convert", "-background", "none", "svg:-", "png:-"],
@@ -37,13 +39,22 @@ def render_standard_icon(size: int) -> Image.Image:
         raise RuntimeError(f"convert failed: {stderr.decode('utf-8')}")
     return Image.open(io.BytesIO(stdout)).convert("RGBA")
 
+def render_squircle_icon(size: int) -> Image.Image:
+    fg = render_svg_foreground(size)
+    scale = 4
+    high = Image.new("RGBA", (size * scale, size * scale), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(high)
+    radius = int((size * scale) * 0.18)
+    draw.rounded_rectangle((0, 0, size * scale - 1, size * scale - 1), radius=radius, fill=COBALT_BG)
+    bg = high.resize((size, size), Image.Resampling.LANCZOS)
+    return Image.alpha_composite(bg, fg)
+
 def render_round_icon(size: int) -> Image.Image:
-    fg = render_standard_icon(size)
-    # Scale 4x for supersampled circle
+    fg = render_svg_foreground(size)
     scale = 4
     high_res = Image.new("RGBA", (size * scale, size * scale), (0, 0, 0, 0))
     draw = ImageDraw.Draw(high_res)
-    draw.ellipse((0, 0, size * scale - 1, size * scale - 1), fill=(0, 0, 0, 255))
+    draw.ellipse((0, 0, size * scale - 1, size * scale - 1), fill=COBALT_BG)
     circle_bg = high_res.resize((size, size), Image.Resampling.LANCZOS)
     
     combined = Image.alpha_composite(circle_bg, fg)
@@ -59,10 +70,13 @@ def render_round_icon(size: int) -> Image.Image:
 
 def generate_all():
     # 1. 512x512 Master Store Icon
-    icon_512 = render_standard_icon(512)
+    icon_512 = render_squircle_icon(512)
     os.makedirs("docs/img", exist_ok=True)
     icon_512.save("docs/img/icon.png", format="PNG", optimize=True)
-    print("Saved docs/img/icon.png (512x512, RGBA, zero smudge)")
+    
+    os.makedirs("fastlane/metadata/android/en-US/images", exist_ok=True)
+    icon_512.save("fastlane/metadata/android/en-US/images/icon.png", format="PNG", optimize=True)
+    print("Saved docs/img/icon.png & fastlane icon.png (512x512, RGBA, squircle background)")
 
     # 2. Raster Launcher Mipmaps
     densities = {
@@ -76,12 +90,12 @@ def generate_all():
         dir_path = os.path.join("app/src/main/res", folder)
         os.makedirs(dir_path, exist_ok=True)
         
-        std = render_standard_icon(size)
+        std = render_squircle_icon(size)
         std.save(os.path.join(dir_path, "ic_launcher.png"), format="PNG", optimize=True)
         
         rnd = render_round_icon(size)
         rnd.save(os.path.join(dir_path, "ic_launcher_round.png"), format="PNG", optimize=True)
-        print(f"Generated {folder}: {size}x{size} std & round")
+        print(f"Generated {folder}: {size}x{size} squircle & round")
 
 if __name__ == "__main__":
     generate_all()

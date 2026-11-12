@@ -89,12 +89,15 @@ android {
 
             val keystorePath = System.getenv("KEYSTORE_FILE") ?: localProperties.getProperty("keystore.file")
             
+            val isBuildUnsigned = project.hasProperty("buildUnsigned") && project.property("buildUnsigned") == "true"
             if (keystorePath != null && file(keystorePath).exists()) {
                 storeFile = file(keystorePath)
                 storePassword = System.getenv("KEYSTORE_PASSWORD") ?: localProperties.getProperty("keystore.password")
                 keyAlias = System.getenv("KEY_ALIAS") ?: localProperties.getProperty("key.alias")
                 keyPassword = System.getenv("KEY_PASSWORD") ?: localProperties.getProperty("key.password")
                 println("🔒 Using Release Keystore for signing.")
+            } else if (isBuildUnsigned) {
+                println("ℹ️  buildUnsigned=true specified: release build will be unsigned.")
             } else {
                 println("⚠️  Release keystore not found or not configured. Falling back to default debug keystore.")
                 initWith(signingConfigs.getByName("debug"))
@@ -114,7 +117,11 @@ android {
             ndk {
                 debugSymbolLevel = "SYMBOL_TABLE"
             }
-            signingConfig = signingConfigs.findByName("release")
+            if (project.hasProperty("buildUnsigned") && project.property("buildUnsigned") == "true") {
+                signingConfig = null
+            } else {
+                signingConfig = signingConfigs.findByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
