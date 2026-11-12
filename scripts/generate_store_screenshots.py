@@ -49,21 +49,32 @@ def draw_header(draw, badge_text, title_text, sub_text):
 def draw_tab_bar(draw, start_y):
     y = start_y
     h = 56
+    # 3 tabs + 1 add button across CANVAS_W - 108 (972 px total width)
+    # Tab 1: x = 54 .. 350 (width 296)
+    # Tab 2: x = 360 .. 656 (width 296)
+    # Tab 3: x = 666 .. 962 (width 296)
+    # Add Tab: x = 972 .. 1026 (width 54)
+    font_tab = ImageFont.truetype(FONT_BOLD, 19)
+    font_tab_reg = ImageFont.truetype(FONT_REGULAR, 19)
+    font_plus = ImageFont.truetype(FONT_BOLD, 26)
+
     # Tab 1 Active
-    draw.rounded_rectangle((54, y, 360, y + h), radius=10, fill=COBALT_PRIMARY, outline=BADGE_BLUE, width=2)
-    draw.text((70, y + 16), "[SSH] prod-bastion-01  X", fill=TEXT_WHITE, font=font_ui_bold)
+    draw.rounded_rectangle((54, y, 350, y + h), radius=10, fill=COBALT_PRIMARY, outline=BADGE_BLUE, width=2)
+    draw.text((68, y + 17), "[SSH] prod-bastion-01", fill=TEXT_WHITE, font=font_tab)
+    draw.text((324, y + 16), "x", fill=(190, 215, 255), font=font_tab)
 
     # Tab 2 Inactive
-    draw.rounded_rectangle((370, y, 660, y + h), radius=10, fill=CARD_BG, outline=CARD_BORDER, width=1)
-    draw.text((386, y + 16), "[SSH] k8s-control-plane", fill=TEXT_MUTED, font=font_ui_body)
+    draw.rounded_rectangle((360, y, 656, y + h), radius=10, fill=CARD_BG, outline=CARD_BORDER, width=1)
+    draw.text((374, y + 17), "[SSH] k8s-control", fill=TEXT_MUTED, font=font_tab_reg)
 
     # Tab 3 Inactive (Telnet)
-    draw.rounded_rectangle((670, y, 920, y + h), radius=10, fill=CARD_BG, outline=CARD_BORDER, width=1)
-    draw.text((686, y + 16), "[TELNET] core-switch", fill=AMBER_WARN, font=font_ui_body)
+    draw.rounded_rectangle((666, y, 962, y + h), radius=10, fill=CARD_BG, outline=CARD_BORDER, width=1)
+    draw.text((680, y + 17), "[TELNET] core-switch", fill=AMBER_WARN, font=font_tab_reg)
 
     # Add Tab Button
-    draw.rounded_rectangle((932, y, 1026, y + h), radius=10, fill=CARD_BG, outline=BADGE_BLUE, width=2)
-    draw.text((966, y + 12), "+", fill=BADGE_BLUE, font=font_ui_title)
+    draw.rounded_rectangle((972, y, 1026, y + h), radius=10, fill=CARD_BG, outline=BADGE_BLUE, width=2)
+    plus_w = int(draw.textlength("+", font_plus))
+    draw.text((972 + (54 - plus_w) // 2, y + 13), "+", fill=BADGE_BLUE, font=font_plus)
 
 def draw_extra_keys(draw, start_y):
     y = start_y
@@ -383,28 +394,41 @@ def render_screen_5():
     draw_header(draw, "Secure Tunneling", "PORT FORWARDING & SOCKS5 PROXY", "Local, Remote & Dynamic SOCKS5 Tunnels with One-Touch Control")
 
     tunnels = [
-        ("PostgreSQL Production Tunnel", "Local Forward", "127.0.0.1:5432 -> prod-db.internal:5432", "ACTIVE - 1.2 MB Transferred - Low Latency"),
-        ("Corporate Web Proxy (SOCKS5)", "Dynamic Proxy", "127.0.0.1:1080 -> Dynamic SOCKS5 Bastion", "ACTIVE - 4.8 MB Transferred - Pinned Wire"),
-        ("Webhook Ingress Endpoint", "Remote Forward", "0.0.0.0:8080 -> 127.0.0.1:3000", "ACTIVE - 256 KB Transferred - Encrypted Tunnel"),
-        ("Redis Cache Cluster Tunnel", "Local Forward", "127.0.0.1:6379 -> redis-master.internal:6379", "IDLE - Ready for One-Touch Connect")
+        ("PostgreSQL Production Tunnel", "Local Forward", "127.0.0.1:5432 -> prod-db.internal:5432", "ACTIVE - 1.2 MB Transferred - Low Latency", True),
+        ("Corporate Web Proxy (SOCKS5)", "Dynamic Proxy", "127.0.0.1:1080 -> Dynamic SOCKS5 Bastion", "ACTIVE - 4.8 MB Transferred - Pinned Wire", True),
+        ("Webhook Ingress Endpoint", "Remote Forward", "0.0.0.0:8080 -> 127.0.0.1:3000", "ACTIVE - 256 KB Transferred - Encrypted Tunnel", True),
+        ("Redis Cache Cluster Tunnel", "Local Forward", "127.0.0.1:6379 -> redis-master.internal:6379", "IDLE - Ready for One-Touch Connect", False)
     ]
     cur_y = 240
-    for name, typ, route, stat in tunnels:
-        draw.rounded_rectangle((54, cur_y, CANVAS_W - 54, cur_y + 180), radius=14, fill=CARD_BG, outline=COBALT_PRIMARY, width=2)
+    for name, typ, route, stat, is_active in tunnels:
+        draw.rounded_rectangle((54, cur_y, CANVAS_W - 54, cur_y + 180), radius=14, fill=CARD_BG, outline=COBALT_PRIMARY if is_active else CARD_BORDER, width=2)
         draw.text((76, cur_y + 20), name, fill=TEXT_WHITE, font=font_ui_title)
         
         # Dynamic pill width
         bw = int(draw.textlength(typ, font_ui_badge)) + 24
-        draw.rounded_rectangle((76, cur_y + 60, 76 + bw, cur_y + 92), radius=6, fill=COBALT_PRIMARY)
+        draw.rounded_rectangle((76, cur_y + 60, 76 + bw, cur_y + 92), radius=6, fill=COBALT_PRIMARY if is_active else (30, 41, 59))
         draw.text((88, cur_y + 68), typ, fill=TEXT_WHITE, font=font_ui_badge)
         
         # Route placed strictly after badge with 18px clearance
-        draw.text((76 + bw + 18, cur_y + 66), route, fill=BADGE_BLUE, font=font_mono)
+        draw.text((76 + bw + 18, cur_y + 66), route, fill=BADGE_BLUE if is_active else TEXT_MUTED, font=font_mono)
         draw.text((76, cur_y + 116), stat, fill=TEXT_MUTED, font=font_ui_body)
         
-        # Action toggle
-        draw.rounded_rectangle((860, cur_y + 40, 990, cur_y + 96), radius=10, fill=GREEN_SECURE)
-        draw.text((894, cur_y + 56), "ACTIVE", fill=TEXT_WHITE, font=font_ui_bold)
+        # Action toggle with centered text
+        btn_w = 130
+        btn_h = 56
+        btn_x1 = 860
+        btn_x2 = btn_x1 + btn_w
+        btn_y1 = cur_y + 40
+        btn_y2 = btn_y1 + btn_h
+
+        btn_bg = GREEN_SECURE if is_active else (24, 34, 53)
+        btn_outline = GREEN_SECURE if is_active else (71, 85, 105)
+        btn_txt = "ACTIVE" if is_active else "IDLE"
+        btn_txt_col = TEXT_WHITE if is_active else TEXT_MUTED
+
+        draw.rounded_rectangle((btn_x1, btn_y1, btn_x2, btn_y2), radius=10, fill=btn_bg, outline=btn_outline, width=1)
+        tw = int(draw.textlength(btn_txt, font_ui_bold))
+        draw.text((btn_x1 + (btn_w - tw) // 2, btn_y1 + 16), btn_txt, fill=btn_txt_col, font=font_ui_bold)
         cur_y += 200
 
     # Add tunnel panel

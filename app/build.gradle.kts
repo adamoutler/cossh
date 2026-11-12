@@ -79,17 +79,17 @@ android {
         }
     }
 
+    val localProperties = Properties()
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localProperties.load(localPropertiesFile.inputStream())
+    }
+
     signingConfigs {
         create("release") {
-            val localProperties = Properties()
-            val localPropertiesFile = rootProject.file("local.properties")
-            if (localPropertiesFile.exists()) {
-                localProperties.load(localPropertiesFile.inputStream())
-            }
-
             val keystorePath = System.getenv("KEYSTORE_FILE") ?: localProperties.getProperty("keystore.file")
-            
             val isBuildUnsigned = project.hasProperty("buildUnsigned") && project.property("buildUnsigned") == "true"
+            val allowDebugSign = project.hasProperty("allowDebugSignRelease") || project.hasProperty("allowInsecureReleaseSigning")
             if (keystorePath != null && file(keystorePath).exists()) {
                 storeFile = file(keystorePath)
                 storePassword = System.getenv("KEYSTORE_PASSWORD") ?: localProperties.getProperty("keystore.password")
@@ -98,9 +98,11 @@ android {
                 println("🔒 Using Release Keystore for signing.")
             } else if (isBuildUnsigned) {
                 println("ℹ️  buildUnsigned=true specified: release build will be unsigned.")
-            } else {
-                println("⚠️  Release keystore not found or not configured. Falling back to default debug keystore.")
+            } else if (allowDebugSign) {
+                println("⚠️  Release keystore not found or not configured. Falling back to default debug keystore via explicit opt-in.")
                 initWith(signingConfigs.getByName("debug"))
+            } else {
+                println("⚠️  Release keystore not found or not configured. Release signing disabled (unsigned).")
             }
         }
     }
@@ -117,7 +119,11 @@ android {
             ndk {
                 debugSymbolLevel = "SYMBOL_TABLE"
             }
-            if (project.hasProperty("buildUnsigned") && project.property("buildUnsigned") == "true") {
+            val isBuildUnsigned = project.hasProperty("buildUnsigned") && project.property("buildUnsigned") == "true"
+            val allowDebugSign = project.hasProperty("allowDebugSignRelease") || project.hasProperty("allowInsecureReleaseSigning")
+            val keystorePath = System.getenv("KEYSTORE_FILE") ?: localProperties.getProperty("keystore.file")
+            val hasKeystore = keystorePath != null && file(keystorePath).exists()
+            if (isBuildUnsigned || (!hasKeystore && !allowDebugSign)) {
                 signingConfig = null
             } else {
                 signingConfig = signingConfigs.findByName("release")

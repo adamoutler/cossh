@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Generates a 100% synthetic, professional 1024x500 Feature Graphic for CoSSH.
-Zero AI-generated pixels, zero pseudo-text.
+Zero AI-generated pixels, zero pseudo-text, zero text clipping or collisions.
 Combines a deep Cobalt cyber gradient, authentic cryptographic hex streams,
 and vector-rendered CoSSH branding.
 """
@@ -15,7 +15,7 @@ HEIGHT = 500
 
 FONT_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 FONT_REGULAR = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
-FONT_MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"
+FONT_MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 
 def render_svg_icon(size: int) -> Image.Image:
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="{size}" height="{size}">
@@ -55,77 +55,82 @@ def generate_banner():
         draw.line([(0, y), (WIDTH, y)], fill=grid_col, width=1)
 
     # Accent circuit light lines
-    draw.line([(0, 60), (460, 60), (500, 100), (WIDTH, 100)], fill=(30, 80, 150), width=2)
-    draw.line([(0, 440), (480, 440), (520, 400), (WIDTH, 400)], fill=(30, 80, 150), width=2)
+    draw.line([(0, 60), (440, 60), (480, 100), (WIDTH, 100)], fill=(30, 80, 150), width=2)
+    draw.line([(0, 440), (440, 440), (480, 400), (WIDTH, 400)], fill=(30, 80, 150), width=2)
 
     # 3. Left Panel: Authentic Cryptographic Hex & Wire Protocol Stream
-    panel_box = (36, 40, 490, 460)
+    # Panel box is width 424 px (x: 32 .. 456)
+    panel_box = (32, 40, 456, 460)
     draw.rounded_rectangle(panel_box, radius=12, fill=(2, 14, 32), outline=(40, 90, 170), width=1)
 
     # Header for hex panel
-    draw.rounded_rectangle((36, 40, 490, 78), radius=12, fill=(8, 28, 62))
-    font_panel_hdr = ImageFont.truetype(FONT_BOLD, 15)
-    draw.text((54, 50), "COSSH CRYPTOGRAPHIC WIRE TRACE  •  RFC 4253 / RFC 8709", fill=(100, 180, 255), font=font_panel_hdr)
+    draw.rounded_rectangle((32, 40, 456, 76), radius=12, fill=(8, 28, 62))
+    font_panel_hdr = ImageFont.truetype(FONT_BOLD, 12)
+    draw.text((46, 50), "WIRE TRACE  •  RFC 4253 / RFC 8709 PROTOCOL", fill=(100, 180, 255), font=font_panel_hdr)
 
     hex_lines = [
-        "0000: 7373 682d 6564 3235 3531 3920 4141 4141  ssh-ed25519 AAAA",
-        "0010: 4333 4e7a 6143 316c 5a44 4931 4d54 6b41  C3NzaC1lZDI1MTkA",
-        "0020: 4141 4149 494f 7574 6c65 7220 5374 726f  AAAI IOutler Stro",
-        "0030: 6e67 426f 7820 4853 4d20 5665 7269 6669  ngBox HSM Verifi",
-        "0040: 6564 2043 7279 7074 6f20 456e 6769 6e65  ed Crypto Engine",
-        "0050: 736e 7472 7570 3736 3178 3235 3531 392d  sntrup761x25519-",
-        "0060: 7368 6135 3132 406f 7065 6e73 7368 2e63  sha512@openssh.c",
-        "0070: 6f6d 2050 6f73 742d 5175 616e 7475 6d20  om Post-Quantum ",
-        "0080: 4b45 5820 4163 7469 7665 2048 6172 6465  KEX Active Harde",
-        "0090: 6e65 6420 5769 7265 2054 4f46 5520 5665  ned Wire TOFU Ve",
-        "00a0: 7269 6669 6564 2052 616e 646f 6d61 7274  rified Randomart",
-        "00b0: 204f 7065 6e53 5348 2043 4120 5472 7573   OpenSSH CA Trus",
-        "00c0: 7420 5a65 726f 2d4b 6e6f 776c 6564 6765  t Zero-Knowledge",
-        "00d0: 2041 4553 2d32 3536 2d47 434d 2041 7574   AES-256-GCM Aut",
-        "00e0: 6865 6e74 6963 6174 6564 2050 6179 6c6f  henticated Paylo",
-        "00f0: 6164 2032 3530 2c30 3030 2050 424b 4446  ad 250,000 PBKDF"
+        "0000: 7373 682d 6564 3235 3531 3920 4141  ssh-ed25519",
+        "0010: 4333 4e7a 6143 316c 5a44 4931 4d54  C3NzaC1lZDI",
+        "0020: 4141 4149 494f 7574 6c65 7220 5374  Outler Stro",
+        "0030: 6e67 426f 7820 4853 4d20 5665 7269  ngBox HSM V",
+        "0040: 6564 2043 7279 7074 6f20 456e 6769  erified Eng",
+        "0050: 736e 7472 7570 3736 3178 3235 3531  sntrup761x2",
+        "0060: 7368 6135 3132 406f 7065 6e73 7368  sha512@open",
+        "0070: 6f6d 2050 6f73 742d 5175 616e 7475  Post-Quantu",
+        "0080: 4b45 5820 4163 7469 7665 2048 6172  KEX Active ",
+        "0090: 6e65 6420 5769 7265 2054 4f46 5520  Wire TOFU V",
+        "00a0: 7269 6669 6564 2052 616e 646f 6d61  erified Ran",
+        "00b0: 204f 7065 6e53 5348 2043 4120 5472  OpenSSH CA ",
+        "00c0: 7420 5a65 726f 2d4b 6e6f 776c 6564  Zero-Knowle",
+        "00d0: 2041 4553 2d32 3536 2d47 434d 2041  AES-256-GCM",
+        "00e0: 6865 6e74 6963 6174 6564 2050 6179  Authenticat",
+        "00f0: 6164 2032 3530 2c30 3030 2050 424b  250k PBKDF2"
     ]
-    font_mono = ImageFont.truetype(FONT_MONO, 13)
-    cur_y = 92
+    font_mono = ImageFont.truetype(FONT_MONO, 11)
+    cur_y = 88
     for hl in hex_lines:
-        draw.text((54, cur_y), hl, fill=(77, 161, 255), font=font_mono)
+        draw.text((46, cur_y), hl, fill=(77, 161, 255), font=font_mono)
         cur_y += 22
 
     # 4. Right Side: CoSSH Shield + Bold Typography + Features
-    shield_icon = render_svg_icon(180)
-    canvas.paste(shield_icon, (520, 60), shield_icon)
+    # Shield icon: 140x140 at (486, 44)
+    shield_icon = render_svg_icon(140)
+    canvas.paste(shield_icon, (486, 44), shield_icon)
 
-    font_brand = ImageFont.truetype(FONT_BOLD, 74)
-    font_subtitle = ImageFont.truetype(FONT_BOLD, 26)
-    font_sub_detail = ImageFont.truetype(FONT_REGULAR, 20)
-    font_pill = ImageFont.truetype(FONT_BOLD, 15)
+    font_brand = ImageFont.truetype(FONT_BOLD, 62)
+    font_subtitle = ImageFont.truetype(FONT_BOLD, 19)
+    font_h1 = ImageFont.truetype(FONT_BOLD, 21)
+    font_sub_detail = ImageFont.truetype(FONT_REGULAR, 17)
+    font_pill = ImageFont.truetype(FONT_BOLD, 13)
 
     # CoSSH Brand
-    draw.text((716, 76), "CoSSH", fill=(59, 130, 246), font=font_brand)
-    draw.text((714, 74), "CoSSH", fill=(255, 255, 255), font=font_brand)
+    draw.text((646, 56), "CoSSH", fill=(59, 130, 246), font=font_brand)
+    draw.text((644, 54), "CoSSH", fill=(255, 255, 255), font=font_brand)
 
     # Subtitle
-    draw.text((716, 160), "COBALT SSH CLIENT", fill=(77, 161, 255), font=font_subtitle)
-    draw.text((524, 250), "Hardened Root-Level Terminal Security", fill=(255, 255, 255), font=ImageFont.truetype(FONT_BOLD, 24))
-    draw.text((524, 284), "Dedicated StrongBox HSM • Zero-Cleartext Memory", fill=(148, 163, 184), font=font_sub_detail)
-    draw.text((524, 312), "Integrated SFTP • Multi-Session Tabs • Open Source", fill=(148, 163, 184), font=font_sub_detail)
+    draw.text((646, 132), "COBALT SSH CLIENT", fill=(77, 161, 255), font=font_subtitle)
+
+    # Feature headlines (all start at x = 486 and end well before x = 980)
+    draw.text((486, 226), "Hardened Root-Level Terminal Security", fill=(255, 255, 255), font=font_h1)
+    draw.text((486, 264), "Dedicated StrongBox HSM • Zero-Cleartext Memory", fill=(148, 163, 184), font=font_sub_detail)
+    draw.text((486, 298), "Integrated SFTP • Multi-Session Tabs • Open Source", fill=(148, 163, 184), font=font_sub_detail)
 
     # Badges row
-    badges = ["StrongBox HSM", "FIDO2 / WebAuthn", "SFTP Browser", "AES-256 Sync"]
-    bx = 524
-    by = 360
+    badges = ["StrongBox HSM", "FIDO2", "SFTP Browser", "AES-256 Sync"]
+    bx = 486
+    by = 356
     for b in badges:
-        bw = int(draw.textlength(b, font_pill)) + 24
-        draw.rounded_rectangle((bx, by, bx + bw, by + 36), radius=8, fill=(0, 40, 96), outline=(59, 130, 246), width=1)
-        draw.text((bx + 12, by + 9), b, fill=(255, 255, 255), font=font_pill)
-        bx += bw + 12
+        bw = int(draw.textlength(b, font_pill)) + 22
+        draw.rounded_rectangle((bx, by, bx + bw, by + 34), radius=8, fill=(0, 40, 96), outline=(59, 130, 246), width=1)
+        draw.text((bx + 11, by + 8), b, fill=(255, 255, 255), font=font_pill)
+        bx += bw + 10
 
     # Save
     os.makedirs("docs/img", exist_ok=True)
     os.makedirs("fastlane/metadata/android/en-US/images", exist_ok=True)
     canvas.save("docs/img/banner.png", format="PNG", optimize=True)
     canvas.save("fastlane/metadata/android/en-US/images/featureGraphic.png", format="PNG", optimize=True)
-    print("Generated 100% synthetic, artifact-free featureGraphic.png & banner.png (1024x500 RGB)")
+    print("Generated 100% synthetic, unclipped featureGraphic.png & banner.png (1024x500 RGB)")
 
 if __name__ == "__main__":
     generate_banner()

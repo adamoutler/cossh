@@ -412,4 +412,18 @@ class ReleaseBundleAndMetadataVerificationTest {
         assertTrue("app/build.gradle.kts must support buildUnsigned property", buildGradle.contains("buildUnsigned"))
         assertTrue("app/build.gradle.kts must set signingConfig = null when buildUnsigned=true", buildGradle.contains("signingConfig = null"))
     }
+
+    @Test
+    fun testReleaseSigningConfiguration_guardsAgainstSilentDebugKeystoreFallback() {
+        val root = getProjectRoot()
+        val buildGradle = File(root, "app/build.gradle.kts").readText()
+
+        // Verify that release signing guards debug fallback behind explicit opt-in
+        assertTrue("build.gradle.kts must check allowDebugSign / allowDebugSignRelease",
+            buildGradle.contains("allowDebugSign") || buildGradle.contains("allowDebugSignRelease"))
+
+        // Verify that when keystore is missing and allowDebugSign is not set, signingConfig is null
+        assertTrue("build.gradle.kts must disable signing when keystore is absent without allowDebugSign",
+            buildGradle.contains("!hasKeystore && !allowDebugSign"))
+    }
 }
