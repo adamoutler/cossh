@@ -11,8 +11,8 @@ Changelog: https://git.adamoutler.com/aoutler/CoSSH/commits/branch/main
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 1.898
-CurrentVersionCode: 898
+CurrentVersion: 1.908
+CurrentVersionCode: 908
 
 AutoName: CoSSH
 
@@ -29,9 +29,9 @@ RepoType: git
 Repo: https://git.adamoutler.com/aoutler/CoSSH.git
 
 Builds:
-  - versionName: '1.898'
-    versionCode: 898
-    commit: 'v1.898'
+  - versionName: '1.908'
+    versionCode: 908
+    commit: 'v1.908'
     ndk: r29
     gradle:
       - yes
